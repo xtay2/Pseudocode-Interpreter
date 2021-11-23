@@ -1,0 +1,8 @@
+
+main {
+	print(execute("a", 10))
+}
+
+func a(n) {
+	return n
+}

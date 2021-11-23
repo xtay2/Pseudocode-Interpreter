@@ -1,0 +1,12 @@
+COMMENTS
+
+-----------------------------------------
+
+Es ist möglich mit # einen SINGLE_LINE_COMMENT zu beginnen. 
+Es wird kein text mehr interpretiert, der hinter diesem Zeichen steht.
+
+Call wird ausgeführt.
+print("Hello") #Printe Hello
+
+Call wird nicht ausgeführt.
+#print("Hello")

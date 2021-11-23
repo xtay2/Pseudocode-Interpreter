@@ -1,0 +1,16 @@
+IF STATEMENS
+
+-----------------------------------------
+
+Code im Block darunter wird nur ausgeführt wenn die Boolean-Expression true ist. 
+Argument wird automatisch zum bool gecastet.
+
+if 1:
+	print("hi")
+	
+ODER
+
+if true {
+	var a = getNr()
+	print(a)
+}

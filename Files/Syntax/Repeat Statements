@@ -1,0 +1,18 @@
+REPEAT-STATEMENTS
+
+-----------------------------------------
+
+Schleifen in denen Code genau n mal wiederholt wird.
+Argument wird automatisch zum int gecastet.
+
+#Printe fünf mal "hi"
+repeat 5:
+	print("hi")
+	
+ODER
+
+#Printe sieben mal true
+repeat "7" {
+	var a = true
+	print(a)
+}
