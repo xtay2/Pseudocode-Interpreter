@@ -1,6 +1,7 @@
 package programreader.finder;
 
-import extensions.datastructures.sortedlist.SortedList;
+import java.util.ArrayList;
+
 import programreader.expressions.main.functions.Function;
 import programreader.expressions.main.functions.MainFunction;
 import programreader.expressions.main.statements.IfStatement;
@@ -12,12 +13,12 @@ import programreader.program.KeywordType;
 
 public class KeywordFinder {
 
-	public static final SortedList<String> KEYWORDS = keywordsAsStrings();
+	public static final ArrayList<String> KEYWORDS = keywordsAsStrings();
 
 	public static final int MAX_KEYWORD_LENGTH = getMaxKeywordLength();
 
-	private static final SortedList<String> keywordsAsStrings() {
-		SortedList<String> keywords = new SortedList<>();
+	private static final ArrayList<String> keywordsAsStrings() {
+		ArrayList<String> keywords = new ArrayList<>();
 		for (KeywordType k : KeywordType.values())
 			keywords.add(k.keyword);
 		return keywords;

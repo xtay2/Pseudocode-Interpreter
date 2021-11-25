@@ -42,7 +42,7 @@ public class ExpressionFinder {
 				yield KeywordFinder.keywordExpression(arg, line);
 			yield null;
 		case NAME:
-			if (NameFinder.isName(arg))
+			if (Name.isName(arg))
 				yield new Name(arg, line);
 			yield null;
 		case LITERAL:
@@ -58,8 +58,8 @@ public class ExpressionFinder {
 				yield new ExpectedType(arg, line);
 			yield null;
 		case INFIX_OPERATOR:
-			if(arg.length() == 1 && Operator.isOperator(arg.charAt(0)))
-				yield Operator.operatorExpression(arg.charAt(0), line);
+			if(Operator.isOperator(arg))
+				yield Operator.operatorExpression(arg, line);
 			yield null;
 		case DECLARATION:
 			if ("=".equals(arg))

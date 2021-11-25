@@ -1,8 +1,5 @@
 
 main {
-	print(execute("a", 10))
-}
-
-func a(n) {
-	return n
+	text a = 10 + 5
+	print(a)
 }

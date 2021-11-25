@@ -9,8 +9,8 @@ import programreader.expressions.normal.Comma;
 import programreader.expressions.normal.Literal;
 import programreader.expressions.normal.Name;
 import programreader.expressions.normal.OpenBracket;
+import programreader.expressions.normal.Operation;
 import programreader.expressions.special.Expression;
-import programreader.expressions.special.Operation;
 import programreader.expressions.special.Operator;
 import programreader.expressions.special.ValueHolder;
 
@@ -35,10 +35,8 @@ public final class ValueBuilder {
 
 			if (list.get(i) instanceof Literal) {
 				if (i + 1 < list.size() && list.get(i + 1) instanceof Operator) {
-					Operation op = new Operation(i, (Operator) list.get(i + 1), (Literal) list.get(i), build(i + 2));
-					list.remove(i);
-					list.set(i + 1, op);
-					list.remove(i + 2);
+					Operation op = new Operation(i, buildOperation(i));
+					list.add(i, op);
 					return op;
 				} else
 					return (Literal) list.get(i);
@@ -48,10 +46,8 @@ public final class ValueBuilder {
 				if (list.get(i + 1) instanceof Comma || list.get(i + 1) instanceof CloseBracket) {
 					return (Name) list.get(i);
 				} else if (list.get(i + 1) instanceof Operator) {
-					Operation op = new Operation(i, (Operator) list.get(i + 1), (Name) list.get(i + 1), build(i + 2));
+					Operation op = new Operation(i, buildOperation(i));
 					list.set(i, op);
-					list.remove(i + 1);
-					list.remove(i + 1);
 					return op;
 				} else if (list.get(i + 1) instanceof OpenBracket && !(list.get(0) instanceof Function)) {
 					if (list.get(i + 2) instanceof CloseBracket) {
@@ -63,7 +59,8 @@ public final class ValueBuilder {
 					} else {
 						Call c = new Call(lineIndex);
 						c.init(((Name) list.get(i)).getName(), buildParams(i + 2));
-						list.add(i + 2, c); // Name
+						list.set(i, c); // Name
+						list.remove(i + 1);
 						return c;
 					}
 				}
@@ -77,12 +74,32 @@ public final class ValueBuilder {
 		for (int i = pos; i < list.size(); i++) {
 			if (list.get(i) instanceof CloseBracket)
 				break;
-			if (list.get(i) instanceof ValueHolder)
-				params.add(build(i));
+			if (list.get(i) instanceof Name || list.get(i) instanceof Literal) {
+				ValueHolder p = build(i);
+				params.add(p);
+			}
 		}
 		while (!(list.get(pos) instanceof CloseBracket))
 			list.remove(pos);
 		list.remove(pos);
 		return params;
+	}
+
+	private static ArrayList<Expression> buildOperation(int pos) {
+		ArrayList<Expression> operation = new ArrayList<>();
+		for (int i = pos; i < list.size(); i++) {
+			if (list.get(i) instanceof Literal || list.get(i) instanceof Operator)
+				operation.add(list.get(i));
+			else if (list.get(i) instanceof Name) {
+				if (i + 1 < list.size() && list.get(i + 1) instanceof OpenBracket)
+					operation.add((Expression) build(i));
+				else
+					operation.add(list.get(i));
+			} else
+				break;
+		}
+		for (int i = 0; i < operation.size(); i++)
+			list.remove(pos);
+		return operation;
 	}
 }

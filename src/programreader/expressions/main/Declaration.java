@@ -11,6 +11,8 @@ import programreader.interpreter.VarManager;
 import programreader.program.ExpressionType;
 import static helper.Output.*;
 
+import java.util.Arrays;
+
 public class Declaration extends MainExpression {
 
 	private Variable declarationTarget = null;
@@ -44,7 +46,9 @@ public class Declaration extends MainExpression {
 			// declarationTarget ist hier unbekannt. Muss zur Laufzeit erfragt werden.
 			return;
 		}
-		throw new DeclarationException("Illegal declaration. Has to be something like: \"name = value\" or \"var name value\"");
+		throw new DeclarationException(
+				"Illegal declaration. Has to be something like: \"name = value\" or \"var name value\"" + "\nWas "
+						+ Arrays.toString(args));
 	}
 
 	public Name getName() {

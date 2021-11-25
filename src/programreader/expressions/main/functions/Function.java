@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import exceptions.CastingException;
 import exceptions.DeclarationException;
-import extensions.datastructures.dict.Dictionary;
-import extensions.datastructures.dict.DictionaryEntry;
+import extensions.collections.datastructures.Dictionary;
+import extensions.collections.datastructures.DictionaryEntry;
 import programreader.expressions.main.CloseBlock;
 import programreader.expressions.normal.ExpectedReturnType;
 import programreader.expressions.normal.ExpectedType;
@@ -54,7 +54,8 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 					i += 2;
 					continue;
 				}
-				paramBlueprint.add((Name) args[i + 1], null);
+			} else if (args[i] instanceof Name) {
+				paramBlueprint.add((Name) args[i], null);
 				i++;
 				continue;
 			}
@@ -124,11 +125,13 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 			if (paramCount == params.length) {
 				for (int i = 0; i < paramCount; i++) {
 					DictionaryEntry<Name, ExpectedType> param = paramBlueprint.get(i);
-					Variable p = param.getValue() == null ? new Variable(line) : new TypedVar(param.getValue().type, line);
+					Variable p = param.getValue() == null ? new Variable(line)
+							: new TypedVar(param.getValue().type, line);
 					p.initialise(param.getKey(), params[i].getValue());
 				}
 			} else
-				throw new DeclarationException(name + " takes " + paramCount + " parameters. Please call it accordingly.");
+				throw new DeclarationException(
+						name + " takes " + paramCount + " parameters. Please call it accordingly.");
 		} catch (CastingException e) {
 			throw new DeclarationException("Passed a value with an unwanted type to " + name + ".");
 		}
@@ -141,8 +144,8 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 		if (doExecuteNext)
 			Interpreter.execute(line + 1, !isOneLineStatement());
 		if (returnType != null && returnVal == null)
-			throw new IllegalArgumentException(
-					"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
+			throw new IllegalArgumentException("func " + name + " was defined to return a value of type: "
+					+ returnType.getName() + ", but returned nothing.");
 		VarManager.deleteScope(this);
 		return true;
 	}

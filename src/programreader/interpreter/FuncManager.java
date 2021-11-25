@@ -25,7 +25,7 @@ public final class FuncManager {
 	public static int getLine(String name) {
 		Integer line = funcPositions.get(name);
 		if (line == null)
-			throw new IllegalArgumentException("The called function " + name + " doesn't exist.");
+			throw new IllegalArgumentException("The called function " + name + " doesn't exist." + "\n Existing functions: " + funcPositions);
 		return line;
 	}
 }
