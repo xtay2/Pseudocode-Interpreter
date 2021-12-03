@@ -7,7 +7,7 @@ package exceptions;
 public class DeclarationException extends IllegalArgumentException {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public DeclarationException(String errorMsg) {
 		super(errorMsg);
 	}

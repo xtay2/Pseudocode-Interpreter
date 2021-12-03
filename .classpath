@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-17.0.1">
+	<classpathentry exported="true" kind="con"
+		path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-17.0.1">
 		<attributes>
-			<attribute name="module" value="true"/>
+			<attribute name="module" value="true" />
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JavaExtensions"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src" />
+	<classpathentry exported="true" kind="con"
+		path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5" />
+	<classpathentry combineaccessrules="false" kind="src"
+		path="/JavaExtensions" />
+	<classpathentry kind="output" path="bin" />
 </classpath>

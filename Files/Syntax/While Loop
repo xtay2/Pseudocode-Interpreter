@@ -1,0 +1,19 @@
+WHILE-LOOP
+
+-----------------------------------------
+
+Schleifen in denen Code solange wiederholt wird wie die Bedingung wahr ist.
+Argument wird automatisch zum bool gecastet.
+
+#Printe endlos "hi"
+while true:
+	print("hi")
+	
+ODER
+
+#Printe die Zahlen von 0-9
+nr i = 0
+while i < 10 {
+	print(i)
+	i = i + 1
+}

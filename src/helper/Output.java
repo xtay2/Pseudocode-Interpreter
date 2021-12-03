@@ -1,6 +1,6 @@
 package helper;
 
-import programreader.interpreter.VarManager;
+import interpreter.VarManager;
 
 public final class Output {
 

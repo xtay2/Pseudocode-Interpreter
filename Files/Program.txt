@@ -1,5 +1,8 @@
-
 main {
-	text a = 10 + 5
-	print(a)
+	var a = 10
+	
+	var b = container()	
 }
+
+func container():
+	return 10
