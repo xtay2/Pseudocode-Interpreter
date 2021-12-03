@@ -15,8 +15,6 @@ public class DivOperator extends Operator {
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
-		if(fst.asNr() instanceof Integer && sec.asNr() instanceof Integer)
-			return new Value(fst.asInt() / sec.asInt(), Type.NUMBER);
 		return new Value(fst.asDouble() / sec.asDouble(), Type.NUMBER);
 	}
 

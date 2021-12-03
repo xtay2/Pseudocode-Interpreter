@@ -122,12 +122,10 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 		try {
 			int paramCount = paramBlueprint.size();
 			if (paramCount != params.length)
-				throw new DeclarationException(
-						name + " takes " + paramCount + " parameters. Please call it accordingly.");
+				throw new DeclarationException(name + " takes " + paramCount + " parameters. Please call it accordingly.");
 			for (int i = 0; i < paramCount; i++) {
 				DictionaryEntry<Name, ExpectedType> param = paramBlueprint.get(i);
-				Variable p = param.getValue() == null ? new Variable(line)
-						: new TypedVar(param.getValue().type, line);
+				Variable p = param.getValue() == null ? new Variable(line) : new TypedVar(param.getValue().type, line);
 				p.initialise(param.getKey(), params[i].getValue());
 			}
 		} catch (CastingException e) {
@@ -142,8 +140,8 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 		if (doExecuteNext)
 			Interpreter.execute(line + 1, !isOneLineStatement());
 		if (returnType != null && returnVal == null)
-			throw new IllegalArgumentException("func " + name + " was defined to return a value of type: "
-					+ returnType.getName() + ", but returned nothing.");
+			throw new IllegalArgumentException(
+					"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
 		VarManager.deleteScope(this);
 		return true;
 	}

@@ -2,6 +2,7 @@ package interpreter.system;
 
 import java.util.Arrays;
 
+import expressions.special.Type;
 import expressions.special.Value;
 import expressions.special.ValueHolder;
 import helper.Output;
@@ -12,7 +13,7 @@ public final class SystemFunctions {
 	/** Enum with all Systemfunctions and their names. */
 	public static enum SYSTEM_FUNCTION {
 
-		PRINT("print"), EXIT("exit"), EXECUTE("execute");
+		PRINT("print"), EXIT("exit"), EXECUTE("execute"), ROUND("rnd");
 
 		public final String name;
 
@@ -34,6 +35,7 @@ public final class SystemFunctions {
 		case PRINT -> print(params);
 		case EXIT -> exit(params);
 		case EXECUTE -> execute(params);
+		case ROUND -> round(params);
 		default -> throw new NullPointerException();
 		};
 	}
@@ -41,7 +43,8 @@ public final class SystemFunctions {
 	private static Value print(ValueHolder[] params) {
 		if (params.length != 1)
 			throw new IllegalArgumentException("Print takes only one value. Has " + Arrays.toString(params));
-		System.out.println((Output.DEBUG ? "Printing: " : "") + params[0].getValue().asText());
+		Value val = params[0].getValue();
+		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.getType() == Type.BOOL ? val.asBool() : val.asText()));
 		return null;
 	}
 
@@ -62,5 +65,15 @@ public final class SystemFunctions {
 			return Interpreter.call(funcName, true, funcParams);
 		}
 		throw new IllegalArgumentException("The execute-function needs the name of the function that should get executed.");
+	}
+
+	private static Value round(ValueHolder[] params) {
+		if (params.length < 1 || params.length > 2)
+			throw new IllegalArgumentException("Round takes only one or two value. Has " + Arrays.toString(params));
+		double val = params[0].getValue().asDouble();
+		int comma = 0;
+		if (params.length == 2)
+			comma = params[1].getValue().asInt();
+		return new Value((double) Math.round(val * Math.pow(10, comma)) / Math.pow(10, comma), Type.NUMBER);
 	}
 }

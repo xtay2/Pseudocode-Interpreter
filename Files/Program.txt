@@ -1,8 +1,3 @@
 main {
-	var a = 10
-	
-	var b = container()	
-}
 
-func container():
-	return 10
+}
