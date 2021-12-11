@@ -2,8 +2,6 @@ package expressions.normal;
 
 import datatypes.Castable;
 import expressions.special.Expression;
-import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import parser.program.ExpressionType;
 

@@ -25,7 +25,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c));
-		return new ArrayValue(Type.VAR_ARRAY, params);
+		return new ArrayValue(Type.VAR_ARRAY, params, true);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c).asBool());
-		return new ArrayValue(Type.BOOL_ARRAY, params);
+		return new ArrayValue(Type.BOOL_ARRAY, params, true);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c));
-		return new ArrayValue(Type.TEXT_ARRAY, params);
+		return new ArrayValue(Type.TEXT_ARRAY, params, true);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c).asNumber());
-		return new ArrayValue(Type.NUMBER_ARRAY, params);
+		return new ArrayValue(Type.NUMBER_ARRAY, params, true);
 	}
 
 	@Override

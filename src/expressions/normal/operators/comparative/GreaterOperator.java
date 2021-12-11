@@ -1,18 +1,19 @@
-package expressions.normal.operators.logic.comparative;
+package expressions.normal.operators.comparative;
 
 import datatypes.Castable;
+import datatypes.NumberValue;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
-public class EqualsOperator extends Operator implements ComparativeOperator {
+public class GreaterOperator extends Operator implements ComparativeOperator{
 
-	public EqualsOperator(int line, int rank) {
+	public GreaterOperator(int line, int rank) {
 		super(line, rank);
 	}
 
 	@Override
 	public Castable perform(ValueHolder a, ValueHolder b) {
-		return a.getValue().eq(b.getValue());
+		return NumberValue.isSmallerThan(b.getValue().asNumber(), a.getValue().asNumber());
 	}
 
 	@Override

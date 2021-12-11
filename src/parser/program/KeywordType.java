@@ -6,10 +6,8 @@ import expressions.main.loops.FromToLoop;
 import expressions.main.loops.WhileLoop;
 import expressions.main.statements.IfStatement;
 import expressions.main.statements.RepeatStatement;
-import expressions.normal.Variable;
 
 public enum KeywordType {
-
 	/** {@link Function} */
 	FUNC("func"), MAIN("main"), RETURN("return"),
 	/** {@link IfStatement}, {@link ElifStatement}, {@link ElseStatement} */

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import exceptions.CastingException;
 import expressions.special.Type;
+import extensions.annotations.Todo;
 
 public class NumberValue extends Castable {
 
@@ -59,7 +60,10 @@ public class NumberValue extends Castable {
 
 	@Override
 	public TextValue asText() throws CastingException {
-		return new TextValue(value.toPlainString());
+		String s = value.toPlainString();
+		if (s.matches("(\\d+)\\.((([1-9]+)(0+$))|(0+$))"))
+			s = s.replaceAll("(\\.(0+)$|(0+)$)", "");
+		return new TextValue(s);
 	}
 
 	@Override
@@ -123,6 +127,12 @@ public class NumberValue extends Castable {
 		return new NumberValue(a1.value.remainder(a2.value));
 	}
 
+	/** Returns the power of a NumberValue. */
+	@Todo(desc = "Has to deal with negative or")
+	public static Castable pow(NumberValue base, NumberValue exp) {
+		return new NumberValue(base.value.pow(exp.value.intValueExact()));
+	}
+
 	public static BoolValue isSmallerThan(NumberValue a1, NumberValue a2) {
 		return new BoolValue(a1.value.compareTo(a2.value) < 0);
 	}
@@ -130,9 +140,10 @@ public class NumberValue extends Castable {
 	public static BoolValue isSmallerEq(NumberValue a1, NumberValue a2) {
 		return new BoolValue(a1.value.compareTo(a2.value) <= 0);
 	}
-	
+
 	@Override
 	public String toString() {
-		return value.toPlainString();
+		return asText().rawString();
 	}
+
 }

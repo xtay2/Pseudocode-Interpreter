@@ -1,4 +1,4 @@
-package expressions.normal.operators.logic.comparative;
+package expressions.normal.operators.comparative;
 
 /**
  * An interface for all comparative numerical operators, such as.

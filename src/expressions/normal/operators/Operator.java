@@ -1,23 +1,10 @@
 package expressions.normal.operators;
 
 import datatypes.Castable;
-import expressions.normal.operators.arithmetic.AddOperator;
-import expressions.normal.operators.arithmetic.DivOperator;
-import expressions.normal.operators.arithmetic.ModOperator;
-import expressions.normal.operators.arithmetic.MultOperator;
-import expressions.normal.operators.arithmetic.SubOperator;
-import expressions.normal.operators.logic.AndOperator;
-import expressions.normal.operators.logic.NorOperator;
-import expressions.normal.operators.logic.OrOperator;
-import expressions.normal.operators.logic.XorOperator;
-import expressions.normal.operators.logic.comparative.EqualsOperator;
-import expressions.normal.operators.logic.comparative.GreaterEqOperator;
-import expressions.normal.operators.logic.comparative.GreaterOperator;
-import expressions.normal.operators.logic.comparative.LessEqOperator;
-import expressions.normal.operators.logic.comparative.LessOperator;
-import expressions.normal.operators.logic.comparative.NotEqualsOperator;
+import expressions.normal.operators.arithmetic.*;
+import expressions.normal.operators.comparative.*;
+import expressions.normal.operators.logic.*;
 import expressions.special.Expression;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import parser.program.ExpressionType;
 
@@ -51,7 +38,7 @@ public abstract class Operator extends Expression {
 
 	enum InfixOperator {
 		/** Arithmetic */
-		ADD("+", 6), SUB("-", 6), MULT("*", 7), DIV("/", 7), MOD("%", 7),
+		ADD("+", 6), SUB("-", 6), MULT("*", 7), DIV("/", 7), MOD("%", 7), POW("^", 8),
 
 		/** Zuweisungen */
 		ADDI("+=", 1), SUBI("-=", 1), MULTI("*=", 1), DIVI("/=", 1), MODI("%=", 1),
@@ -91,6 +78,8 @@ public abstract class Operator extends Expression {
 			return new DivOperator(line, InfixOperator.DIV.rank);
 		if (InfixOperator.MOD.symbol.equals(s))
 			return new ModOperator(line, InfixOperator.MOD.rank);
+		if (InfixOperator.POW.symbol.equals(s))
+			return new PowOperator(line, InfixOperator.POW.rank);
 		/** Comparison */
 		if (InfixOperator.EQUALS.symbol.equals(s))
 			return new EqualsOperator(line, InfixOperator.EQUALS.rank);

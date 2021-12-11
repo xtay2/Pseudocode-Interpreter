@@ -1,24 +1,23 @@
-package expressions.normal.operators.logic.comparative;
+package expressions.normal.operators.arithmetic;
 
 import datatypes.Castable;
 import datatypes.NumberValue;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
-public class GreaterOperator extends Operator implements ComparativeOperator{
+public class PowOperator extends Operator {
 
-	public GreaterOperator(int line, int rank) {
+	public PowOperator(int line, int rank) {
 		super(line, rank);
 	}
 
 	@Override
 	public Castable perform(ValueHolder a, ValueHolder b) {
-		return NumberValue.isSmallerThan(b.getValue().asNumber(), a.getValue().asNumber());
+		return NumberValue.pow(a.getValue().asNumber(), b.getValue().asNumber());
 	}
 
 	@Override
 	public Associativity getAssociativity() {
 		return Associativity.NONE;
 	}
-
 }

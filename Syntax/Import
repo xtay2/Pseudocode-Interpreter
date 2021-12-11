@@ -1,0 +1,9 @@
+IMPORT STATEMENTS
+
+-----------------------------------------
+
+Code in der angegebenen Datei wird automatisch in das Programm importiert.
+Jede Funktion aus dieser Datei ist nun genauso nutzbar, als hätte man sie
+selbst in die Main-Datei geschrieben.
+
+import stdlib.lang.Math

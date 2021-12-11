@@ -3,10 +3,7 @@ package interpreter.system;
 import java.util.Arrays;
 
 import datatypes.Castable;
-import datatypes.NumberValue;
 import datatypes.TextValue;
-import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
@@ -47,7 +44,7 @@ public final class SystemFunctions {
 		if (params.length != 1)
 			throw new IllegalArgumentException("Print takes only one value. Has " + Arrays.toString(params));
 		Castable val = params[0].getValue();
-		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.toString()));
+		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.asText().rawString()));
 		return null;
 	}
 

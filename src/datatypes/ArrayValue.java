@@ -19,13 +19,24 @@ public final class ArrayValue extends Castable {
 		preInit = a.preInit;
 		content = a.content;
 		type = t;
-		initialised = a.initialised;
+		init();
 	}
 
-	public ArrayValue(Type type, List<ValueHolder> preInit) {
+	/**
+	 * Constructs an array based of a type an multiple parameters.
+	 * 
+	 * @param type       has to be an arraytype.
+	 * @param preInit    is the list of parameters
+	 * @param initialise is true if the array gets build at runtime.
+	 */
+	public ArrayValue(Type type, List<ValueHolder> preInit, boolean initialise) {
 		content = new Castable[preInit.size()];
+		if (!Type.isArrayType(type))
+			throw new IllegalArgumentException("Type has to be an arraytype. Was " + type);
 		this.type = type;
 		this.preInit = preInit;
+		if (initialise)
+			init();
 	}
 
 	@Override
@@ -114,6 +125,12 @@ public final class ArrayValue extends Castable {
 		default -> throw new IllegalArgumentException("Unexpected value: " + type);
 		};
 	}
+	
+	public void set(int idx, Castable var) {
+		if (!initialised)
+			init();
+		content[idx] = var;
+	}
 
 	public int length() {
 		return content.length;
@@ -136,7 +153,7 @@ public final class ArrayValue extends Castable {
 			throw new IllegalArgumentException("Only two arrays of the same type can be concatenated.");
 		ArrayList<ValueHolder> values = new ArrayList<>(Arrays.asList(a1));
 		values.addAll(Arrays.asList(a2));
-		return new ArrayValue(a1.type, values);
+		return new ArrayValue(a1.type, values, true);
 	}
 
 	/** Multiplies an existing Array n times */
@@ -146,11 +163,12 @@ public final class ArrayValue extends Castable {
 		ArrayList<ValueHolder> values = new ArrayList<>(a.length() * n);
 		for (int i = 0; i < n; i++)
 			values.addAll(List.of(a.content));
-		return new ArrayValue(a.type, values);
+		return new ArrayValue(a.type, values, true);
 	}
 
 	@Override
 	public String toString() {
-		return asText().rawString();
+		return String.valueOf(type);
 	}
+
 }

@@ -63,8 +63,8 @@ public class ProgramLine {
 			if (inString && c == '\\') {
 				i++;
 				continue;
-			} 
-			if(!inString)
+			}
+			if (!inString)
 				current = current.strip();
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
 			if (!current.isBlank() && !inString && isNewExpression(current, c)) {
@@ -85,13 +85,13 @@ public class ProgramLine {
 	 * Tells if the current word is a closed expression. The next char is taken to
 	 * confirm this choice.
 	 *
-	 * @return {@code true} if current or next is one of ',', '(', ')', ':'
+	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
 	 */
 	private boolean isNewExpression(String current, char next) {
 		if ((Type.isType(current) && next == '[') || (Type.isType(current.replace("[", "")) && next == ']'))
 			return false;
 
-		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']' };
+		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', '^' };
 		for (char c : oneCharExpressions)
 			if (current.charAt(0) == c || next == c)
 				return true;

@@ -3,8 +3,8 @@ package expressions.normal.operators;
 import java.util.ArrayList;
 
 import datatypes.Castable;
+import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.AndOperator;
-import expressions.normal.operators.logic.comparative.ComparativeOperator;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 

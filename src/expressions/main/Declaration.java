@@ -10,6 +10,7 @@ import exceptions.DeclarationException;
 import expressions.normal.Literal;
 import expressions.normal.Name;
 import expressions.normal.Variable;
+import expressions.normal.array.ArrayAccess;
 import expressions.normal.array.ArrayEnd;
 import expressions.normal.array.ArrayStart;
 import expressions.special.Expression;
@@ -23,11 +24,12 @@ public class Declaration extends MainExpression {
 	private Variable var = null;
 	private ValueHolder val = null;
 	private Name name = null;
-
+	private ArrayAccess arr = null; 
+	
 	private State state;
 
 	enum State {
-		DECLARATION, ASSIGNMENT
+		DECLARATION, ASSIGNMENT, ARRAY_MODIFICATION;
 	}
 
 	public Declaration(int line) {
@@ -63,8 +65,16 @@ public class Declaration extends MainExpression {
 			// declarationTarget ist hier unbekannt. Muss zur Laufzeit erfragt werden.
 			return;
 		}
+		if (args[0]instanceof ArrayAccess a) {
+			state = State.ARRAY_MODIFICATION;
+			arr = a;
+			name = a.name;
+			val = (ValueHolder) args[2];
+			return;
+		}
 		throw new DeclarationException(
-				"Illegal declaration. \nHas to be something like: \"name = value\", \"var name = value\" or \"var[] name = value\"" + "\nWas " + Arrays.toString(args));
+				"Illegal declaration. \nHas to be something like: \"name = value\", \"var name = value\" or \"var[] name = value\""
+						+ "\nWas " + Arrays.toString(args));
 	}
 
 	public Name getName() {
@@ -81,6 +91,8 @@ public class Declaration extends MainExpression {
 			} else if (state == State.ASSIGNMENT) {
 				print("Changing the value of " + name + " to " + value);
 				VarManager.get(name.getName()).setValue(value);
+			} else if (state == State.ARRAY_MODIFICATION) {
+				arr.setValue(value);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();

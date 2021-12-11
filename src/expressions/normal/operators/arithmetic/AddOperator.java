@@ -27,10 +27,10 @@ public class AddOperator extends Operator {
 			return ArrayValue.concat(a1, a2);
 
 		if (fst instanceof ArrayValue a1 && !(sec instanceof ArrayValue))
-			return ArrayValue.concat(a1, new ArrayValue(fst.getType(), List.of(sec)));
+			return ArrayValue.concat(a1, new ArrayValue(fst.getType(), List.of(sec), true));
 
 		if (!(fst instanceof ArrayValue) && sec instanceof ArrayValue a2)
-			return ArrayValue.concat(new ArrayValue(sec.getType(), List.of(fst)), a2);
+			return ArrayValue.concat(new ArrayValue(sec.getType(), List.of(fst), true), a2);
 		
 		return NumberValue.add(fst.asNumber(), sec.asNumber());
 	}

@@ -30,4 +30,8 @@ public enum Type {
 		return stringToType(s) != null;
 	}
 
+	public static boolean isArrayType(Type type) {
+		return type == VAR_ARRAY || type == NUMBER_ARRAY || type == TEXT_ARRAY || type == BOOL_ARRAY;
+	}
+
 }

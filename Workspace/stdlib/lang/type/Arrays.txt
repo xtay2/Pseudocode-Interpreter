@@ -1,0 +1,2 @@
+func length(var[] a) -> nr:
+	return a

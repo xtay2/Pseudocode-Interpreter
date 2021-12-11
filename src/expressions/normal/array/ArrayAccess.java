@@ -1,6 +1,8 @@
 package expressions.normal.array;
 
+import datatypes.ArrayValue;
 import datatypes.Castable;
+import expressions.normal.Name;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 import interpreter.VarManager;
@@ -9,17 +11,20 @@ import interpreter.VarManager;
 public class ArrayAccess extends Expression implements ValueHolder {
 
 	public final ValueHolder index;
-	public final String array;
+	public final Name name;
 
-	public ArrayAccess(int line, String array, ValueHolder index) {
+	public ArrayAccess(int line, Name array, ValueHolder index) {
 		super(line);
-		this.array = array;
+		this.name = array;
 		this.index = index;
 	}
 
 	@Override
 	public Castable getValue() {
-		return VarManager.get(array).getValue();
+		return ((ArrayValue) VarManager.get(name.getName()).getValue()).get((int) index.getValue().asInt().rawInt());
 	}
-
+	
+	public void setValue(Castable var) {
+		((ArrayValue) VarManager.get(name.getName()).getValue()).set((int) index.getValue().asInt().rawInt(), var);
+	}
 }

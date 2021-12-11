@@ -1,4 +1,4 @@
-package expressions.normal.operators.logic.comparative;
+package expressions.normal.operators.comparative;
 
 import datatypes.Castable;
 import datatypes.NumberValue;

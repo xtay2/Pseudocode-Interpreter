@@ -1,5 +1,9 @@
 package codeformatter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 public class Formatter {
 
 	static String[] rawProgram;
@@ -10,6 +14,7 @@ public class Formatter {
 		lineBreakBetweenBlocks(0);
 		convertOneLiners();
 		ident();
+		moveImportsUp();
 		correctSpaces();
 		addMissingMain();
 		return rawProgram;
@@ -58,6 +63,21 @@ public class Formatter {
 		}
 	}
 
+	private static void moveImportsUp() {
+		ArrayList<String> imports = new ArrayList<>();
+		for (int i = 0; i < rawProgram.length; i++) {
+			if(rawProgram[i].startsWith("import")) {
+				imports.add(rawProgram[i]);
+				deleteLine(i);
+			}
+		}
+		Collections.sort(imports, Comparator.reverseOrder());
+		for(String imp : imports) {
+			addLine(0);
+			rawProgram[0] = imp;
+		}
+	}
+
 	private static void convertOneLiners() {
 		for (int i = 0; i < rawProgram.length - 2; i++) {
 			if (!rawProgram[i].isEmpty() && !rawProgram[i + 2].isEmpty()) {
@@ -98,12 +118,12 @@ public class Formatter {
 						j++;
 					}
 				}
-				// Klammern () und []
-				if ((line.charAt(j) == ')' || line.charAt(j) == ']') && line.charAt(j - 1) == ' ') {
+				// Klammern (), [] und ^
+				if ((line.charAt(j) == ')' || line.charAt(j) == ']' || line.charAt(j) == '^') && line.charAt(j - 1) == ' ') {
 					line = removeCharAt(line, j - 1);
 					j--;
 				}
-				if ((line.charAt(j) == '(' || line.charAt(j) == '[') && line.charAt(j + 1) == ' ') {
+				if ((line.charAt(j) == '(' || line.charAt(j) == '[' || line.charAt(j) == '^') && line.charAt(j + 1) == ' ') {
 					line = removeCharAt(line, j + 1);
 					j--;
 				}
