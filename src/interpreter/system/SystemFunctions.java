@@ -2,6 +2,9 @@ package interpreter.system;
 
 import java.util.Arrays;
 
+import datatypes.Castable;
+import datatypes.NumberValue;
+import datatypes.TextValue;
 import expressions.special.Type;
 import expressions.special.Value;
 import expressions.special.ValueHolder;
@@ -13,7 +16,7 @@ public final class SystemFunctions {
 	/** Enum with all Systemfunctions and their names. */
 	public static enum SYSTEM_FUNCTION {
 
-		PRINT("print"), EXIT("exit"), EXECUTE("execute"), ROUND("rnd");
+		PRINT("print"), EXIT("exit"), EXECUTE("execute"), TYPE("type");
 
 		public final String name;
 
@@ -30,26 +33,26 @@ public final class SystemFunctions {
 		return null;
 	}
 
-	public static Value callSystemFunc(SYSTEM_FUNCTION func, ValueHolder... params) {
+	public static Castable callSystemFunc(SYSTEM_FUNCTION func, ValueHolder... params) {
 		return switch (func) {
 		case PRINT -> print(params);
 		case EXIT -> exit(params);
 		case EXECUTE -> execute(params);
-		case ROUND -> round(params);
+		case TYPE -> type(params);
 		default -> throw new NullPointerException();
 		};
 	}
 
-	private static Value print(ValueHolder[] params) {
+	private static Castable print(ValueHolder[] params) {
 		if (params.length != 1)
 			throw new IllegalArgumentException("Print takes only one value. Has " + Arrays.toString(params));
-		Value val = params[0].getValue();
-		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.getType() == Type.BOOL ? val.asBool() : val.asText()));
+		Castable val = params[0].getValue();
+		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.toString()));
 		return null;
 	}
 
-	private static Value exit(ValueHolder[] params) {
-		String exitMsg = "Exit";
+	private static Castable exit(ValueHolder[] params) {
+		Castable exitMsg = new TextValue("Exit");
 		if (params.length == 1)
 			exitMsg = params[0].getValue().asText();
 		System.err.println(exitMsg);
@@ -57,9 +60,9 @@ public final class SystemFunctions {
 		return null;
 	}
 
-	private static Value execute(ValueHolder[] params) {
+	private static Castable execute(ValueHolder[] params) {
 		if (params.length > 0) {
-			String funcName = params[0].getValue().asText();
+			String funcName = params[0].getValue().asText().rawString();
 			ValueHolder[] funcParams = new ValueHolder[params.length - 1];
 			System.arraycopy(params, 1, funcParams, 0, params.length - 1);
 			return Interpreter.call(funcName, true, funcParams);
@@ -67,13 +70,9 @@ public final class SystemFunctions {
 		throw new IllegalArgumentException("The execute-function needs the name of the function that should get executed.");
 	}
 
-	private static Value round(ValueHolder[] params) {
-		if (params.length < 1 || params.length > 2)
-			throw new IllegalArgumentException("Round takes only one or two value. Has " + Arrays.toString(params));
-		double val = params[0].getValue().asDouble();
-		int comma = 0;
-		if (params.length == 2)
-			comma = params[1].getValue().asInt();
-		return new Value((double) Math.round(val * Math.pow(10, comma)) / Math.pow(10, comma), Type.NUMBER);
+	private static Castable type(ValueHolder[] params) {
+		if (params.length != 1)
+			throw new IllegalArgumentException("Type takes just one parameter.");
+		return new TextValue(params[0].getValue().getType().toString());
 	}
 }

@@ -10,7 +10,7 @@ public class OpenBracket extends Expression implements Bracket {
 
 	public OpenBracket(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.CLOSE_BRACKET, ExpressionType.EXPECTED_TYPE, ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(ExpressionType.CLOSE_BRACKET, ExpressionType.EXPECTED_TYPE, ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
 	}
 
 	@Override

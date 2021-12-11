@@ -1,8 +1,13 @@
 package expressions.normal.operators.arithmetic;
 
+import java.util.List;
+
+import datatypes.ArrayValue;
+import datatypes.Castable;
+import datatypes.NumberValue;
+import datatypes.TextValue;
 import expressions.normal.operators.Operator;
 import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 
 public class AddOperator extends Operator {
@@ -12,14 +17,22 @@ public class AddOperator extends Operator {
 	}
 
 	@Override
-	public Value perform(ValueHolder a, ValueHolder b) {
-		Value fst = a.getValue();
-		Value sec = b.getValue();
-		if(fst.getType() == Type.TEXT || sec.getType() == Type.TEXT)
-			return new Value(fst.asText() + sec.asText(), Type.TEXT);
-		if(fst.asNr() instanceof Integer && sec.asNr() instanceof Integer)
-			return new Value(fst.asInt() + sec.asInt(), Type.NUMBER);
-		return new Value(fst.asDouble() + sec.asDouble(), Type.NUMBER);
+	public Castable perform(ValueHolder a, ValueHolder b) {
+		Castable fst = a.getValue();
+		Castable sec = b.getValue();
+		if (fst.getType() == Type.TEXT || sec.getType() == Type.TEXT)
+			return TextValue.concat(fst.asText(), sec.asText());
+
+		if (fst instanceof ArrayValue a1 && sec instanceof ArrayValue a2)
+			return ArrayValue.concat(a1, a2);
+
+		if (fst instanceof ArrayValue a1 && !(sec instanceof ArrayValue))
+			return ArrayValue.concat(a1, new ArrayValue(fst.getType(), List.of(sec)));
+
+		if (!(fst instanceof ArrayValue) && sec instanceof ArrayValue a2)
+			return ArrayValue.concat(new ArrayValue(sec.getType(), List.of(fst)), a2);
+		
+		return NumberValue.add(fst.asNumber(), sec.asNumber());
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package expressions.normal.operators.logic;
 
+import datatypes.BoolValue;
+import datatypes.Castable;
 import expressions.normal.operators.Operator;
-import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 
 public class OrOperator extends Operator{
@@ -12,8 +12,8 @@ public class OrOperator extends Operator{
 	}
 
 	@Override
-	public Value perform(ValueHolder a, ValueHolder b) {
-		return new Value(a.getValue().asBool() || b.getValue().asBool(), Type.BOOL);
+	public Castable perform(ValueHolder a, ValueHolder b) {
+		return BoolValue.or(a.getValue().asBool(), b.getValue().asBool());
 	}
 
 	@Override

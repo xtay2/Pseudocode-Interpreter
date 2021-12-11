@@ -4,7 +4,7 @@ import interpreter.VarManager;
 
 public final class Output {
 
-	public static final String LINE_BREAK = "=========================================================================================================================\n";
+	public static final String LINE_BREAK = "=".repeat(70) + "\n";
 	public static final String UNDERLINE = "\n----------------------";
 
 	public static final boolean DEBUG = false;

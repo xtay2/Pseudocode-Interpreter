@@ -1,8 +1,8 @@
 package expressions.normal.operators.arithmetic;
 
+import datatypes.Castable;
+import datatypes.NumberValue;
 import expressions.normal.operators.Operator;
-import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 
 public class DivOperator extends Operator {
@@ -12,10 +12,10 @@ public class DivOperator extends Operator {
 	}
 
 	@Override
-	public Value perform(ValueHolder a, ValueHolder b) {
-		Value fst = a.getValue();
-		Value sec = b.getValue();
-		return new Value(fst.asDouble() / sec.asDouble(), Type.NUMBER);
+	public Castable perform(ValueHolder a, ValueHolder b) {
+		Castable fst = a.getValue();
+		Castable sec = b.getValue();
+		return NumberValue.div(fst.asNumber(), sec.asNumber());
 	}
 
 	@Override

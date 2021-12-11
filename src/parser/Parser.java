@@ -4,6 +4,7 @@ import static helper.Output.LINE_BREAK;
 import static helper.Output.UNDERLINE;
 import static helper.Output.print;
 
+import codeformatter.Formatter;
 import helper.FileManager;
 import parser.program.Program;
 
@@ -18,7 +19,8 @@ public final class Parser {
 	 * @return
 	 */
 	public static Program parse(String path) {
-		String[] lineArray = FileManager.fileToLineArray(path);
+		String[] lineArray = Formatter.format(FileManager.fileToLineArray(path));
+		FileManager.writeFile(lineArray, path);
 		int i = 0;
 		Program program = new Program();
 		print("Raw Expressions:" + UNDERLINE);

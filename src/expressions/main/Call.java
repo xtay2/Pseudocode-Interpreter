@@ -5,6 +5,7 @@ import static helper.Output.print;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import datatypes.Castable;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Value;
@@ -39,7 +40,7 @@ public class Call extends MainExpression implements ValueHolder {
 	}
 
 	@Override
-	public Value getValue() {
+	public Castable getValue() {
 		if (parameters == null)
 			return Interpreter.call(calledFunc, true);
 		return Interpreter.call(calledFunc, true, parameters);

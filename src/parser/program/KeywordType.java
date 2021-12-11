@@ -10,12 +10,10 @@ import expressions.normal.Variable;
 
 public enum KeywordType {
 
-	/** {@link Variable} */
-	VAR("var"),
 	/** {@link Function} */
 	FUNC("func"), MAIN("main"), RETURN("return"),
-	/** {@link IfStatement} */
-	IF("if"),
+	/** {@link IfStatement}, {@link ElifStatement}, {@link ElseStatement} */
+	IF("if"), ELIF("elif"), ELSE("else"),
 	/** {@link RepeatStatement} */
 	REPEAT("repeat"),
 	/** {@link WhileLoop} */

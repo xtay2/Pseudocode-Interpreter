@@ -35,7 +35,7 @@ public class WhileLoop extends MainExpression implements Scope {
 		int repetitions = 0;
 		if (!doExecuteNext)
 			throw new IllegalStateException("A while-loop has to be able to call the next line.");
-		while(runCondition.getValue().asBool()) {
+		while(runCondition.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, repetitions);
 			if (!Interpreter.execute(line + 1, !isOneLineStatement())) {

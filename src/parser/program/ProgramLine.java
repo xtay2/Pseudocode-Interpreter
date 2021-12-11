@@ -8,12 +8,17 @@ import java.util.Arrays;
 import exceptions.DeclarationException;
 import expressions.main.CloseBlock;
 import expressions.main.functions.Function;
+import expressions.main.statements.ElifConstruct;
+import expressions.main.statements.ElifStatement;
+import expressions.main.statements.ElseStatement;
+import expressions.main.statements.IfStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.Name;
 import expressions.normal.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
+import expressions.special.Type;
 import parser.Parser;
 import parser.finder.ExpressionFinder;
 
@@ -45,7 +50,7 @@ public class ProgramLine {
 	private void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.TYPED_VAR, ExpressionType.NAME,
+		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.VAR_TYPE, ExpressionType.NAME,
 				ExpressionType.CLOSE_BLOCK };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
@@ -58,10 +63,12 @@ public class ProgramLine {
 			if (inString && c == '\\') {
 				i++;
 				continue;
-			}
+			} 
+			if(!inString)
+				current = current.strip();
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
-			if (current.length() > 0 && !inString && isNewExpression(current.charAt(0), c)) {
-				expectedExpressionTypes = constructExpression(current.strip(), expectedExpressionTypes);
+			if (!current.isBlank() && !inString && isNewExpression(current, c)) {
+				expectedExpressionTypes = constructExpression(current, expectedExpressionTypes);
 				current = "";
 			}
 			// Teste nach Stringgrenzen
@@ -74,10 +81,26 @@ public class ProgramLine {
 		mergeLine();
 	}
 
+	/**
+	 * Tells if the current word is a closed expression. The next char is taken to
+	 * confirm this choice.
+	 *
+	 * @return {@code true} if current or next is one of ',', '(', ')', ':'
+	 */
+	private boolean isNewExpression(String current, char next) {
+		if ((Type.isType(current) && next == '[') || (Type.isType(current.replace("[", "")) && next == ']'))
+			return false;
+
+		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']' };
+		for (char c : oneCharExpressions)
+			if (current.charAt(0) == c || next == c)
+				return true;
+		return next == ' ';
+	}
+
 	/** Merge the important information into the Main Expression. */
 	private void mergeLine() {
 		connectExpressions();
-		print(expressions.toString());
 		main = findMainExpression();
 		// Wenn es eine schließende Klammer suche ihren Partner.
 		if (main instanceof CloseBlock)
@@ -85,7 +108,29 @@ public class ProgramLine {
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		else if (main instanceof ReturnStatement)
 			((ReturnStatement) main).setMyFunc(program.getLine(lineIndex - 1).searchForFunc());
+		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
+		else if (main instanceof ElifStatement || main instanceof ElseStatement)
+			findLastIf().setNextElse((ElifConstruct) main);
 		main.build(expressions.toArray(new Expression[expressions.size()]));
+		print(expressions.toString());
+	}
+
+	/** Returns the last IfStatement or ElifStatement. */
+	private ElifConstruct findLastIf() {
+		if (lineIndex == 0)
+			throw new IllegalStateException("An elif/else Statement needs a predecessing IfStatement.");
+		MainExpression previous = program.getLine(lineIndex - 1).getExpression();
+		if (previous instanceof IfStatement || previous instanceof ElifStatement)
+			return (ElifConstruct) previous;
+		return program.getLine(lineIndex - 1).findLastIf();
+	}
+
+	/** Finds and returns the MainExpression of this line. */
+	private MainExpression findMainExpression() {
+		for (Expression e : expressions)
+			if (e.isMainExpression())
+				return (MainExpression) e;
+		throw new IllegalStateException("Line doesn't contain a main-expression: " + line + "\n" + expressions);
 	}
 
 	/**
@@ -104,14 +149,6 @@ public class ProgramLine {
 		// Funktionen dürfen nicht in anderen Funktionen definiert werden.
 		if (scope != Scope.GLOBAL_SCOPE && expressions.get(0) instanceof Function && !scope.isOneLineStatement())
 			throw new DeclarationException("A function (" + scope.getScopeName() + ") cannot be declared inside another function.");
-	}
-
-	/** Finds and returns the MainExpression of this line. */
-	private MainExpression findMainExpression() {
-		for (Expression e : expressions)
-			if (e.isMainExpression())
-				return (MainExpression) e;
-		throw new IllegalStateException("Line doesn't contain a main-expression: " + line + "\n" + expressions);
 	}
 
 	/**
@@ -165,20 +202,6 @@ public class ProgramLine {
 		if (lineIndex == 0)
 			throw new IllegalStateException("Return-Statement has to be declared inside a function.");
 		return program.getLine(lineIndex - 1).searchForFunc();
-	}
-
-	/**
-	 * Tells if the current word is an closed expression. The next char is taken to
-	 * confirm this choice.
-	 *
-	 * @return {@code true} if current or next is one of [',', '(', ')', ':']
-	 */
-	private boolean isNewExpression(char current, char next) {
-		char oneCharExpressions[] = { ',', '(', ')', ':' };
-		for (char c : oneCharExpressions)
-			if (current == c || next == c)
-				return true;
-		return next == ' ';
 	}
 
 	/**

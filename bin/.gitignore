@@ -1,10 +1,6 @@
-/programreader/
-/files/
-/helper/
-/expressions/
-/system/
-/interpreter/
-/Main.class
-/main/
-/exceptions/
 /parser/
+/expressions/
+/helper/
+/interpreter/
+/codeformatter/
+/datatypes/

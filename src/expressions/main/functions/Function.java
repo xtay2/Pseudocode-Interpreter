@@ -4,6 +4,7 @@ import static helper.Output.print;
 
 import java.util.Arrays;
 
+import datatypes.Castable;
 import exceptions.CastingException;
 import exceptions.DeclarationException;
 import expressions.main.CloseBlock;
@@ -11,13 +12,11 @@ import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
 import expressions.normal.Name;
 import expressions.normal.OpenBlock;
-import expressions.normal.TypedVar;
 import expressions.normal.Variable;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import extensions.datastructures.Dictionary;
 import extensions.datastructures.DictionaryEntry;
@@ -30,7 +29,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	private final Dictionary<Name, ExpectedType> paramBlueprint = new Dictionary<>();
 	protected Name name = null;
-	private Value returnVal = null;
+	private Castable returnVal = null;
 	private Type returnType = null;
 	protected OpenBlock block = null;
 
@@ -83,27 +82,17 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 	 * This method gets called by the ReturnStatement. If a returntype is specified,
 	 * the value gets implicitly casted.
 	 */
-	public void setReturnVal(Value val) {
+	public void setReturnVal(Castable val) {
 		if (returnVal != null && val != null)
 			throw new IllegalStateException("Function " + name + " already has a return value.");
-		if (returnType != null && val != null && val.getType() != returnType) {
-			if (returnType == Type.BOOL)
-				returnVal = new Value(val.asBool(), Type.BOOL);
-			else if (returnType == Type.TEXT)
-				returnVal = new Value(val.asText(), Type.TEXT);
-			else if (returnType == Type.NUMBER) {
-				Number nr = val.asNr();
-				if (nr instanceof Integer)
-					returnVal = new Value(nr, Type.NUMBER);
-				else
-					returnVal = new Value(nr, Type.NUMBER);
-			}
-		} else
+		if (returnType != null && val != null && val.getType() != returnType)
+			returnVal = val.as(returnType);
+		else
 			returnVal = val;
 	}
 
 	@Override
-	public Value getValue() {
+	public Castable getValue() {
 		return returnVal;
 	}
 
@@ -125,8 +114,9 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 				throw new DeclarationException(name + " takes " + paramCount + " parameters. Please call it accordingly.");
 			for (int i = 0; i < paramCount; i++) {
 				DictionaryEntry<Name, ExpectedType> param = paramBlueprint.get(i);
-				Variable p = param.getValue() == null ? new Variable(line) : new TypedVar(param.getValue().type, line);
-				p.initialise(param.getKey(), params[i].getValue());
+				Castable v = params[i].getValue();
+				Variable p = new Variable(line, param.getValue() == null ? v.getType() : param.getValue().type);
+				p.initialise(param.getKey(), v);
 			}
 		} catch (CastingException e) {
 			throw new DeclarationException("Passed a value with an unwanted type to " + name + ".");

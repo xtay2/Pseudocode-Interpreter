@@ -11,7 +11,7 @@ import parser.program.ExpressionType;
  */
 public abstract class Expression {
 
-	/** The line in which this Expression is defined.*/
+	/** The line in which this Expression is defined. */
 	public final int line;
 
 	public Expression(int line) {

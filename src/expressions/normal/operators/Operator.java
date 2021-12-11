@@ -1,17 +1,21 @@
 package expressions.normal.operators;
 
+import datatypes.Castable;
 import expressions.normal.operators.arithmetic.AddOperator;
 import expressions.normal.operators.arithmetic.DivOperator;
+import expressions.normal.operators.arithmetic.ModOperator;
 import expressions.normal.operators.arithmetic.MultOperator;
 import expressions.normal.operators.arithmetic.SubOperator;
 import expressions.normal.operators.logic.AndOperator;
-import expressions.normal.operators.logic.EqualsOperator;
-import expressions.normal.operators.logic.GreaterEqOperator;
-import expressions.normal.operators.logic.GreaterOperator;
-import expressions.normal.operators.logic.LessEqOperator;
-import expressions.normal.operators.logic.LessOperator;
-import expressions.normal.operators.logic.NotEqualsOperator;
+import expressions.normal.operators.logic.NorOperator;
 import expressions.normal.operators.logic.OrOperator;
+import expressions.normal.operators.logic.XorOperator;
+import expressions.normal.operators.logic.comparative.EqualsOperator;
+import expressions.normal.operators.logic.comparative.GreaterEqOperator;
+import expressions.normal.operators.logic.comparative.GreaterOperator;
+import expressions.normal.operators.logic.comparative.LessEqOperator;
+import expressions.normal.operators.logic.comparative.LessOperator;
+import expressions.normal.operators.logic.comparative.NotEqualsOperator;
 import expressions.special.Expression;
 import expressions.special.Value;
 import expressions.special.ValueHolder;
@@ -34,10 +38,10 @@ public abstract class Operator extends Expression {
 		if (rank < 0)
 			throw new IllegalArgumentException("Rank cannot be negative.");
 		this.rank = rank;
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
 	}
 
-	public abstract Value perform(ValueHolder a, ValueHolder b);
+	public abstract Castable perform(ValueHolder a, ValueHolder b);
 
 	public abstract Associativity getAssociativity();
 
@@ -85,6 +89,8 @@ public abstract class Operator extends Expression {
 			return new SubOperator(line, InfixOperator.SUB.rank);
 		if (InfixOperator.DIV.symbol.equals(s))
 			return new DivOperator(line, InfixOperator.DIV.rank);
+		if (InfixOperator.MOD.symbol.equals(s))
+			return new ModOperator(line, InfixOperator.MOD.rank);
 		/** Comparison */
 		if (InfixOperator.EQUALS.symbol.equals(s))
 			return new EqualsOperator(line, InfixOperator.EQUALS.rank);
@@ -103,6 +109,10 @@ public abstract class Operator extends Expression {
 			return new AndOperator(line, InfixOperator.AND.rank);
 		if (InfixOperator.OR.symbol.equals(s))
 			return new OrOperator(line, InfixOperator.OR.rank);
+		if (InfixOperator.NOR.symbol.equals(s))
+			return new NorOperator(line, InfixOperator.NOR.rank);
+		if (InfixOperator.XOR.symbol.equals(s))
+			return new XorOperator(line, InfixOperator.XOR.rank);
 		throw new AssertionError(s + " should be known by now.");
 	}
 

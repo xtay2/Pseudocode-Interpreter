@@ -27,6 +27,19 @@ public final class FileManager {
 	}
 
 	/**
+	 * Write a string into the textfile.
+	 *
+	 * @param content is the string.
+	 * @param path    is the relative path, where the file is stored.
+	 */
+	public static void writeFile(String[] content, String path) {
+		String res = "";
+		for(String line : content)
+			res += line + "\n";
+		writeFile(res.stripTrailing(), path);
+	}
+	
+	/**
 	 * Convert a textfile to a string.
 	 *
 	 * @param path is the relative path, where the file is stored.

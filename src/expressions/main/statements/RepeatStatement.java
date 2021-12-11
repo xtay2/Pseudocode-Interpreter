@@ -32,7 +32,7 @@ public class RepeatStatement extends MainExpression implements Scope {
 	@Override
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		print("Executing Repeat-Statement.");
-		int max = counterInit.getValue().asInt();
+		long max = counterInit.getValue().asInt().rawInt();
 		if (max < 0)
 			throw new IllegalArgumentException("Count of repetitions must be positive.");
 		if (!doExecuteNext)

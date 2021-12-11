@@ -2,14 +2,13 @@ package expressions.main.loops;
 
 import static helper.Output.print;
 
+import datatypes.NumberValue;
 import expressions.main.CloseBlock;
 import expressions.normal.LoopConnector;
 import expressions.normal.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
-import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
@@ -34,7 +33,7 @@ public class FromToLoop extends MainExpression implements Scope {
 		if (args.length > 4 && args[4] instanceof LoopConnector)
 			inc = (ValueHolder) args[5];
 		else
-			inc = new Value(1, Type.NUMBER);
+			inc = new NumberValue(1);
 		if (args[args.length - 1] instanceof OpenBlock)
 			block = (OpenBlock) args[args.length - 1];
 	}
@@ -44,10 +43,10 @@ public class FromToLoop extends MainExpression implements Scope {
 		print("Executing FromToLoop-Loop.");
 		if (!doExecuteNext)
 			throw new IllegalStateException("A for-to-loop has to be able to call the next line.");
-		final int f = from.getValue().asInt();
-		final int t = to.getValue().asInt();
-		final int i = inc.getValue().asInt();
-		for (int cnt = f; (f < t ? cnt < t : cnt > t); cnt = cnt + (f < t ? i : -i)) {
+		final long f = from.getValue().asInt().rawInt();
+		final long t = to.getValue().asInt().rawInt();
+		final long i = inc.getValue().asInt().rawInt();
+		for (long cnt = f; (f < t ? cnt < t : cnt > t); cnt = cnt + (f < t ? i : -i)) {
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, cnt);
 			if (!Interpreter.execute(line + 1, !isOneLineStatement())) {

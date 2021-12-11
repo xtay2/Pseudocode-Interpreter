@@ -12,12 +12,15 @@ import expressions.normal.Name;
 import expressions.normal.OneLineStatement;
 import expressions.normal.OpenBlock;
 import expressions.normal.OpenBracket;
-import expressions.normal.TypedVar;
+import expressions.normal.Variable;
+import expressions.normal.array.ArrayEnd;
+import expressions.normal.array.ArrayStart;
 import expressions.normal.operators.Operator;
 import expressions.special.Expression;
 import expressions.special.Type;
 import expressions.special.Value;
 import parser.program.ExpressionType;
+import parser.program.ValueBuilder;
 
 public class ExpressionFinder {
 
@@ -51,17 +54,17 @@ public class ExpressionFinder {
 			if (KeywordFinder.isKeyword(arg))
 				yield KeywordFinder.keywordExpression(arg, line);
 			yield null;
+		case VAR_TYPE:
+			if ("var".equals(arg) || Type.isType(arg))
+				yield new Variable(line, Type.stringToType(arg));
+			yield null;
 		case NAME:
 			if (Name.isName(arg))
 				yield new Name(arg, line);
 			yield null;
 		case LITERAL:
 			if (Value.isValue(arg))
-				yield new Literal(arg, line);
-			yield null;
-		case TYPED_VAR:
-			if (Type.isType(arg))
-				yield new TypedVar(arg, line);
+				yield new Literal(ValueBuilder.buildLiteral(arg), line);
 			yield null;
 		case EXPECTED_TYPE:
 			if (Type.isType(arg))
@@ -91,6 +94,14 @@ public class ExpressionFinder {
 			if ("}".equals(arg))
 				yield new CloseBlock(line);
 			yield null;
+		case ARRAY_START:
+			if ("[".equals(arg))
+				yield new ArrayStart(line);
+			yield null;
+		case ARRAY_END:
+			if ("]".equals(arg))
+				yield new ArrayEnd(line);
+			yield null;
 		case COMMA:
 			if (",".equals(arg))
 				yield new Comma(line);
@@ -106,8 +117,6 @@ public class ExpressionFinder {
 		case LOOP_CONNECTOR:
 			if ("to".equals(arg) || "in".equals(arg) || "|".equals(arg))
 				yield new LoopConnector(line);
-			yield null;
-		default:
 			yield null;
 		};
 	}

@@ -6,20 +6,20 @@ import expressions.main.CloseBlock;
 import expressions.normal.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
-import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import parser.program.ExpressionType;
 
-public class IfStatement extends MainExpression implements Scope {
+public class IfStatement extends MainExpression implements ElifConstruct {
 
-	private ValueHolder booleanExp = null;
-	private OpenBlock block = null;
+	protected ValueHolder booleanExp = null;
+	protected OpenBlock block = null;
+	protected ElifConstruct nextElse = null;
 
 	public IfStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
 	}
 
 	@Override
@@ -34,15 +34,16 @@ public class IfStatement extends MainExpression implements Scope {
 		print("Executing If-Statement.");
 		if (!doExecuteNext)
 			throw new IllegalStateException("An if-statement has to be able to call the next line.");
-		if (booleanExp.getValue().asBool()) {
+		if (booleanExp.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
 			if (!Interpreter.execute(line + 1, !isOneLineStatement())) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}
 			VarManager.deleteScope(this);
-		}
-		return Interpreter.execute(getEnd(), true);
+		} else if (nextElse != null && !Interpreter.execute(nextElse.getStart(), true))
+			return false;
+		return Interpreter.execute(nextElse == null ? getEnd() : endOfConstruct(), true);
 	}
 
 	@Override
@@ -65,4 +66,18 @@ public class IfStatement extends MainExpression implements Scope {
 		return block == null;
 	}
 
+	/** Initialises the following elif / else statement. */
+	@Override
+	public void setNextElse(ElifConstruct nextElse) {
+		if (this.nextElse != null)
+			throw new IllegalArgumentException("Trying to connect more than one else to this if.");
+		this.nextElse = nextElse;
+	}
+
+	@Override
+	public int endOfConstruct() {
+		if (nextElse != null)
+			return nextElse.endOfConstruct();
+		return getEnd();
+	}
 }

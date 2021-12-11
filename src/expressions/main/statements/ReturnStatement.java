@@ -2,10 +2,10 @@ package expressions.main.statements;
 
 import static helper.Output.print;
 
+import datatypes.Castable;
 import expressions.main.functions.Function;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 import parser.program.ExpressionType;
 
@@ -16,12 +16,12 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 
 	public ReturnStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
 	}
 
 	/** The Returnvalue */
 	@Override
-	public Value getValue() {
+	public Castable getValue() {
 		return val.getValue();
 	}
 

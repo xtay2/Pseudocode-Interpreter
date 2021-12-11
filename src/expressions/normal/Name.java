@@ -1,5 +1,6 @@
 package expressions.normal;
 
+import datatypes.Castable;
 import expressions.special.Expression;
 import expressions.special.Scope;
 import expressions.special.Value;
@@ -15,12 +16,12 @@ public class Name extends Expression implements ValueHolder {
 	public Name(final String name, int line) {
 		super(line);
 		setExpectedExpressions(ExpressionType.DECLARATION, ExpressionType.OPEN_BRACKET, ExpressionType.COMMA, ExpressionType.CLOSE_BRACKET,
-				ExpressionType.ONE_LINE_STATEMENT, ExpressionType.OPEN_BLOCK, ExpressionType.INFIX_OPERATOR, ExpressionType.LOOP_CONNECTOR);
+				ExpressionType.ONE_LINE_STATEMENT, ExpressionType.OPEN_BLOCK, ExpressionType.INFIX_OPERATOR, ExpressionType.LOOP_CONNECTOR, ExpressionType.ARRAY_START, ExpressionType.ARRAY_END);
 		this.name = name;
 	}
 
 	@Override
-	public Value getValue() {
+	public Castable getValue() {
 		return VarManager.get(name).getValue();
 	}
 

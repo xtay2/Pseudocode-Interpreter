@@ -5,11 +5,11 @@ import static helper.Output.print;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import datatypes.NumberValue;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.special.Scope;
 import expressions.special.Type;
-import expressions.special.Value;
 import parser.finder.KeywordFinder;
 
 public final class VarManager {
@@ -48,9 +48,9 @@ public final class VarManager {
 		return stack.height();
 	}
 
-	public static void initCounter(Scope scope, int value) {
-		Variable cnt = new Variable(scope.getStart());
-		cnt.initialise(new Name(String.valueOf(counterName), scope.getStart()), new Value(value, Type.NUMBER));
+	public static void initCounter(Scope scope, long value) {
+		Variable cnt = new Variable(scope.getStart(), Type.NUMBER);
+		cnt.initialise(new Name(String.valueOf(counterName), scope.getStart()), new NumberValue(value));
 		if (counterName > 'p') {
 			System.err.println("DISCOURAGED BEHAVIOUR! USING MORE THAN 8 NESTED LOOPS.");
 			return;
@@ -106,7 +106,7 @@ final class Stack {
 			if (var != null)
 				return var;
 		}
-		throw new IllegalArgumentException("Var " + varName + " doesn't exist.");
+		throw new IllegalArgumentException("Var " + varName + " doesn't exist. \nScopes: " + scopes);
 	}
 
 	public int height() {

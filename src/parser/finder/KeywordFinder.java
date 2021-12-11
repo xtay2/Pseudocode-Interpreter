@@ -7,6 +7,8 @@ import expressions.main.functions.MainFunction;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
 import expressions.main.loops.WhileLoop;
+import expressions.main.statements.ElifStatement;
+import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
 import expressions.main.statements.RepeatStatement;
 import expressions.main.statements.ReturnStatement;
@@ -38,24 +40,26 @@ public class KeywordFinder {
 		return KEYWORDS.contains(string);
 	}
 
-	public static Expression keywordExpression(String arg, int line) {
-		if (KeywordType.VAR.keyword.equals(arg))
-			return new Variable(line);
+	public static Expression keywordExpression(String arg, int line) {	
 		if (KeywordType.FUNC.keyword.equals(arg))
 			return new Function(line);
-		if(KeywordType.MAIN.keyword.equals(arg))
+		if (KeywordType.MAIN.keyword.equals(arg))
 			return new MainFunction(line);
-		if(KeywordType.RETURN.keyword.equals(arg))
+		if (KeywordType.RETURN.keyword.equals(arg))
 			return new ReturnStatement(line);
-		if(KeywordType.IF.keyword.equals(arg))
+		if (KeywordType.IF.keyword.equals(arg))
 			return new IfStatement(line);
-		if(KeywordType.REPEAT.keyword.equals(arg))
+		if (KeywordType.ELIF.keyword.equals(arg))
+			return new ElifStatement(line);
+		if (KeywordType.ELSE.keyword.equals(arg))
+			return new ElseStatement(line);
+		if (KeywordType.REPEAT.keyword.equals(arg))
 			return new RepeatStatement(line);
-		if(KeywordType.WHILE.keyword.equals(arg))
+		if (KeywordType.WHILE.keyword.equals(arg))
 			return new WhileLoop(line);
-		if(KeywordType.FROM.keyword.equals(arg))
+		if (KeywordType.FROM.keyword.equals(arg))
 			return new FromToLoop(line);
-		if(KeywordType.FOR.keyword.equals(arg))
+		if (KeywordType.FOR.keyword.equals(arg))
 			return new ForEachLoop(line);
 		throw new AssertionError("Keyword must be known by now. Was " + arg);
 	}

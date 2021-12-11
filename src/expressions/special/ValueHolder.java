@@ -1,7 +1,9 @@
 package expressions.special;
 
+import datatypes.Castable;
+
 public interface ValueHolder {
 
-	public Value getValue();
+	public Castable getValue();
 
 }
