@@ -1,7 +1,7 @@
 package expressions.main;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.normal.OpenBlock;
+import expressions.normal.brackets.OpenBlock;
 import expressions.special.Bracket;
 import expressions.special.Expression;
 import expressions.special.MainExpression;

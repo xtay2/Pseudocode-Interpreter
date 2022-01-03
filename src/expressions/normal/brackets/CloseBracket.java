@@ -1,4 +1,4 @@
-package expressions.normal;
+package expressions.normal.brackets;
 
 import expressions.special.Bracket;
 import expressions.special.Expression;

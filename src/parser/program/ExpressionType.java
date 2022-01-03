@@ -2,15 +2,15 @@ package parser.program;
 
 import expressions.main.CloseBlock;
 import expressions.main.Declaration;
-import expressions.normal.CloseBracket;
 import expressions.normal.Comma;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
 import expressions.normal.Literal;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
-import expressions.normal.OpenBlock;
-import expressions.normal.OpenBracket;
+import expressions.normal.brackets.CloseBracket;
+import expressions.normal.brackets.OpenBlock;
+import expressions.normal.brackets.OpenBracket;
 import expressions.normal.operators.Operator;
 
 public enum ExpressionType {

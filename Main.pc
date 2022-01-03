@@ -1,10 +1,5 @@
-func helli(){
-	main {
-		print("Neeee")
-	}
-}
-
 main {
-
-}
-
+	if true {
+		if true: print("Hi");
+		
+	}

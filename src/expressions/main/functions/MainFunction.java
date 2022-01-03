@@ -3,7 +3,7 @@ package expressions.main.functions;
 import static helper.Output.print;
 
 import expressions.normal.Name;
-import expressions.normal.OpenBlock;
+import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 import helper.Output;

@@ -7,8 +7,8 @@ import exceptions.parsing.IllegalCodeFormatException;
 import expressions.main.CloseBlock;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
-import expressions.normal.OpenBlock;
 import expressions.normal.Variable;
+import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
@@ -70,7 +70,7 @@ public class ForEachLoop extends MainExpression implements Scope {
 
 	@Override
 	public int getEnd() {
-		return block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
+		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override

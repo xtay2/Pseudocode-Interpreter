@@ -5,7 +5,7 @@ import static helper.Output.print;
 import datatypes.NumberValue;
 import expressions.main.CloseBlock;
 import expressions.normal.LoopConnector;
-import expressions.normal.OpenBlock;
+import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
@@ -66,7 +66,7 @@ public class FromToLoop extends MainExpression implements Scope {
 
 	@Override
 	public int getEnd() {
-		return block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
+		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override

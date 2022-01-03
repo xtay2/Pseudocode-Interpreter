@@ -20,10 +20,9 @@ public class Formatter {
 
 	public static ArrayList<String> format(ArrayList<String> p) {
 		rawProgram = p;
-//		stripTrailing();
-//		lineBreakBetweenBlocks(0);
-//		convertOneLiners();
-//		ident();
+		stripTrailing();
+		lineBreakBetweenBlocks(0);
+		indent();
 //		moveImportsUp();
 //		correctSpaces();
 //		addMissingMain();
@@ -41,38 +40,41 @@ public class Formatter {
 	private static void lineBreakBetweenBlocks(int start) {
 		for (int i = start; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
-			if (line.chars().filter(ch -> ch == '}').count() > 1 || (line.contains("}") && line.stripIndent().length() > 1)) {
+			// Mehr als eine geschlossene Klammer
+			if ((line.chars().filter(ch -> ch == '}').count() > 1
+					// oder es gibt nur eine geschlossene klammer, die aber nicht alleine steht
+					|| (line.contains("}") && line.stripIndent().length() > 1))
+					// und diese klammer(n) nicht in einem String ist
+					&& isNotInString(line.indexOf('}'), line)) {
 				rawProgram.set(i, rawProgram.get(i).replaceFirst("}", ""));
 				rawProgram.add(i + 1, "}");
 				lineBreakBetweenBlocks(i > 2 ? i - 2 : 0);
 				return;
 			}
 			int firstOBr = line.indexOf("{");
-			if (firstOBr != -1 && firstOBr != line.length() - 1) {
-				rawProgram.add(i + 1, rawProgram.get(i).substring(firstOBr + 1, line.length()));
-				rawProgram.set(i, rawProgram.get(i).substring(0, firstOBr + 1));
-			}
-			if (!line.isBlank() && line.stripIndent().charAt(0) == '{') {
-				rawProgram.set(i - 1, rawProgram.get(i) + " {");
-				rawProgram.remove(i);
+			if (firstOBr != -1 && isNotInString(firstOBr, line)) {
+				if (firstOBr != line.length() - 1) {
+					rawProgram.add(i + 1, rawProgram.get(i).substring(firstOBr + 1, line.length()));
+					rawProgram.set(i, rawProgram.get(i).substring(0, firstOBr + 1));
+				}
+				else if (line.stripIndent().charAt(0) == '{') {
+					rawProgram.remove(i);
+					rawProgram.set(i - 1, rawProgram.get(i - 1) + " {");
+				}
 			}
 		}
 	}
 
-	/** Add correct tabwise identation. */
-	private static void ident() {
+	/** Add correct tabwise indentation. */
+	private static void indent() {
 		int brack = 0;
-		String last = null;
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String s = rawProgram.get(i);
 			if (s.indexOf('}') != -1)
 				brack--;
 			rawProgram.set(i, "\t".repeat(brack) + s.stripIndent());
-			if (last != null && !last.isBlank() && last.stripTrailing().charAt(last.length() - 1) == ':')
-				rawProgram.set(i, "\t".repeat(brack + 1) + s.stripIndent());
 			if (s.indexOf('{') != -1)
 				brack++;
-			last = s;
 		}
 	}
 
@@ -88,24 +90,6 @@ public class Formatter {
 		Collections.sort(imports, Comparator.reverseOrder());
 		for (String imp : imports)
 			rawProgram.add(0, imp);
-	}
-
-	/**
-	 * Convert all blocks in brackets that just span one line to one line
-	 * statements.
-	 */
-	@InterferesWithStrings
-	private static void convertOneLiners() {
-		for (int i = 0; i < rawProgram.size() - 2; i++) {
-			if (!rawProgram.get(i).isEmpty() && !rawProgram.get(i + 2).isEmpty()) {
-				char thisC = rawProgram.get(i).charAt(rawProgram.get(i).length() - 1);
-				char nextC = rawProgram.get(i + 2).charAt(rawProgram.get(i + 2).length() - 1);
-				if (thisC == '{' && nextC == '}') {
-					rawProgram.set(i, rawProgram.get(i).substring(0, rawProgram.get(i).length() - 2) + ":");
-					rawProgram.remove(i + 2);
-				}
-			}
-		}
 	}
 
 	/**
@@ -202,6 +186,22 @@ public class Formatter {
 	 */
 	private static String removeCharAt(String s, int i) {
 		return s.substring(0, i) + s.substring(i + 1);
+	}
+
+	/**
+	 * Tells, if a char at a specified index is not in the string boundaries. ("")
+	 * 
+	 * @return true if the index is not in a string.
+	 */
+	public static boolean isNotInString(int index, String line) {
+		boolean inString = false;
+		for (int i = 0; i < index; i++) {
+			if (inString && line.charAt(i) == '\\')
+				i++;
+			else if (line.charAt(i) == '"')
+				inString = !inString;
+		}
+		return !inString && index != -1;
 	}
 
 }

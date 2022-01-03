@@ -13,8 +13,8 @@ import expressions.main.CloseBlock;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
 import expressions.normal.Name;
-import expressions.normal.OpenBlock;
 import expressions.normal.Variable;
+import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
@@ -149,7 +149,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	@Override
 	public int getEnd() {
-		return block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
+		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override
