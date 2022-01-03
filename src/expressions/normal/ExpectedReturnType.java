@@ -1,6 +1,7 @@
 package expressions.normal;
 
 import expressions.special.Expression;
+import helper.Output;
 import parser.program.ExpressionType;
 
 public class ExpectedReturnType extends Expression {
@@ -10,4 +11,8 @@ public class ExpectedReturnType extends Expression {
 		setExpectedExpressions(ExpressionType.EXPECTED_TYPE);
 	}
 
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "->";
+	}
 }

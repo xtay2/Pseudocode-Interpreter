@@ -6,6 +6,7 @@ import expressions.normal.Name;
 import expressions.normal.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import parser.program.ExpressionType;
@@ -15,7 +16,7 @@ public class MainFunction extends Function {
 
 	public MainFunction(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.OPEN_BLOCK, ExpressionType.ONE_LINE_STATEMENT);
+		setExpectedExpressions(ExpressionType.OPEN_BLOCK);
 	}
 
 	@Override
@@ -31,8 +32,13 @@ public class MainFunction extends Function {
 		if (!doExecuteNext)
 			throw new AssertionError("Main Function has to be allowed to execute.");
 		VarManager.registerScope(this);
-		Interpreter.execute(line + 1, !isOneLineStatement());
+		Interpreter.execute(line + 1, true);
 		VarManager.deleteScope(this);
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "main";
 	}
 }

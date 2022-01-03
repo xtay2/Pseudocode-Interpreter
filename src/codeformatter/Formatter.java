@@ -1,99 +1,122 @@
 package codeformatter;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+/**
+ * Methods that are tagged with this annotation can potentially interfere with
+ * strings.
+ */
+@Retention(RetentionPolicy.SOURCE)
+@interface InterferesWithStrings {
+}
+
 public class Formatter {
 
-	static String[] rawProgram;
+	private static ArrayList<String> rawProgram;
 
-	public static String[] format(String[] p) {
+	public static ArrayList<String> format(ArrayList<String> p) {
 		rawProgram = p;
-		stripTrailing();
-		lineBreakBetweenBlocks(0);
-		convertOneLiners();
-		ident();
-		moveImportsUp();
-		correctSpaces();
-		addMissingMain();
+//		stripTrailing();
+//		lineBreakBetweenBlocks(0);
+//		convertOneLiners();
+//		ident();
+//		moveImportsUp();
+//		correctSpaces();
+//		addMissingMain();
 		return rawProgram;
 	}
 
+	/** Remove trailing whitespaces for all lines */
 	private static void stripTrailing() {
-		for (int i = 0; i < rawProgram.length; i++) {
-			rawProgram[i] = rawProgram[i].stripTrailing();
-		}
+		for (int i = 0; i < rawProgram.size(); i++)
+			rawProgram.set(i, rawProgram.get(i).stripTrailing());
 	}
 
+	/** Distribute blockbrackets to multiple lines. */
+	@InterferesWithStrings
 	private static void lineBreakBetweenBlocks(int start) {
-		for (int i = start; i < rawProgram.length; i++) {
-			String line = rawProgram[i];
+		for (int i = start; i < rawProgram.size(); i++) {
+			String line = rawProgram.get(i);
 			if (line.chars().filter(ch -> ch == '}').count() > 1 || (line.contains("}") && line.stripIndent().length() > 1)) {
-				rawProgram[i] = rawProgram[i].replaceFirst("}", "");
-				addLine(i + 1);
-				rawProgram[i + 1] = "}";
+				rawProgram.set(i, rawProgram.get(i).replaceFirst("}", ""));
+				rawProgram.add(i + 1, "}");
 				lineBreakBetweenBlocks(i > 2 ? i - 2 : 0);
 				return;
 			}
 			int firstOBr = line.indexOf("{");
 			if (firstOBr != -1 && firstOBr != line.length() - 1) {
-				addLine(i + 1);
-				rawProgram[i + 1] = rawProgram[i].substring(firstOBr + 1, line.length());
-				rawProgram[i] = rawProgram[i].substring(0, firstOBr + 1);
+				rawProgram.add(i + 1, rawProgram.get(i).substring(firstOBr + 1, line.length()));
+				rawProgram.set(i, rawProgram.get(i).substring(0, firstOBr + 1));
 			}
 			if (!line.isBlank() && line.stripIndent().charAt(0) == '{') {
-				rawProgram[i - 1] += " {";
-				deleteLine(i);
+				rawProgram.set(i - 1, rawProgram.get(i) + " {");
+				rawProgram.remove(i);
 			}
 		}
 	}
 
+	/** Add correct tabwise identation. */
 	private static void ident() {
 		int brack = 0;
-		for (int i = 0; i < rawProgram.length; i++) {
-			String s = rawProgram[i];
-			if (i >= 2 ? rawProgram[i - 2].indexOf(':') != -1 : false)
-				brack--;
+		String last = null;
+		for (int i = 0; i < rawProgram.size(); i++) {
+			String s = rawProgram.get(i);
 			if (s.indexOf('}') != -1)
 				brack--;
-			rawProgram[i] = "\t".repeat(brack) + s.stripIndent();
-			if (s.indexOf('{') != -1 || s.indexOf(':') != -1)
+			rawProgram.set(i, "\t".repeat(brack) + s.stripIndent());
+			if (last != null && !last.isBlank() && last.stripTrailing().charAt(last.length() - 1) == ':')
+				rawProgram.set(i, "\t".repeat(brack + 1) + s.stripIndent());
+			if (s.indexOf('{') != -1)
 				brack++;
+			last = s;
 		}
 	}
 
+	/** Move all import statements to the top of the file */
 	private static void moveImportsUp() {
 		ArrayList<String> imports = new ArrayList<>();
-		for (int i = 0; i < rawProgram.length; i++) {
-			if(rawProgram[i].startsWith("import")) {
-				imports.add(rawProgram[i]);
-				deleteLine(i);
+		for (int i = 0; i < rawProgram.size(); i++) {
+			if (rawProgram.get(i).startsWith("import")) {
+				imports.add(rawProgram.get(i));
+				rawProgram.remove(i);
 			}
 		}
 		Collections.sort(imports, Comparator.reverseOrder());
-		for(String imp : imports) {
-			addLine(0);
-			rawProgram[0] = imp;
-		}
+		for (String imp : imports)
+			rawProgram.add(0, imp);
 	}
 
+	/**
+	 * Convert all blocks in brackets that just span one line to one line
+	 * statements.
+	 */
+	@InterferesWithStrings
 	private static void convertOneLiners() {
-		for (int i = 0; i < rawProgram.length - 2; i++) {
-			if (!rawProgram[i].isEmpty() && !rawProgram[i + 2].isEmpty()) {
-				char thisC = rawProgram[i].charAt(rawProgram[i].length() - 1);
-				char nextC = rawProgram[i + 2].charAt(rawProgram[i + 2].length() - 1);
+		for (int i = 0; i < rawProgram.size() - 2; i++) {
+			if (!rawProgram.get(i).isEmpty() && !rawProgram.get(i + 2).isEmpty()) {
+				char thisC = rawProgram.get(i).charAt(rawProgram.get(i).length() - 1);
+				char nextC = rawProgram.get(i + 2).charAt(rawProgram.get(i + 2).length() - 1);
 				if (thisC == '{' && nextC == '}') {
-					rawProgram[i] = rawProgram[i].substring(0, rawProgram[i].length() - 2) + ":";
-					deleteLine(i + 2);
+					rawProgram.set(i, rawProgram.get(i).substring(0, rawProgram.get(i).length() - 2) + ":");
+					rawProgram.remove(i + 2);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Corrects the spaces around commatas and single-char arithmetic Operators.
+	 * 
+	 * @see {@link Formatter#isArithmeticOperator}
+	 */
+	@InterferesWithStrings
 	private static void correctSpaces() {
-		for (int i = 0; i < rawProgram.length; i++) {
-			String line = rawProgram[i];
+		for (int i = 0; i < rawProgram.size(); i++) {
+			String line = rawProgram.get(i);
 
 			// Entferne alle mehrfachen spaces.
 			while (line.contains("  "))
@@ -103,6 +126,12 @@ public class Formatter {
 			for (int j = 1; j < line.length(); j++) {
 				if (line.charAt(j) == ',' && line.charAt(j - 1) == ' ')
 					line = removeCharAt(line, j - 1);
+			}
+
+			// Füge ein space hinter jedem kommatas ein
+			for (int j = 0; j < line.length() - 1; j++) {
+				if (line.charAt(j) == ',' && line.charAt(j + 1) != ' ')
+					line = insertCharAt(' ', line, j + 1);
 			}
 
 			// Padding für single-char Operators
@@ -128,51 +157,49 @@ public class Formatter {
 					j--;
 				}
 			}
-			rawProgram[i] = line;
+			rawProgram.set(i, line);
 		}
 
 	}
 
+	/**
+	 * Returns true for +, -, *, /, %, and ÷. Returns false for ->.
+	 */
 	private static boolean isArithmeticOperator(char op, char lastChar, char nextChar) {
 		if (op == '-' && nextChar != ' ')
 			return false;
-		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%';
+		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '÷';
 	}
 
+	/**
+	 * Adds a main-function if there isn't one already present.
+	 */
 	private static void addMissingMain() {
 		for (String line : rawProgram) {
 			if (line.stripIndent().startsWith("main"))
 				return;
 		}
-		String[] newProg = new String[rawProgram.length + 4];
-		for (int i = 0; i < rawProgram.length; i++)
-			newProg[i + 4] = rawProgram[i];
+		ArrayList<String> newProg = new ArrayList<String>();
 		rawProgram = newProg;
-		rawProgram[0] = "#Don't forget your main!";
-		rawProgram[1] = "main:";
-		rawProgram[2] = "\texit()";
-		rawProgram[3] = "";
+		rawProgram.add(0, "main:");
+		rawProgram.add(1, "\texit()");
+		rawProgram.add(2, "");
 	}
 
-	private static void addLine(int index) {
-		String[] newProg = new String[rawProgram.length + 1];
-		for (int i = 0; i < rawProgram.length; i++)
-			newProg[i + (index <= i ? 1 : 0)] = rawProgram[i];
-		newProg[index] = "";
-		rawProgram = newProg;
-	}
-
-	private static void deleteLine(int index) {
-		String[] newProg = new String[rawProgram.length - 1];
-		for (int i = 0; i < newProg.length; i++)
-			newProg[i] = rawProgram[i + (index <= i ? 1 : 0)];
-		rawProgram = newProg;
-	}
-
+	/**
+	 * Insert a char into a string at a given index.
+	 * 
+	 * @return the new string with the inserted char.
+	 */
 	private static String insertCharAt(char c, String s, int i) {
 		return s.substring(0, i) + c + s.substring(i);
 	}
 
+	/**
+	 * Remove a char from a string at a given index.
+	 * 
+	 * @return the new string without the deleted char.
+	 */
 	private static String removeCharAt(String s, int i) {
 		return s.substring(0, i) + s.substring(i + 1);
 	}

@@ -3,17 +3,16 @@ package datatypes;
 import java.util.ArrayList;
 import java.util.List;
 
-import exceptions.CastingException;
+import exceptions.runtime.CastingException;
 import expressions.special.Type;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
 
-public class TextValue extends Castable {
+public class TextValue extends Value {
 
 	private final String value;
 
 	public TextValue(char val) {
-		value = String.valueOf(val);
+		this(String.valueOf(val));
 	}
 
 	public TextValue(String val) {
@@ -25,7 +24,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c));
-		return new ArrayValue(Type.VAR_ARRAY, params, true);
+		return new ArrayValue(Type.VAR_ARRAY, params);
 	}
 
 	@Override
@@ -33,7 +32,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c).asBool());
-		return new ArrayValue(Type.BOOL_ARRAY, params, true);
+		return new ArrayValue(Type.BOOL_ARRAY, params);
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c));
-		return new ArrayValue(Type.TEXT_ARRAY, params, true);
+		return new ArrayValue(Type.TEXT_ARRAY, params);
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public class TextValue extends Castable {
 		List<ValueHolder> params = new ArrayList<>(value.length());
 		for (char c : value.toCharArray())
 			params.add(new TextValue(c).asNumber());
-		return new ArrayValue(Type.NUMBER_ARRAY, params, true);
+		return new ArrayValue(Type.NUMBER_ARRAY, params);
 	}
 
 	@Override
@@ -85,12 +84,12 @@ public class TextValue extends Castable {
 	}
 
 	@Override
-	public BoolValue eq(Castable val) {
+	public BoolValue eq(Value val) {
 		return new BoolValue(val instanceof TextValue t && t.value.equals(value));
 	}
 
 	@Override
-	public BoolValue neq(Castable val) {
+	public BoolValue neq(Value val) {
 		return new BoolValue(!(val instanceof TextValue t && t.value.equals(value)));
 	}
 
@@ -110,7 +109,7 @@ public class TextValue extends Castable {
 	public static TextValue multiply(TextValue t, int times) {
 		return new TextValue(t.value.repeat(times));
 	}
-	
+
 	@Override
 	public String toString() {
 		return "\"" + value + "\"";

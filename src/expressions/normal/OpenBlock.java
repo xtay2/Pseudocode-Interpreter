@@ -3,6 +3,7 @@ package expressions.normal;
 import expressions.main.CloseBlock;
 import expressions.special.Bracket;
 import expressions.special.Expression;
+import helper.Output;
 import parser.program.ExpressionType;
 
 public class OpenBlock extends Expression implements Bracket {
@@ -22,5 +23,10 @@ public class OpenBlock extends Expression implements Bracket {
 	@Override
 	public Bracket getMatch() {
 		return myMatch;
+	}
+
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "'{'";
 	}
 }

@@ -34,15 +34,10 @@ public class Program {
 	 * @param content is the code in this line
 	 * @return {@code true} if the line was changed.
 	 */
-	public boolean writeLine(int index, String content) {
+	public boolean appendLine(String content) {
 		if (content == null)
 			throw new NullPointerException("Line can be empty, but not null.");
-		if (index < program.size()) {
-			if(readLine(index).equals(content)) //Line hasn't changed.
-				return false;
-			program.set(index, new ProgramLine(content, index, this)); //Line was changed.
-		} else
-			program.add(index, new ProgramLine(content, index, this)); //Line was added.
+		program.add(new ProgramLine(content, program.size(), this)); // Line was added.
 		return true;
 	}
 

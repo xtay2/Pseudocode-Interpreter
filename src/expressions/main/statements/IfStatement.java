@@ -7,6 +7,7 @@ import expressions.normal.OpenBlock;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import parser.program.ExpressionType;
@@ -33,10 +34,10 @@ public class IfStatement extends MainExpression implements ElifConstruct {
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		print("Executing If-Statement.");
 		if (!doExecuteNext)
-			throw new IllegalStateException("An if-statement has to be able to call the next line.");
+			throw new AssertionError("An if-statement has to be able to call the next line.");
 		if (booleanExp.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
-			if (!Interpreter.execute(line + 1, !isOneLineStatement())) {
+			if (!Interpreter.execute(line + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}
@@ -53,7 +54,7 @@ public class IfStatement extends MainExpression implements ElifConstruct {
 
 	@Override
 	public int getEnd() {
-		return isOneLineStatement() || block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
+		return block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override
@@ -61,16 +62,11 @@ public class IfStatement extends MainExpression implements ElifConstruct {
 		return "if" + getStart() + "-" + getEnd();
 	}
 
-	@Override
-	public boolean isOneLineStatement() {
-		return block == null;
-	}
-
 	/** Initialises the following elif / else statement. */
 	@Override
 	public void setNextElse(ElifConstruct nextElse) {
 		if (this.nextElse != null)
-			throw new IllegalArgumentException("Trying to connect more than one else to this if.");
+			throw new AssertionError("Trying to connect more than one else to this if.");
 		this.nextElse = nextElse;
 	}
 
@@ -79,5 +75,10 @@ public class IfStatement extends MainExpression implements ElifConstruct {
 		if (nextElse != null)
 			return nextElse.endOfConstruct();
 		return getEnd();
+	}
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "if";
 	}
 }

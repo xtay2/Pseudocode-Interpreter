@@ -1,8 +1,7 @@
+/interpreter/
+/main/
 /parser/
+/codeformatter/
 /expressions/
 /helper/
-/interpreter/
-/codeformatter/
 /datatypes/
-/main/
-/Todo.class

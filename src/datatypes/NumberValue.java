@@ -2,12 +2,12 @@ package datatypes;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
-import exceptions.CastingException;
+import exceptions.runtime.CastingException;
 import expressions.special.Type;
-import extensions.annotations.Todo;
 
-public class NumberValue extends Castable {
+public class NumberValue extends Value {
 
 	private final BigDecimal value;
 
@@ -16,10 +16,12 @@ public class NumberValue extends Castable {
 	}
 
 	public NumberValue(BigInteger bigInteger) {
-		value = new BigDecimal(bigInteger);
+		this(new BigDecimal(bigInteger));
 	}
 
 	public NumberValue(BigDecimal val) {
+		if (val.toString().length() > 100)
+			throw new ArithmeticException("Number cannot have more than 100 digits.");
 		value = val;
 	}
 
@@ -72,12 +74,12 @@ public class NumberValue extends Castable {
 	}
 
 	@Override
-	public BoolValue eq(Castable val) {
+	public BoolValue eq(Value val) {
 		return new BoolValue(val instanceof NumberValue t && t.value.equals(value));
 	}
 
 	@Override
-	public BoolValue neq(Castable val) {
+	public BoolValue neq(Value val) {
 		return new BoolValue(!(val instanceof NumberValue t && t.value.equals(value)));
 	}
 
@@ -118,32 +120,27 @@ public class NumberValue extends Castable {
 	}
 
 	/** Divides a NumberValue by another one. */
-	public static Castable div(NumberValue a1, NumberValue a2) {
+	public static Value div(NumberValue a1, NumberValue a2) {
 		return new NumberValue(a1.value.divide(a2.value));
 	}
 
 	/** Returns the remainder of a Numbervalue divided by another one */
-	public static Castable mod(NumberValue a1, NumberValue a2) {
+	public static Value mod(NumberValue a1, NumberValue a2) {
 		return new NumberValue(a1.value.remainder(a2.value));
 	}
 
 	/** Returns the power of a NumberValue. */
-	@Todo(desc = "Has to deal with negative or")
-	public static Castable pow(NumberValue base, NumberValue exp) {
-		return new NumberValue(base.value.pow(exp.value.intValueExact()));
+	public static Value pow(NumberValue base, NumberValue exp) {
+		return new NumberValue(base.value.pow(exp.value.intValueExact(), new MathContext(100)));
 	}
 
+	/** Returns a BoolValue true if a1 is smaller than a2 */
 	public static BoolValue isSmallerThan(NumberValue a1, NumberValue a2) {
 		return new BoolValue(a1.value.compareTo(a2.value) < 0);
 	}
 
+	/** Returns a BoolValue true if a1 is smaller or equal to a2 */
 	public static BoolValue isSmallerEq(NumberValue a1, NumberValue a2) {
 		return new BoolValue(a1.value.compareTo(a2.value) <= 0);
 	}
-
-	@Override
-	public String toString() {
-		return asText().rawString();
-	}
-
 }

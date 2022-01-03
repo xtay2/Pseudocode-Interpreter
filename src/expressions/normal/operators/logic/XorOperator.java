@@ -1,18 +1,19 @@
 package expressions.normal.operators.logic;
 
 import datatypes.BoolValue;
-import datatypes.Castable;
+import datatypes.Value;
+import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
 public class XorOperator extends Operator {
 
-	public XorOperator(int line, int rank) {
-		super(line, rank);
+	public XorOperator(int line, InfixOperator xor) {
+		super(line, xor);
 	}
 
 	@Override
-	public Castable perform(ValueHolder a, ValueHolder b) {
+	public Value perform(ValueHolder a, ValueHolder b) {
 		return BoolValue.xor(a.getValue().asBool(), b.getValue().asBool());
 	}
 

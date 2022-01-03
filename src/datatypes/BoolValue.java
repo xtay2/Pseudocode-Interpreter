@@ -1,9 +1,9 @@
 package datatypes;
 
-import exceptions.CastingException;
+import exceptions.runtime.CastingException;
 import expressions.special.Type;
 
-public class BoolValue extends Castable {
+public class BoolValue extends Value {
 
 	private final boolean value;
 
@@ -52,12 +52,12 @@ public class BoolValue extends Castable {
 	}
 
 	@Override
-	public BoolValue eq(Castable val) {
+	public BoolValue eq(Value val) {
 		return new BoolValue(val instanceof BoolValue t && t.value == value);
 	}
 
 	@Override
-	public BoolValue neq(Castable val) {
+	public BoolValue neq(Value val) {
 		return new BoolValue(!(val instanceof BoolValue t && t.value == value));
 	}
 
@@ -70,24 +70,23 @@ public class BoolValue extends Castable {
 		return value;
 	}
 
-	public static Castable and(BoolValue b1, BoolValue b2) {
+	public static Value and(BoolValue b1, BoolValue b2) {
 		return new BoolValue(b1.value && b2.value);
 	}
-
-	public static Castable or(BoolValue b1, BoolValue b2) {
+	
+	public static Value nand(BoolValue b1, BoolValue b2) {
+		return new BoolValue(!(b1.value && b2.value));
+	}
+	
+	public static Value or(BoolValue b1, BoolValue b2) {
 		return new BoolValue(b1.value || b2.value);
 	}
 
-	public static Castable nor(BoolValue b1, BoolValue b2) {
+	public static Value nor(BoolValue b1, BoolValue b2) {
 		return new BoolValue(!(b1.value || b2.value));
 	}
 
-	public static Castable xor(BoolValue b1, BoolValue b2) {
+	public static Value xor(BoolValue b1, BoolValue b2) {
 		return new BoolValue(b1.value ^ b2.value);
-	}
-	
-	@Override
-	public String toString() {
-		return value ? "true" : "false";
 	}
 }

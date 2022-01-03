@@ -2,6 +2,7 @@ package expressions.normal;
 
 import expressions.special.Bracket;
 import expressions.special.Expression;
+import helper.Output;
 import parser.program.ExpressionType;
 
 public class OpenBracket extends Expression implements Bracket {
@@ -21,5 +22,10 @@ public class OpenBracket extends Expression implements Bracket {
 	@Override
 	public void setMyMatch(Bracket match) {
 		//TODO : Implement me!
+	}
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "'('";
 	}
 }

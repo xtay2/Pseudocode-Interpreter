@@ -51,11 +51,5 @@ public abstract class Expression {
 	}
 
 	@Override
-	public String toString() {
-		String name = this.getClass().getName();
-		String[] nameParts = name.split("\\.");
-		if (nameParts.length > 0)
-			return nameParts[nameParts.length - 1];
-		return name;
-	}
+	public abstract String toString();
 }

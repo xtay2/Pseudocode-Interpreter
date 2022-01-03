@@ -2,6 +2,7 @@ package expressions.normal;
 
 import expressions.special.Expression;
 import expressions.special.Type;
+import helper.Output;
 import parser.program.ExpressionType;
 
 public class ExpectedType extends Expression implements Comparable<ExpectedType> {
@@ -14,12 +15,17 @@ public class ExpectedType extends Expression implements Comparable<ExpectedType>
 
 	public ExpectedType(Type type, int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.NAME, ExpressionType.OPEN_BLOCK, ExpressionType.ONE_LINE_STATEMENT);
+		setExpectedExpressions(ExpressionType.NAME, ExpressionType.OPEN_BLOCK);
 		this.type = type;
 	}
 
 	@Override
 	public int compareTo(ExpectedType o) {
 		return o.type.compareTo(type);
+	}
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : type.toString();
 	}
 }

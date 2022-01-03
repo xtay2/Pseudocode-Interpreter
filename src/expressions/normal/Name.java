@@ -1,10 +1,10 @@
 package expressions.normal;
 
-import datatypes.Castable;
+import datatypes.Value;
 import expressions.special.Expression;
 import expressions.special.Scope;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.VarManager;
 import parser.program.ExpressionType;
 
@@ -16,12 +16,13 @@ public class Name extends Expression implements ValueHolder {
 	public Name(final String name, int line) {
 		super(line);
 		setExpectedExpressions(ExpressionType.DECLARATION, ExpressionType.OPEN_BRACKET, ExpressionType.COMMA, ExpressionType.CLOSE_BRACKET,
-				ExpressionType.ONE_LINE_STATEMENT, ExpressionType.OPEN_BLOCK, ExpressionType.INFIX_OPERATOR, ExpressionType.LOOP_CONNECTOR, ExpressionType.ARRAY_START, ExpressionType.ARRAY_END);
+				ExpressionType.OPEN_BLOCK, ExpressionType.INFIX_OPERATOR, ExpressionType.LOOP_CONNECTOR, ExpressionType.ARRAY_START,
+				ExpressionType.ARRAY_END, ExpressionType.DEFINITE_LINEBREAK);
 		this.name = name;
 	}
 
 	@Override
-	public Castable getValue() {
+	public Value getValue() {
 		return VarManager.get(name).getValue();
 	}
 
@@ -39,15 +40,15 @@ public class Name extends Expression implements ValueHolder {
 		return scope;
 	}
 
-	@Override
-	public String toString() {
-		return "Name: \"" + name + "\"";
-	}
-
 	/**
 	 * Arg is valid name if alphanumerical with underscores
 	 */
 	public static boolean isName(String arg) {
 		return arg.matches("([a-z]|[A-Z]|[0-9]|_)+");
+	}
+
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "\"" + name + "\"";
 	}
 }

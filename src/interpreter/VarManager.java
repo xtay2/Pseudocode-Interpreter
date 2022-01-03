@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import datatypes.NumberValue;
+import exceptions.runtime.DeclarationException;
+import exceptions.runtime.IllegalCallException;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.special.Scope;
@@ -61,7 +63,7 @@ public final class VarManager {
 	public static void nameCheck(String name) {
 		for (byte b = 0; b < LOOP_VAR_COUNT; b++)
 			if (String.valueOf((char) (FIRST_COUNTER_NAME + b)).equals(name))
-				throw new IllegalArgumentException("Variable cannot be manually declared with a counter-name. (" + FIRST_COUNTER_NAME + "-"
+				throw new DeclarationException("Variable cannot be manually declared with a counter-name. (" + FIRST_COUNTER_NAME + "-"
 						+ (char) (FIRST_COUNTER_NAME + LOOP_VAR_COUNT) + ") was " + name);
 		if (KeywordFinder.isKeyword(name) || Type.isType(name))
 			throw new IllegalArgumentException("A Variable cannot be named after a keyword or a type.");
@@ -106,7 +108,7 @@ final class Stack {
 			if (var != null)
 				return var;
 		}
-		throw new IllegalArgumentException("Var " + varName + " doesn't exist. \nScopes: " + scopes);
+		throw new IllegalCallException("Var " + varName + " doesn't exist. \nScopes: " + scopes);
 	}
 
 	public int height() {

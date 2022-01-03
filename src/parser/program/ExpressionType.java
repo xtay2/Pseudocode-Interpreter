@@ -20,28 +20,28 @@ public enum ExpressionType {
 	 *
 	 * @see KeywordType
 	 */
-	KEYWORD,
+	KEYWORD("Keyword"),
 
 	/**
 	 * Ausgeschriebener alphanumerischer Name.
 	 *
 	 * @see Name
 	 */
-	NAME,
+	NAME("Name"),
 
 	/**
 	 * Ausgeschriebener Wert.
 	 *
 	 * @see Literal
 	 */
-	LITERAL,
+	LITERAL("Literal"),
 
 	/**
 	 * Identifier bei Variablendeklaration. var, bool, nr oder text.
 	 * 
 	 * @see TypedVar
 	 */
-	VAR_TYPE,
+	VAR_TYPE("Var-Declaration"),
 
 	/**
 	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
@@ -49,69 +49,63 @@ public enum ExpressionType {
 	 *
 	 * @see ExpectedType
 	 */
-	EXPECTED_TYPE,
+	EXPECTED_TYPE("Return-Type"),
 
 	/**
 	 * Pfeil ->
 	 *
 	 * @see ExpectedReturnType
 	 */
-	EXPECTED_RETURN_TYPE,
+	EXPECTED_RETURN_TYPE("->"),
 
 	/**
 	 * = Zeichen
 	 *
 	 * @see Declaration
 	 */
-	DECLARATION,
+	DECLARATION("="),
 
 	/**
 	 * ( Zeichen
 	 *
 	 * @see OpenBracket
 	 */
-	OPEN_BRACKET,
+	OPEN_BRACKET("("),
 
 	/**
 	 * ) Zeichen
 	 *
 	 * @see CloseBracket
 	 */
-	CLOSE_BRACKET,
+	CLOSE_BRACKET(")"),
 
 	/**
 	 * , Zeichen
 	 *
 	 * @see Comma
 	 */
-	COMMA,
+	COMMA("','"),
 
 	/**
 	 * { Zeichen
 	 *
 	 * @see OpenBlock
 	 */
-	OPEN_BLOCK,
+	OPEN_BLOCK("{"),
 
 	/**
 	 * } Zeichen
 	 *
 	 * @see CloseBlock
 	 */
-	CLOSE_BLOCK,
-
-	/**
-	 * : Zeichen. Signalisiert, dass nur die eine darauffolgende Zeile zum Statement
-	 * gehört.
-	 */
-	ONE_LINE_STATEMENT,
+	CLOSE_BLOCK("}"),
 
 	/**
 	 * Infixoperatoren wie +, -, and, or, <, !=
 	 *
 	 * @see Operator
 	 */
-	INFIX_OPERATOR,
+	INFIX_OPERATOR("Operator"),
 
 	/**
 	 * Verbindungsworte in Schleifen.
@@ -120,23 +114,38 @@ public enum ExpressionType {
 	 *
 	 * @see LoopConnector
 	 */
-	LOOP_CONNECTOR,
-	
+	LOOP_CONNECTOR("in/to"),
+
 	/**
-	 * [ Zeichen.
-	 * Signalisiert, dass nun etwas kommt, dass mit einem Array zutun hat.
+	 * [ Zeichen. Signalisiert, dass nun etwas kommt, dass mit einem Array zutun
+	 * hat.
 	 * 
 	 * @see ArrayStart
 	 * @see Array
 	 */
-	ARRAY_START,
-	
+	ARRAY_START("["),
+
 	/**
-	 * ] Zeichen.
-	 * Signalisiert, dass der Arraybereich endet.
+	 * ] Zeichen. Signalisiert, dass der Arraybereich endet.
 	 * 
 	 * @see ArrayEnd
 	 * @see Array
 	 */
-	ARRAY_END;
+	ARRAY_END("]"),
+	
+	/**
+	 * ; Semikolon. Optional nach Funktionsaufrufen.
+	 */
+	DEFINITE_LINEBREAK(";");
+	
+	private final String name;
+	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	ExpressionType(String name) {
+		this.name = name;
+	}
 }

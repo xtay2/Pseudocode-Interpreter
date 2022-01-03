@@ -12,7 +12,6 @@ import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
 import expressions.main.statements.RepeatStatement;
 import expressions.main.statements.ReturnStatement;
-import expressions.normal.Variable;
 import expressions.special.Expression;
 import parser.program.KeywordType;
 

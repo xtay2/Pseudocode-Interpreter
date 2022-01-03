@@ -12,8 +12,6 @@ public interface Scope {
 
 	String getScopeName();
 
-	public boolean isOneLineStatement();
-
 }
 
 class GlobalScope implements Scope {
@@ -37,10 +35,4 @@ class GlobalScope implements Scope {
 	public String toString() {
 		return getScopeName();
 	}
-
-	@Override
-	public boolean isOneLineStatement() {
-		return false;
-	}
-
 }

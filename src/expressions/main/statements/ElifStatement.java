@@ -3,6 +3,7 @@ package expressions.main.statements;
 import static helper.Output.print;
 
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 
@@ -16,10 +17,10 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		print("Executing Elif-Statement.");
 		if (!doExecuteNext)
-			throw new IllegalStateException("An elif-statement has to be able to call the next line.");
+			throw new AssertionError("An elif-statement has to be able to call the next line.");
 		if (booleanExp.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
-			if (!Interpreter.execute(line + 1, !isOneLineStatement())) {
+			if (!Interpreter.execute(line + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}
@@ -37,7 +38,12 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 	/** Initialises the following elif / else statement. */
 	public void setNextElse(ElifConstruct nextElse) {
 		if (this.nextElse != null)
-			throw new IllegalArgumentException("Trying to connect more than one else to this elif.");
+			throw new AssertionError("Trying to connect more than one else to this elif.");
 		this.nextElse = nextElse;
+	}
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "elif";
 	}
 }

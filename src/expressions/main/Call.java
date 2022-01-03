@@ -5,11 +5,11 @@ import static helper.Output.print;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import datatypes.Castable;
+import datatypes.Value;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
-import expressions.special.Value;
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.Interpreter;
 
 public class Call extends MainExpression implements ValueHolder {
@@ -40,7 +40,7 @@ public class Call extends MainExpression implements ValueHolder {
 	}
 
 	@Override
-	public Castable getValue() {
+	public Value getValue() {
 		if (parameters == null)
 			return Interpreter.call(calledFunc, true);
 		return Interpreter.call(calledFunc, true, parameters);
@@ -55,7 +55,6 @@ public class Call extends MainExpression implements ValueHolder {
 
 	@Override
 	public String toString() {
-		return "Call " + getFuncName() + (parameters.length != 0 ? ": " + Arrays.toString(parameters) : "");
+		return Output.DEBUG ? this.getClass().getSimpleName() : "call " + getFuncName() + (parameters.length != 0 ? ": " + Arrays.toString(parameters) : "");
 	}
-
 }

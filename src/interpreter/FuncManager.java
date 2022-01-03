@@ -2,7 +2,7 @@ package interpreter;
 
 import java.util.HashMap;
 
-import exceptions.DeclarationException;
+import exceptions.runtime.DeclarationException;
 
 public final class FuncManager {
 

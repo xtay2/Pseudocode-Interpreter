@@ -1,15 +1,16 @@
 package parser.finder;
 
+import datatypes.Value;
 import expressions.main.CloseBlock;
 import expressions.main.Declaration;
 import expressions.normal.CloseBracket;
 import expressions.normal.Comma;
+import expressions.normal.Semikolon;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
 import expressions.normal.Literal;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
-import expressions.normal.OneLineStatement;
 import expressions.normal.OpenBlock;
 import expressions.normal.OpenBracket;
 import expressions.normal.Variable;
@@ -18,7 +19,6 @@ import expressions.normal.array.ArrayStart;
 import expressions.normal.operators.Operator;
 import expressions.special.Expression;
 import expressions.special.Type;
-import expressions.special.Value;
 import parser.program.ExpressionType;
 import parser.program.ValueBuilder;
 
@@ -55,7 +55,7 @@ public class ExpressionFinder {
 				yield KeywordFinder.keywordExpression(arg, line);
 			yield null;
 		case VAR_TYPE:
-			if ("var".equals(arg) || Type.isType(arg))
+			if (Type.isType(arg))
 				yield new Variable(line, Type.stringToType(arg));
 			yield null;
 		case NAME:
@@ -110,14 +110,16 @@ public class ExpressionFinder {
 			if ("->".equals(arg))
 				yield new ExpectedReturnType(line);
 			yield null;
-		case ONE_LINE_STATEMENT:
-			if (":".equals(arg))
-				yield new OneLineStatement(line);
-			yield null;
 		case LOOP_CONNECTOR:
 			if ("to".equals(arg) || "in".equals(arg) || "|".equals(arg))
 				yield new LoopConnector(line);
 			yield null;
+		case DEFINITE_LINEBREAK:
+			if (";".equals(arg))
+				yield new Semikolon(line);
+			yield null;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + exp);
 		};
 	}
 }

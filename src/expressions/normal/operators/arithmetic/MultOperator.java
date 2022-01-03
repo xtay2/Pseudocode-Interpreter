@@ -1,23 +1,24 @@
 package expressions.normal.operators.arithmetic;
 
 import datatypes.ArrayValue;
-import datatypes.Castable;
+import datatypes.Value;
 import datatypes.NumberValue;
 import datatypes.TextValue;
+import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
 import expressions.special.Type;
 import expressions.special.ValueHolder;
 
 public class MultOperator extends Operator {
 
-	public MultOperator(int line, int rank) {
-		super(line, rank);
+	public MultOperator(int line, InfixOperator mult) {
+		super(line, mult);
 	}
 
 	@Override
-	public Castable perform(ValueHolder a, ValueHolder b) {
-		Castable fst = a.getValue();
-		Castable sec = b.getValue();
+	public Value perform(ValueHolder a, ValueHolder b) {
+		Value fst = a.getValue();
+		Value sec = b.getValue();
 		if (fst instanceof ArrayValue arr && sec.getType() == Type.NUMBER)
 			return ArrayValue.multiply(arr, (int) sec.asInt().rawInt());
 

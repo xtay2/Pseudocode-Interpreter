@@ -1,18 +1,19 @@
 package expressions.normal.operators.comparative;
 
-import datatypes.Castable;
+import datatypes.Value;
 import datatypes.NumberValue;
+import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
 public class LessOperator extends Operator implements ComparativeOperator {
 
-	public LessOperator(int line, int rank) {
-		super(line, rank);
+	public LessOperator(int line, InfixOperator less) {
+		super(line, less);
 	}
 
 	@Override
-	public Castable perform(ValueHolder a, ValueHolder b) {
+	public Value perform(ValueHolder a, ValueHolder b) {
 		return NumberValue.isSmallerThan(a.getValue().asNumber(), b.getValue().asNumber());
 	}
 

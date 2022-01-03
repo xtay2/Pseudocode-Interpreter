@@ -2,11 +2,12 @@ package expressions.main.statements;
 
 import static helper.Output.print;
 
-import datatypes.Castable;
+import datatypes.Value;
 import expressions.main.functions.Function;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
+import helper.Output;
 import parser.program.ExpressionType;
 
 public class ReturnStatement extends MainExpression implements ValueHolder {
@@ -21,7 +22,7 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 
 	/** The Returnvalue */
 	@Override
-	public Castable getValue() {
+	public Value getValue() {
 		return val.getValue();
 	}
 
@@ -30,7 +31,7 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 		if (args.length == 2)
 			val = (ValueHolder) args[1];
 		else if (args.length > 2)
-			throw new IllegalArgumentException("A function can only return one value.");
+			throw new AssertionError("A function can only return one value.");
 	}
 
 	public void setMyFunc(Function func) {
@@ -44,5 +45,9 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 			myFunc.setReturnVal(val.getValue());
 		return false; //Fordere alle Expressions in dieser Funktion auf, keine weiteren execute-Funtionen auszuführen.
 	}
-
+	
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "return";
+	}
 }

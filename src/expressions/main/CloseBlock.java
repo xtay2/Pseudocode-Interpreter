@@ -1,10 +1,12 @@
 package expressions.main;
 
+import exceptions.parsing.IllegalCodeFormatException;
 import expressions.normal.OpenBlock;
 import expressions.special.Bracket;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
+import helper.Output;
 
 public class CloseBlock extends MainExpression implements Bracket {
 
@@ -18,7 +20,7 @@ public class CloseBlock extends MainExpression implements Bracket {
 	@Override
 	public void build(Expression... args) {
 		if (args.length > 1)
-			throw new IllegalArgumentException("Illegal expression behind bracket: " + args[1]);
+			throw new IllegalCodeFormatException("Illegal expression behind bracket: " + args[1]);
 	}
 
 	@Override
@@ -36,4 +38,8 @@ public class CloseBlock extends MainExpression implements Bracket {
 		return true; // Just go back
 	}
 
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "'}'";
+	}
 }

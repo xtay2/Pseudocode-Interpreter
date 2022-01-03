@@ -1,20 +1,21 @@
 package expressions.normal.operators.arithmetic;
 
-import datatypes.Castable;
+import datatypes.Value;
 import datatypes.NumberValue;
+import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
 public class SubOperator extends Operator {
 
-	public SubOperator(int line, int rank) {
-		super(line, rank);
+	public SubOperator(int line, InfixOperator sub) {
+		super(line, sub);
 	}
 
 	@Override
-	public Castable perform(ValueHolder a, ValueHolder b) {
-		Castable fst = a.getValue();
-		Castable sec = b.getValue();
+	public Value perform(ValueHolder a, ValueHolder b) {
+		Value fst = a.getValue();
+		Value sec = b.getValue();
 		return NumberValue.sub(fst.asNumber(), sec.asNumber());
 	}
 

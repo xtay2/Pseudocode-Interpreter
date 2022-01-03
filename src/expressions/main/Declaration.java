@@ -4,18 +4,17 @@ import static helper.Output.print;
 
 import java.util.Arrays;
 
-import datatypes.ArrayValue;
-import datatypes.Castable;
-import exceptions.DeclarationException;
-import expressions.normal.Literal;
+import datatypes.Value;
+import exceptions.runtime.DeclarationException;
+import exceptions.runtime.IllegalReturnException;
 import expressions.normal.Name;
+import expressions.normal.Semikolon;
 import expressions.normal.Variable;
 import expressions.normal.array.ArrayAccess;
-import expressions.normal.array.ArrayEnd;
-import expressions.normal.array.ArrayStart;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
+import helper.Output;
 import interpreter.VarManager;
 import parser.program.ExpressionType;
 
@@ -24,8 +23,8 @@ public class Declaration extends MainExpression {
 	private Variable var = null;
 	private ValueHolder val = null;
 	private Name name = null;
-	private ArrayAccess arr = null; 
-	
+	private ArrayAccess arr = null;
+
 	private State state;
 
 	enum State {
@@ -40,7 +39,7 @@ public class Declaration extends MainExpression {
 	@Override
 	public void build(Expression... args) {
 		// Erstes argument ist var, bool, text oder nr.
-		if ((args[0] instanceof Variable && args.length == 4)) {
+		if ((args[0] instanceof Variable && args.length == 4 || (args.length == 5 && args[4] instanceof Semikolon))) {
 			state = State.DECLARATION; // Initialisierung
 			var = (Variable) args[0];
 			name = (Name) args[1];
@@ -48,21 +47,10 @@ public class Declaration extends MainExpression {
 			val = (ValueHolder) args[3];
 			return;
 		}
-		// Array Declaration
-		if (args[0] instanceof Variable && args[1] instanceof ArrayStart && args[2] instanceof ArrayEnd && args.length == 6) {
-			state = State.DECLARATION;
-			var = (Variable) args[0];
-			name = (Name) args[3];
-			VarManager.nameCheck(name.getName());
-			val = (((Literal) args[5]).getValue().as(var.getType()));
-			((ArrayValue) val).init();
-			return;
-		}
-		if (args[0] instanceof Name && args.length == 3) {
+		if (args[0] instanceof Name && args.length == 3 || (args.length == 4 && args[3] instanceof Semikolon)) {
 			state = State.ASSIGNMENT; // Wertzuweisung
 			name = (Name) args[0];
 			val = (ValueHolder) args[2];
-			// declarationTarget ist hier unbekannt. Muss zur Laufzeit erfragt werden.
 			return;
 		}
 		if (args[0]instanceof ArrayAccess a) {
@@ -72,9 +60,13 @@ public class Declaration extends MainExpression {
 			val = (ValueHolder) args[2];
 			return;
 		}
-		throw new DeclarationException(
-				"Illegal declaration. \nHas to be something like: \"name = value\", \"var name = value\" or \"var[] name = value\""
-						+ "\nWas " + Arrays.toString(args));
+		throw new DeclarationException("Illegal declaration. " //
+				+ "Has to be something like: " //
+				+ "\n\"name = value\", "//
+				+ "\n\"var name = value\", "//
+				+ "\n\"var[] name = value\", "//
+				+ "\nor \"var[i] = value\""//
+				+ "\nWas " + Arrays.toString(args));
 	}
 
 	public Name getName() {
@@ -84,7 +76,7 @@ public class Declaration extends MainExpression {
 	@Override
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		try {
-			Castable value = val.getValue();
+			Value value = val.getValue();
 			if (state == State.DECLARATION) {
 				print("Declaring " + name + " as " + value + " in scope: \"" + name.getScope().getScopeName() + "\"");
 				var.initialise(name, value);
@@ -96,8 +88,13 @@ public class Declaration extends MainExpression {
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			throw new DeclarationException("Function has to return a value!");
+			throw new IllegalReturnException("Function has to return a value!");
 		}
 		return callNextLine(doExecuteNext);
+	}
+
+	@Override
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "=";
 	}
 }

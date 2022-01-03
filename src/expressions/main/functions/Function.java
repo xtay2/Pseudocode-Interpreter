@@ -4,9 +4,11 @@ import static helper.Output.print;
 
 import java.util.Arrays;
 
-import datatypes.Castable;
-import exceptions.CastingException;
-import exceptions.DeclarationException;
+import datatypes.Value;
+import exceptions.parsing.IllegalCodeFormatException;
+import exceptions.runtime.CastingException;
+import exceptions.runtime.DeclarationException;
+import exceptions.runtime.IllegalReturnException;
 import expressions.main.CloseBlock;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
@@ -20,6 +22,7 @@ import expressions.special.Type;
 import expressions.special.ValueHolder;
 import extensions.datastructures.Dictionary;
 import extensions.datastructures.DictionaryEntry;
+import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import parser.finder.KeywordFinder;
@@ -29,7 +32,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	private final Dictionary<Name, ExpectedType> paramBlueprint = new Dictionary<>();
 	protected Name name = null;
-	private Castable returnVal = null;
+	private Value returnVal = null;
 	private Type returnType = null;
 	protected OpenBlock block = null;
 
@@ -45,6 +48,9 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 			throw new DeclarationException("Every function must have a name!");
 		nameCheck(((Name) args[1]).getName());
 		name = ((Name) args[1]);
+		if (!(args[args.length - 1] instanceof OpenBlock))
+			throw new IllegalCodeFormatException(name + ": A function-declaration must end with a valid block. Expected ':' or '{', " //
+					+ "was: '" + args[args.length - 1] + "'");
 		// Finde die Namen und Typen der Parameter heraus.
 		for (int i = 2; i < args.length; i++) {
 			if (args[i] instanceof ExpectedType) {
@@ -61,7 +67,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 			// Finde heraus ob es einen Rückgabetypen gibt, und wenn ja, welchen.
 			if (args[i] instanceof ExpectedReturnType) {
 				if (!(args[i + 1] instanceof ExpectedType))
-					throw new IllegalArgumentException("No type declaration after \"->\" in " + name);
+					throw new IllegalCodeFormatException("No type declaration after \"->\" in " + name);
 				returnType = ((ExpectedType) args[i + 1]).type;
 				break;
 			}
@@ -82,9 +88,9 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 	 * This method gets called by the ReturnStatement. If a returntype is specified,
 	 * the value gets implicitly casted.
 	 */
-	public void setReturnVal(Castable val) {
+	public void setReturnVal(Value val) {
 		if (returnVal != null && val != null)
-			throw new IllegalStateException("Function " + name + " already has a return value.");
+			throw new AssertionError("Function " + name + " already has a return value.");
 		if (returnType != null && val != null && val.getType() != returnType)
 			returnVal = val.as(returnType);
 		else
@@ -92,7 +98,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 	}
 
 	@Override
-	public Castable getValue() {
+	public Value getValue() {
 		return returnVal;
 	}
 
@@ -114,7 +120,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 				throw new DeclarationException(name + " takes " + paramCount + " parameters. Please call it accordingly.");
 			for (int i = 0; i < paramCount; i++) {
 				DictionaryEntry<Name, ExpectedType> param = paramBlueprint.get(i);
-				Castable v = params[i].getValue();
+				Value v = params[i].getValue();
 				Variable p = new Variable(line, param.getValue() == null ? v.getType() : param.getValue().type);
 				p.initialise(param.getKey(), v);
 			}
@@ -128,9 +134,9 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 		print("Executing " + name + (params.length == 0 ? "" : " with " + Arrays.toString(params)));
 		registerParameters(params);
 		if (doExecuteNext)
-			Interpreter.execute(line + 1, !isOneLineStatement());
+			Interpreter.execute(line + 1, true);
 		if (returnType != null && returnVal == null)
-			throw new IllegalArgumentException(
+			throw new IllegalReturnException(
 					"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
 		VarManager.deleteScope(this);
 		return true;
@@ -143,7 +149,7 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	@Override
 	public int getEnd() {
-		return isOneLineStatement() || block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
+		return block.getMatch() == null ? line + 2 : ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override
@@ -152,8 +158,8 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 	}
 
 	@Override
-	public boolean isOneLineStatement() {
-		return block == null;
+	public String toString() {
+		return Output.DEBUG ? this.getClass().getSimpleName() : "func";
 	}
 
 }

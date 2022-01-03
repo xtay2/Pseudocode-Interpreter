@@ -1,0 +1,10 @@
+func helli(){
+	main {
+		print("Neeee")
+	}
+}
+
+main {
+
+}
+

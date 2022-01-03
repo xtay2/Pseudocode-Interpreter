@@ -1,17 +1,18 @@
 package expressions.normal.operators.comparative;
 
-import datatypes.Castable;
+import datatypes.Value;
+import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
 import expressions.special.ValueHolder;
 
 public class NotEqualsOperator extends Operator implements ComparativeOperator {
 
-	public NotEqualsOperator(int line, int rank) {
-		super(line, rank);
+	public NotEqualsOperator(int line, InfixOperator notEquals) {
+		super(line, notEquals);
 	}
 
 	@Override
-	public Castable perform(ValueHolder a, ValueHolder b) {
+	public Value perform(ValueHolder a, ValueHolder b) {
 		return a.getValue().neq(b.getValue());
 	}
 

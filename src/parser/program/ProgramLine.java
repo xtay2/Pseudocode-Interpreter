@@ -5,7 +5,7 @@ import static helper.Output.print;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import exceptions.DeclarationException;
+import exceptions.parsing.IllegalCodeFormatException;
 import expressions.main.CloseBlock;
 import expressions.main.functions.Function;
 import expressions.main.statements.ElifConstruct;
@@ -19,6 +19,7 @@ import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.Type;
+import interpreter.Interpreter;
 import parser.Parser;
 import parser.finder.ExpressionFinder;
 
@@ -55,17 +56,20 @@ public class ProgramLine {
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
-			// Checke nach single line comments
-			if (c == Parser.SINGLE_LINE_COMMENT)
-				break;
 
-			// Überspringe escaped symbols
 			if (inString && c == '\\') {
+				current += c + "" + line.charAt(i + 1);
 				i++;
 				continue;
 			}
+
+			// Checke nach single line comments
+			if (!inString && c == Parser.SINGLE_LINE_COMMENT)
+				break;
+
 			if (!inString)
 				current = current.strip();
+
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
 			if (!current.isBlank() && !inString && isNewExpression(current, c)) {
 				expectedExpressionTypes = constructExpression(current, expectedExpressionTypes);
@@ -76,8 +80,11 @@ public class ProgramLine {
 				inString = !inString;
 			current += c;
 		}
-		if (!"".equals(current.strip())) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
+		if (inString)
+			throw new IllegalCodeFormatException("String has to be closed.");
+		if (!"".equals(current.strip())) { // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
+		}
 		mergeLine();
 	}
 
@@ -90,8 +97,7 @@ public class ProgramLine {
 	private boolean isNewExpression(String current, char next) {
 		if ((Type.isType(current) && next == '[') || (Type.isType(current.replace("[", "")) && next == ']'))
 			return false;
-
-		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', '^' };
+		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', '^', ';' };
 		for (char c : oneCharExpressions)
 			if (current.charAt(0) == c || next == c)
 				return true;
@@ -118,8 +124,8 @@ public class ProgramLine {
 	/** Returns the last IfStatement or ElifStatement. */
 	private ElifConstruct findLastIf() {
 		if (lineIndex == 0)
-			throw new IllegalStateException("An elif/else Statement needs a predecessing IfStatement.");
-		MainExpression previous = program.getLine(lineIndex - 1).getExpression();
+			throw new IllegalCodeFormatException("An elif/else Statement needs a predecessing IfStatement.");
+		MainExpression previous = program.getLine(lineIndex - 1).getMainExpression();
 		if (previous instanceof IfStatement || previous instanceof ElifStatement)
 			return (ElifConstruct) previous;
 		return program.getLine(lineIndex - 1).findLastIf();
@@ -130,11 +136,11 @@ public class ProgramLine {
 		for (Expression e : expressions)
 			if (e.isMainExpression())
 				return (MainExpression) e;
-		throw new IllegalStateException("Line doesn't contain a main-expression: " + line + "\n" + expressions);
+		throw new IllegalCodeFormatException("Line doesn't contain a main-expression: " + line + "\n" + expressions);
 	}
 
 	/**
-	 * Connect the Scopes of this line to all names.
+	 * Connect the Scope of all parameters in this line.
 	 *
 	 * Find all calls (name, open_bracket, params, close_bracket) and merge them to
 	 * one call.
@@ -145,10 +151,8 @@ public class ProgramLine {
 		for (Expression e : expressions)
 			if (e instanceof Name)
 				((Name) e).initScope(scope);
+		// Merge Zeile in eine function/declaration/call...
 		expressions = ValueBuilder.buildLine(expressions, lineIndex);
-		// Funktionen dürfen nicht in anderen Funktionen definiert werden.
-		if (scope != Scope.GLOBAL_SCOPE && expressions.get(0) instanceof Function && !scope.isOneLineStatement())
-			throw new DeclarationException("A function (" + scope.getScopeName() + ") cannot be declared inside another function.");
 	}
 
 	/**
@@ -170,14 +174,20 @@ public class ProgramLine {
 			}
 		}
 		if (lineIndex <= 0)
-			throw new IllegalStateException("Matching Bracket wasn't found.");
+			throw new IllegalCodeFormatException("Matching Bracket wasn't found.");
 		program.getLine(lineIndex - 1).connectBlock(close, brackets);
 	}
 
 	/**
-	 * Recursivly searches for the scope.
+	 * Recursivly searches for the scope of this line.
+	 * 
+	 * If this line contains a function declaration, the returned scope is the scope
+	 * of that function.
+	 * 
+	 * @see Interpreter#registerFunctions()
+	 * @see ProgramLine#connectExpressions()
 	 */
-	private Scope searchForScope() {
+	public Scope searchForScope() {
 		if (expressions.get(0) instanceof Scope)
 			return (Scope) expressions.get(0);
 		if (main instanceof Scope)
@@ -200,21 +210,22 @@ public class ProgramLine {
 		if (main instanceof Function)
 			return (Function) main;
 		if (lineIndex == 0)
-			throw new IllegalStateException("Return-Statement has to be declared inside a function.");
+			throw new IllegalCodeFormatException("Return-Statement has to be declared inside a function.");
 		return program.getLine(lineIndex - 1).searchForFunc();
 	}
 
 	/**
-	 * Construct and list an Expression, based on which ExpressionType(s) are
+	 * Construct and lists an Expression, based on which ExpressionType(s) are
 	 * expected.
 	 */
 	private ExpressionType[] constructExpression(String current, ExpressionType[] expectedExpressionTypes) {
 		Expression exp = ExpressionFinder.find(current, expectedExpressionTypes, lineIndex);
 		if (exp == null)
-			throw new IllegalArgumentException(
-					"No matching Expression was found for: " + current + "\n" + "Expected " + Arrays.toString(expectedExpressionTypes)
-							+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + "\n"
-							+ "Current state of line: " + expressions);
+			throw new IllegalCodeFormatException("No matching Expression was found for: " //
+					+ current + "\n" //
+					+ "Expected " + (expectedExpressionTypes.length == 0 ? "a linebreak" : Arrays.toString(expectedExpressionTypes))
+					+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
+					+ "Current state of line: " + expressions);
 		expressions.add(exp);
 		return exp.getExpectedExpressions();
 	}
@@ -222,7 +233,7 @@ public class ProgramLine {
 	/**
 	 * Returns the main-expression of this line.
 	 */
-	public MainExpression getExpression() {
+	public MainExpression getMainExpression() {
 		return main;
 	}
 
