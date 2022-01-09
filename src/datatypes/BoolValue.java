@@ -12,6 +12,20 @@ public class BoolValue extends Value {
 	}
 
 	@Override
+	public boolean canCastTo(Type type) {
+		return switch (type) {
+		case VAR -> true; // Gibt sich selbst zurück
+		case BOOL -> true; // Gibt sich selbst zurück
+		case NUMBER -> true; // Gibt 0 oder 1 zurück
+		case TEXT -> true; // Gibt text-repräsentation zurück
+		case NUMBER_ARRAY -> false;
+		case BOOL_ARRAY -> false;
+		case TEXT_ARRAY -> false;
+		case VAR_ARRAY -> false;
+		};
+	}
+
+	@Override
 	public ArrayValue asVarArray() {
 		throw new CastingException("A bool cannot be casted to an array.");
 	}
@@ -73,11 +87,11 @@ public class BoolValue extends Value {
 	public static Value and(BoolValue b1, BoolValue b2) {
 		return new BoolValue(b1.value && b2.value);
 	}
-	
+
 	public static Value nand(BoolValue b1, BoolValue b2) {
 		return new BoolValue(!(b1.value && b2.value));
 	}
-	
+
 	public static Value or(BoolValue b1, BoolValue b2) {
 		return new BoolValue(b1.value || b2.value);
 	}

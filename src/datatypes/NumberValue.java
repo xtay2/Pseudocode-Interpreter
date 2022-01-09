@@ -26,11 +26,26 @@ public class NumberValue extends Value {
 	}
 
 	@Override
+	public boolean canCastTo(Type type) {
+		return switch (type) {
+		case VAR -> true; // Gibt sich selbst zurück
+		case NUMBER -> true; // Gibt sich selbst zurück
+		case BOOL -> true; // Gibt false für 0 und true für alles andere wieder
+		case NUMBER_ARRAY -> true; // Gibt die einzelnen Ziffern zurück
+		case TEXT_ARRAY -> true; // Gibt text-repräsentation der Ziffern zurück
+		case VAR_ARRAY -> true; // Gibt text-repräsentation der Ziffern zurück
+		case TEXT -> true; // Gibt text-repräsentation zurück
+		case BOOL_ARRAY -> value.toPlainString().matches("0|1"); // Geht nur für binärzahlen.
+		};
+	}
+
+	@Override
 	public ArrayValue asVarArray() throws CastingException {
 		return new TextValue(value.toPlainString()).asVarArray();
 	}
 
 	@Override
+	/** Only works for binary numbers. */
 	public ArrayValue asBoolArray() throws CastingException {
 		return new TextValue(value.toPlainString()).asBoolArray();
 	}
@@ -47,7 +62,7 @@ public class NumberValue extends Value {
 
 	@Override
 	public BoolValue asBool() throws CastingException {
-		return new BoolValue(value.doubleValue() != 0.0);
+		return new BoolValue(value.doubleValue() != 0);
 	}
 
 	@Override
@@ -120,17 +135,22 @@ public class NumberValue extends Value {
 	}
 
 	/** Divides a NumberValue by another one. */
-	public static Value div(NumberValue a1, NumberValue a2) {
+	public static NumberValue div(NumberValue a1, NumberValue a2) {
 		return new NumberValue(a1.value.divide(a2.value));
 	}
 
+	/** Performs integerdivision on two NumberValues. */
+	public static NumberValue intDiv(NumberValue a1, NumberValue a2) {
+		return div(a1, a2);
+	}
+
 	/** Returns the remainder of a Numbervalue divided by another one */
-	public static Value mod(NumberValue a1, NumberValue a2) {
+	public static NumberValue mod(NumberValue a1, NumberValue a2) {
 		return new NumberValue(a1.value.remainder(a2.value));
 	}
 
 	/** Returns the power of a NumberValue. */
-	public static Value pow(NumberValue base, NumberValue exp) {
+	public static NumberValue pow(NumberValue base, NumberValue exp) {
 		return new NumberValue(base.value.pow(exp.value.intValueExact(), new MathContext(100)));
 	}
 
@@ -143,4 +163,5 @@ public class NumberValue extends Value {
 	public static BoolValue isSmallerEq(NumberValue a1, NumberValue a2) {
 		return new BoolValue(a1.value.compareTo(a2.value) <= 0);
 	}
+
 }

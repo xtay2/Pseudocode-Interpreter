@@ -2,8 +2,8 @@ package main;
 
 import java.io.IOException;
 import interpreter.Interpreter;
-import parser.Parser;
-import parser.program.Program;
+import parsing.parser.Parser;
+import parsing.program.Program;
 
 public class Main {
 

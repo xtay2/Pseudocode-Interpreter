@@ -1,6 +1,6 @@
 package expressions.special;
 
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 /**
  * Every little part of a program is an expression. This includes names, values,

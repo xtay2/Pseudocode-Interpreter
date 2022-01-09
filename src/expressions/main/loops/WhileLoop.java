@@ -2,21 +2,18 @@ package expressions.main.loops;
 
 import static helper.Output.print;
 
-import expressions.main.CloseBlock;
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
-public class WhileLoop extends MainExpression implements Scope {
+public class WhileLoop extends Scope {
 
 	private ValueHolder runCondition = null;
-	private OpenBlock block = null;
 
 	public WhileLoop(int line) {
 		super(line);
@@ -47,16 +44,6 @@ public class WhileLoop extends MainExpression implements Scope {
 			VarManager.deleteScope(this);
 		}
 		return Interpreter.execute(getEnd(), true);
-	}
-
-	@Override
-	public int getStart() {
-		return line;
-	}
-
-	@Override
-	public int getEnd() {
-		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override

@@ -4,24 +4,21 @@ import static helper.Output.print;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.main.CloseBlock;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.Type;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
-public class ForEachLoop extends MainExpression implements Scope {
+public class ForEachLoop extends Scope {
 
-	private OpenBlock block = null;
 	private ValueHolder array = null;
 	private Name elementName = null;
 
@@ -37,6 +34,7 @@ public class ForEachLoop extends MainExpression implements Scope {
 		elementName = (Name) args[1];
 		VarManager.nameCheck(elementName.getName());
 		array = (ValueHolder) args[3];
+		block = (OpenBlock) args[4];
 	}
 
 	@Override
@@ -64,20 +62,9 @@ public class ForEachLoop extends MainExpression implements Scope {
 	}
 
 	@Override
-	public int getStart() {
-		return line;
-	}
-
-	@Override
-	public int getEnd() {
-		return ((CloseBlock) block.getMatch()).line + 1;
-	}
-
-	@Override
 	public String getScopeName() {
 		return "foreach" + getStart() + "-" + getEnd();
 	}
-
 
 	@Override
 	public String toString() {

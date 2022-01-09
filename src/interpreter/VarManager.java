@@ -12,7 +12,7 @@ import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.special.Scope;
 import expressions.special.Type;
-import parser.finder.KeywordFinder;
+import parsing.finder.KeywordFinder;
 
 public final class VarManager {
 

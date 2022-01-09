@@ -1,5 +1,6 @@
 package datatypes;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,20 @@ public class TextValue extends Value {
 
 	public TextValue(String val) {
 		value = val;
+	}
+
+	@Override
+	public boolean canCastTo(Type type) {
+		return switch (type) {
+		case VAR -> true; // Gibt sich selbst zurück
+		case VAR_ARRAY -> true; // Gibt char-array zurück
+		case TEXT_ARRAY -> true; // Gibt char-array zurück
+		case BOOL -> true; // Gibt false für 0 und true für alles andere wieder
+		case NUMBER_ARRAY -> true; // Gibt die einzelnen Ziffern zurück
+		case TEXT -> true; // Gibt text-repräsentation zurück
+		case NUMBER -> Value.isNumber(value); // Nur wenn es tatsächlich eine Zahl ist. Siehe: TextValue#asNumber
+		case BOOL_ARRAY -> Value.asBoolValue(value) != null; // Nur wenn es tatsächlich ein Boolean literal ist.
+		};
 	}
 
 	@Override
@@ -53,24 +68,17 @@ public class TextValue extends Value {
 
 	@Override
 	public BoolValue asBool() throws CastingException {
-		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value))
-			return new BoolValue(true);
-		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value))
-			return new BoolValue(false);
-		else
-			throw new CastingException("Cannot cast values other than numbers or boolean literals from text to bool.");
+		Boolean b = asBoolValue(value);
+		if (b == null)
+			throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool.");
+		return new BoolValue(b.booleanValue());
 	}
 
 	@Override
 	public NumberValue asNumber() throws CastingException {
-		if (Value.isInteger(value))
-			return new NumberValue(Integer.valueOf(value));
-		else if (Value.isNumber(value))
-			return new NumberValue(Double.valueOf(value));
-		else if (Value.isBoolean(value))
-			return new BoolValue("true".equals(value)).asNumber();
-		else
-			throw new CastingException("Cannot cast values other than numbers or boolean literals from text to number.");
+		if (Value.isNumber(value))
+			return new NumberValue(new BigDecimal(value));
+		throw new CastingException("Cannot cast values other than numbers or boolean literals from text to number.\n");
 	}
 
 	@Override

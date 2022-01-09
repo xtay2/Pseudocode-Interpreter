@@ -2,7 +2,7 @@ package expressions.normal;
 
 import expressions.special.Expression;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class Comma extends Expression {
 

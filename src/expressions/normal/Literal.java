@@ -4,7 +4,7 @@ import datatypes.Value;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 /** Raw number, text or boolean value. */
 public final class Literal extends Expression implements ValueHolder {
@@ -22,7 +22,7 @@ public final class Literal extends Expression implements ValueHolder {
 
 	@Override
 	public Value getValue() {
-		return value;
+		return value; 
 	}
 
 	@Override

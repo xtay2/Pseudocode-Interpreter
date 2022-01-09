@@ -13,10 +13,9 @@ import expressions.main.functions.MainFunction;
 import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
-import interpreter.system.SystemFunctions;
 import main.Main;
-import parser.program.KeywordType;
-import parser.program.Program;
+import parsing.program.KeywordType;
+import parsing.program.Program;
 
 public final class Interpreter {
 
@@ -53,10 +52,10 @@ public final class Interpreter {
 		for (int i = 0; i < Main.program.size(); i++) {
 			MainExpression e = Main.program.getLine(i).getMainExpression();
 			print(e.toString());
-			//Check func in other func
-			if(e instanceof Function && currentScope != Scope.GLOBAL_SCOPE)
-				throw new IllegalCodeFormatException("A function cannot be defined in another function.");
-			//Check doppelte Main
+			// Check func in other func
+			if (e instanceof Function f && currentScope != Scope.GLOBAL_SCOPE)
+				throw new IllegalCodeFormatException("A function cannot be defined in another function. See: \"" + f.getName()+ "\" in " + currentScope);
+			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
 					throw new DeclarationException("The main-function should be defined only once!");
@@ -125,9 +124,6 @@ public final class Interpreter {
 	 * @return the return-value of the function.
 	 */
 	public static Value call(String name, boolean doExecuteNext, ValueHolder... params) {
-		SystemFunctions.SYSTEM_FUNCTION sysFunc = SystemFunctions.isSystemFunction(name);
-		if (sysFunc != null)
-			return SystemFunctions.callSystemFunc(sysFunc, params);
 		Function f = (Function) Main.program.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
 		f.execute(doExecuteNext, params);
 		Value returnVal = f.getValue();

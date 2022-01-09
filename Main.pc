@@ -1,5 +1,6 @@
+import stdlib.lang.System
+import stdlib.lang.type.Arrays
+
 main {
-	if true {
-		if true: print("Hi");
-		
-	}
+	print(sort([7, 4, 2, 8, 34, 7, 2, 5, 2, 73, 5, 26, 7, 100]))
+}

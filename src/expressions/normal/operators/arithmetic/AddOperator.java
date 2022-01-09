@@ -19,8 +19,8 @@ public class AddOperator extends Operator {
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
-		if (fst.getType() == Type.TEXT || sec.getType() == Type.TEXT)
-			return TextValue.concat(fst.asText(), sec.asText());
+		if (fst.canCastTo(Type.NUMBER) && sec.canCastTo(Type.NUMBER))
+			return NumberValue.add(fst.asNumber(), sec.asNumber());
 		
 		if (fst instanceof ArrayValue a1 && sec instanceof ArrayValue a2)
 			return ArrayValue.concat(a1, a2);
@@ -30,8 +30,7 @@ public class AddOperator extends Operator {
 
 		if (!(fst instanceof ArrayValue) && sec instanceof ArrayValue a2)
 			return ArrayValue.concat(new ArrayValue(a2.getType(), fst.asVarArray()), a2);
-
-		return NumberValue.add(fst.asNumber(), sec.asNumber());
+		return TextValue.concat(fst.asText(), sec.asText());
 	}
 
 	@Override

@@ -9,6 +9,9 @@ import expressions.special.ValueHolder;
 
 public abstract class Value implements ValueHolder {
 
+	/** Tells, if this Value can always be safely casted to the suggested type. */
+	public abstract boolean canCastTo(Type type);
+
 	public abstract ArrayValue asVarArray() throws CastingException;
 
 	public abstract ArrayValue asBoolArray() throws CastingException;
@@ -76,6 +79,20 @@ public abstract class Value implements ValueHolder {
 		return Pattern.matches("^(-?)(0|(\\d*))(\\.\\d+)?$", value);
 	}
 
+	/** This should get exclusivly used when casting from text to bool. */
+	public static Boolean asBoolValue(String value) {
+		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value) || "on".equals(value))
+			return true;
+		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value) || "off".equals(value))
+			return false;
+		else
+			return null;
+	}
+
+	/**
+	 * This should get exclusivly used when checking if a String matches the literal
+	 * words "true" or "false".
+	 */
 	public static boolean isBoolean(String value) {
 		if ("true".equals(value) || "false".equals(value))
 			return true;

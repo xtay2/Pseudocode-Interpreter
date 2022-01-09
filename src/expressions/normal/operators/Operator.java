@@ -7,7 +7,7 @@ import expressions.normal.operators.logic.*;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 /**
  * Used in Operation
@@ -27,7 +27,7 @@ public abstract class Operator extends Expression {
 		this.op = op;
 		if (op.rank < 0)
 			throw new AssertionError("Rank cannot be negative.");
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
+		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START, ExpressionType.OPEN_BRACKET);
 	}
 
 	public abstract Value perform(ValueHolder a, ValueHolder b);

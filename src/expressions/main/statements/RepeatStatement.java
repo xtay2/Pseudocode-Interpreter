@@ -3,21 +3,18 @@ package expressions.main.statements;
 import static helper.Output.print;
 
 import exceptions.runtime.DeclarationException;
-import expressions.main.CloseBlock;
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
-public class RepeatStatement extends MainExpression implements Scope {
+public class RepeatStatement extends Scope {
 
 	private ValueHolder counterInit = null;
-	private OpenBlock block = null;
 
 	public RepeatStatement(int line) {
 		super(line);
@@ -48,16 +45,6 @@ public class RepeatStatement extends MainExpression implements Scope {
 			VarManager.deleteScope(this);
 		}
 		return Interpreter.execute(getEnd(), true);
-	}
-
-	@Override
-	public int getStart() {
-		return line;
-	}
-
-	@Override
-	public int getEnd() {
-		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override

@@ -1,0 +1,9 @@
+import stdlib.lang.Math
+
+func int(val) -> nr: return floor(val);
+
+func number(val) -> nr: return val;
+
+func string(val) -> text: return val;
+
+func boolean(val) -> bool: return val;

@@ -3,9 +3,10 @@ package interpreter.system;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import datatypes.Value;
+import exceptions.runtime.IllegalCallException;
+import datatypes.ArrayValue;
 import datatypes.TextValue;
 import expressions.special.ValueHolder;
 import helper.Output;
@@ -26,36 +27,30 @@ public final class SystemFunctions {
 	}
 
 	/** Returns if the specified name matches the name of a system-function. */
-	public static SYSTEM_FUNCTION isSystemFunction(String name) {
+	private static SYSTEM_FUNCTION isSystemFunction(String name) {
 		for (SYSTEM_FUNCTION f : SYSTEM_FUNCTION.values())
 			if (f.name.equals(name))
 				return f;
 		return null;
 	}
 
-	public static Value callSystemFunc(SYSTEM_FUNCTION func, ValueHolder... params) {
-		return switch (func) {
+	public static Value callSystemFunc(String func, ValueHolder... params) {
+		return switch (isSystemFunction(func)) {
 		case PRINT -> print(params);
 		case READ -> read(params);
 		case EXIT -> exit(params);
 		case EXECUTE -> execute(params);
 		case TYPE -> type(params);
-		default -> throw new NullPointerException();
+		default -> throw new IllegalCallException("Only functions from the standard library can use the native keyword.");
 		};
 	}
 
 	private static Value print(ValueHolder[] params) {
-		if (params.length != 1)
-			throw new IllegalArgumentException("Print takes only one value. Has " + Arrays.toString(params));
-		Value val = params[0].getValue();
-		System.out.println((Output.DEBUG ? "Printing: " : "") + (val.asText().rawString()));
+		System.out.println((Output.DEBUG ? "Printing: " : "") + (params[0].getValue().asText().rawString()));
 		return null;
 	}
 
 	private static Value read(ValueHolder[] params) {
-		if (params.length != 1)
-			throw new IllegalArgumentException("Read takes only one value. Has " + Arrays.toString(params));
-		System.out.println(params[0].getValue().asText().rawString());
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		try {
 			return new TextValue(reader.readLine());
@@ -65,27 +60,19 @@ public final class SystemFunctions {
 	}
 
 	private static Value exit(ValueHolder[] params) {
-		Value exitMsg = new TextValue("Exit");
-		if (params.length == 1)
-			exitMsg = params[0].getValue().asText();
+		String exitMsg = params[0].getValue().toString();
 		System.err.println(exitMsg);
 		System.exit(0);
 		return null;
 	}
 
 	private static Value execute(ValueHolder[] params) {
-		if (params.length > 0) {
-			String funcName = params[0].getValue().asText().rawString();
-			ValueHolder[] funcParams = new ValueHolder[params.length - 1];
-			System.arraycopy(params, 1, funcParams, 0, params.length - 1);
-			return Interpreter.call(funcName, true, funcParams);
-		}
-		throw new IllegalArgumentException("The execute-function needs the name of the function that should get executed.");
+		String funcName = params[0].getValue().asText().rawString();
+		ArrayValue arr = ((ArrayValue) params[1].getValue());
+		return Interpreter.call(funcName, true, arr.rawArray());
 	}
 
 	private static Value type(ValueHolder[] params) {
-		if (params.length != 1)
-			throw new IllegalArgumentException("Type takes just one parameter.\nGot " + Arrays.toString(params));
 		return new TextValue(params[0].getValue().getType().toString());
 	}
 }

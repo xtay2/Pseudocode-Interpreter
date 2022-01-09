@@ -16,7 +16,7 @@ import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class Declaration extends MainExpression {
 

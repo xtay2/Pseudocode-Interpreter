@@ -3,24 +3,21 @@ package expressions.main.loops;
 import static helper.Output.print;
 
 import datatypes.NumberValue;
-import expressions.main.CloseBlock;
 import expressions.normal.LoopConnector;
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
-public class FromToLoop extends MainExpression implements Scope {
+public class FromToLoop extends Scope {
 
 	private ValueHolder from = null;
 	private ValueHolder to = null;
 	private ValueHolder inc = null;
-	private OpenBlock block = null;
 
 	public FromToLoop(int line) {
 		super(line);
@@ -57,16 +54,6 @@ public class FromToLoop extends MainExpression implements Scope {
 			VarManager.deleteScope(this);
 		}
 		return Interpreter.execute(getEnd(), true);
-	}
-
-	@Override
-	public int getStart() {
-		return line;
-	}
-
-	@Override
-	public int getEnd() {
-		return ((CloseBlock) block.getMatch()).line + 1;
 	}
 
 	@Override

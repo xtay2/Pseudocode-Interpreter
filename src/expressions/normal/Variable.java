@@ -8,7 +8,7 @@ import expressions.special.Type;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 /**
  * Has a Name and a Value. The Name has a scope.

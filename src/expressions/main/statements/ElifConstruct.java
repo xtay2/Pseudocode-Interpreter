@@ -1,8 +1,6 @@
 package expressions.main.statements;
 
-import expressions.special.Scope;
-
-public interface ElifConstruct extends Scope {
+public interface ElifConstruct {
 
 	/** Returns the linenr after the last elif/else in this construct */
 	int endOfConstruct();

@@ -1,10 +1,11 @@
 package expressions.normal.brackets;
 
+import exceptions.parsing.IllegalCodeFormatException;
 import expressions.main.CloseBlock;
 import expressions.special.Bracket;
 import expressions.special.Expression;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class OpenBlock extends Expression implements Bracket {
 
@@ -22,6 +23,8 @@ public class OpenBlock extends Expression implements Bracket {
 
 	@Override
 	public Bracket getMatch() {
+		if(myMatch == null)
+			throw new IllegalCodeFormatException("Block has no matching end. Use a ; or a }.");
 		return myMatch;
 	}
 

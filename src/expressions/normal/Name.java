@@ -6,7 +6,7 @@ import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class Name extends Expression implements ValueHolder {
 

@@ -9,14 +9,13 @@ import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalReturnException;
-import expressions.main.CloseBlock;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
+import expressions.normal.Keyword;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.Type;
 import expressions.special.ValueHolder;
@@ -25,16 +24,20 @@ import extensions.datastructures.DictionaryEntry;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.finder.KeywordFinder;
-import parser.program.ExpressionType;
+import interpreter.system.SystemFunctions;
+import parsing.finder.KeywordFinder;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
-public class Function extends MainExpression implements ValueHolder, Scope {
+public class Function extends Scope implements ValueHolder {
 
 	private final Dictionary<Name, ExpectedType> paramBlueprint = new Dictionary<>();
 	protected Name name = null;
 	private Value returnVal = null;
 	private Type returnType = null;
-	protected OpenBlock block = null;
+
+	// Keyword flags
+	boolean isNative = false;
 
 	public Function(int line) {
 		super(line);
@@ -43,16 +46,23 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	@Override
 	public void build(Expression... args) {
+		int funcKeywordPos = 0;
+		// Finde alle Keyword flags heraus.
+		while (args[funcKeywordPos]instanceof Keyword k) {
+			if (k.getKeyword() == KeywordType.NATIVE)
+				isNative = true;
+			funcKeywordPos++;
+		}
+
 		// Finde den Namen der Funktion heraus.
-		if (!(args[1] instanceof Name))
-			throw new DeclarationException("Every function must have a name!");
-		nameCheck(((Name) args[1]).getName());
-		name = ((Name) args[1]);
-		if (!(args[args.length - 1] instanceof OpenBlock))
-			throw new IllegalCodeFormatException(name + ": A function-declaration must end with a valid block. Expected ':' or '{', " //
-					+ "was: '" + args[args.length - 1] + "'");
+		if (args[funcKeywordPos + 1]instanceof Name n) {
+			nameCheck(n.getName());
+			name = n;
+		} else
+			throw new DeclarationException("Every function must have a name!" + Arrays.toString(args));
+
 		// Finde die Namen und Typen der Parameter heraus.
-		for (int i = 2; i < args.length; i++) {
+		for (int i = funcKeywordPos + 2; i < args.length; i++) {
 			if (args[i] instanceof ExpectedType) {
 				if (args[i + 1] instanceof Name) {
 					paramBlueprint.add((Name) args[i + 1], ((ExpectedType) args[i]));
@@ -72,8 +82,15 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 				break;
 			}
 		}
-		if (args[args.length - 1] instanceof OpenBlock)
-			block = (OpenBlock) args[args.length - 1];
+		Expression last = args[args.length - 1];
+
+		if (!isNative) {
+			if (last instanceof OpenBlock ob)
+				block = ob;
+			else
+				throw new IllegalCodeFormatException(
+						name + ": A function-declaration must end with a valid block. Expected ':' or '{', was: '" + last + "'");
+		}
 	}
 
 	/**
@@ -106,6 +123,10 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 	public int expectedParams() {
 		return paramBlueprint.size();
 	}
+	
+	public boolean isNative() {
+		return isNative;
+	}
 
 	public String getName() {
 		return name.getName();
@@ -128,28 +149,28 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 			throw new DeclarationException("Passed a value with an unwanted type to " + name + ".");
 		}
 	}
-
+	
 	@Override
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
-		print("Executing " + name + (params.length == 0 ? "" : " with " + Arrays.toString(params)));
-		registerParameters(params);
-		if (doExecuteNext)
-			Interpreter.execute(line + 1, true);
-		if (returnType != null && returnVal == null)
-			throw new IllegalReturnException(
-					"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
-		VarManager.deleteScope(this);
+		if (isNative) {
+			returnVal = SystemFunctions.callSystemFunc(getName(), params);
+		} else {
+			print("Executing " + name + (params.length == 0 ? "" : " with " + Arrays.toString(params)));
+			registerParameters(params);
+			if (doExecuteNext)
+				Interpreter.execute(line + 1, true);
+			if (returnType != null && returnVal == null)
+				throw new IllegalReturnException(
+						"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
+			VarManager.deleteScope(this);
+		}
 		return true;
-	}
 
-	@Override
-	public int getStart() {
-		return line;
 	}
 
 	@Override
 	public int getEnd() {
-		return ((CloseBlock) block.getMatch()).line + 1;
+		return isNative ? getStart() : super.getEnd();
 	}
 
 	@Override
@@ -159,7 +180,8 @@ public class Function extends MainExpression implements ValueHolder, Scope {
 
 	@Override
 	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "func";
+		return Output.DEBUG ? this.getClass().getSimpleName() : (name == null ? "func" : name.toString());
 	}
+
 
 }

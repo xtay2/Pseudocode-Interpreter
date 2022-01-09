@@ -1,4 +1,4 @@
-package parser.program;
+package parsing.program;
 
 import expressions.main.CloseBlock;
 import expressions.main.Declaration;

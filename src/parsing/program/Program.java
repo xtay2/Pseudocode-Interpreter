@@ -1,4 +1,4 @@
-package parser.program;
+package parsing.program;
 
 import java.util.ArrayList;
 

@@ -14,9 +14,7 @@ public class DivOperator extends Operator {
 
 	@Override
 	public Value perform(ValueHolder a, ValueHolder b) {
-		Value fst = a.getValue();
-		Value sec = b.getValue();
-		return NumberValue.div(fst.asNumber(), sec.asNumber());
+		return NumberValue.div(a.getValue().asNumber(), b.getValue().asNumber());
 	}
 
 	@Override

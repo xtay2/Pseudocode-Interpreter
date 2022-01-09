@@ -1,4 +1,4 @@
-package parser.finder;
+package parsing.finder;
 
 import java.util.ArrayList;
 
@@ -12,8 +12,9 @@ import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
 import expressions.main.statements.RepeatStatement;
 import expressions.main.statements.ReturnStatement;
+import expressions.normal.Keyword;
 import expressions.special.Expression;
-import parser.program.KeywordType;
+import parsing.program.KeywordType;
 
 public class KeywordFinder {
 
@@ -39,7 +40,7 @@ public class KeywordFinder {
 		return KEYWORDS.contains(string);
 	}
 
-	public static Expression keywordExpression(String arg, int line) {	
+	public static Expression keywordExpression(String arg, int line) {
 		if (KeywordType.FUNC.keyword.equals(arg))
 			return new Function(line);
 		if (KeywordType.MAIN.keyword.equals(arg))
@@ -60,6 +61,6 @@ public class KeywordFinder {
 			return new FromToLoop(line);
 		if (KeywordType.FOR.keyword.equals(arg))
 			return new ForEachLoop(line);
-		throw new AssertionError("Keyword must be known by now. Was " + arg);
+		return new Keyword(line, arg); // Generic Keyword
 	}
 }

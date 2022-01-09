@@ -9,8 +9,8 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parser.program.ExpressionType;
-import parser.program.KeywordType;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 public class MainFunction extends Function {
 

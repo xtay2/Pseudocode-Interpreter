@@ -1,4 +1,4 @@
-package parser.program;
+package parsing.program;
 
 import static helper.Output.print;
 
@@ -20,8 +20,8 @@ import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.Type;
 import interpreter.Interpreter;
-import parser.Parser;
-import parser.finder.ExpressionFinder;
+import parsing.finder.ExpressionFinder;
+import parsing.parser.Parser;
 
 public class ProgramLine {
 
@@ -174,7 +174,7 @@ public class ProgramLine {
 			}
 		}
 		if (lineIndex <= 0)
-			throw new IllegalCodeFormatException("Matching Bracket wasn't found.");
+			throw new IllegalCodeFormatException("Matching open bracket wasn't found.");
 		program.getLine(lineIndex - 1).connectBlock(close, brackets);
 	}
 
@@ -188,15 +188,17 @@ public class ProgramLine {
 	 * @see ProgramLine#connectExpressions()
 	 */
 	public Scope searchForScope() {
-		if (expressions.get(0) instanceof Scope)
-			return (Scope) expressions.get(0);
+		if (main instanceof Function f && f.isNative())
+			return Scope.GLOBAL_SCOPE;
 		if (main instanceof Scope)
 			return (Scope) main;
 		if (lineIndex == 0)
 			return Scope.GLOBAL_SCOPE;
 		if (main instanceof CloseBlock) {
-			String line = program.readLine(((OpenBlock) ((CloseBlock) main).getMatch()).line);
-			if (line.startsWith(KeywordType.FUNC.keyword) || line.startsWith(KeywordType.MAIN.keyword))
+			ProgramLine match = program.getLine(((OpenBlock) ((CloseBlock) main).getMatch()).line);
+			// Da alle Zeilen über dieser bereits ausgewertet wurden, existiert eine
+			// MainExpression, die man auswerten kann.
+			if (match.getMainExpression() instanceof Function)
 				return Scope.GLOBAL_SCOPE;
 		}
 		return program.getLine(lineIndex - 1).searchForScope();

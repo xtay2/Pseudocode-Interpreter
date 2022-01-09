@@ -1,0 +1,10 @@
+---Known Issues---
+
+
+GEHT, ABER SOLLTE NICHT GEHEN:
+
+Wenn man etwas importiert, hat man auch Zugriff auf alle imports der dardurch importierten Funktionen.
+
+GEHT NICHT, ABER SOLLTE GEHEN:
+
+Kommentare sollten funktionieren

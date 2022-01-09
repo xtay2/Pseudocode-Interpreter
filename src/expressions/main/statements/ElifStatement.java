@@ -2,6 +2,7 @@ package expressions.main.statements;
 
 import static helper.Output.print;
 
+import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
@@ -25,7 +26,7 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}
 			VarManager.deleteScope(this);
-		} else if (nextElse != null && !Interpreter.execute(nextElse.getStart(), true))
+		} else if (nextElse != null && !Interpreter.execute(((Scope) nextElse).getStart(), true))
 			return false;
 		return (nextElse == null ? true : Interpreter.execute(endOfConstruct(), true));
 	}
@@ -33,13 +34,6 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 	@Override
 	public String getScopeName() {
 		return "elif" + getStart() + "-" + getEnd();
-	}
-
-	/** Initialises the following elif / else statement. */
-	public void setNextElse(ElifConstruct nextElse) {
-		if (this.nextElse != null)
-			throw new AssertionError("Trying to connect more than one else to this elif.");
-		this.nextElse = nextElse;
 	}
 	
 	@Override

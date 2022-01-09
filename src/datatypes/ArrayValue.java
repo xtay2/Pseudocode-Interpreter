@@ -59,6 +59,20 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	}
 
 	@Override
+	public boolean canCastTo(Type type) {
+		return switch (type) {
+		case VAR_ARRAY -> true; // Gibt sich selbst zurück
+		case VAR -> true; // Gibt sich selbst zurück
+		case BOOL -> true; // IsEmpty
+		case NUMBER -> true; // Gibt Länge zurück
+		case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
+		case TEXT -> true; // Gibt text-repräsentation zurück
+		case BOOL_ARRAY -> type == Type.BOOL_ARRAY; // Nur wenn es ein boolarray ist.
+		case NUMBER_ARRAY -> type == Type.NUMBER_ARRAY; // Nur wenn es ein numberarray ist.
+		};
+	}
+
+	@Override
 	public ArrayValue asVarArray() {
 		return asTypedArray(Type.VAR_ARRAY);
 	}
@@ -150,11 +164,12 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	}
 
 	/**
-	 * Returns the raw ValueHolder array of this ArrayValue.
+	 * Returns the raw, initialised ValueHolder array of this ArrayValue.
 	 * 
 	 * Do not use this in an Operation!
 	 */
 	public ValueHolder[] rawArray() {
+		init();
 		return content;
 	}
 
@@ -186,7 +201,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return initialised ? asText().rawString() : getType().toString();
 	}
 
-	/** Gets primarily used by the ForEachLoop.*/
+	/** Gets primarily used by the ForEachLoop. */
 	@Override
 	public Iterator<Value> iterator() {
 		init();

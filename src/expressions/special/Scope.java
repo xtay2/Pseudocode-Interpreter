@@ -1,20 +1,40 @@
 package expressions.special;
 
+import expressions.main.CloseBlock;
+import expressions.normal.brackets.OpenBlock;
 import main.Main;
 
-public interface Scope {
+public abstract class Scope extends MainExpression {
 
 	public static final Scope GLOBAL_SCOPE = new GlobalScope();
 
-	int getStart();
+	protected OpenBlock block = null;
 
-	int getEnd();
+	public Scope(int line) {
+		super(line);
+	}
 
-	String getScopeName();
+	public int getStart() {
+		return line;
+	}
+
+	public int getEnd() {
+		try {
+			return ((CloseBlock) block.getMatch()).line + 1;
+		} catch (NullPointerException e) {
+			throw new AssertionError("The scope " + this + " doesn't get closed. Use a ; or a }.");
+		}
+	}
+
+	public abstract String getScopeName();
 
 }
 
-class GlobalScope implements Scope {
+final class GlobalScope extends Scope {
+
+	public GlobalScope() {
+		super(0);
+	}
 
 	@Override
 	public int getStart() {
@@ -34,5 +54,15 @@ class GlobalScope implements Scope {
 	@Override
 	public String toString() {
 		return getScopeName();
+	}
+
+	@Override
+	public void build(Expression... args) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
+	}
+
+	@Override
+	public boolean execute(boolean doExecuteNext, ValueHolder... params) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
 	}
 }

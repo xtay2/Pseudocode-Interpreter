@@ -1,4 +1,4 @@
-package parser.finder;
+package parsing.finder;
 
 import datatypes.Value;
 import expressions.main.CloseBlock;
@@ -19,8 +19,8 @@ import expressions.normal.brackets.OpenBracket;
 import expressions.normal.operators.Operator;
 import expressions.special.Expression;
 import expressions.special.Type;
-import parser.program.ExpressionType;
-import parser.program.ValueBuilder;
+import parsing.program.ExpressionType;
+import parsing.program.ValueBuilder;
 
 public class ExpressionFinder {
 

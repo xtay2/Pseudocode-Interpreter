@@ -1,0 +1,29 @@
+import stdlib.lang.Casting
+
+native func execute(text name, var[] params)
+
+func execute(text name): return execute(name, []);
+
+
+native func print(text msg)
+
+
+native func type(var val)
+
+
+native func exit(text msg)
+func exit(): exit("Exit");
+
+
+native func read()
+
+func read(text msg) {
+    print(msg)
+    return read()
+}
+
+func readNr() -> nr: return number(read());
+func readNr(text msg) -> nr: return number(read(msg));
+
+func readBool() -> bool: return boolean(read());
+func readBool(text msg) -> bool: return boolean(read(msg));

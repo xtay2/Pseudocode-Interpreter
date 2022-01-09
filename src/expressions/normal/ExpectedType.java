@@ -3,7 +3,7 @@ package expressions.normal;
 import expressions.special.Expression;
 import expressions.special.Type;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class ExpectedType extends Expression implements Comparable<ExpectedType> {
 

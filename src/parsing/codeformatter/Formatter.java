@@ -1,4 +1,4 @@
-package codeformatter;
+package parsing.codeformatter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -6,9 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import exceptions.parsing.IllegalCodeFormatException;
+import helper.Helper;
+import parsing.program.KeywordType;
+
 /**
  * Methods that are tagged with this annotation can potentially interfere with
- * strings.
+ * strings. They should use the function Formatter#isNotInString
  */
 @Retention(RetentionPolicy.SOURCE)
 @interface InterferesWithStrings {
@@ -23,9 +27,10 @@ public class Formatter {
 		stripTrailing();
 		lineBreakBetweenBlocks(0);
 		indent();
-//		moveImportsUp();
-//		correctSpaces();
-//		addMissingMain();
+		correctSpaces();
+		addMissingMain();
+		moveImportsUp();
+		checkForLonelyBrackets();
 		return rawProgram;
 	}
 
@@ -45,19 +50,18 @@ public class Formatter {
 					// oder es gibt nur eine geschlossene klammer, die aber nicht alleine steht
 					|| (line.contains("}") && line.stripIndent().length() > 1))
 					// und diese klammer(n) nicht in einem String ist
-					&& isNotInString(line.indexOf('}'), line)) {
+					&& Helper.isNotInString(line.indexOf('}'), line)) {
 				rawProgram.set(i, rawProgram.get(i).replaceFirst("}", ""));
 				rawProgram.add(i + 1, "}");
 				lineBreakBetweenBlocks(i > 2 ? i - 2 : 0);
 				return;
 			}
 			int firstOBr = line.indexOf("{");
-			if (firstOBr != -1 && isNotInString(firstOBr, line)) {
+			if (firstOBr != -1 && Helper.isNotInString(firstOBr, line)) {
 				if (firstOBr != line.length() - 1) {
 					rawProgram.add(i + 1, rawProgram.get(i).substring(firstOBr + 1, line.length()));
 					rawProgram.set(i, rawProgram.get(i).substring(0, firstOBr + 1));
-				}
-				else if (line.stripIndent().charAt(0) == '{') {
+				} else if (line.stripIndent().charAt(0) == '{') {
 					rawProgram.remove(i);
 					rawProgram.set(i - 1, rawProgram.get(i - 1) + " {");
 				}
@@ -72,6 +76,8 @@ public class Formatter {
 			String s = rawProgram.get(i);
 			if (s.indexOf('}') != -1)
 				brack--;
+			if (brack < 0)
+				throw new IllegalCodeFormatException("There are more closed than open brackets.");
 			rawProgram.set(i, "\t".repeat(brack) + s.stripIndent());
 			if (s.indexOf('{') != -1)
 				brack++;
@@ -82,7 +88,7 @@ public class Formatter {
 	private static void moveImportsUp() {
 		ArrayList<String> imports = new ArrayList<>();
 		for (int i = 0; i < rawProgram.size(); i++) {
-			if (rawProgram.get(i).startsWith("import")) {
+			if (rawProgram.get(i).startsWith(KeywordType.IMPORT.keyword)) {
 				imports.add(rawProgram.get(i));
 				rawProgram.remove(i);
 			}
@@ -103,42 +109,48 @@ public class Formatter {
 			String line = rawProgram.get(i);
 
 			// Entferne alle mehrfachen spaces.
-			while (line.contains("  "))
+			while (Helper.isNotInString(line.indexOf("  "), line))
 				line = line.replaceAll("  ", " ");
 
 			// Entferne alle spaces vor kommatas.
 			for (int j = 1; j < line.length(); j++) {
-				if (line.charAt(j) == ',' && line.charAt(j - 1) == ' ')
+				if (Helper.isNotInString(j, line) && line.charAt(j) == ',' && line.charAt(j - 1) == ' ')
 					line = removeCharAt(line, j - 1);
 			}
 
-			// Füge ein space hinter jedem kommatas ein
+			// Füge ein space hinter jedem komma/doppelpunkt ein
 			for (int j = 0; j < line.length() - 1; j++) {
-				if (line.charAt(j) == ',' && line.charAt(j + 1) != ' ')
+				if (Helper.isNotInString(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j + 1) != ' ')
 					line = insertCharAt(' ', line, j + 1);
 			}
 
 			// Padding für single-char Operators
 			for (int j = 1; j < line.length() - 1; j++) {
-				// Arithmetische Operatoren
-				if (isArithmeticOperator(line.charAt(j), line.charAt(j - 1), line.charAt(j + 1))) {
-					if (line.charAt(j - 1) != ' ') {
-						line = insertCharAt(' ', line, j);
-						j++;
+				if (Helper.isNotInString(j, line)) {
+					// Arithmetische Operatoren
+					if (isArithmeticOperator(line.charAt(j), line.charAt(j - 1), line.charAt(j + 1))) {
+						if (line.charAt(j - 1) != ' ') {
+							line = insertCharAt(' ', line, j);
+							j++;
+						}
+						if (line.charAt(j + 1) != ' ') {
+							line = insertCharAt(' ', line, j + 1);
+							j++;
+						}
 					}
-					if (line.charAt(j + 1) != ' ') {
+					// Klammern innerhalb space entfernen (), [] und ^
+					if ((line.charAt(j) == ')' || line.charAt(j) == ']' || line.charAt(j) == '^') && line.charAt(j - 1) == ' ') {
+						line = removeCharAt(line, j - 1);
+						j--;
+					}
+					if ((line.charAt(j) == '(' || line.charAt(j) == '[' || line.charAt(j) == '^') && line.charAt(j + 1) == ' ') {
+						line = removeCharAt(line, j + 1);
+						j--;
+					}
+					if ((line.charAt(j + 1) == '{') && line.charAt(j) != ' ') {
 						line = insertCharAt(' ', line, j + 1);
 						j++;
 					}
-				}
-				// Klammern (), [] und ^
-				if ((line.charAt(j) == ')' || line.charAt(j) == ']' || line.charAt(j) == '^') && line.charAt(j - 1) == ' ') {
-					line = removeCharAt(line, j - 1);
-					j--;
-				}
-				if ((line.charAt(j) == '(' || line.charAt(j) == '[' || line.charAt(j) == '^') && line.charAt(j + 1) == ' ') {
-					line = removeCharAt(line, j + 1);
-					j--;
 				}
 			}
 			rawProgram.set(i, line);
@@ -147,12 +159,12 @@ public class Formatter {
 	}
 
 	/**
-	 * Returns true for +, -, *, /, %, and ÷. Returns false for ->.
+	 * Returns true for +, -, *, /, %. Returns false for ->.
 	 */
 	private static boolean isArithmeticOperator(char op, char lastChar, char nextChar) {
 		if (op == '-' && nextChar != ' ')
 			return false;
-		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '÷';
+		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%';
 	}
 
 	/**
@@ -163,11 +175,39 @@ public class Formatter {
 			if (line.stripIndent().startsWith("main"))
 				return;
 		}
-		ArrayList<String> newProg = new ArrayList<String>();
-		rawProgram = newProg;
-		rawProgram.add(0, "main:");
-		rawProgram.add(1, "\texit()");
-		rawProgram.add(2, "");
+		rawProgram.add(0, "main: exit();");
+		rawProgram.add(1, "");
+	}
+
+	/** Throw an exeption if a bracket exists that doesn't get closed. */
+	private static void checkForLonelyBrackets() {
+		int simple = 0, curly = 0, square = 0;
+		for (String line : rawProgram) {
+			for (int i = 0; i < line.length(); i++) {
+				char c = line.charAt(i);
+				if (Helper.isNotInString(i, line)) {
+					if (c == '(')
+						simple++;
+					if (c == '{')
+						curly++;
+					if (c == '[')
+						square++;
+					if (c == ')')
+						simple--;
+					if (c == '}')
+						curly--;
+					if (c == ']')
+						square--;
+					if (simple < 0 || curly < 0 || square < 0)
+						throw new IllegalCodeFormatException("There exists atleast one unopened bracket.");		
+				}
+			}
+		}
+		if (simple != 0 || curly != 0 || square != 0)
+			throw new IllegalCodeFormatException("There exists atleast one unclosed bracket."
+					+ "\nUnclosed simple brackets: " + simple
+					+ "\nUnclosed curly brackets: " + curly
+					+ "\nUnclosed square brackets: " + square);
 	}
 
 	/**
@@ -187,21 +227,4 @@ public class Formatter {
 	private static String removeCharAt(String s, int i) {
 		return s.substring(0, i) + s.substring(i + 1);
 	}
-
-	/**
-	 * Tells, if a char at a specified index is not in the string boundaries. ("")
-	 * 
-	 * @return true if the index is not in a string.
-	 */
-	public static boolean isNotInString(int index, String line) {
-		boolean inString = false;
-		for (int i = 0; i < index; i++) {
-			if (inString && line.charAt(i) == '\\')
-				i++;
-			else if (line.charAt(i) == '"')
-				inString = !inString;
-		}
-		return !inString && index != -1;
-	}
-
 }

@@ -4,11 +4,12 @@ import static helper.Output.print;
 
 import datatypes.Value;
 import expressions.main.functions.Function;
+import expressions.normal.Semikolon;
 import expressions.special.Expression;
 import expressions.special.MainExpression;
 import expressions.special.ValueHolder;
 import helper.Output;
-import parser.program.ExpressionType;
+import parsing.program.ExpressionType;
 
 public class ReturnStatement extends MainExpression implements ValueHolder {
 
@@ -17,7 +18,7 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 
 	public ReturnStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
+		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START, ExpressionType.DEFINITE_LINEBREAK);
 	}
 
 	/** The Returnvalue */
@@ -28,7 +29,9 @@ public class ReturnStatement extends MainExpression implements ValueHolder {
 
 	@Override
 	public void build(Expression... args) {
-		if (args.length == 2)
+		if (args.length == 1 || (args.length == 2 && args[1] instanceof Semikolon))
+			return;
+		if (args.length == 2 || (args.length == 3 && args[2] instanceof Semikolon))
 			val = (ValueHolder) args[1];
 		else if (args.length > 2)
 			throw new AssertionError("A function can only return one value.");

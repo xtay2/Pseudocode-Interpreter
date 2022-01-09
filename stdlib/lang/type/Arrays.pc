@@ -1,2 +1,34 @@
-func length(var[] a) -> nr:
+import stdlib.lang.Casting
+
+#Returns the amount of elements in an array.
+func length(var[] a) -> nr: return a;
+
+#Swap two values in an array.
+func swap(var[] a, nr i, nr j) -> var[] {
+	nr temp = val[int(i)]
+	a[int(i)] = a[int(j)]
+	a[int(j)] = temp
 	return a
+}
+
+#Sorts a number-array in ascending order.
+func sort(nr[] a) -> nr[]: return quicksort(a, 0, length(a) - 1);
+
+func quicksort(nr[] a, nr start, nr end) {
+	nr pivot = partition(a, start, end)
+	if pivot - 1 > start: quicksort(a, start, pivot - 1);
+	if pivot + 1 < end: quicksort(a, pivot + 1, end);
+	return a;
+}
+
+func partition(nr[] a, nr start, nr end) -> nr {
+	nr pivot = a[end]
+	for e in a {
+		if (e < pivot) {
+			a = swap(a, start, i)
+			start = start + 1
+		}
+	}
+	a = swap(a, start, end)
+	return start;
+}
