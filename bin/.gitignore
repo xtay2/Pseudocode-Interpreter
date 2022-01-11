@@ -1,9 +1,7 @@
-/interpreter/
-/main/
-/parser/
-/codeformatter/
+/parsing/
 /expressions/
 /helper/
+/main/
+/exceptions/
+/interpreter/
 /datatypes/
-/importer/
-/parsing/

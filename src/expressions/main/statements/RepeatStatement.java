@@ -33,12 +33,13 @@ public class RepeatStatement extends Scope {
 		print("Executing Repeat-Statement.");
 		long max = counterInit.getValue().asInt().rawInt();
 		if (max < 0)
-			throw new DeclarationException("Count of repetitions must be positive.");
+			throw new DeclarationException(getOriginalLine(), "Count of repetitions must be positive.");
 		if (!doExecuteNext)
 			throw new AssertionError("A repetion-statement has to be able to call the next line.");
 		for (int i = 0; i < max; i++) {
 			VarManager.registerScope(this);
-			if (!Interpreter.execute(line + 1, true)) {
+			VarManager.initCounter(this, i, getOriginalLine());
+			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 			}
@@ -51,7 +52,7 @@ public class RepeatStatement extends Scope {
 	public String getScopeName() {
 		return "repeat" + getStart() + "-" + getEnd();
 	}
-	
+
 	@Override
 	public String toString() {
 		return Output.DEBUG ? this.getClass().getSimpleName() : "repeat";

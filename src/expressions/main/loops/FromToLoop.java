@@ -44,10 +44,10 @@ public class FromToLoop extends Scope {
 		final long t = to.getValue().asInt().rawInt();
 		final long i = inc.getValue().asInt().rawInt();
 		print("Executing FromToLoop-Loop. (From " + f + " to " + t + ". Inc: " + i);
-		for (long cnt = f; (f < t ? cnt < t : cnt > t); cnt = cnt + (f < t ? i : -i)) {
+		for (long cnt = f; (f < t ? cnt <= t : cnt >= t); cnt = cnt + (f < t ? i : -i)) {
 			VarManager.registerScope(this);
-			VarManager.initCounter(this, cnt);
-			if (!Interpreter.execute(line + 1, true)) {
+			VarManager.initCounter(this, cnt, getOriginalLine());
+			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 			}

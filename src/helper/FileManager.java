@@ -1,4 +1,5 @@
 package helper;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -7,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.List;
+
 
 public final class FileManager {
 
@@ -28,31 +30,31 @@ public final class FileManager {
 	}
 
 	/**
-	 * Write a string into the textfile.
+	 * Write a Array of lines into the textfile.
 	 *
 	 * @param content is the string.
 	 * @param path    is the relative path, where the file is stored.
 	 */
 	public static void writeFile(String[] content, String path) {
 		String res = "";
-		for(String line : content)
+		for (String line : content)
 			res += line + "\n";
 		writeFile(res.stripTrailing(), path);
 	}
-	
+
 	/**
-	 * Write a string into the textfile.
+	 * Write a List of lines into the textfile.
 	 *
 	 * @param content is the string.
 	 * @param path    is the relative path, where the file is stored.
 	 */
 	public static void writeFile(List<String> content, String path) {
 		String res = "";
-		for(String line : content)
+		for (String line : content)
 			res += line + "\n";
 		writeFile(res.stripTrailing(), path);
 	}
-	
+
 	/**
 	 * Convert a textfile to a string.
 	 *

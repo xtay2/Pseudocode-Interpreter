@@ -20,19 +20,19 @@ public class MultOperator extends Operator {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
 		if (fst instanceof ArrayValue arr && sec.getType() == Type.NUMBER)
-			return ArrayValue.multiply(arr, (int) sec.asInt().rawInt());
+			return ArrayValue.multiply(arr, (int) sec.asInt().rawInt(), getOriginalLine());
 
 		if (fst.getType() == Type.NUMBER && sec instanceof ArrayValue arr)
-			return ArrayValue.multiply(arr, (int) fst.asInt().rawInt());
+			return ArrayValue.multiply(arr, (int) fst.asInt().rawInt(), getOriginalLine());
 
 		if (fst.canCastTo(Type.NUMBER) && sec.canCastTo(Type.NUMBER))
 			return NumberValue.mult(fst.asNumber(), sec.asNumber());
 		
-		if (fst.getType() == Type.TEXT && sec.getType() == Type.NUMBER)
-			return TextValue.multiply(fst.asText(), (int) sec.asInt().rawInt());
+		if (fst.getType() == Type.TEXT && sec.canCastTo(Type.NUMBER))
+			return TextValue.multiply(fst.asText(), (int) sec.asInt().rawInt(), getOriginalLine());
 
-		if (fst.getType() == Type.NUMBER && sec.getType() == Type.TEXT)
-			return TextValue.multiply(sec.asText(), (int) fst.asInt().rawInt());
+		if (fst.canCastTo(Type.NUMBER) && sec.getType() == Type.TEXT)
+			return TextValue.multiply(sec.asText(), (int) fst.asInt().rawInt(), getOriginalLine());
 
 		return NumberValue.mult(fst.asNumber(), sec.asNumber());
 	}

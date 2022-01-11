@@ -6,8 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import exceptions.runtime.CastingException;
-import exceptions.runtime.DeclarationException;
+import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
+import expressions.normal.array.ArrayAccess;
 import expressions.special.Type;
 import expressions.special.ValueHolder;
 
@@ -141,9 +142,9 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		initialised = true;
 	}
 
+	/** @see {@link ArrayAccess#getValue()} */
 	public Value get(int i) {
-		if (!initialised)
-			throw new DeclarationException("Array isn't initialised!");
+		init();
 		return switch (type) {
 		case BOOL_ARRAY -> content[i].getValue().as(Type.BOOL);
 		case NUMBER_ARRAY -> content[i].getValue().as(Type.NUMBER);
@@ -186,9 +187,9 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	}
 
 	/** Multiplies an existing Array n times */
-	public static ArrayValue multiply(ArrayValue a, int n) {
+	public static ArrayValue multiply(ArrayValue a, int n, int executedInLine) {
 		if (n < 0)
-			throw new UnexpectedTypeError("Array cannot be multiplied with negative numbers.");
+			throw new ShouldBeNaturalNrException(executedInLine, "Array cannot be multiplied with negative numbers.");
 		Value[] contents = a.getValue().content;
 		ArrayList<ValueHolder> content = new ArrayList<>(a.length() * n);
 		for (int mult = 0; mult < n; mult++)

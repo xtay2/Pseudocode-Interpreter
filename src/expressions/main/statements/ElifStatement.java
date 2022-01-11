@@ -21,7 +21,7 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 			throw new AssertionError("An elif-statement has to be able to call the next line.");
 		if (booleanExp.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
-			if (!Interpreter.execute(line + 1, true)) {
+			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}

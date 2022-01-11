@@ -7,7 +7,7 @@ public final class Output {
 	public static final String LINE_BREAK = "\n" + "=".repeat(70) + "\n";
 	public static final String UNDERLINE = "\n----------------------";
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	public static void print(String text) {
 		int identation = VarManager.countOfScopes();

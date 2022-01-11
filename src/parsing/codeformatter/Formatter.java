@@ -5,6 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import helper.Helper;
@@ -20,13 +21,14 @@ import parsing.program.KeywordType;
 
 public class Formatter {
 
-	private static ArrayList<String> rawProgram;
+	private static List<String> rawProgram;
 
-	public static ArrayList<String> format(ArrayList<String> p) {
+	public static List<String> format(List<String> p) {
 		rawProgram = p;
 		stripTrailing();
 		lineBreakBetweenBlocks(0);
 		indent();
+		addMissingSemicolon();
 		correctSpaces();
 		addMissingMain();
 		moveImportsUp();
@@ -77,10 +79,25 @@ public class Formatter {
 			if (s.indexOf('}') != -1)
 				brack--;
 			if (brack < 0)
-				throw new IllegalCodeFormatException("There are more closed than open brackets.");
+				throw new IllegalCodeFormatException(i, "There are more closed than open brackets.");
 			rawProgram.set(i, "\t".repeat(brack) + s.stripIndent());
 			if (s.indexOf('{') != -1)
 				brack++;
+		}
+	}
+
+	/**
+	 * Adds a semicolon behind each one line statement thats missing one.
+	 */
+	private static void addMissingSemicolon() {
+		for (int i = 0; i < rawProgram.size(); i++) {
+			String line = rawProgram.get(i);
+			for (int j = 0; j < line.length(); j++) {
+				if (line.charAt(j) == ':' && Helper.isNotInString(j, line) && line.charAt(line.length() - 1) != ';') {
+					rawProgram.set(i, line + ";");
+					return;
+				}
+			}
 		}
 	}
 
@@ -182,10 +199,11 @@ public class Formatter {
 	/** Throw an exeption if a bracket exists that doesn't get closed. */
 	private static void checkForLonelyBrackets() {
 		int simple = 0, curly = 0, square = 0;
-		for (String line : rawProgram) {
-			for (int i = 0; i < line.length(); i++) {
-				char c = line.charAt(i);
-				if (Helper.isNotInString(i, line)) {
+		for (int i = 0; i < rawProgram.size(); i++) {
+			String line = rawProgram.get(i);
+			for (int j = 0; j < line.length(); j++) {
+				char c = line.charAt(j);
+				if (Helper.isNotInString(j, line)) {
 					if (c == '(')
 						simple++;
 					if (c == '{')
@@ -199,15 +217,15 @@ public class Formatter {
 					if (c == ']')
 						square--;
 					if (simple < 0 || curly < 0 || square < 0)
-						throw new IllegalCodeFormatException("There exists atleast one unopened bracket.");		
+						throw new IllegalCodeFormatException(i, "There exists atleast one unopened bracket.");
 				}
 			}
 		}
-		if (simple != 0 || curly != 0 || square != 0)
-			throw new IllegalCodeFormatException("There exists atleast one unclosed bracket."
-					+ "\nUnclosed simple brackets: " + simple
-					+ "\nUnclosed curly brackets: " + curly
-					+ "\nUnclosed square brackets: " + square);
+		if (simple != 0 || curly != 0 || square != 0) {
+
+			throw new IllegalCodeFormatException("There exists atleast one unclosed bracket." + "\nUnclosed simple brackets: " + simple
+					+ "\nUnclosed curly brackets: " + curly + "\nUnclosed square brackets: " + square);
+		}
 	}
 
 	/**

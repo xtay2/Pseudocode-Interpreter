@@ -23,12 +23,14 @@ public final class Operation extends Expression implements ValueHolder {
 		convertComparative();
 	}
 
-	/** Converts multiple ComparativeOperator */
+	/** Converts multiple ComparativeOperators */
 	private void convertComparative() {
-		for (int i = 1; i < operation.size(); i++) {
-			if (operation.get(i) instanceof ComparativeOperator && i + 2 < operation.size() && operation.get(i + 2) instanceof ComparativeOperator) {
-				operation.add(i + 2, new AndOperator(line, InfixOperator.AND));
+		for (int i = 1; i < operation.size(); i += 2) {
+			if (operation.get(i) instanceof ComparativeOperator && i + 2 < operation.size()
+					&& operation.get(i + 2) instanceof ComparativeOperator) {
+				operation.add(i + 2, new AndOperator(lineIdentifier, InfixOperator.AND));
 				operation.add(i + 3, operation.get(i + 1));
+				i += 2;
 			}
 		}
 	}
@@ -40,10 +42,10 @@ public final class Operation extends Expression implements ValueHolder {
 
 	/** Execute the operation in the correct order. */
 	private Value recValue(ValueHolder a, Operator o, ValueHolder b, int indexOfA) {
-		if (indexOfA + 3 < operation.size()) {
+		if (indexOfA + 3 < operation.size()) { // Associativity-Check
 			Operator next = (Operator) operation.get(indexOfA + 3);
 			ValueHolder c = (ValueHolder) operation.get(indexOfA + 4);
-			if (next.op.rank > o.op.rank || next.isLeftAssociative()) {
+			if (next.op.rank > o.op.rank || o.isRightAssociative()) {
 				return o.perform(a, recValue(b, next, c, indexOfA + 2));
 			}
 			return recValue(o.perform(a, b), next, c, indexOfA + 2);

@@ -38,6 +38,11 @@ public abstract class Operator extends Expression {
 		return getAssociativity() == Associativity.LEFT;
 	}
 
+	public boolean isRightAssociative() {
+		return getAssociativity() == Associativity.RIGHT;
+	}
+
+	
 	public static boolean isOperator(String s) {
 		for (InfixOperator op : InfixOperator.values())
 			if (op.symbol.equals(s))

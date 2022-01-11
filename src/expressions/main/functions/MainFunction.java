@@ -21,7 +21,7 @@ public class MainFunction extends Function {
 
 	@Override
 	public void build(Expression... args) {
-		name = new Name(KeywordType.MAIN.keyword, line);
+		name = new Name(KeywordType.MAIN.keyword, lineIdentifier);
 		if (args[args.length - 1] instanceof OpenBlock)
 			block = (OpenBlock) args[args.length - 1];
 	}
@@ -32,7 +32,7 @@ public class MainFunction extends Function {
 		if (!doExecuteNext)
 			throw new AssertionError("Main Function has to be allowed to execute.");
 		VarManager.registerScope(this);
-		Interpreter.execute(line + 1, true);
+		Interpreter.execute(lineIdentifier + 1, true);
 		VarManager.deleteScope(this);
 		return false;
 	}

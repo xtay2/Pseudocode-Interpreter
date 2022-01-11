@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import datatypes.NumberValue;
+import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalCallException;
 import expressions.normal.Name;
@@ -17,7 +18,7 @@ import parsing.finder.KeywordFinder;
 public final class VarManager {
 
 	private static Stack stack = new Stack();
-	private static final byte LOOP_VAR_COUNT = 8;
+	private static final byte LOOP_VAR_COUNT = 7;
 	private static final char FIRST_COUNTER_NAME = 'i';
 	private static char counterName = FIRST_COUNTER_NAME;
 
@@ -35,8 +36,14 @@ public final class VarManager {
 		stack.registerVar(var);
 	}
 
-	public static Variable get(String name) {
-		return stack.findVar(name);
+	/**
+	 * Finds a Variable by its name.
+	 * 
+	 * @param name         is the name of the searched var.
+	 * @param calledInLine is the line in which the call takes place.
+	 */
+	public static Variable get(String name, int calledInLine) {
+		return stack.findVar(name, calledInLine);
 	}
 
 	public static void deleteScope(Scope scope) {
@@ -50,21 +57,19 @@ public final class VarManager {
 		return stack.height();
 	}
 
-	public static void initCounter(Scope scope, long value) {
+	public static void initCounter(Scope scope, long value, int calledInLine) {
 		Variable cnt = new Variable(scope.getStart(), Type.NUMBER);
 		cnt.initialise(new Name(String.valueOf(counterName), scope.getStart()), new NumberValue(value));
-		if (counterName > 'p') {
-			System.err.println("DISCOURAGED BEHAVIOUR! USING MORE THAN 8 NESTED LOOPS.");
-			return;
-		}
+		if (counterName > (FIRST_COUNTER_NAME + LOOP_VAR_COUNT))
+			throw new IllegalCodeFormatException(calledInLine, "Nesting more than " + (LOOP_VAR_COUNT + 1) + " loops is forbidden.");
 		counterName++;
 	}
 
-	public static void nameCheck(String name) {
+	public static void nameCheck(String name, int calledInLine) {
 		for (byte b = 0; b < LOOP_VAR_COUNT; b++)
 			if (String.valueOf((char) (FIRST_COUNTER_NAME + b)).equals(name))
-				throw new DeclarationException("Variable cannot be manually declared with a counter-name. (" + FIRST_COUNTER_NAME + "-"
-						+ (char) (FIRST_COUNTER_NAME + LOOP_VAR_COUNT) + ") was " + name);
+				throw new DeclarationException(calledInLine, "Variable cannot be manually declared with a counter-name. ("
+						+ FIRST_COUNTER_NAME + "-" + (char) (FIRST_COUNTER_NAME + LOOP_VAR_COUNT) + ") was " + name);
 		if (KeywordFinder.isKeyword(name) || Type.isType(name))
 			throw new IllegalArgumentException("A Variable cannot be named after a keyword or a type.");
 	}
@@ -101,14 +106,14 @@ final class Stack {
 		peekScope().put(var.getName(), var);
 	}
 
-	public Variable findVar(String varName) {
+	public Variable findVar(String varName, int calledInLine) {
 		for (int i = scopes.size() - 1; i >= 0; i--) {
 			HashMap<String, Variable> scope = scopes.get(i).getScope();
 			Variable var = scope.get(varName);
 			if (var != null)
 				return var;
 		}
-		throw new IllegalCallException("Var " + varName + " doesn't exist. \nScopes: " + scopes);
+		throw new IllegalCallException(calledInLine, "Called var " + varName + " doesn't exist. \nScopes: " + scopes);
 	}
 
 	public int height() {

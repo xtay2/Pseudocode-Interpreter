@@ -26,8 +26,8 @@ import parsing.parser.Parser;
 public class ProgramLine {
 
 	public final String line;
-
 	public final Program program;
+	public final int lineIdentifier;
 	public final int lineIndex;
 	private ArrayList<Expression> expressions = new ArrayList<>();
 	private MainExpression main;
@@ -37,18 +37,18 @@ public class ProgramLine {
 	 *
 	 * @param line is the content of this line of code.
 	 */
-	public ProgramLine(String line, int lineIndex, Program program) {
+	public ProgramLine(String line, int lineIdentifier, int lineIndex, Program program) {
 		this.program = program;
 		this.line = line;
+		this.lineIdentifier = lineIdentifier;
 		this.lineIndex = lineIndex;
-		construct();
 	}
 
 	/**
 	 * Reads the line and constructs an object-expression-notation from the
 	 * information.
 	 */
-	private void construct() {
+	public void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
 		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.VAR_TYPE, ExpressionType.NAME,
@@ -81,7 +81,7 @@ public class ProgramLine {
 			current += c;
 		}
 		if (inString)
-			throw new IllegalCodeFormatException("String has to be closed.");
+			throw new IllegalCodeFormatException(lineIndex, "String has to be closed.");
 		if (!"".equals(current.strip())) { // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
 		}
@@ -110,10 +110,10 @@ public class ProgramLine {
 		main = findMainExpression();
 		// Wenn es eine schließende Klammer suche ihren Partner.
 		if (main instanceof CloseBlock)
-			program.getLine(lineIndex - 1).connectBlock((CloseBlock) main, -1);
+			program.getLine(lineIdentifier - 1).connectBlock((CloseBlock) main, -1);
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		else if (main instanceof ReturnStatement)
-			((ReturnStatement) main).setMyFunc(program.getLine(lineIndex - 1).searchForFunc());
+			((ReturnStatement) main).setMyFunc(program.getLine(lineIdentifier - 1).searchForFunc());
 		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
 		else if (main instanceof ElifStatement || main instanceof ElseStatement)
 			findLastIf().setNextElse((ElifConstruct) main);
@@ -123,12 +123,12 @@ public class ProgramLine {
 
 	/** Returns the last IfStatement or ElifStatement. */
 	private ElifConstruct findLastIf() {
-		if (lineIndex == 0)
-			throw new IllegalCodeFormatException("An elif/else Statement needs a predecessing IfStatement.");
-		MainExpression previous = program.getLine(lineIndex - 1).getMainExpression();
+		if (lineIdentifier == 0)
+			throw new IllegalCodeFormatException(lineIndex, "An elif/else Statement needs a predecessing IfStatement.");
+		MainExpression previous = program.getLine(lineIdentifier - 1).getMainExpression();
 		if (previous instanceof IfStatement || previous instanceof ElifStatement)
 			return (ElifConstruct) previous;
-		return program.getLine(lineIndex - 1).findLastIf();
+		return program.getLine(lineIdentifier - 1).findLastIf();
 	}
 
 	/** Finds and returns the MainExpression of this line. */
@@ -136,7 +136,7 @@ public class ProgramLine {
 		for (Expression e : expressions)
 			if (e.isMainExpression())
 				return (MainExpression) e;
-		throw new IllegalCodeFormatException("Line doesn't contain a main-expression: " + line + "\n" + expressions);
+		throw new IllegalCodeFormatException(lineIndex, "Line doesn't contain a main-expression: " + line + "\n" + expressions);
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class ProgramLine {
 			if (e instanceof Name)
 				((Name) e).initScope(scope);
 		// Merge Zeile in eine function/declaration/call...
-		expressions = ValueBuilder.buildLine(expressions, lineIndex);
+		expressions = ValueBuilder.buildLine(expressions, lineIdentifier, lineIndex);
 	}
 
 	/**
@@ -173,9 +173,9 @@ public class ProgramLine {
 				return;
 			}
 		}
-		if (lineIndex <= 0)
-			throw new IllegalCodeFormatException("Matching open bracket wasn't found.");
-		program.getLine(lineIndex - 1).connectBlock(close, brackets);
+		if (lineIdentifier <= 0)
+			throw new IllegalCodeFormatException(lineIndex, "Matching open bracket wasn't found.");
+		program.getLine(lineIdentifier - 1).connectBlock(close, brackets);
 	}
 
 	/**
@@ -192,16 +192,16 @@ public class ProgramLine {
 			return Scope.GLOBAL_SCOPE;
 		if (main instanceof Scope)
 			return (Scope) main;
-		if (lineIndex == 0)
+		if (lineIdentifier == 0)
 			return Scope.GLOBAL_SCOPE;
 		if (main instanceof CloseBlock) {
-			ProgramLine match = program.getLine(((OpenBlock) ((CloseBlock) main).getMatch()).line);
+			ProgramLine match = program.getLine(((OpenBlock) ((CloseBlock) main).getMatch()).lineIdentifier);
 			// Da alle Zeilen über dieser bereits ausgewertet wurden, existiert eine
 			// MainExpression, die man auswerten kann.
 			if (match.getMainExpression() instanceof Function)
 				return Scope.GLOBAL_SCOPE;
 		}
-		return program.getLine(lineIndex - 1).searchForScope();
+		return program.getLine(lineIdentifier - 1).searchForScope();
 	}
 
 	/**
@@ -211,9 +211,9 @@ public class ProgramLine {
 	private Function searchForFunc() {
 		if (main instanceof Function)
 			return (Function) main;
-		if (lineIndex == 0)
-			throw new IllegalCodeFormatException("Return-Statement has to be declared inside a function.");
-		return program.getLine(lineIndex - 1).searchForFunc();
+		if (lineIdentifier == 0)
+			throw new IllegalCodeFormatException(lineIndex, "Return-Statement has to be declared inside a function.");
+		return program.getLine(lineIdentifier - 1).searchForFunc();
 	}
 
 	/**
@@ -221,9 +221,9 @@ public class ProgramLine {
 	 * expected.
 	 */
 	private ExpressionType[] constructExpression(String current, ExpressionType[] expectedExpressionTypes) {
-		Expression exp = ExpressionFinder.find(current, expectedExpressionTypes, lineIndex);
+		Expression exp = ExpressionFinder.find(current, expectedExpressionTypes, lineIdentifier);
 		if (exp == null)
-			throw new IllegalCodeFormatException("No matching Expression was found for: " //
+			throw new IllegalCodeFormatException(lineIndex, "No matching Expression was found for: " //
 					+ current + "\n" //
 					+ "Expected " + (expectedExpressionTypes.length == 0 ? "a linebreak" : Arrays.toString(expectedExpressionTypes))
 					+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
@@ -241,6 +241,6 @@ public class ProgramLine {
 
 	@Override
 	public String toString() {
-		return lineIndex + "\t" + line;
+		return lineIdentifier + "\t" + line;
 	}
 }

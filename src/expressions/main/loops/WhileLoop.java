@@ -35,8 +35,8 @@ public class WhileLoop extends Scope {
 			throw new AssertionError("A while-loop has to be able to call the next line.");
 		while(runCondition.getValue().asBool().rawBoolean()) {
 			VarManager.registerScope(this);
-			VarManager.initCounter(this, repetitions);
-			if (!Interpreter.execute(line + 1, true)) {
+			VarManager.initCounter(this, repetitions, getOriginalLine());
+			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 			}

@@ -59,7 +59,7 @@ public class Function extends Scope implements ValueHolder {
 			nameCheck(n.getName());
 			name = n;
 		} else
-			throw new DeclarationException("Every function must have a name!" + Arrays.toString(args));
+			throw new DeclarationException(getOriginalLine(), "Every function must have a name!" + Arrays.toString(args));
 
 		// Finde die Namen und Typen der Parameter heraus.
 		for (int i = funcKeywordPos + 2; i < args.length; i++) {
@@ -77,7 +77,7 @@ public class Function extends Scope implements ValueHolder {
 			// Finde heraus ob es einen Rückgabetypen gibt, und wenn ja, welchen.
 			if (args[i] instanceof ExpectedReturnType) {
 				if (!(args[i + 1] instanceof ExpectedType))
-					throw new IllegalCodeFormatException("No type declaration after \"->\" in " + name);
+					throw new IllegalCodeFormatException(getOriginalLine(), "No type declaration after \"->\" in " + name);
 				returnType = ((ExpectedType) args[i + 1]).type;
 				break;
 			}
@@ -88,7 +88,7 @@ public class Function extends Scope implements ValueHolder {
 			if (last instanceof OpenBlock ob)
 				block = ob;
 			else
-				throw new IllegalCodeFormatException(
+				throw new IllegalCodeFormatException(getOriginalLine(),
 						name + ": A function-declaration must end with a valid block. Expected ':' or '{', was: '" + last + "'");
 		}
 	}
@@ -98,7 +98,7 @@ public class Function extends Scope implements ValueHolder {
 	 */
 	private void nameCheck(String s) {
 		if (KeywordFinder.isKeyword(s) || Type.isType(s))
-			throw new DeclarationException("A function cannot be named after a keyword or a type.");
+			throw new DeclarationException(getOriginalLine(), "A function cannot be named after a keyword or a type.");
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class Function extends Scope implements ValueHolder {
 	public int expectedParams() {
 		return paramBlueprint.size();
 	}
-	
+
 	public boolean isNative() {
 		return isNative;
 	}
@@ -138,29 +138,30 @@ public class Function extends Scope implements ValueHolder {
 		try {
 			int paramCount = paramBlueprint.size();
 			if (paramCount != params.length)
-				throw new DeclarationException(name + " takes " + paramCount + " parameters. Please call it accordingly.");
+				throw new DeclarationException(getOriginalLine(),
+						name + " takes " + paramCount + " parameters. Please call it accordingly.");
 			for (int i = 0; i < paramCount; i++) {
 				DictionaryEntry<Name, ExpectedType> param = paramBlueprint.get(i);
 				Value v = params[i].getValue();
-				Variable p = new Variable(line, param.getValue() == null ? v.getType() : param.getValue().type);
+				Variable p = new Variable(lineIdentifier, param.getValue() == null ? v.getType() : param.getValue().type);
 				p.initialise(param.getKey(), v);
 			}
 		} catch (CastingException e) {
-			throw new DeclarationException("Passed a value with an unwanted type to " + name + ".");
+			throw new DeclarationException(getOriginalLine(), "Passed a value with an unwanted type to " + name + ".");
 		}
 	}
-	
+
 	@Override
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		if (isNative) {
-			returnVal = SystemFunctions.callSystemFunc(getName(), params);
+			returnVal = SystemFunctions.callSystemFunc(SystemFunctions.getSystemFunction(getName()), params);
 		} else {
 			print("Executing " + name + (params.length == 0 ? "" : " with " + Arrays.toString(params)));
 			registerParameters(params);
 			if (doExecuteNext)
-				Interpreter.execute(line + 1, true);
+				Interpreter.execute(lineIdentifier + 1, true);
 			if (returnType != null && returnVal == null)
-				throw new IllegalReturnException(
+				throw new IllegalReturnException(getOriginalLine(),
 						"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
 			VarManager.deleteScope(this);
 		}
@@ -182,6 +183,5 @@ public class Function extends Scope implements ValueHolder {
 	public String toString() {
 		return Output.DEBUG ? this.getClass().getSimpleName() : (name == null ? "func" : name.toString());
 	}
-
 
 }

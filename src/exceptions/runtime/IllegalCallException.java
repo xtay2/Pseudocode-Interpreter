@@ -4,8 +4,8 @@ package exceptions.runtime;
 @SuppressWarnings("serial")
 public class IllegalCallException extends AbstractRuntimeException {
 
-	public IllegalCallException(String message) {
-		super(message);
+	public IllegalCallException(int line, String message) {
+		super(line, message);
 	}
 
 }

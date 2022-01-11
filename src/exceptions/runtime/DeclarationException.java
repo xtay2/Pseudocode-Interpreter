@@ -7,8 +7,8 @@ package exceptions.runtime;
 @SuppressWarnings("serial")
 public class DeclarationException extends AbstractRuntimeException {
 
-	public DeclarationException(String message) {
-		super(message);
+	public DeclarationException(int line, String message) {
+		super(line, message);
 	}
 
 }

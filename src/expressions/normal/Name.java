@@ -23,7 +23,7 @@ public class Name extends Expression implements ValueHolder {
 
 	@Override
 	public Value getValue() {
-		return VarManager.get(name).getValue();
+		return VarManager.get(name, getOriginalLine()).getValue();
 	}
 
 	public void initScope(Scope scope) {

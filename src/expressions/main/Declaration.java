@@ -39,15 +39,15 @@ public class Declaration extends MainExpression {
 	@Override
 	public void build(Expression... args) {
 		// Erstes argument ist var, bool, text oder nr.
-		if ((args[0] instanceof Variable && args.length == 4 || (args.length == 5 && args[4] instanceof Semikolon))) {
+		if (args[0] instanceof Variable && (args.length == 4 || (args.length == 5 && args[4] instanceof Semikolon))) {
 			state = State.DECLARATION; // Initialisierung
 			var = (Variable) args[0];
 			name = (Name) args[1];
-			VarManager.nameCheck(name.getName());
+			VarManager.nameCheck(name.getName(), getOriginalLine());
 			val = (ValueHolder) args[3];
 			return;
 		}
-		if (args[0] instanceof Name && args.length == 3 || (args.length == 4 && args[3] instanceof Semikolon)) {
+		if (args[0] instanceof Name && (args.length == 3 || (args.length == 4 && args[3] instanceof Semikolon))) {
 			state = State.ASSIGNMENT; // Wertzuweisung
 			name = (Name) args[0];
 			val = (ValueHolder) args[2];
@@ -60,7 +60,7 @@ public class Declaration extends MainExpression {
 			val = (ValueHolder) args[2];
 			return;
 		}
-		throw new DeclarationException("Illegal declaration. " //
+		throw new DeclarationException(getOriginalLine(), "Illegal declaration. " //
 				+ "Has to be something like: " //
 				+ "\n\"name = value\", "//
 				+ "\n\"var name = value\", "//
@@ -82,13 +82,13 @@ public class Declaration extends MainExpression {
 				var.initialise(name, value);
 			} else if (state == State.ASSIGNMENT) {
 				print("Changing the value of " + name + " to " + value);
-				VarManager.get(name.getName()).setValue(value);
+				VarManager.get(name.getName(), getOriginalLine()).setValue(value);
 			} else if (state == State.ARRAY_MODIFICATION) {
 				arr.setValue(value);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			throw new IllegalReturnException("Function has to return a value!");
+			throw new IllegalReturnException(getOriginalLine(), "Function has to return a value!");
 		}
 		return callNextLine(doExecuteNext);
 	}

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import datatypes.Value;
-import exceptions.runtime.IllegalCallException;
 import datatypes.ArrayValue;
 import datatypes.TextValue;
 import expressions.special.ValueHolder;
@@ -26,22 +25,21 @@ public final class SystemFunctions {
 		}
 	}
 
-	/** Returns if the specified name matches the name of a system-function. */
-	private static SYSTEM_FUNCTION isSystemFunction(String name) {
+	/** Returns the matching system-function for this name. */
+	public static SYSTEM_FUNCTION getSystemFunction(String name) {
 		for (SYSTEM_FUNCTION f : SYSTEM_FUNCTION.values())
 			if (f.name.equals(name))
 				return f;
 		return null;
 	}
 
-	public static Value callSystemFunc(String func, ValueHolder... params) {
-		return switch (isSystemFunction(func)) {
+	public static Value callSystemFunc(SYSTEM_FUNCTION func, ValueHolder... params) {
+		return switch (func) {
 		case PRINT -> print(params);
 		case READ -> read(params);
 		case EXIT -> exit(params);
 		case EXECUTE -> execute(params);
 		case TYPE -> type(params);
-		default -> throw new IllegalCallException("Only functions from the standard library can use the native keyword.");
 		};
 	}
 

@@ -15,12 +15,12 @@ public abstract class Scope extends MainExpression {
 	}
 
 	public int getStart() {
-		return line;
+		return lineIdentifier;
 	}
 
 	public int getEnd() {
 		try {
-			return ((CloseBlock) block.getMatch()).line + 1;
+			return ((CloseBlock) block.getMatch()).lineIdentifier + 1;
 		} catch (NullPointerException e) {
 			throw new AssertionError("The scope " + this + " doesn't get closed. Use a ; or a }.");
 		}
@@ -43,7 +43,7 @@ final class GlobalScope extends Scope {
 
 	@Override
 	public int getEnd() {
-		return Main.program.size();
+		return Main.PROGRAM.size();
 	}
 
 	@Override

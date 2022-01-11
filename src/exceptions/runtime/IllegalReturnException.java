@@ -4,8 +4,8 @@ package exceptions.runtime;
 @SuppressWarnings("serial")
 public class IllegalReturnException extends AbstractRuntimeException {
 
-	public IllegalReturnException(String message) {
-		super(message);
+	public IllegalReturnException(int line, String message) {
+		super(line, message);
 	}
 
 }

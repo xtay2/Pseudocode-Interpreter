@@ -20,7 +20,7 @@ public class CloseBlock extends MainExpression implements Bracket {
 	@Override
 	public void build(Expression... args) {
 		if (args.length > 1)
-			throw new IllegalCodeFormatException("Illegal expression behind bracket: " + args[1]);
+			throw new IllegalCodeFormatException(getOriginalLine(), "Illegal expression behind bracket: " + args[1]);
 	}
 
 	@Override

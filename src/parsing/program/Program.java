@@ -30,14 +30,16 @@ public class Program {
 	/**
 	 * Adds/Replaces a specified, stripped line of code in this datastructure.
 	 *
-	 * @param i       is the line-index
 	 * @param content is the code in this line
+	 * @param line    is the original line-index
 	 * @return {@code true} if the line was changed.
 	 */
-	public boolean appendLine(String content) {
+	public boolean appendLine(String content, int line) {
 		if (content == null)
 			throw new NullPointerException("Line can be empty, but not null.");
-		program.add(new ProgramLine(content, program.size(), this)); // Line was added.
+		ProgramLine newline = new ProgramLine(content, program.size(), line, this);
+		program.add(newline); // Line was added.
+		newline.construct();
 		return true;
 	}
 

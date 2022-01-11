@@ -49,34 +49,35 @@ public final class Interpreter {
 		print("Pre-Compiling:" + UNDERLINE);
 		boolean hasMain = false;
 		Scope currentScope = Scope.GLOBAL_SCOPE;
-		for (int i = 0; i < Main.program.size(); i++) {
-			MainExpression e = Main.program.getLine(i).getMainExpression();
+		for (int i = 0; i < Main.PROGRAM.size(); i++) {
+			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
 			print(e.toString());
 			// Check func in other func
 			if (e instanceof Function f && currentScope != Scope.GLOBAL_SCOPE)
-				throw new IllegalCodeFormatException("A function cannot be defined in another function. See: \"" + f.getName()+ "\" in " + currentScope);
+				throw new IllegalCodeFormatException(Main.PROGRAM.getLine(i).lineIndex,
+						"A function cannot be defined in another function. See: \"" + f.getName() + "\" in " + currentScope);
 			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
-					throw new DeclarationException("The main-function should be defined only once!");
+					throw new DeclarationException(Main.PROGRAM.getLine(i).lineIndex, "The main-function should be defined only once!");
 				FuncManager.registerFunction(KeywordType.MAIN.keyword, i);
 				hasMain = true;
 			}
 			// Speichere alle Funktionsnamen (Main darf nicht gecallt werden.)
 			if (e instanceof Function && !(e instanceof MainFunction))
 				FuncManager.registerFunction(((Function) e).getName() + ((Function) e).expectedParams(), i);
-			currentScope = Main.program.getLine(i).searchForScope();
+			currentScope = Main.PROGRAM.getLine(i).searchForScope();
 		}
 		if (!hasMain)
-			throw new DeclarationException("Program has to include a main-function!");
+			throw new AssertionError("Program has to include a main-function!");
 	}
 
 	/**
 	 * Register all Variables in the global scope. (Outside of functions).
 	 */
 	private static void registerGlobalVars() {
-		for (int i = 0; i < Main.program.size(); i++) {
-			MainExpression e = Main.program.getLine(i).getMainExpression();
+		for (int i = 0; i < Main.PROGRAM.size(); i++) {
+			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
 			if (e instanceof Declaration && ((Declaration) e).getName().getScope().equals(Scope.GLOBAL_SCOPE))
 				execute(i, false);
 		}
@@ -96,7 +97,7 @@ public final class Interpreter {
 	 * 
 	 */
 	public static boolean execute(int i, boolean doExecuteNext, ValueHolder... params) {
-		return Main.program.getLine(i).getMainExpression().execute(doExecuteNext, params);
+		return Main.PROGRAM.getLine(i).getMainExpression().execute(doExecuteNext, params);
 	}
 
 	/**
@@ -124,7 +125,7 @@ public final class Interpreter {
 	 * @return the return-value of the function.
 	 */
 	public static Value call(String name, boolean doExecuteNext, ValueHolder... params) {
-		Function f = (Function) Main.program.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
+		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
 		f.execute(doExecuteNext, params);
 		Value returnVal = f.getValue();
 		f.setReturnVal(null);

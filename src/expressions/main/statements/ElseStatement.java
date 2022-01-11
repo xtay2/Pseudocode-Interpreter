@@ -31,12 +31,12 @@ public class ElseStatement extends Scope implements ElifConstruct {
 		if (!doExecuteNext)
 			throw new AssertionError("An else-statement has to be able to call the next line.");
 		VarManager.registerScope(this);
-		if (!Interpreter.execute(line + 1, true)) {
+		if (!Interpreter.execute(lineIdentifier + 1, true)) {
 			VarManager.deleteScope(this);
 			return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 		}
 		VarManager.deleteScope(this);
-		return true; //Lasse das if-Statement die nächste Zeile ausführen.
+		return true; // Lasse das if-Statement die nächste Zeile ausführen.
 	}
 
 	@Override
@@ -51,9 +51,9 @@ public class ElseStatement extends Scope implements ElifConstruct {
 
 	@Override
 	public void setNextElse(ElifConstruct nextElse) {
-		throw new IllegalCodeFormatException("An else cannot be followed by another elif/else.");
+		throw new IllegalCodeFormatException(getOriginalLine(), "An else cannot be followed by another elif/else.");
 	}
-	
+
 	@Override
 	public String toString() {
 		return Output.DEBUG ? this.getClass().getSimpleName() : "else";

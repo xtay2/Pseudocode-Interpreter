@@ -30,9 +30,9 @@ public class ForEachLoop extends Scope {
 	@Override
 	public void build(Expression... args) {
 		if (!(args[1] instanceof Name) || !(args[2] instanceof LoopConnector) || !(args[3] instanceof ValueHolder))
-			throw new IllegalCodeFormatException("Wrong structured for-each-in loop.");
+			throw new IllegalCodeFormatException(getOriginalLine(), "Wrong structured for-each-in loop.");
 		elementName = (Name) args[1];
-		VarManager.nameCheck(elementName.getName());
+		VarManager.nameCheck(elementName.getName(), getOriginalLine());
 		array = (ValueHolder) args[3];
 		block = (OpenBlock) args[4];
 	}
@@ -44,11 +44,11 @@ public class ForEachLoop extends Scope {
 		if (!doExecuteNext)
 			throw new AssertionError("A for-each-loop has to be able to call the next line.");
 		try {
-			for (Value e : array.getValue().asVarArray()) { //Cast to Var-Array
+			for (Value e : array.getValue().asVarArray()) { // Cast to Var-Array
 				VarManager.registerScope(this);
-				new Variable(line, Type.VAR).initialise(elementName, e);
-				VarManager.initCounter(this, repetitions);
-				if (!Interpreter.execute(line + 1, true)) {
+				new Variable(lineIdentifier, Type.VAR).initialise(elementName, e);
+				VarManager.initCounter(this, repetitions, getOriginalLine());
+				if (!Interpreter.execute(lineIdentifier + 1, true)) {
 					VarManager.deleteScope(this);
 					return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 				}
@@ -56,7 +56,7 @@ public class ForEachLoop extends Scope {
 				VarManager.deleteScope(this);
 			}
 		} catch (ClassCastException e) {
-			throw new IllegalCodeFormatException("Cannot iterate over anything other than an array.");
+			throw new IllegalCodeFormatException(getOriginalLine(), "Cannot iterate over anything other than an array.");
 		}
 		return Interpreter.execute(getEnd(), true);
 	}

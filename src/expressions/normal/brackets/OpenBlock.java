@@ -23,8 +23,8 @@ public class OpenBlock extends Expression implements Bracket {
 
 	@Override
 	public Bracket getMatch() {
-		if(myMatch == null)
-			throw new IllegalCodeFormatException("Block has no matching end. Use a ; or a }.");
+		if (myMatch == null)
+			throw new IllegalCodeFormatException(getOriginalLine(), "Block has no matching end. Use a ; or a }.");
 		return myMatch;
 	}
 

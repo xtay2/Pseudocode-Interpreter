@@ -34,7 +34,7 @@ public abstract class MainExpression extends Expression {
 
 	public boolean callNextLine(boolean doExecuteNext) {
 		if (doExecuteNext)
-			return Interpreter.execute(line + 1, true);
+			return Interpreter.execute(lineIdentifier + 1, true);
 		return true;
 	}
 }

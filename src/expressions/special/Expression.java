@@ -1,5 +1,6 @@
 package expressions.special;
 
+import main.Main;
 import parsing.program.ExpressionType;
 
 /**
@@ -12,10 +13,10 @@ import parsing.program.ExpressionType;
 public abstract class Expression {
 
 	/** The line in which this Expression is defined. */
-	public final int line;
+	public final int lineIdentifier;
 
 	public Expression(int line) {
-		this.line = line;
+		this.lineIdentifier = line;
 	}
 
 	/**
@@ -48,6 +49,10 @@ public abstract class Expression {
 	 */
 	public boolean isMainExpression() {
 		return isMainExpression;
+	}
+	
+	public int getOriginalLine() {
+		return Main.PROGRAM.getLine(lineIdentifier).lineIndex;
 	}
 
 	@Override

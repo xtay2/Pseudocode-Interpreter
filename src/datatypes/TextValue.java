@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.runtime.CastingException;
+import exceptions.runtime.ShouldBeNaturalNrException;
 import expressions.special.Type;
 import expressions.special.ValueHolder;
 
@@ -114,7 +115,9 @@ public class TextValue extends Value {
 		return new TextValue(t1.value + t2.value);
 	}
 
-	public static TextValue multiply(TextValue t, int times) {
+	public static TextValue multiply(TextValue t, int times, int executedInLine) {
+		if (times < 0)
+			throw new ShouldBeNaturalNrException(executedInLine, "Text cannot be multiplied with negative numbers.");
 		return new TextValue(t.value.repeat(times));
 	}
 

@@ -4,8 +4,8 @@ package exceptions.runtime;
 @SuppressWarnings("serial")
 public class ArrayAccessException extends AbstractRuntimeException {
 
-	public ArrayAccessException(String message) {
-		super(message);
+	public ArrayAccessException(int line, String message) {
+		super(line, message);
 	}
 
 }

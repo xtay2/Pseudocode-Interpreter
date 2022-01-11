@@ -8,7 +8,7 @@ public class ArrayStart extends Expression {
 
 	public ArrayStart(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.ARRAY_END, ExpressionType.ARRAY_START, ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(ExpressionType.ARRAY_END, ExpressionType.ARRAY_START, ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.OPEN_BRACKET);
 	}
 
 	@Override
