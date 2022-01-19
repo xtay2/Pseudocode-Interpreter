@@ -1,10 +1,11 @@
 package expressions.normal.brackets;
 
+import static parsing.program.ExpressionType.INFIX_OPERATOR;
+
 import datatypes.Value;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 import helper.Output;
-import parsing.program.ExpressionType;
 
 public class BracketedExpression extends Expression implements ValueHolder {
 
@@ -12,7 +13,7 @@ public class BracketedExpression extends Expression implements ValueHolder {
 
 	public BracketedExpression(int line, ValueHolder content) {
 		super(line);
-		setExpectedExpressions(ExpressionType.INFIX_OPERATOR);
+		setExpectedExpressions(INFIX_OPERATOR);
 		this.value = content;
 	}
 

@@ -9,7 +9,6 @@ public abstract class MainExpression extends Expression {
 
 	public MainExpression(int line) {
 		super(line);
-		isMainExpression = true;
 	}
 
 	/**
@@ -19,6 +18,12 @@ public abstract class MainExpression extends Expression {
 	 * @param args are the expressions in this line.
 	 */
 	public abstract void build(Expression... args);
+
+	public boolean callNextLine(boolean doExecuteNext) {
+		if (doExecuteNext)
+			return Interpreter.execute(lineIdentifier + 1, true);
+		return true;
+	}
 
 	/**
 	 * Executes this MainExpression
@@ -31,10 +36,13 @@ public abstract class MainExpression extends Expression {
 	 *         nearly exclusivly used by the ReturnStatement.
 	 */
 	public abstract boolean execute(boolean doExecuteNext, ValueHolder... params);
-
-	public boolean callNextLine(boolean doExecuteNext) {
-		if (doExecuteNext)
-			return Interpreter.execute(lineIdentifier + 1, true);
-		return true;
+	
+	/**
+	 * Returns true if this is a MainExpression.
+	 * Returns false if this is a PossibleMainExpression.
+	 */
+	@Override
+	public final boolean isDefiniteMainExpression() {
+		return !(this instanceof PossibleMainExpression);
 	}
 }

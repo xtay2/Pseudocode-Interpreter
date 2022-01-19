@@ -1,11 +1,12 @@
 package expressions.normal.brackets;
 
+import static parsing.program.ExpressionType.CLOSE_BLOCK;
+
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.main.CloseBlock;
 import expressions.special.Bracket;
 import expressions.special.Expression;
 import helper.Output;
-import parsing.program.ExpressionType;
 
 public class OpenBlock extends Expression implements Bracket {
 
@@ -13,12 +14,7 @@ public class OpenBlock extends Expression implements Bracket {
 
 	public OpenBlock(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.CLOSE_BLOCK);
-	}
-
-	@Override
-	public void setMyMatch(Bracket match) {
-		myMatch = (CloseBlock) match;
+		setExpectedExpressions(CLOSE_BLOCK);
 	}
 
 	@Override
@@ -26,6 +22,11 @@ public class OpenBlock extends Expression implements Bracket {
 		if (myMatch == null)
 			throw new IllegalCodeFormatException(getOriginalLine(), "Block has no matching end. Use a ; or a }.");
 		return myMatch;
+	}
+
+	@Override
+	public void setMyMatch(Bracket match) {
+		myMatch = (CloseBlock) match;
 	}
 
 	@Override

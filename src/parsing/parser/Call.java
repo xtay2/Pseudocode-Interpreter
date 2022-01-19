@@ -3,9 +3,9 @@ package parsing.parser;
 /** Identifies a call. Used exclusivly in the {@link Disassembler}. */
 public class Call {
 
-	final String name;
-
 	final int arguments;
+
+	final String name;
 
 	public Call(String name, int arguments) {
 		this.name = name;

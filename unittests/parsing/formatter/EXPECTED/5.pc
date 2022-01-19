@@ -1,0 +1,28 @@
+import stdlib.lang.System
+main {
+	var a = 10
+	
+	a += 10
+	a -= 10
+	a *= 10
+	a /= 10
+	a %= 10
+	a ^= 10
+
+    a += 10
+	a -= 10
+	a *= 10
+	a /= 10
+	a %= 10
+	a ^= 10
+	
+    a += 10
+	a -= 10
+	a *= 10
+	a /= 10
+	a %= 10
+	a ^= 10
+
+	if a == 10: print("Hey");
+	if a != 10: print("Ney");
+}

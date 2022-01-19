@@ -20,6 +20,55 @@ import parsing.program.Program;
 public final class Interpreter {
 
 	/**
+	 * Calls a function and returns it return-value.
+	 *
+	 * @param name          is the name of the function.
+	 * @param doExecuteNext if the called function should execute the one in the
+	 *                      following line. Standart: true
+	 * @param params        are the function-parameters
+	 * @return the return-value of the function.
+	 */
+	public static Value call(String name, boolean doExecuteNext, ValueHolder... params) {
+		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
+		f.execute(doExecuteNext, params);
+		Value returnVal = f.getValue();
+		f.setReturnVal(null);
+		return returnVal;
+	}
+
+	/**
+	 * 
+	 * Executes a MainExpression.
+	 *
+	 * @param name          the line of the MainExpression.
+	 * @param doExecuteNext if the called function should execute the one in the
+	 *                      following line. Standart: true
+	 * @param params        are the passed parameters
+	 * 
+	 * @return false if this function shouldn't call any other functions.
+	 *         ReturnStatement#execute
+	 * 
+	 */
+	public static boolean execute(int i, boolean doExecuteNext, ValueHolder... params) {
+		return Main.PROGRAM.getLine(i).getMainExpression().execute(doExecuteNext, params);
+	}
+
+	/**
+	 * Executes a MainExpression.
+	 *
+	 * @param name          the name of the MainExpression.
+	 * @param doExecuteNext if the called function should execute the one in the
+	 *                      following line. Standart: true
+	 * @param params        are the passed parameters
+	 * 
+	 * @return false if this function shouldn't call any other functions.
+	 *         ReturnStatement#execute
+	 */
+	public static boolean execute(String name, boolean doExecuteNext, ValueHolder... params) {
+		return execute(FuncManager.getLine(name + params.length), doExecuteNext);
+	}
+
+	/**
 	 * Registeres all variables and functions and starts the interpreting-process by
 	 * calling the main function
 	 * 
@@ -81,54 +130,5 @@ public final class Interpreter {
 			if (e instanceof Declaration && ((Declaration) e).getName().getScope().equals(Scope.GLOBAL_SCOPE))
 				execute(i, false);
 		}
-	}
-
-	/**
-	 * 
-	 * Executes a MainExpression.
-	 *
-	 * @param name          the line of the MainExpression.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
-	 * @param params        are the passed parameters
-	 * 
-	 * @return false if this function shouldn't call any other functions.
-	 *         ReturnStatement#execute
-	 * 
-	 */
-	public static boolean execute(int i, boolean doExecuteNext, ValueHolder... params) {
-		return Main.PROGRAM.getLine(i).getMainExpression().execute(doExecuteNext, params);
-	}
-
-	/**
-	 * Executes a MainExpression.
-	 *
-	 * @param name          the name of the MainExpression.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
-	 * @param params        are the passed parameters
-	 * 
-	 * @return false if this function shouldn't call any other functions.
-	 *         ReturnStatement#execute
-	 */
-	public static boolean execute(String name, boolean doExecuteNext, ValueHolder... params) {
-		return execute(FuncManager.getLine(name + params.length), doExecuteNext);
-	}
-
-	/**
-	 * Calls a function and returns it return-value.
-	 *
-	 * @param name          is the name of the function.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
-	 * @param params        are the function-parameters
-	 * @return the return-value of the function.
-	 */
-	public static Value call(String name, boolean doExecuteNext, ValueHolder... params) {
-		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
-		f.execute(doExecuteNext, params);
-		Value returnVal = f.getValue();
-		f.setReturnVal(null);
-		return returnVal;
 	}
 }

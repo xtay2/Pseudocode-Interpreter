@@ -7,12 +7,12 @@ import datatypes.Value;
 import exceptions.runtime.ArrayAccessException;
 import expressions.normal.Name;
 import expressions.special.Expression;
+import expressions.special.ValueChanger;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.VarManager;
-
 /** Access at a specific index for example a[19] */
-public class ArrayAccess extends Expression implements ValueHolder {
+public class ArrayAccess extends Expression implements ValueChanger {
 
 	ArrayList<ValueHolder> indices;
 	public final Name name;
@@ -24,7 +24,7 @@ public class ArrayAccess extends Expression implements ValueHolder {
 		this.name = array;
 		this.indices = indices;
 	}
-
+	
 	@Override
 	public Value getValue() {
 		Value v = VarManager.get(name.getName(), getOriginalLine()).getValue().asVarArray();
@@ -38,7 +38,8 @@ public class ArrayAccess extends Expression implements ValueHolder {
 		return v;
 	}
 
-	public void setValue(Value var) {
+	@Override
+	public void setValue(Value val) {
 		ArrayValue arr = (ArrayValue) VarManager.get(name.getName(), getOriginalLine()).getValue();
 		try {
 			for (int i = 0; i < indices.size() - 1; i++)
@@ -47,7 +48,7 @@ public class ArrayAccess extends Expression implements ValueHolder {
 			throw new ArrayAccessException(getOriginalLine(),
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 		}
-		arr.set((int) indices.get(indices.size() - 1).getValue().asInt().rawInt(), var);
+		arr.set((int) indices.get(indices.size() - 1).getValue().asInt().rawInt(), val);
 	}
 
 	@Override

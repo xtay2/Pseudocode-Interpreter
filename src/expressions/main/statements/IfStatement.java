@@ -1,6 +1,9 @@
 package expressions.main.statements;
 
 import static helper.Output.print;
+import static parsing.program.ExpressionType.ARRAY_START;
+import static parsing.program.ExpressionType.LITERAL;
+import static parsing.program.ExpressionType.NAME;
 
 import expressions.normal.brackets.OpenBlock;
 import expressions.special.Expression;
@@ -9,7 +12,6 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
 
 public class IfStatement extends Scope implements ElifConstruct {
 
@@ -18,7 +20,7 @@ public class IfStatement extends Scope implements ElifConstruct {
 
 	public IfStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
+		setExpectedExpressions(LITERAL, NAME, ARRAY_START);
 	}
 
 	@Override
@@ -29,11 +31,18 @@ public class IfStatement extends Scope implements ElifConstruct {
 	}
 
 	@Override
+	public int endOfConstruct() {
+		if (nextElse != null)
+			return nextElse.endOfConstruct();
+		return getEnd();
+	}
+
+	@Override
 	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
 		print("Executing If-Statement.");
 		if (!doExecuteNext)
 			throw new AssertionError("An if-statement has to be able to call the next line.");
-		if (booleanExp.getValue().asBool().rawBoolean()) {
+		if (booleanExp.getValue().asBool().raw()) {
 			VarManager.registerScope(this);
 			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);
@@ -56,13 +65,6 @@ public class IfStatement extends Scope implements ElifConstruct {
 		if (this.nextElse != null)
 			throw new AssertionError("Trying to connect more than one else to this statement.");
 		this.nextElse = nextElse;
-	}
-
-	@Override
-	public int endOfConstruct() {
-		if (nextElse != null)
-			return nextElse.endOfConstruct();
-		return getEnd();
 	}
 
 	@Override

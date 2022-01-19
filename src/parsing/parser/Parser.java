@@ -8,10 +8,13 @@ import java.util.List;
 
 import helper.FileManager;
 import main.Main;
-import parsing.codeformatter.Formatter;
+import parsing.formatter.Formatter;
 import parsing.importer.Importer;
 
 public final class Parser {
+
+	public record LineInfo(String line, int index) {
+	}
 
 	public static final char SINGLE_LINE_COMMENT = '#';
 
@@ -50,8 +53,5 @@ public final class Parser {
 	
 		for (LineInfo line : indexedLines)
 			Main.PROGRAM.appendLine(line.line(), line.index());
-	}
-
-	public record LineInfo(String line, int index) {
 	}
 }

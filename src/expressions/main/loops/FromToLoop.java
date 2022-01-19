@@ -1,6 +1,8 @@
 package expressions.main.loops;
 
 import static helper.Output.print;
+import static parsing.program.ExpressionType.LITERAL;
+import static parsing.program.ExpressionType.NAME;
 
 import datatypes.NumberValue;
 import expressions.normal.LoopConnector;
@@ -11,17 +13,16 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
 
 public class FromToLoop extends Scope {
 
 	private ValueHolder from = null;
-	private ValueHolder to = null;
 	private ValueHolder inc = null;
+	private ValueHolder to = null;
 
 	public FromToLoop(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(LITERAL, NAME);
 	}
 
 	@Override

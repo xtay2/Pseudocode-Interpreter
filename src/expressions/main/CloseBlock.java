@@ -14,7 +14,6 @@ public class CloseBlock extends MainExpression implements Bracket {
 
 	public CloseBlock(int line) {
 		super(line);
-		setExpectedExpressions();
 	}
 
 	@Override
@@ -24,8 +23,8 @@ public class CloseBlock extends MainExpression implements Bracket {
 	}
 
 	@Override
-	public void setMyMatch(Bracket match) {
-		myMatch = (OpenBlock) match;
+	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+		return true; // Just go back
 	}
 
 	@Override
@@ -34,8 +33,8 @@ public class CloseBlock extends MainExpression implements Bracket {
 	}
 
 	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
-		return true; // Just go back
+	public void setMyMatch(Bracket match) {
+		myMatch = (OpenBlock) match;
 	}
 
 	@Override

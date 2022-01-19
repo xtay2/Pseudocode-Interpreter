@@ -1,6 +1,8 @@
 package expressions.main.statements;
 
 import static helper.Output.print;
+import static parsing.program.ExpressionType.LITERAL;
+import static parsing.program.ExpressionType.NAME;
 
 import exceptions.runtime.DeclarationException;
 import expressions.normal.brackets.OpenBlock;
@@ -10,7 +12,6 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
 
 public class RepeatStatement extends Scope {
 
@@ -18,7 +19,7 @@ public class RepeatStatement extends Scope {
 
 	public RepeatStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME);
+		setExpectedExpressions(LITERAL, NAME);
 	}
 
 	@Override

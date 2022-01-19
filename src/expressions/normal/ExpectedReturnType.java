@@ -1,14 +1,14 @@
 package expressions.normal;
 
+import static parsing.program.ExpressionType.EXPECTED_TYPE;
+
 import expressions.special.Expression;
 import helper.Output;
-import parsing.program.ExpressionType;
-
 public class ExpectedReturnType extends Expression {
 
 	public ExpectedReturnType(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.EXPECTED_TYPE);
+		setExpectedExpressions(EXPECTED_TYPE);
 	}
 
 	@Override

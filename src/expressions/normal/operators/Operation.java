@@ -1,10 +1,10 @@
 package expressions.normal.operators;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import datatypes.Value;
 import expressions.normal.operators.comparative.ComparativeOperator;
-import expressions.normal.operators.logic.AndOperator;
+import expressions.normal.operators.logic.LogicalOperator;
 import expressions.special.Expression;
 import expressions.special.ValueHolder;
 
@@ -13,9 +13,9 @@ import expressions.special.ValueHolder;
  */
 public final class Operation extends Expression implements ValueHolder {
 
-	private final ArrayList<Expression> operation;
+	private final List<Expression> operation;
 
-	public Operation(int line, ArrayList<Expression> op) {
+	public Operation(int line, List<Expression> op) {
 		super(line);
 		if (op.size() < 3)
 			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + op);
@@ -28,7 +28,7 @@ public final class Operation extends Expression implements ValueHolder {
 		for (int i = 1; i < operation.size(); i += 2) {
 			if (operation.get(i) instanceof ComparativeOperator && i + 2 < operation.size()
 					&& operation.get(i + 2) instanceof ComparativeOperator) {
-				operation.add(i + 2, new AndOperator(lineIdentifier, InfixOperator.AND));
+				operation.add(i + 2, new LogicalOperator(lineIdentifier, InfixOperator.AND));
 				operation.add(i + 3, operation.get(i + 1));
 				i += 2;
 			}

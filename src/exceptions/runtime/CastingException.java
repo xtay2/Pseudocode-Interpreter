@@ -7,14 +7,14 @@ package exceptions.runtime;
 @SuppressWarnings("serial")
 public class CastingException extends AbstractRuntimeException {
 
+	public CastingException(int line, String message) {
+		super(line, message);
+	}
+
 	/**
 	 * Should only be used when theres no definite way of finding the origin (line).
 	 */
 	public CastingException(String message) {
 		super(-1, message);
-	}
-
-	public CastingException(int line, String message) {
-		super(line, message);
 	}
 }

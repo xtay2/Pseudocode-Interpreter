@@ -1,6 +1,7 @@
 package expressions.main.loops;
 
 import static helper.Output.print;
+import static parsing.program.ExpressionType.NAME;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
@@ -8,14 +9,13 @@ import expressions.normal.LoopConnector;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.normal.brackets.OpenBlock;
+import expressions.special.DataType;
 import expressions.special.Expression;
 import expressions.special.Scope;
-import expressions.special.Type;
 import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
 
 public class ForEachLoop extends Scope {
 
@@ -24,7 +24,7 @@ public class ForEachLoop extends Scope {
 
 	public ForEachLoop(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.NAME);
+		setExpectedExpressions(NAME);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ForEachLoop extends Scope {
 		try {
 			for (Value e : array.getValue().asVarArray()) { // Cast to Var-Array
 				VarManager.registerScope(this);
-				new Variable(lineIdentifier, Type.VAR).initialise(elementName, e);
+				new Variable(lineIdentifier, DataType.VAR).initialise(elementName, e);
 				VarManager.initCounter(this, repetitions, getOriginalLine());
 				if (!Interpreter.execute(lineIdentifier + 1, true)) {
 					VarManager.deleteScope(this);

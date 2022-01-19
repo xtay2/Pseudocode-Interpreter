@@ -1,14 +1,17 @@
 package expressions.normal;
 
+import static parsing.program.ExpressionType.ARRAY_START;
+import static parsing.program.ExpressionType.LITERAL;
+import static parsing.program.ExpressionType.NAME;
+
 import expressions.special.Expression;
 import helper.Output;
-import parsing.program.ExpressionType;
 
 public class LoopConnector extends Expression {
 
 	public LoopConnector(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
+		setExpectedExpressions(LITERAL, NAME, ARRAY_START);
 	}
 
 	@Override

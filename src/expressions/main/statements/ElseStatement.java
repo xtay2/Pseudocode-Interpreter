@@ -1,6 +1,7 @@
 package expressions.main.statements;
 
 import static helper.Output.print;
+import static parsing.program.ExpressionType.OPEN_BLOCK;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.normal.brackets.OpenBlock;
@@ -10,19 +11,23 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
 
 public class ElseStatement extends Scope implements ElifConstruct {
 
 	public ElseStatement(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.OPEN_BLOCK);
+		setExpectedExpressions(OPEN_BLOCK);
 	}
 
 	@Override
 	public void build(Expression... args) {
 		if (args[args.length - 1] instanceof OpenBlock)
 			block = (OpenBlock) args[args.length - 1];
+	}
+
+	@Override
+	public int endOfConstruct() {
+		return getEnd();
 	}
 
 	@Override
@@ -42,11 +47,6 @@ public class ElseStatement extends Scope implements ElifConstruct {
 	@Override
 	public String getScopeName() {
 		return "else" + getStart() + "-" + getEnd();
-	}
-
-	@Override
-	public int endOfConstruct() {
-		return getEnd();
 	}
 
 	@Override

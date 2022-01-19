@@ -3,13 +3,13 @@ package parsing.finder;
 import datatypes.Value;
 import expressions.main.CloseBlock;
 import expressions.main.Declaration;
+import expressions.main.OperationAssignment;
 import expressions.normal.Comma;
-import expressions.normal.Semikolon;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
-import expressions.normal.Literal;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
+import expressions.normal.Semicolon;
 import expressions.normal.Variable;
 import expressions.normal.array.ArrayEnd;
 import expressions.normal.array.ArrayStart;
@@ -17,8 +17,9 @@ import expressions.normal.brackets.CloseBracket;
 import expressions.normal.brackets.OpenBlock;
 import expressions.normal.brackets.OpenBracket;
 import expressions.normal.operators.Operator;
+import expressions.possible.Crement;
+import expressions.special.DataType;
 import expressions.special.Expression;
-import expressions.special.Type;
 import parsing.program.ExpressionType;
 import parsing.program.ValueBuilder;
 
@@ -44,8 +45,9 @@ public class ExpressionFinder {
 	/**
 	 * Checks, if a String matches the expected expression.
 	 *
-	 * @param arg is the String.
-	 * @param exp is the exprected expression.
+	 * @param arg  is the String.
+	 * @param exp  is the exprected expression.
+	 * @param line is the lineID
 	 * @return the expression or {@code null} if the String doesnt match.
 	 */
 	private static Expression matches(String arg, ExpressionType exp, int line) {
@@ -55,8 +57,8 @@ public class ExpressionFinder {
 				yield KeywordFinder.keywordExpression(arg, line);
 			yield null;
 		case VAR_TYPE:
-			if (Type.isType(arg))
-				yield new Variable(line, Type.stringToType(arg));
+			if (DataType.isType(arg))
+				yield new Variable(line, DataType.stringToType(arg));
 			yield null;
 		case NAME:
 			if (Name.isName(arg))
@@ -64,10 +66,10 @@ public class ExpressionFinder {
 			yield null;
 		case LITERAL:
 			if (Value.isValue(arg))
-				yield new Literal(ValueBuilder.buildLiteral(arg), line);
+				yield ValueBuilder.buildLiteral(arg);
 			yield null;
 		case EXPECTED_TYPE:
-			if (Type.isType(arg))
+			if (DataType.isType(arg))
 				yield new ExpectedType(arg, line);
 			yield null;
 		case INFIX_OPERATOR:
@@ -77,6 +79,11 @@ public class ExpressionFinder {
 		case DECLARATION:
 			if ("=".equals(arg))
 				yield new Declaration(line);
+			yield null;
+		case OPERATION_ASSIGNMENT:
+			OperationAssignment.Type type = OperationAssignment.Type.getType(arg);
+			if (type != null)
+				yield new OperationAssignment(line, type);
 			yield null;
 		case OPEN_BRACKET:
 			if ("(".equals(arg))
@@ -116,10 +123,14 @@ public class ExpressionFinder {
 			yield null;
 		case DEFINITE_LINEBREAK:
 			if (";".equals(arg))
-				yield new Semikolon(line);
+				yield new Semicolon(line);
 			yield null;
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + exp);
+		case CREMENT:
+			if ("++".equals(arg))
+				yield new Crement(Crement.Change.INC, line);
+			if ("--".equals(arg))
+				yield new Crement(Crement.Change.DEC, line);
+			yield null;
 		};
 	}
 }

@@ -1,0 +1,5 @@
+import stdlib.lang.System
+main {
+	a += [1, 2, 3, 4]
+	if b == 50: print("Help");
+}

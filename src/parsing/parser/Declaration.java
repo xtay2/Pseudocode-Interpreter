@@ -8,13 +8,13 @@ import java.util.List;
  */
 public class Declaration {
 
-	final String name;
-
-	final int start, end, arguments;
-
 	final List<Call> calls;
 
 	boolean getsCalled = false;
+
+	final String name;
+
+	final int start, end, arguments;
 
 	public Declaration(String name, int start, int end, int arguments, List<Call> calls) {
 		this.name = name;

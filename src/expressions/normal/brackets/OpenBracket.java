@@ -1,9 +1,15 @@
 package expressions.normal.brackets;
 
+import static parsing.program.ExpressionType.ARRAY_START;
+import static parsing.program.ExpressionType.CLOSE_BRACKET;
+import static parsing.program.ExpressionType.CREMENT;
+import static parsing.program.ExpressionType.EXPECTED_TYPE;
+import static parsing.program.ExpressionType.LITERAL;
+import static parsing.program.ExpressionType.NAME;
+
 import expressions.special.Bracket;
 import expressions.special.Expression;
 import helper.Output;
-import parsing.program.ExpressionType;
 
 public class OpenBracket extends Expression implements Bracket {
 
@@ -11,7 +17,7 @@ public class OpenBracket extends Expression implements Bracket {
 
 	public OpenBracket(int line) {
 		super(line);
-		setExpectedExpressions(ExpressionType.CLOSE_BRACKET, ExpressionType.EXPECTED_TYPE, ExpressionType.LITERAL, ExpressionType.NAME, ExpressionType.ARRAY_START);
+		setExpectedExpressions(CLOSE_BRACKET, EXPECTED_TYPE, LITERAL, NAME, ARRAY_START, CREMENT);
 	}
 
 	@Override
@@ -21,9 +27,9 @@ public class OpenBracket extends Expression implements Bracket {
 
 	@Override
 	public void setMyMatch(Bracket match) {
-		//TODO : Implement me!
+		throw new AssertionError("This is unimplemented but can be later, when needed.");
 	}
-	
+
 	@Override
 	public String toString() {
 		return Output.DEBUG ? this.getClass().getSimpleName() : "'('";

@@ -1,7 +1,8 @@
-/parsing/
 /expressions/
+/datatypes/
+/parsing/
+/interpreter/
+/unittests/
+/exceptions/
 /helper/
 /main/
-/exceptions/
-/interpreter/
-/datatypes/

@@ -12,28 +12,17 @@ import parsing.program.ExpressionType;
  */
 public abstract class Expression {
 
-	/** The line in which this Expression is defined. */
-	public final int lineIdentifier;
-
-	public Expression(int line) {
-		this.lineIdentifier = line;
-	}
-
 	/**
 	 * The load of possible following expressions. {@code null} corresponds to an
 	 * expected linebreak.
 	 */
 	protected ExpressionType[] expected = null;
 
-	protected boolean isMainExpression = false;
+	/** The line in which this Expression is defined. */
+	public final int lineIdentifier;
 
-	/**
-	 * Used in all extending constructors.
-	 *
-	 * @param exp is the load of possible following expressions.
-	 */
-	protected final void setExpectedExpressions(ExpressionType... exp) {
-		expected = exp;
+	public Expression(int line) {
+		this.lineIdentifier = line;
 	}
 
 	/**
@@ -44,17 +33,27 @@ public abstract class Expression {
 		return expected;
 	}
 
-	/**
-	 * Tells, if this is a main Expression
-	 */
-	public boolean isMainExpression() {
-		return isMainExpression;
-	}
-	
 	public int getOriginalLine() {
 		return Main.PROGRAM.getLine(lineIdentifier).lineIndex;
 	}
+	
+	/**
+	 * Returns false for Expressions.
+	 * Gets Overridden in {@link MainExpression#isDefiniteMainExpression}
+	 */
+	public boolean isDefiniteMainExpression() {
+		return false;
+	}
 
+	/**
+	 * Used in all extending constructors.
+	 *
+	 * @param exp is the load of possible following expressions.
+	 */
+	protected final void setExpectedExpressions(ExpressionType... exp) {
+		expected = exp;
+	}
+	
 	@Override
 	public abstract String toString();
 }

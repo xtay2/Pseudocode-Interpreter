@@ -1,5 +1,8 @@
 package parsing.parser;
 
+import static helper.Output.LINE_BREAK;
+import static helper.Output.print;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -10,59 +13,11 @@ import exceptions.parsing.IllegalCodeFormatException;
 import helper.Helper;
 import parsing.parser.Parser.LineInfo;
 
-import static helper.Output.*;
-
 public class Disassembler {
-
-	static List<LineInfo> program;
 
 	static final List<Declaration> declarations = new ArrayList<>();
 
-	public static List<LineInfo> disassemble(List<LineInfo> file) {
-		program = file;
-		// Remove whitespaces
-		program = new ArrayList<>(program.stream().map(e -> new LineInfo(e.line().strip(), e.index())).toList());
-		// Clear comments
-		clearUnwantedLines();
-		// Split a one line statement to three lines
-		splitOneLiners();
-		// Find called used declarations and list them.
-		analyse();
-		// Whipe out unused lines
-		collapse();
-		// Remove all remaining empty or fully commented lines.
-		clearUnwantedLines();
-		print(LINE_BREAK + "Compressed program: " + LINE_BREAK);
-		printProgram(true);
-		return program;
-	}
-
-	private static void splitOneLiners() {
-		for (int i = 0; i < program.size(); i++) {
-
-			String content = program.get(i).line();
-			int index = program.get(i).index();
-
-			int lineBreak = content.indexOf(":");
-			if (lineBreak != -1 && Helper.isNotInString(lineBreak, content)) {
-				if (lineBreak == content.length() - 1)
-					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
-				// Ersetze Semikolon
-				if (content.charAt(content.length() - 1) == ';')
-					program.add(i + 1, new LineInfo("}", index));
-				program.add(i + 1, new LineInfo(content.substring(lineBreak + 2), index)); // Teil nach :
-				program.set(i, new LineInfo(content.substring(0, lineBreak) + " {", index));
-			}
-		}
-	}
-
-	private static void clearUnwantedLines() {
-		for (int i = program.size() - 1; i >= 0; i--) {
-			LineInfo line = program.get(i);
-			if (line == null || line.line().isBlank() || line.line().charAt(0) == Parser.SINGLE_LINE_COMMENT)
-				program.remove(i);
-		}
-	}
+	static List<LineInfo> program;
 
 	private static void analyse() {
 		Declaration main = findMain();
@@ -83,6 +38,14 @@ public class Disassembler {
 		print(filtered.toString());
 	}
 
+	private static void clearUnwantedLines() {
+		for (int i = program.size() - 1; i >= 0; i--) {
+			LineInfo line = program.get(i);
+			if (line == null || line.line().isBlank() || line.line().charAt(0) == Parser.SINGLE_LINE_COMMENT)
+				program.remove(i);
+		}
+	}
+
 	private static void collapse() {
 		for (Declaration d : declarations) {
 			if (!d.getsCalled) {
@@ -92,57 +55,32 @@ public class Disassembler {
 		}
 	}
 
-	private static void recursive(Declaration current) {
-		current.getsCalled = true;
-		for (Call call : current.calls) {
-			try {
-				Declaration d = declarations.stream().filter(e -> (e.name + e.arguments)//
-						.equals(call.name + call.arguments))//
-						.findFirst()//
-						.get();
-				if (!d.getsCalled) {
-					print(current + "\t" + "\t".repeat(10 - current.toString().length() / 8) + " is calling " + d);
-					recursive(d);
-				}
-			} catch (NoSuchElementException e) {
-				throw new AssertionError("Trying to call a function \"" + call.name + "\" that doesn't get defined or imported.");
-			}
+	private static int countParamsInDeclaration(String call) {
+		int params = 0;
+		for (int i = 0; i < call.length(); i++) {
+			if (call.charAt(i) == ',' && Helper.isNotInString(i, call))
+				params++;
 		}
+		return params == 0 ? (call.charAt(call.indexOf('(') + 1) == ')' ? 0 : 1) : params + 1;
 	}
 
-	private static Declaration findMain() {
-		for (int i = 0; i < program.size(); i++) {
-			if (program.get(i).line().startsWith("main")) {
-				int end = findEndOfScope(i);
-				return new Declaration("main", i, end, 0, findCallsBetween(i, end));
-			}
-		}
-		throw new AssertionError("Program has to contain a main.");
-	}
-
-	private static int findEndOfScope(int start) {
-		int brack = 0;
-		for (int i = start; i < program.size(); i++) {
-			String line = program.get(i).line();
-			if (line.endsWith("{"))
-				brack++;
-			if (line.startsWith("}"))
-				brack--;
-			if (brack == 0)
-				return i;
-		}
-		throw new AssertionError("Has to be called on a valid scope. Was " + program.get(start));
-	}
-
-	private static List<Call> findCallsBetween(int start, int end) {
-		List<Call> calls = new ArrayList<>();
-		for (int i = start; i <= end; i++) {
-			String line = program.get(i).line();
-			int funcKeyword = line.indexOf("func");
-			if (line.matches(".*\\w+\\(.*\\);?.*") && (funcKeyword == -1 || !Helper.isNotInString(funcKeyword, line)))
-				calls.addAll(findCalls(line));
-		}
-		return calls;
+	public static List<LineInfo> disassemble(List<LineInfo> file) {
+		program = file;
+		// Remove whitespaces
+		program = new ArrayList<>(program.stream().map(e -> new LineInfo(e.line().strip(), e.index())).toList());
+		// Clear comments
+		clearUnwantedLines();
+		// Split a one line statement to three lines
+		splitOneLiners();
+		// Find called used declarations and list them.
+		analyse();
+		// Whipe out unused lines
+		collapse();
+		// Remove all remaining empty or fully commented lines.
+		clearUnwantedLines();
+		print(LINE_BREAK + "Compressed program: " + LINE_BREAK);
+		printProgram(true);
+		return program;
 	}
 
 	private static List<Call> findCalls(String line) {
@@ -176,16 +114,79 @@ public class Disassembler {
 		return calls;
 	}
 
-	private static int countParamsInDeclaration(String call) {
-		int params = 0;
-		for (int i = 0; i < call.length(); i++) {
-			if (call.charAt(i) == ',' && Helper.isNotInString(i, call))
-				params++;
+	private static List<Call> findCallsBetween(int start, int end) {
+		List<Call> calls = new ArrayList<>();
+		for (int i = start; i <= end; i++) {
+			String line = program.get(i).line();
+			int funcKeyword = line.indexOf("func");
+			if (line.matches(".*\\w+\\(.*\\);?.*") && (funcKeyword == -1 || !Helper.isNotInString(funcKeyword, line)))
+				calls.addAll(findCalls(line));
 		}
-		return params == 0 ? (call.charAt(call.indexOf('(') + 1) == ')' ? 0 : 1) : params + 1;
+		return calls;
+	}
+
+	private static int findEndOfScope(int start) {
+		int brack = 0;
+		for (int i = start; i < program.size(); i++) {
+			String line = program.get(i).line();
+			if (line.endsWith("{"))
+				brack++;
+			if (line.startsWith("}"))
+				brack--;
+			if (brack == 0)
+				return i;
+		}
+		throw new AssertionError("Has to be called on a valid scope. Was " + program.get(start));
+	}
+
+	private static Declaration findMain() {
+		for (int i = 0; i < program.size(); i++) {
+			if (program.get(i).line().startsWith("main")) {
+				int end = findEndOfScope(i);
+				return new Declaration("main", i, end, 0, findCallsBetween(i, end));
+			}
+		}
+		throw new AssertionError("Program has to contain a main.");
 	}
 
 	private static void printProgram(boolean showLineNrs) {
 		program.forEach(e -> print(e.index() == -1 ? e.line() : e.index() + ": " + e.line()));
+	}
+
+	private static void recursive(Declaration current) {
+		current.getsCalled = true;
+		for (Call call : current.calls) {
+			try {
+				Declaration d = declarations.stream().filter(e -> (e.name + e.arguments)//
+						.equals(call.name + call.arguments))//
+						.findFirst()//
+						.get();
+				if (!d.getsCalled) {
+					print(current + "\t is calling " + d);
+					recursive(d);
+				}
+			} catch (NoSuchElementException e) {
+				throw new AssertionError("Trying to call a function \"" + call.name + "\" that doesn't get defined or imported.");
+			}
+		}
+	}
+
+	private static void splitOneLiners() {
+		for (int i = 0; i < program.size(); i++) {
+
+			String content = program.get(i).line();
+			int index = program.get(i).index();
+
+			int lineBreak = content.indexOf(":");
+			if (lineBreak != -1 && Helper.isNotInString(lineBreak, content)) {
+				if (lineBreak == content.length() - 1)
+					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
+				// Ersetze Semikolon
+				if (content.charAt(content.length() - 1) == ';')
+					program.add(i + 1, new LineInfo("}", index));
+				program.add(i + 1, new LineInfo(content.substring(lineBreak + 2), index)); // Teil nach :
+				program.set(i, new LineInfo(content.substring(0, lineBreak) + " {", index));
+			}
+		}
 	}
 }

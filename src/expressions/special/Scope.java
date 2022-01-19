@@ -4,32 +4,6 @@ import expressions.main.CloseBlock;
 import expressions.normal.brackets.OpenBlock;
 import main.Main;
 
-public abstract class Scope extends MainExpression {
-
-	public static final Scope GLOBAL_SCOPE = new GlobalScope();
-
-	protected OpenBlock block = null;
-
-	public Scope(int line) {
-		super(line);
-	}
-
-	public int getStart() {
-		return lineIdentifier;
-	}
-
-	public int getEnd() {
-		try {
-			return ((CloseBlock) block.getMatch()).lineIdentifier + 1;
-		} catch (NullPointerException e) {
-			throw new AssertionError("The scope " + this + " doesn't get closed. Use a ; or a }.");
-		}
-	}
-
-	public abstract String getScopeName();
-
-}
-
 final class GlobalScope extends Scope {
 
 	public GlobalScope() {
@@ -37,8 +11,13 @@ final class GlobalScope extends Scope {
 	}
 
 	@Override
-	public int getStart() {
-		return 0;
+	public void build(Expression... args) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
+	}
+
+	@Override
+	public boolean execute(boolean doExecuteNext, ValueHolder... params) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
 	}
 
 	@Override
@@ -52,17 +31,38 @@ final class GlobalScope extends Scope {
 	}
 
 	@Override
+	public int getStart() {
+		return 0;
+	}
+
+	@Override
 	public String toString() {
 		return getScopeName();
 	}
+}
 
-	@Override
-	public void build(Expression... args) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
+public abstract class Scope extends MainExpression {
+
+	public static final Scope GLOBAL_SCOPE = new GlobalScope();
+
+	protected OpenBlock block = null;
+
+	public Scope(int line) {
+		super(line);
 	}
 
-	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("The global scope should not be treated as an expression.");
+	public int getEnd() {
+		try {
+			return ((CloseBlock) block.getMatch()).lineIdentifier + 1;
+		} catch (NullPointerException e) {
+			throw new AssertionError("The scope " + this + " doesn't get closed. Use a ; or a }.");
+		}
 	}
+
+	public abstract String getScopeName();
+
+	public int getStart() {
+		return lineIdentifier;
+	}
+
 }

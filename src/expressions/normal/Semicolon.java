@@ -2,11 +2,10 @@ package expressions.normal;
 
 import expressions.special.Expression;
 
-public class Semikolon extends Expression {
+public class Semicolon extends Expression {
 
-	public Semikolon(int line) {
+	public Semicolon(int line) {
 		super(line);
-		setExpectedExpressions();
 	}
 	
 	@Override

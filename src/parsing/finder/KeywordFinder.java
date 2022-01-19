@@ -6,7 +6,7 @@ import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
-import expressions.main.loops.WhileLoop;
+import expressions.main.loops.WhileUntilLoop;
 import expressions.main.statements.ElifStatement;
 import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
@@ -21,13 +21,6 @@ public class KeywordFinder {
 	public static final ArrayList<String> KEYWORDS = keywordsAsStrings();
 
 	public static final int MAX_KEYWORD_LENGTH = getMaxKeywordLength();
-
-	private static final ArrayList<String> keywordsAsStrings() {
-		ArrayList<String> keywords = new ArrayList<>();
-		for (KeywordType k : KeywordType.values())
-			keywords.add(k.keyword);
-		return keywords;
-	}
 
 	private static int getMaxKeywordLength() {
 		int longest = -1;
@@ -56,11 +49,20 @@ public class KeywordFinder {
 		if (KeywordType.REPEAT.keyword.equals(arg))
 			return new RepeatStatement(line);
 		if (KeywordType.WHILE.keyword.equals(arg))
-			return new WhileLoop(line);
+			return new WhileUntilLoop(WhileUntilLoop.Type.WHILE, line);
+		if (KeywordType.UNTIL.keyword.equals(arg))
+			return new WhileUntilLoop(WhileUntilLoop.Type.UNTIL, line);
 		if (KeywordType.FROM.keyword.equals(arg))
 			return new FromToLoop(line);
 		if (KeywordType.FOR.keyword.equals(arg))
 			return new ForEachLoop(line);
 		return new Keyword(line, arg); // Generic Keyword
+	}
+
+	private static final ArrayList<String> keywordsAsStrings() {
+		ArrayList<String> keywords = new ArrayList<>();
+		for (KeywordType k : KeywordType.values())
+			keywords.add(k.keyword);
+		return keywords;
 	}
 }

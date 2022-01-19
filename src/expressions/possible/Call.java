@@ -1,4 +1,4 @@
-package expressions.main;
+package expressions.possible;
 
 import static helper.Output.print;
 
@@ -27,12 +27,11 @@ public class Call extends MainExpression implements ValueHolder {
 
 	}
 
-	/** Gets called when lines merge themselves */
-	public void init(String name, ArrayList<ValueHolder> params) {
-		calledFunc = name;
-		parameters = new ValueHolder[params == null ? 0 : params.size()];
-		for (int i = 0; i < parameters.length; i++)
-			parameters[i] = params.get(i);
+	@Override
+	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+		print("Calling Function " + calledFunc + (parameters.length == 0 ? "" : " with " + Arrays.toString(parameters)));
+		getValue();
+		return callNextLine(doExecuteNext);
 	}
 
 	public String getFuncName() {
@@ -46,15 +45,17 @@ public class Call extends MainExpression implements ValueHolder {
 		return Interpreter.call(calledFunc, true, parameters);
 	}
 
-	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
-		print("Calling Function " + calledFunc + (parameters.length == 0 ? "" : " with " + Arrays.toString(parameters)));
-		getValue();
-		return callNextLine(doExecuteNext);
+	/** Gets called when lines merge themselves */
+	public void init(String name, ArrayList<ValueHolder> params) {
+		calledFunc = name;
+		parameters = new ValueHolder[params == null ? 0 : params.size()];
+		for (int i = 0; i < parameters.length; i++)
+			parameters[i] = params.get(i);
 	}
 
 	@Override
 	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "call " + getFuncName() + (parameters.length != 0 ? ": " + Arrays.toString(parameters) : "");
+		return Output.DEBUG ? this.getClass().getSimpleName()
+				: "call " + getFuncName() + (parameters.length != 0 ? ": " + Arrays.toString(parameters) : "");
 	}
 }

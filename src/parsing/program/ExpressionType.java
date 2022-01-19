@@ -5,9 +5,10 @@ import expressions.main.Declaration;
 import expressions.normal.Comma;
 import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
-import expressions.normal.Literal;
 import expressions.normal.LoopConnector;
 import expressions.normal.Name;
+import expressions.normal.array.ArrayEnd;
+import expressions.normal.array.ArrayStart;
 import expressions.normal.brackets.CloseBracket;
 import expressions.normal.brackets.OpenBlock;
 import expressions.normal.brackets.OpenBracket;
@@ -16,61 +17,28 @@ import expressions.normal.operators.Operator;
 public enum ExpressionType {
 
 	/**
-	 * Keyword
-	 *
-	 * @see KeywordType
-	 */
-	KEYWORD("Keyword"),
-
-	/**
-	 * Ausgeschriebener alphanumerischer Name.
-	 *
-	 * @see Name
-	 */
-	NAME("Name"),
-
-	/**
-	 * Ausgeschriebener Wert.
-	 *
-	 * @see Literal
-	 */
-	LITERAL("Literal"),
-
-	/**
-	 * Identifier bei Variablendeklaration. var, bool, nr oder text.
+	 * ] Zeichen. Signalisiert, dass der Arraybereich endet.
 	 * 
-	 * @see TypedVar
+	 * @see ArrayEnd
+	 * @see Array
 	 */
-	VAR_TYPE("Var-Declaration"),
+	ARRAY_END("]"),
 
 	/**
-	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
-	 * text.
-	 *
-	 * @see ExpectedType
+	 * [ Zeichen. Signalisiert, dass nun etwas kommt, dass mit einem Array zutun
+	 * hat.
+	 * 
+	 * @see ArrayStart
+	 * @see Array
 	 */
-	EXPECTED_TYPE("Return-Type"),
+	ARRAY_START("["),
 
 	/**
-	 * Pfeil ->
+	 * } Zeichen
 	 *
-	 * @see ExpectedReturnType
+	 * @see CloseBlock
 	 */
-	EXPECTED_RETURN_TYPE("->"),
-
-	/**
-	 * = Zeichen
-	 *
-	 * @see Declaration
-	 */
-	DECLARATION("="),
-
-	/**
-	 * ( Zeichen
-	 *
-	 * @see OpenBracket
-	 */
-	OPEN_BRACKET("("),
+	CLOSE_BLOCK("}"),
 
 	/**
 	 * ) Zeichen
@@ -87,18 +55,38 @@ public enum ExpressionType {
 	COMMA("','"),
 
 	/**
-	 * { Zeichen
-	 *
-	 * @see OpenBlock
+	 * Pre- or Post- In- or Decrement.
+	 * 
+	 *  x++, ++x, x--, --x
 	 */
-	OPEN_BLOCK("{"),
+	CREMENT("Crement"),
 
 	/**
-	 * } Zeichen
+	 * = Zeichen
 	 *
-	 * @see CloseBlock
+	 * @see Declaration
 	 */
-	CLOSE_BLOCK("}"),
+	DECLARATION("="),
+
+	/**
+	 * ; Semikolon. Optional nach Funktionsaufrufen.
+	 */
+	DEFINITE_LINEBREAK(";"),
+
+	/**
+	 * Pfeil ->
+	 *
+	 * @see ExpectedReturnType
+	 */
+	EXPECTED_RETURN_TYPE("->"),
+
+	/**
+	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
+	 * text.
+	 *
+	 * @see ExpectedType
+	 */
+	EXPECTED_TYPE("Return-Type"),
 
 	/**
 	 * Infixoperatoren wie +, -, and, or, <, !=
@@ -106,6 +94,20 @@ public enum ExpressionType {
 	 * @see Operator
 	 */
 	INFIX_OPERATOR("Operator"),
+
+	/**
+	 * Keyword
+	 *
+	 * @see KeywordType
+	 */
+	KEYWORD("Keyword"),
+
+	/**
+	 * Ausgeschriebener Wert.
+	 *
+	 * @see Literal
+	 */
+	LITERAL("Literal"),
 
 	/**
 	 * Verbindungsworte in Schleifen.
@@ -117,35 +119,48 @@ public enum ExpressionType {
 	LOOP_CONNECTOR("in/to"),
 
 	/**
-	 * [ Zeichen. Signalisiert, dass nun etwas kommt, dass mit einem Array zutun
-	 * hat.
-	 * 
-	 * @see ArrayStart
-	 * @see Array
+	 * Ausgeschriebener alphanumerischer Name.
+	 *
+	 * @see Name
 	 */
-	ARRAY_START("["),
+	NAME("Name"),
 
 	/**
-	 * ] Zeichen. Signalisiert, dass der Arraybereich endet.
-	 * 
-	 * @see ArrayEnd
-	 * @see Array
+	 * { Zeichen
+	 *
+	 * @see OpenBlock
 	 */
-	ARRAY_END("]"),
-	
+	OPEN_BLOCK("{"),
+
 	/**
-	 * ; Semikolon. Optional nach Funktionsaufrufen.
+	 * ( Zeichen
+	 *
+	 * @see OpenBracket
 	 */
-	DEFINITE_LINEBREAK(";");
-	
+	OPEN_BRACKET("("),
+
+	/**
+	 * +=, -=, *=, /=, %=, ^=
+	 * 
+	 * @see OperationDeclaration
+	 */
+	OPERATION_ASSIGNMENT("Operation-Declaration"),
+
+	/**
+	 * Identifier bei Variablendeklaration. var, bool, nr oder text.
+	 * 
+	 * @see TypedVar
+	 */
+	VAR_TYPE("Var-Declaration");
+
 	private final String name;
-	
+
+	ExpressionType(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public String toString() {
 		return name;
-	}
-	
-	ExpressionType(String name) {
-		this.name = name;
 	}
 }

@@ -7,7 +7,6 @@ import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-
 public class ElifStatement extends IfStatement implements ElifConstruct {
 
 	public ElifStatement(int line) {
@@ -19,7 +18,7 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 		print("Executing Elif-Statement.");
 		if (!doExecuteNext)
 			throw new AssertionError("An elif-statement has to be able to call the next line.");
-		if (booleanExp.getValue().asBool().rawBoolean()) {
+		if (booleanExp.getValue().asBool().raw()) {
 			VarManager.registerScope(this);
 			if (!Interpreter.execute(lineIdentifier + 1, true)) {
 				VarManager.deleteScope(this);

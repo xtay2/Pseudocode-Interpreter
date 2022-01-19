@@ -1,22 +1,23 @@
 package expressions.normal;
+import static parsing.program.ExpressionType.NAME;
+import static parsing.program.ExpressionType.OPEN_BLOCK;
 
+import expressions.special.DataType;
 import expressions.special.Expression;
-import expressions.special.Type;
 import helper.Output;
-import parsing.program.ExpressionType;
 
 public class ExpectedType extends Expression implements Comparable<ExpectedType> {
 
-	public final Type type;
+	public final DataType type;
 
-	public ExpectedType(String type, int line) {
-		this(Type.stringToType(type), line);
+	public ExpectedType(DataType type, int line) {
+		super(line);
+		setExpectedExpressions(NAME, OPEN_BLOCK);
+		this.type = type;
 	}
 
-	public ExpectedType(Type type, int line) {
-		super(line);
-		setExpectedExpressions(ExpressionType.NAME, ExpressionType.OPEN_BLOCK);
-		this.type = type;
+	public ExpectedType(String type, int line) {
+		this(DataType.stringToType(type), line);
 	}
 
 	@Override
