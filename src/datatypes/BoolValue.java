@@ -54,10 +54,8 @@ public class BoolValue extends Value {
 		case BOOL -> true; // Gibt sich selbst zurück
 		case NUMBER -> true; // Gibt 0 oder 1 zurück
 		case TEXT -> true; // Gibt text-repräsentation zurück
-		case NUMBER_ARRAY -> false;
-		case BOOL_ARRAY -> false;
-		case TEXT_ARRAY -> false;
-		case VAR_ARRAY -> false;
+		//Not Supported
+		case VAR_ARRAY, NUMBER_ARRAY, BOOL_ARRAY, TEXT_ARRAY -> false;
 		};
 	}
 
@@ -66,7 +64,6 @@ public class BoolValue extends Value {
 		return DataType.BOOL;
 	}
 
-	
 	/**
 	 * Inverts this boolean value.
 	 * 
@@ -75,7 +72,7 @@ public class BoolValue extends Value {
 	public BoolValue not() {
 		return new BoolValue(!value);
 	}
-	
+
 	/**
 	 * Returns the raw boolean value of this BoolValue.
 	 * 

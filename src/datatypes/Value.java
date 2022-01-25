@@ -1,14 +1,14 @@
 package datatypes;
 
+import static parsing.program.ExpressionType.*;
+
 import java.util.regex.Pattern;
 
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
+import expressions.normal.Expression;
 import expressions.special.DataType;
-import expressions.special.Expression;
 import expressions.special.ValueHolder;
-
-import static parsing.program.ExpressionType.*;
 
 public abstract class Value extends Expression implements ValueHolder {
 
@@ -72,7 +72,7 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	public Value() {
 		super(-1);
-		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_BLOCK, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END, DEFINITE_LINEBREAK);
+		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END);
 	}
 
 	/**
@@ -122,11 +122,6 @@ public abstract class Value extends Expression implements ValueHolder {
 	@Override
 	public Value getValue() {
 		return this;
-	}
-
-	@Override
-	public String toString() {
-		return asText().rawString();
 	}
 
 	/**

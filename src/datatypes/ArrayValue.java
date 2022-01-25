@@ -1,13 +1,16 @@
 package datatypes;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.main.loops.ForEachLoop;
+import expressions.normal.Expression;
 import expressions.normal.array.ArrayAccess;
 import expressions.special.DataType;
+import expressions.special.MergedExpression;
 import expressions.special.ValueHolder;
 
 /**
@@ -16,52 +19,20 @@ import expressions.special.ValueHolder;
  * 
  * -It gets defined as a {@link Literal}.
  */
-public final class ArrayValue extends Value implements Iterable<Value> {
+public final class ArrayValue extends Value implements Iterable<Value>, MergedExpression {
 
-	/** Merges two existing Arrays */
-	public static ArrayValue concat(ArrayValue a1, ArrayValue a2) {
-		if (a1.type != a2.type)
-			throw new UnexpectedTypeError("Only two arrays of the same type can be concatenated.");
-		ValueHolder[] content = new ValueHolder[a1.length() + a2.length()];
-		System.arraycopy(a1.raw(true), 0, content, 0, a1.length());
-		System.arraycopy(a2.raw(true), 0, content, a1.length(), a2.length());
-		return new ArrayValue(a1.type, content);
-	}
-	/** Multiplies an existing Array n times */
-	public static ArrayValue multiply(ArrayValue a, int n, int executedInLine) {
-		if (n < 0)
-			throw new ShouldBeNaturalNrException(executedInLine, "Array cannot be multiplied with negative numbers.");
-		final int orgL = a.length();
-		ValueHolder[] content = new ValueHolder[orgL * n];
-		for (int i = 0; i < n; i++)
-			System.arraycopy(a, 0, content, i * orgL, orgL);
-		return new ArrayValue(a.type, content);
-	}
-
-	private final ValueHolder[] container;
+	private ValueHolder[] container;
 
 	private final DataType type;
 
 	/** Build an ArrayValue from an existing, initialised one. */
-	public ArrayValue(DataType t, ArrayValue a) {
-		container = a.container;
+	public ArrayValue(DataType t) {
 		type = t;
 	}
 
-	/**
-	 * Constructs an array based of a type an multiple parameters.
-	 * 
-	 * @param type       has to be an arraytype.
-	 * @param preInit    is the list of parameters
-	 * @param initialise is true if the array gets build at runtime.
-	 */
-	public ArrayValue(DataType type, ValueHolder[] container) {
-		if (container == null)
-			throw new AssertionError("Container cannot be null!");
-		if (!DataType.isArrayType(type))
-			throw new UnexpectedTypeError("Type has to be an arraytype. Was " + type);
-		this.container = container;
-		this.type = type;
+	@Override
+	public void merge(Expression... e) {
+		container = Arrays.copyOf(e, e.length, ValueHolder[].class);
 	}
 
 	// CASTING--------------------------------------------------
@@ -112,7 +83,9 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	private ArrayValue asTypedArray(DataType t) {
 		if (!DataType.isArrayType(type))
 			throw new UnexpectedTypeError("Type has to be an arraytype. Was " + type);
-		return new ArrayValue(t, this);
+		ArrayValue arr = new ArrayValue(t);
+		arr.merge(Arrays.copyOf(container, container.length, Expression[].class));
+		return arr;
 	}
 
 	@Override
@@ -189,8 +162,6 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return container.length;
 	}
 
-	// Static Methods -------------------------------------------------------
-
 	/**
 	 * Extracts the content of this array.
 	 * 
@@ -220,16 +191,6 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	}
 
 	/**
-	 * Only for debugging.
-	 * 
-	 * Use "asText().rawString();" for textual representation.
-	 */
-	@Override
-	public String toString() {
-		return getType().toString();
-	}
-
-	/**
 	 * Recursivly compares all values of this array and the specified one.
 	 * 
 	 * @return false if there is even one slight difference.
@@ -250,5 +211,33 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			return true;
 		}
 		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
+	}
+
+	// STATIC METHODS
+	// -------------------------------------------------------------------
+
+	/** Merges two existing Arrays */
+	public static ArrayValue concat(ArrayValue a1, ArrayValue a2) {
+		if (a1.type != a2.type)
+			throw new UnexpectedTypeError("Only two arrays of the same type can be concatenated.");
+		ValueHolder[] content = new ValueHolder[a1.length() + a2.length()];
+		System.arraycopy(a1.raw(true), 0, content, 0, a1.length());
+		System.arraycopy(a2.raw(true), 0, content, a1.length(), a2.length());
+		ArrayValue arr = new ArrayValue(a1.type);
+		arr.merge((Expression[]) content);
+		return arr;
+	}
+
+	/** Multiplies an existing Array n times */
+	public static ArrayValue multiply(ArrayValue a, int n, int executedInLine) {
+		if (n < 0)
+			throw new ShouldBeNaturalNrException(executedInLine, "Array cannot be multiplied with negative numbers.");
+		final int orgL = a.length();
+		ValueHolder[] content = new ValueHolder[orgL * n];
+		for (int i = 0; i < n; i++)
+			System.arraycopy(a, 0, content, i * orgL, orgL);
+		ArrayValue arr = new ArrayValue(a.type);
+		arr.merge((Expression[]) content);
+		return arr;
 	}
 }

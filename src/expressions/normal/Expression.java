@@ -1,5 +1,6 @@
-package expressions.special;
+package expressions.normal;
 
+import expressions.main.MainExpression;
 import main.Main;
 import parsing.program.ExpressionType;
 
@@ -30,16 +31,18 @@ public abstract class Expression {
 	 *         if the only expexted thing is a linebreak.
 	 */
 	public final ExpressionType[] getExpectedExpressions() {
+		if (expected == null)
+			throw new AssertionError("The constructor of " + this + " must contain a call to setExpectedExpressions().");
 		return expected;
 	}
 
 	public int getOriginalLine() {
 		return Main.PROGRAM.getLine(lineIdentifier).lineIndex;
 	}
-	
+
 	/**
-	 * Returns false for Expressions.
-	 * Gets Overridden in {@link MainExpression#isDefiniteMainExpression}
+	 * Returns false for Expressions. Gets Overridden in
+	 * {@link MainExpression#isDefiniteMainExpression}
 	 */
 	public boolean isDefiniteMainExpression() {
 		return false;
@@ -53,7 +56,13 @@ public abstract class Expression {
 	protected final void setExpectedExpressions(ExpressionType... exp) {
 		expected = exp;
 	}
-	
+
+	/**
+	 * Always returns the classname when in debuggingmode. If not, identifiers can
+	 * be returned instead.
+	 */
 	@Override
-	public abstract String toString();
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

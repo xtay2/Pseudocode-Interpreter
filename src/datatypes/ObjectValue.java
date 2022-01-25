@@ -7,6 +7,7 @@ import expressions.special.DataType;
 @Deprecated
 public class ObjectValue extends Value {
 
+	@Deprecated
 	public ObjectValue() {
 		throw new AssertionError("This isn't implemented, yet.");
 	}

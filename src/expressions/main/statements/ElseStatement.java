@@ -1,42 +1,39 @@
 package expressions.main.statements;
 
 import static helper.Output.print;
-import static parsing.program.ExpressionType.OPEN_BLOCK;
+import static parsing.program.ExpressionType.OPEN_SCOPE;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.normal.brackets.OpenBlock;
-import expressions.special.Expression;
+import expressions.normal.Expression;
+import expressions.normal.brackets.OpenScope;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
-import helper.Output;
-import interpreter.Interpreter;
 import interpreter.VarManager;
 
 public class ElseStatement extends Scope implements ElifConstruct {
 
 	public ElseStatement(int line) {
 		super(line);
-		setExpectedExpressions(OPEN_BLOCK);
+		setExpectedExpressions(OPEN_SCOPE);
 	}
 
 	@Override
-	public void build(Expression... args) {
-		if (args[args.length - 1] instanceof OpenBlock)
-			block = (OpenBlock) args[args.length - 1];
+	public void merge(Expression... e) {
+		if (e.length != 1)
+			throw new AssertionError("Merge on an else-statement has to contain an opened scope.");
+		block = (OpenScope) e[0];
 	}
-
+	
 	@Override
 	public int endOfConstruct() {
 		return getEnd();
 	}
 
 	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+	public boolean execute(ValueHolder... params) {
 		print("Executing Else-Statement.");
-		if (!doExecuteNext)
-			throw new AssertionError("An else-statement has to be able to call the next line.");
 		VarManager.registerScope(this);
-		if (!Interpreter.execute(lineIdentifier + 1, true)) {
+		if (!callNextLine()) {
 			VarManager.deleteScope(this);
 			return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 		}
@@ -53,10 +50,4 @@ public class ElseStatement extends Scope implements ElifConstruct {
 	public void setNextElse(ElifConstruct nextElse) {
 		throw new IllegalCodeFormatException(getOriginalLine(), "An else cannot be followed by another elif/else.");
 	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "else";
-	}
-
 }

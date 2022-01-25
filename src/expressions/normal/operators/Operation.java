@@ -3,23 +3,30 @@ package expressions.normal.operators;
 import java.util.List;
 
 import datatypes.Value;
+import expressions.normal.Expression;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
-import expressions.special.Expression;
+import expressions.special.MergedExpression;
 import expressions.special.ValueHolder;
+import parsing.program.ValueMerger;
 
 /**
  * Consist of n Operators and n + 1 ValueHolders.
  */
-public final class Operation extends Expression implements ValueHolder {
+public final class Operation extends Expression implements ValueHolder, MergedExpression {
 
-	private final List<Expression> operation;
+	private List<Expression> operation;
 
-	public Operation(int line, List<Expression> op) {
+	/** Gets called when an Operation is constructed in the {@link ValueMerger}. */
+	public Operation(int line) {
 		super(line);
-		if (op.size() < 3)
-			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + op);
-		this.operation = op;
+	}
+
+	@Override
+	public void merge(List<Expression> e) {
+		if (e.size() < 3)
+			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + e);
+		this.operation = e;
 		convertComparative();
 	}
 
@@ -51,10 +58,5 @@ public final class Operation extends Expression implements ValueHolder {
 			return recValue(o.perform(a, b), next, c, indexOfA + 2);
 		}
 		return o.perform(a, b);
-	}
-
-	@Override
-	public String toString() {
-		return operation.toString();
 	}
 }

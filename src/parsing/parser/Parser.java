@@ -47,11 +47,12 @@ public final class Parser {
 
 		// Import everything possibly needed.
 		indexedLines = Importer.importData(indexedLines);
-		
+
 		// Remove every function-declaration that doesn't get called.
 		indexedLines = Disassembler.disassemble(indexedLines);
-	
+
 		for (LineInfo line : indexedLines)
 			Main.PROGRAM.appendLine(line.line(), line.index());
+		Main.PROGRAM.construct();
 	}
 }

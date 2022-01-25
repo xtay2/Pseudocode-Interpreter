@@ -19,6 +19,25 @@ public class Disassembler {
 
 	static List<LineInfo> program;
 
+	public static List<LineInfo> disassemble(List<LineInfo> file) {
+		program = file;
+		// Remove whitespaces
+		program = new ArrayList<>(program.stream().map(e -> new LineInfo(e.line().strip(), e.index())).toList());
+		// Clear comments
+		clearUnwantedLines();
+		// Split a one line statement to three lines
+		splitOneLiners();
+		// Find called used declarations and list them.
+		analyse();
+		// Whipe out unused lines
+		collapse();
+		// Remove all remaining empty or fully commented lines.
+		clearUnwantedLines();
+		print(LINE_BREAK + "Compressed program: " + LINE_BREAK);
+		printProgram(true);
+		return program;
+	}
+
 	private static void analyse() {
 		Declaration main = findMain();
 		for (int i = 0; i < program.size(); i++) {
@@ -62,25 +81,6 @@ public class Disassembler {
 				params++;
 		}
 		return params == 0 ? (call.charAt(call.indexOf('(') + 1) == ')' ? 0 : 1) : params + 1;
-	}
-
-	public static List<LineInfo> disassemble(List<LineInfo> file) {
-		program = file;
-		// Remove whitespaces
-		program = new ArrayList<>(program.stream().map(e -> new LineInfo(e.line().strip(), e.index())).toList());
-		// Clear comments
-		clearUnwantedLines();
-		// Split a one line statement to three lines
-		splitOneLiners();
-		// Find called used declarations and list them.
-		analyse();
-		// Whipe out unused lines
-		collapse();
-		// Remove all remaining empty or fully commented lines.
-		clearUnwantedLines();
-		print(LINE_BREAK + "Compressed program: " + LINE_BREAK);
-		printProgram(true);
-		return program;
 	}
 
 	private static List<Call> findCalls(String line) {
@@ -171,9 +171,11 @@ public class Disassembler {
 		}
 	}
 
+	/**
+	 * Splits a one-line-statement and removes the semicolon.
+	 */
 	private static void splitOneLiners() {
 		for (int i = 0; i < program.size(); i++) {
-
 			String content = program.get(i).line();
 			int index = program.get(i).index();
 
@@ -182,8 +184,8 @@ public class Disassembler {
 				if (lineBreak == content.length() - 1)
 					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
 				// Ersetze Semikolon
-				if (content.charAt(content.length() - 1) == ';')
-					program.add(i + 1, new LineInfo("}", index));
+				content = content.substring(0, content.length() - 1);
+				program.add(i + 1, new LineInfo("}", index));
 				program.add(i + 1, new LineInfo(content.substring(lineBreak + 2), index)); // Teil nach :
 				program.set(i, new LineInfo(content.substring(0, lineBreak) + " {", index));
 			}

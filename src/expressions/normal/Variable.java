@@ -5,35 +5,41 @@ import static parsing.program.ExpressionType.NAME;
 
 import datatypes.Value;
 import exceptions.runtime.CastingException;
+import expressions.possible.Call;
 import expressions.special.DataType;
-import expressions.special.Expression;
 import expressions.special.Scope;
-import expressions.special.ValueHolder;
-import helper.Output;
+import expressions.special.ValueChanger;
 import interpreter.VarManager;
 
 /**
  * Has a Name and a Value. The Name has a scope.
  *
  * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a
- * function.
+ * function through the {@link ExpectedType}.
  *
  * Gets saved in the {@link VarManager} and should only get accessed by it.
- *
- * Gets inherited by:
- * 
- *
  */
-public class Variable extends Expression implements ValueHolder {
+public class Variable extends Expression implements ValueChanger {
 
 	private Name name;
 	private final DataType type;
 	private Value value = null;
 
-	public Variable(int line, DataType type) {
+	/** Initialise a Variable */
+	public Variable(int line, DataType type, Name name) {
 		super(line);
-		this.type = type;
 		setExpectedExpressions(NAME, ARRAY_START);
+		this.type = type;
+		this.name = name;
+	}
+
+	/**
+	 * Initialise a Variable with an inital Value. Used in {@link Call} and
+	 * {@link VarManager}.
+	 */
+	public Variable(int line, DataType type, Name name, Value val) {
+		this(line, type, name);
+		setValue(val);
 	}
 
 	public String getName() {
@@ -50,25 +56,20 @@ public class Variable extends Expression implements ValueHolder {
 
 	@Override
 	public Value getValue() {
+		if (value == null)
+			throw new AssertionError("Value cannot be null.");
 		return value;
 	}
 
-	/** Gets called when declared through Declaration or params in Function. */
-	public void initialise(Name name, Value val) {
-		this.name = name;
-		setValue(val);
-		VarManager.registerVar(this);
-	}
-
-	/** Should only get called by VarManager */
+	/**
+	 * Should get identified through by {@link VarManager}.
+	 * 
+	 * @throws CastingException if this is a TypedVar and the types don't match.
+	 */
+	@Override
 	public void setValue(Value val) throws CastingException {
 		if (val == null)
-			throw new NullPointerException("Value cannot be null.");
+			throw new AssertionError("Value cannot be null.");
 		value = val.as(type);
-	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : (type == null ? "Var" : type.getName() + "-Var");
 	}
 }

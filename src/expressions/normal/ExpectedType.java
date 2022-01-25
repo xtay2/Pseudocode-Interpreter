@@ -1,10 +1,8 @@
 package expressions.normal;
 import static parsing.program.ExpressionType.NAME;
-import static parsing.program.ExpressionType.OPEN_BLOCK;
+import static parsing.program.ExpressionType.OPEN_SCOPE;
 
 import expressions.special.DataType;
-import expressions.special.Expression;
-import helper.Output;
 
 public class ExpectedType extends Expression implements Comparable<ExpectedType> {
 
@@ -12,7 +10,7 @@ public class ExpectedType extends Expression implements Comparable<ExpectedType>
 
 	public ExpectedType(DataType type, int line) {
 		super(line);
-		setExpectedExpressions(NAME, OPEN_BLOCK);
+		setExpectedExpressions(NAME, OPEN_SCOPE);
 		this.type = type;
 	}
 
@@ -23,10 +21,5 @@ public class ExpectedType extends Expression implements Comparable<ExpectedType>
 	@Override
 	public int compareTo(ExpectedType o) {
 		return o.type.compareTo(type);
-	}
-	
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : type.toString();
 	}
 }

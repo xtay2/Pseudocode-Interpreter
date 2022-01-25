@@ -3,9 +3,10 @@ package interpreter;
 import java.util.HashMap;
 
 import exceptions.runtime.DeclarationException;
+import exceptions.runtime.IllegalCallException;
 import main.Main;
 
-public final class FuncManager {
+public abstract class FuncManager {
 
 	/** Save the line indices of all functions */
 	private static HashMap<String, Integer> funcPositions = new HashMap<>();
@@ -15,9 +16,10 @@ public final class FuncManager {
 	 */
 	public static int getLine(String name) {
 		Integer line = funcPositions.get(name);
-		if (line == null)
-			throw new IllegalArgumentException(
-					"The called function " + name + " doesn't exist." + "\n Existing functions: " + funcPositions);
+		if (line == null) {
+			throw new IllegalCallException(-1, "\nThe called function " + name + " didn't get registered." + "\nExisting functions: \n"
+					+ funcPositions.keySet().stream().reduce("", (err, k) -> err + " " + funcPositions.get(k) + ": " + k + "\n"));
+		}
 		return line;
 	}
 
@@ -25,9 +27,5 @@ public final class FuncManager {
 		if (funcPositions.containsKey(name))
 			throw new DeclarationException(Main.PROGRAM.getLine(line).lineIndex, "Duplicate function declaration. func " + name);
 		funcPositions.put(name, line);
-	}
-
-	private FuncManager() {
-
 	}
 }

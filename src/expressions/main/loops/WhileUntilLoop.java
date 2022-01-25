@@ -4,15 +4,15 @@ import static helper.Output.print;
 import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
-import expressions.normal.brackets.OpenBlock;
-import expressions.special.Expression;
+import datatypes.NumberValue;
+import expressions.normal.Expression;
+import expressions.normal.brackets.OpenScope;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
-import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 
-public class WhileUntilLoop extends Scope {
+public class WhileUntilLoop extends Scope implements Loop {
 
 	public enum Type {
 		UNTIL, WHILE;
@@ -29,38 +29,32 @@ public class WhileUntilLoop extends Scope {
 	}
 
 	@Override
-	public void build(Expression... args) {
-		condition = (ValueHolder) args[1];
-		if (args[args.length - 1] instanceof OpenBlock)
-			block = (OpenBlock) args[args.length - 1];
+	public void merge(Expression... e) {
+		if (e.length != 2)
+			throw new AssertionError("Merge on a while-/until-statement has to contain a condition and an opened scope.");
+		condition = (ValueHolder) e[0];
+		block = (OpenScope) e[1];
 	}
 
 	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+	public boolean execute(ValueHolder... params) {
 		print("Executing " + type + "-loop.");
-		int repetitions = 0;
-		if (!doExecuteNext)
-			throw new AssertionError("A " + type + "-loop has to be able to call the next line.");
+		NumberValue repetitions = new NumberValue(0);
 		while (condition.getValue().asBool().raw() == (type == Type.WHILE)) {
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, repetitions, getOriginalLine());
-			if (!Interpreter.execute(lineIdentifier + 1, true)) {
+			if (!callNextLine()) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 			}
-			repetitions++;
+			repetitions = NumberValue.add(repetitions, new NumberValue(1));
 			VarManager.deleteScope(this);
 		}
-		return Interpreter.execute(getEnd(), true);
+		return Interpreter.execute(getEnd());
 	}
 
 	@Override
 	public String getScopeName() {
 		return "while" + getStart() + "-" + getEnd();
-	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "while";
 	}
 }

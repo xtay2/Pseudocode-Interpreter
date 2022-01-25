@@ -1,6 +1,5 @@
 package parsing.program;
 
-import expressions.main.CloseBlock;
 import expressions.main.Declaration;
 import expressions.normal.Comma;
 import expressions.normal.ExpectedReturnType;
@@ -10,7 +9,6 @@ import expressions.normal.Name;
 import expressions.normal.array.ArrayEnd;
 import expressions.normal.array.ArrayStart;
 import expressions.normal.brackets.CloseBracket;
-import expressions.normal.brackets.OpenBlock;
 import expressions.normal.brackets.OpenBracket;
 import expressions.normal.operators.Operator;
 
@@ -38,7 +36,7 @@ public enum ExpressionType {
 	 *
 	 * @see CloseBlock
 	 */
-	CLOSE_BLOCK("}"),
+	CLOSE_SCOPE("}"),
 
 	/**
 	 * ) Zeichen
@@ -66,12 +64,7 @@ public enum ExpressionType {
 	 *
 	 * @see Declaration
 	 */
-	DECLARATION("="),
-
-	/**
-	 * ; Semikolon. Optional nach Funktionsaufrufen.
-	 */
-	DEFINITE_LINEBREAK(";"),
+	ASSIGNMENT("="),
 
 	/**
 	 * Pfeil ->
@@ -96,12 +89,12 @@ public enum ExpressionType {
 	INFIX_OPERATOR("Operator"),
 
 	/**
-	 * Keyword
-	 *
+	 * Keywords wie if, for, func...
+	 * 
 	 * @see KeywordType
 	 */
 	KEYWORD("Keyword"),
-
+	
 	/**
 	 * Ausgeschriebener Wert.
 	 *
@@ -112,12 +105,12 @@ public enum ExpressionType {
 	/**
 	 * Verbindungsworte in Schleifen.
 	 *
-	 * Beispiele: "in" (for e in list) oder "to" (from 0 to 10)
+	 * Beispiele: "to" (from 0 to 10)
 	 *
 	 * @see LoopConnector
 	 */
-	LOOP_CONNECTOR("in/to"),
-
+	LOOP_CONNECTOR("to"),
+	
 	/**
 	 * Ausgeschriebener alphanumerischer Name.
 	 *
@@ -130,7 +123,7 @@ public enum ExpressionType {
 	 *
 	 * @see OpenBlock
 	 */
-	OPEN_BLOCK("{"),
+	OPEN_SCOPE("{"),
 
 	/**
 	 * ( Zeichen
@@ -144,14 +137,7 @@ public enum ExpressionType {
 	 * 
 	 * @see OperationDeclaration
 	 */
-	OPERATION_ASSIGNMENT("Operation-Declaration"),
-
-	/**
-	 * Identifier bei Variablendeklaration. var, bool, nr oder text.
-	 * 
-	 * @see TypedVar
-	 */
-	VAR_TYPE("Var-Declaration");
+	OPERATION_ASSIGNMENT("Operation-Declaration");
 
 	private final String name;
 

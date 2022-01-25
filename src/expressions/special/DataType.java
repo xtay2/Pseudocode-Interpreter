@@ -1,12 +1,11 @@
 package expressions.special;
 
-/** The Type of a Variable. If Type == null, the var has no specific type.*/
+/** The Type of a Variable. If Type == null, the var has no specific type. */
 public enum DataType {
-
-	BOOL("bool"), BOOL_ARRAY("bool[]"), NUMBER("nr"), //Types of arrays:
-	NUMBER_ARRAY("nr[]"), 
-	
-	TEXT("text"), TEXT_ARRAY("text[]"), VAR("var"), VAR_ARRAY("var[]");
+	// Vartypes
+	VAR("var"), TEXT("text"), BOOL("bool"), NUMBER("nr"),
+	// Types of arrays:
+	VAR_ARRAY("var[]"), BOOL_ARRAY("bool[]"), NUMBER_ARRAY("nr[]"), TEXT_ARRAY("text[]");
 
 	public static boolean isArrayType(DataType type) {
 		return type == VAR_ARRAY || type == NUMBER_ARRAY || type == TEXT_ARRAY || type == BOOL_ARRAY;
@@ -19,7 +18,7 @@ public enum DataType {
 	public static DataType stringToType(String s) {
 		for (DataType t : DataType.values()) {
 			if (t.name.equals(s.strip()))
-				return t;	
+				return t;
 		}
 		return null;
 	}

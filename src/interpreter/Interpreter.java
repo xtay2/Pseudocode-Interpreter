@@ -8,9 +8,9 @@ import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
 import expressions.main.Declaration;
+import expressions.main.MainExpression;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
-import expressions.special.MainExpression;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import main.Main;
@@ -28,9 +28,9 @@ public final class Interpreter {
 	 * @param params        are the function-parameters
 	 * @return the return-value of the function.
 	 */
-	public static Value call(String name, boolean doExecuteNext, ValueHolder... params) {
+	public static Value call(String name, ValueHolder... params) {
 		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
-		f.execute(doExecuteNext, params);
+		f.execute(params);
 		Value returnVal = f.getValue();
 		f.setReturnVal(null);
 		return returnVal;
@@ -49,8 +49,8 @@ public final class Interpreter {
 	 *         ReturnStatement#execute
 	 * 
 	 */
-	public static boolean execute(int i, boolean doExecuteNext, ValueHolder... params) {
-		return Main.PROGRAM.getLine(i).getMainExpression().execute(doExecuteNext, params);
+	public static boolean execute(int i, ValueHolder... params) {
+		return Main.PROGRAM.getLine(i).getMainExpression().execute(params);
 	}
 
 	/**
@@ -64,8 +64,8 @@ public final class Interpreter {
 	 * @return false if this function shouldn't call any other functions.
 	 *         ReturnStatement#execute
 	 */
-	public static boolean execute(String name, boolean doExecuteNext, ValueHolder... params) {
-		return execute(FuncManager.getLine(name + params.length), doExecuteNext);
+	public static boolean execute(String name, ValueHolder... params) {
+		return execute(FuncManager.getLine(name + params.length));
 	}
 
 	/**
@@ -82,7 +82,7 @@ public final class Interpreter {
 		print("Initialising global Vars: " + UNDERLINE);
 		registerGlobalVars();
 		print("\nStarting Program: " + UNDERLINE);
-		execute(FuncManager.getLine("main"), true);
+		execute(FuncManager.getLine("main"));
 		// Cleanup
 		print("Program has ended.");
 		print(LINE_BREAK);
@@ -104,12 +104,12 @@ public final class Interpreter {
 			// Check func in other func
 			if (e instanceof Function f && currentScope != Scope.GLOBAL_SCOPE)
 				throw new IllegalCodeFormatException(Main.PROGRAM.getLine(i).lineIndex,
-						"A function cannot be defined in another function. See: \"" + f.getName() + "\" in " + currentScope);
+						"A function cannot be defined in another function. \nSee: \"" + f.getName() + "\" in " + currentScope);
 			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
 					throw new DeclarationException(Main.PROGRAM.getLine(i).lineIndex, "The main-function should be defined only once!");
-				FuncManager.registerFunction(KeywordType.MAIN.keyword, i);
+				FuncManager.registerFunction(KeywordType.MAIN.toString(), i);
 				hasMain = true;
 			}
 			// Speichere alle Funktionsnamen (Main darf nicht gecallt werden.)
@@ -122,13 +122,14 @@ public final class Interpreter {
 	}
 
 	/**
-	 * Register all Variables in the global scope. (Outside of functions).
+	 * Registers and initialises all static Variables in the global scope.
+	 * 
+	 * (Outside of functions).
 	 */
 	private static void registerGlobalVars() {
 		for (int i = 0; i < Main.PROGRAM.size(); i++) {
-			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
-			if (e instanceof Declaration && ((Declaration) e).getName().getScope().equals(Scope.GLOBAL_SCOPE))
-				execute(i, false);
+			if (Main.PROGRAM.getLine(i).getMainExpression() instanceof Declaration d)
+				d.registerIfGlobal();
 		}
 	}
 }

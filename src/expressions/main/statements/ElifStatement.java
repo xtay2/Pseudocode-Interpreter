@@ -4,7 +4,6 @@ import static helper.Output.print;
 
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
-import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 public class ElifStatement extends IfStatement implements ElifConstruct {
@@ -14,29 +13,22 @@ public class ElifStatement extends IfStatement implements ElifConstruct {
 	}
 
 	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+	public boolean execute(ValueHolder... params) {
 		print("Executing Elif-Statement.");
-		if (!doExecuteNext)
-			throw new AssertionError("An elif-statement has to be able to call the next line.");
 		if (booleanExp.getValue().asBool().raw()) {
 			VarManager.registerScope(this);
-			if (!Interpreter.execute(lineIdentifier + 1, true)) {
+			if (!Interpreter.execute(lineIdentifier + 1)) {
 				VarManager.deleteScope(this);
 				return false; // Wenn durch return abgebrochen wurde, rufe nichts hinter dem Block auf.
 			}
 			VarManager.deleteScope(this);
-		} else if (nextElse != null && !Interpreter.execute(((Scope) nextElse).getStart(), true))
+		} else if (nextElse != null && !Interpreter.execute(((Scope) nextElse).getStart()))
 			return false;
-		return (nextElse == null ? true : Interpreter.execute(endOfConstruct(), true));
+		return (nextElse == null ? true : Interpreter.execute(endOfConstruct()));
 	}
 
 	@Override
 	public String getScopeName() {
 		return "elif" + getStart() + "-" + getEnd();
-	}
-	
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "elif";
 	}
 }

@@ -7,9 +7,8 @@ import static parsing.program.ExpressionType.EXPECTED_TYPE;
 import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
+import expressions.normal.Expression;
 import expressions.special.Bracket;
-import expressions.special.Expression;
-import helper.Output;
 
 public class OpenBracket extends Expression implements Bracket {
 
@@ -28,10 +27,5 @@ public class OpenBracket extends Expression implements Bracket {
 	@Override
 	public void setMyMatch(Bracket match) {
 		throw new AssertionError("This is unimplemented but can be later, when needed.");
-	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "'('";
 	}
 }

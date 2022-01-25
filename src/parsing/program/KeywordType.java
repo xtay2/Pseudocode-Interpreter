@@ -1,35 +1,25 @@
 package parsing.program;
 
 import expressions.main.functions.Function;
+import expressions.main.functions.MainFunction;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
+import expressions.main.loops.RepeatLoop;
+import expressions.main.loops.WhileUntilLoop;
+import expressions.main.loops.WhileUntilLoop.Type;
 import expressions.main.statements.ElifStatement;
 import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
-import expressions.main.statements.RepeatStatement;
-import parsing.importer.Importer;
+import expressions.main.statements.ReturnStatement;
+import expressions.normal.Expression;
+import expressions.normal.Flag;
+import expressions.normal.Flag.FlagType;
 
 public enum KeywordType {
-	ELIF("elif"), ELSE("else"), /** {@link ForEachLoop} */
-	FOR("for"),
-	/** {@link FromToLoop} */
-	FROM("from"), /** {@link Function} */
-	FUNC("func"), /** {@link IfStatement}, {@link ElifStatement}, {@link ElseStatement} */
-	IF("if"),
-	/** {@link Importer} */
-	IMPORT("import"),
-	MAIN("main"),
-	/** {@link NativeFunction} */
-	NATIVE("native"),
-	/** {@link RepeatStatement} */
-	REPEAT("repeat"),
-	RETURN("return"),
-	/** {@link WhileLoop} */
-	UNTIL("until"),
-	/** {@link WhileLoop} */
-	WHILE("while");
+	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"), NATIVE("native"),
+	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while");
 
-	public static KeywordType getKeywordFromString(String val) {
+	public static KeywordType getKeywordTypeFromString(String val) {
 		for (KeywordType k : KeywordType.values()) {
 			if (k.keyword.equals(val))
 				return k;
@@ -37,9 +27,39 @@ public enum KeywordType {
 		return null;
 	}
 
-	public final String keyword;
+	private final String keyword;
 
-	KeywordType(final String string) {
-		keyword = string;
+	private KeywordType(final String keyword) {
+		this.keyword = keyword;
+	}
+
+	@Override
+	public String toString() {
+		return keyword;
+	}
+
+	/**
+	 * Builds an expression from a string or returns null if the string didn't match
+	 * any keyword.
+	 */
+	public static Expression buildKeywordExpressionFromString(String arg, int lineID) {
+		KeywordType type = getKeywordTypeFromString(arg);
+		if (type == null)
+			return null;
+		return switch (type) {
+		case ELIF -> new ElifStatement(lineID);
+		case ELSE -> new ElseStatement(lineID);
+		case FOR -> new ForEachLoop(lineID);
+		case FROM -> new FromToLoop(lineID);
+		case FUNC -> new Function(lineID);
+		case IF -> new IfStatement(lineID);
+		case MAIN -> new MainFunction(lineID);
+		case REPEAT -> new RepeatLoop(lineID);
+		case RETURN -> new ReturnStatement(lineID);
+		case WHILE -> new WhileUntilLoop(Type.WHILE, lineID);
+		case UNTIL -> new WhileUntilLoop(Type.UNTIL, lineID);
+		case NATIVE -> new Flag(FlagType.NATIVE, lineID);
+		case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
+		};
 	}
 }

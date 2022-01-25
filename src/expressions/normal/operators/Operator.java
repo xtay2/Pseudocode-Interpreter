@@ -6,6 +6,7 @@ import static parsing.program.ExpressionType.NAME;
 import static parsing.program.ExpressionType.OPEN_BRACKET;
 
 import datatypes.Value;
+import expressions.normal.Expression;
 import expressions.normal.operators.arithmetic.AddOperator;
 import expressions.normal.operators.arithmetic.DivOperator;
 import expressions.normal.operators.arithmetic.ModOperator;
@@ -14,9 +15,7 @@ import expressions.normal.operators.arithmetic.PowOperator;
 import expressions.normal.operators.arithmetic.SubOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
-import expressions.special.Expression;
 import expressions.special.ValueHolder;
-import helper.Output;
 
 /**
  * Used in Operation
@@ -99,9 +98,4 @@ public abstract class Operator extends Expression {
 	}
 
 	public abstract Value perform(ValueHolder a, ValueHolder b);
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : op.toString();
-	}
 }

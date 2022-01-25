@@ -5,42 +5,47 @@ import java.util.ArrayList;
 import datatypes.ArrayValue;
 import datatypes.Value;
 import exceptions.runtime.ArrayAccessException;
+import expressions.normal.Expression;
 import expressions.normal.Name;
-import expressions.special.Expression;
+import expressions.special.MergedExpression;
 import expressions.special.ValueChanger;
 import expressions.special.ValueHolder;
-import helper.Output;
-import interpreter.VarManager;
+
 /** Access at a specific index for example a[19] */
-public class ArrayAccess extends Expression implements ValueChanger {
+public class ArrayAccess extends Expression implements ValueChanger, MergedExpression {
 
-	ArrayList<ValueHolder> indices;
-	public final Name name;
+	private final ArrayList<ValueHolder> indices = new ArrayList<>();
+	private Name name;
 
-	public ArrayAccess(int line, Name array, ArrayList<ValueHolder> indices) {
+	public ArrayAccess(int line) {
 		super(line);
-		if (indices.isEmpty())
-			throw new ArrayAccessException(getOriginalLine(), "Index has to be defined.");
-		this.name = array;
-		this.indices = indices;
 	}
-	
+
+	@Override
+	public void merge(Expression... e) {
+		name = (Name) e[0];
+		if (e.length < 2)
+			throw new ArrayAccessException(getOriginalLine(), "Index has to be defined.");
+		for (int i = 1; i < e.length; i++)
+			indices.add((ValueHolder) e[i]);
+	}
+
 	@Override
 	public Value getValue() {
-		Value v = VarManager.get(name.getName(), getOriginalLine()).getValue().asVarArray();
+		ArrayValue arr = name.getValue().asVarArray();
 		try {
 			for (ValueHolder index : indices)
-				v = ((ArrayValue) v).get((int) index.getValue().asInt().rawInt());
+				return arr.get((int) index.getValue().asInt().rawInt());
 		} catch (ClassCastException e) {
-			throw new ArrayAccessException(getOriginalLine(),
-					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
+			e.printStackTrace();
 		}
-		return v;
+		throw new ArrayAccessException(getOriginalLine(),
+				"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 	}
 
 	@Override
 	public void setValue(Value val) {
-		ArrayValue arr = (ArrayValue) VarManager.get(name.getName(), getOriginalLine()).getValue();
+		ArrayValue arr = (ArrayValue) name.getValue();
 		try {
 			for (int i = 0; i < indices.size() - 1; i++)
 				arr = (ArrayValue) arr.get((int) indices.get(i).getValue().asInt().rawInt());
@@ -49,10 +54,5 @@ public class ArrayAccess extends Expression implements ValueChanger {
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 		}
 		arr.set((int) indices.get(indices.size() - 1).getValue().asInt().rawInt(), val);
-	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : "array-access";
 	}
 }

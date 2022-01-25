@@ -6,67 +6,42 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.main.CloseBlock;
+import expressions.main.CloseScope;
+import expressions.main.MainExpression;
 import expressions.main.functions.Function;
 import expressions.main.statements.ElifConstruct;
 import expressions.main.statements.ElifStatement;
 import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
 import expressions.main.statements.ReturnStatement;
+import expressions.normal.Expression;
 import expressions.normal.Name;
-import expressions.normal.brackets.OpenBlock;
+import expressions.normal.brackets.OpenScope;
 import expressions.normal.operators.Operator;
 import expressions.special.DataType;
-import expressions.special.Expression;
-import expressions.special.MainExpression;
-import expressions.special.PossibleMainExpression;
 import expressions.special.Scope;
 import interpreter.Interpreter;
+import main.Main;
 import parsing.finder.ExpressionFinder;
 import parsing.parser.Parser;
 
 public class ProgramLine {
 
-	private ArrayList<Expression> expressions = new ArrayList<>();
+	private final ArrayList<Expression> expressions = new ArrayList<>();
 	public final String line;
 	public final int lineIdentifier;
 	public final int lineIndex;
 	private MainExpression main;
-	public final Program program;
 
 	/**
 	 * Save a line of code and build its object-expression-representation.
 	 *
 	 * @param line is the content of this line of code.
 	 */
-	public ProgramLine(String line, int lineIdentifier, int lineIndex, Program program) {
-		this.program = program;
+	public ProgramLine(String line, int lineIdentifier, int lineIndex) {
 		this.line = line;
 		this.lineIdentifier = lineIdentifier;
 		this.lineIndex = lineIndex;
-	}
-
-	/**
-	 * Recursivly connects Block-Brackets.
-	 *
-	 * @param close    is the closing bracket.
-	 * @param brackets is the count of brackets inbetween.
-	 */
-	private void connectBlock(CloseBlock close, int brackets) {
-		Expression last = expressions.get(expressions.size() - 1);
-		if (last instanceof CloseBlock)
-			brackets--;
-		else if (last instanceof OpenBlock) {
-			brackets++;
-			if (brackets == 0) {
-				((OpenBlock) last).setMyMatch(close);
-				close.setMyMatch((OpenBlock) last);
-				return;
-			}
-		}
-		if (lineIdentifier <= 0)
-			throw new IllegalCodeFormatException(lineIndex, "Matching open bracket wasn't found.");
-		program.getLine(lineIdentifier - 1).connectBlock(close, brackets);
 	}
 
 	/**
@@ -75,14 +50,15 @@ public class ProgramLine {
 	 * Find all calls (name, open_bracket, params, close_bracket) and merge them to
 	 * one call.
 	 */
-	private void connectExpressions() {
+	private void initScopesAndMain() {
 		// Setze die Scopes aller Namen noch vor dem Call-Merge
 		Scope scope = searchForScope();
 		for (Expression e : expressions)
 			if (e instanceof Name)
 				((Name) e).initScope(scope);
-		// Merge Zeile in eine function/declaration/call...
-		expressions = ValueBuilder.buildLine(expressions, lineIdentifier, lineIndex);
+		// Merge Zeile in eine MainExpression
+		main = ValueMerger.buildLine(expressions, lineIdentifier, lineIndex);
+		expressions.clear();
 	}
 
 	/**
@@ -92,8 +68,8 @@ public class ProgramLine {
 	public void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.VAR_TYPE, ExpressionType.NAME,
-				ExpressionType.CLOSE_BLOCK, ExpressionType.CREMENT };
+		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.EXPECTED_TYPE, ExpressionType.NAME,
+				ExpressionType.CLOSE_SCOPE, ExpressionType.CREMENT };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -123,10 +99,9 @@ public class ProgramLine {
 		}
 		if (inString)
 			throw new IllegalCodeFormatException(lineIndex, "String has to be closed.");
-		if (!"".equals(current.strip())) { // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
+		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
-		}
-		mergeLine();
+		initMainExpression();
 	}
 
 	/**
@@ -140,7 +115,7 @@ public class ProgramLine {
 					+ current + "\n" //
 					+ "Expected " + (expectedExpressionTypes.length == 0 ? "a linebreak" : Arrays.toString(expectedExpressionTypes))
 					+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
-					+ "Current state of line: " + expressions);
+					+ "Current state of line: \n" + line + "\n" + expressions);
 		expressions.add(exp);
 		return exp.getExpectedExpressions();
 	}
@@ -149,17 +124,19 @@ public class ProgramLine {
 	private ElifConstruct findLastIf() {
 		if (lineIdentifier == 0)
 			throw new IllegalCodeFormatException(lineIndex, "An elif/else Statement needs a predecessing IfStatement.");
-		MainExpression previous = program.getLine(lineIdentifier - 1).getMainExpression();
+		MainExpression previous = Main.PROGRAM.getLine(lineIdentifier - 1).getMainExpression();
 		if (previous instanceof IfStatement || previous instanceof ElifStatement)
 			return (ElifConstruct) previous;
-		return program.getLine(lineIdentifier - 1).findLastIf();
+		return Main.PROGRAM.getLine(lineIdentifier - 1).findLastIf();
 	}
 
 	/**
 	 * Returns the main-expression of this line.
 	 */
 	public MainExpression getMainExpression() {
-		return main;
+		if (main != null)
+			return main;
+		throw new AssertionError("Main of line " + lineIndex + " is null at this point.");
 	}
 
 	/**
@@ -182,22 +159,15 @@ public class ProgramLine {
 		return next == ' ';
 	}
 
-	/** Merge the important information into the Main Expression. */
-	private void mergeLine() {
-		connectExpressions();
-		// Suche PossibleMainExpression
-		searchForPossibleMain();
-		// Wenn es eine schließende Klammer suche ihren Partner.
-		if (main instanceof CloseBlock)
-			program.getLine(lineIdentifier - 1).connectBlock((CloseBlock) main, -1);
+	/** Initialises certain types of main expressions, like Scopes. */
+	private void initMainExpression() {
+		initScopesAndMain();
 		// Wenn es ein Returnstatement ist, suche die Funktion
-		else if (main instanceof ReturnStatement)
-			((ReturnStatement) main).setMyFunc(program.getLine(lineIdentifier - 1).searchForFunc());
+		if (main instanceof ReturnStatement)
+			((ReturnStatement) main).setMyFunc(Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc());
 		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
 		else if (main instanceof ElifStatement || main instanceof ElseStatement)
 			findLastIf().setNextElse((ElifConstruct) main);
-		if (!(main instanceof PossibleMainExpression))
-			main.build(expressions.toArray(new Expression[expressions.size()]));
 		print(expressions.toString());
 	}
 
@@ -210,26 +180,7 @@ public class ProgramLine {
 			return (Function) main;
 		if (lineIdentifier == 0)
 			throw new IllegalCodeFormatException(lineIndex, "Return-Statement has to be declared inside a function.");
-		return program.getLine(lineIdentifier - 1).searchForFunc();
-	}
-
-	/** Searches if there is a {@link PossibleMainExpression} in this line. */
-	void searchForPossibleMain() {
-		main = (MainExpression) expressions.stream().filter(e -> e.isDefiniteMainExpression()).findFirst().orElse(null);
-		if (main == null) {
-			for (Expression e : expressions) {
-				if (e instanceof PossibleMainExpression p) {
-					if (main == null)
-						main = p;
-					else
-						throw new IllegalCodeFormatException(lineIndex,
-								"This line contains multiple PossibleMainExpressions and no definite one.\nWas: " + line);
-				}
-			}
-			if (main == null)
-				throw new IllegalCodeFormatException(lineIndex,
-						"This line doesn't contain a MainExpression or a PossibleMainExpressions.\nWas: " + line);
-		}
+		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc();
 	}
 
 	/**
@@ -239,7 +190,7 @@ public class ProgramLine {
 	 * of that function.
 	 * 
 	 * @see Interpreter#registerFunctions()
-	 * @see ProgramLine#connectExpressions()
+	 * @see ProgramLine#initScopesAndMain()
 	 */
 	public Scope searchForScope() {
 		if (main instanceof Function f && f.isNative())
@@ -248,14 +199,14 @@ public class ProgramLine {
 			return (Scope) main;
 		if (lineIdentifier == 0)
 			return Scope.GLOBAL_SCOPE;
-		if (main instanceof CloseBlock) {
-			ProgramLine match = program.getLine(((OpenBlock) ((CloseBlock) main).getMatch()).lineIdentifier);
+		if (main instanceof CloseScope) {
+			ProgramLine match = Main.PROGRAM.getLine(((OpenScope) ((CloseScope) main).getMatch()).lineIdentifier);
 			// Da alle Zeilen über dieser bereits ausgewertet wurden, existiert eine
 			// MainExpression, die man auswerten kann.
 			if (match.getMainExpression() instanceof Function)
 				return Scope.GLOBAL_SCOPE;
 		}
-		return program.getLine(lineIdentifier - 1).searchForScope();
+		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForScope();
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public final class SystemFunctions {
 	private static Value execute(ValueHolder[] params) {
 		String funcName = params[0].getValue().asText().rawString();
 		ArrayValue arr = ((ArrayValue) params[1].getValue());
-		return Interpreter.call(funcName, true, arr.raw(true));
+		return Interpreter.call(funcName, arr.raw(true));
 	}
 
 	private static Value exit(ValueHolder[] params) {

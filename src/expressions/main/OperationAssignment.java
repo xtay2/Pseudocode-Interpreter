@@ -9,23 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import datatypes.Value;
-import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalReturnException;
+import expressions.normal.Expression;
 import expressions.normal.Name;
-import expressions.normal.Semicolon;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
-import expressions.special.Expression;
-import expressions.special.MainExpression;
+import expressions.special.MergedExpression;
 import expressions.special.ValueHolder;
-import helper.Output;
 import interpreter.VarManager;
 
 /**
  * Similar to the {@link Declaration}, but this one modifies the value before it
  * gets declared.
  */
-public class OperationAssignment extends MainExpression {
+public class OperationAssignment extends MainExpression implements MergedExpression {
 
 	public static enum Type {
 		ADDI("+="), DIVI("/="), MODI("%="), MULTI("*="), POWI("^="), SUBI("-=");
@@ -48,48 +45,39 @@ public class OperationAssignment extends MainExpression {
 	private Operator op;
 
 	private Name target;
-	private final Type type;
 	private ValueHolder val;
 
 	public OperationAssignment(int line, Type type) {
 		super(line);
 		setExpectedExpressions(LITERAL, NAME, OPEN_BRACKET);
-		this.type = type;
 		op = Operator.operatorExpression(type.label.substring(0, 1), line);
 	}
 
+	/** [NAME] [VALUE_HOLDER] */
 	@Override
-	public void build(Expression... args) {
-		if (args.length == 3 || (args.length == 4 && args[3] instanceof Semicolon)) {
-			if (args[0] instanceof Name n && args[2] instanceof ValueHolder v) {
-				target = n;
-				val = v;
-			} else
-				throw new DeclarationException(lineIdentifier,
-						"Operation-declaration has to follow the structure: [Name] [Declarative Operator] [Value]");
-		}
+	public void merge(Expression... e) {
+		if(e.length != 2)
+			throw new AssertionError("Merge on a OperationAssignment has to contain a Name and a ValueHolder.");
+		target = (Name) e[0];
+		val = (ValueHolder) e[1];
 	}
 
 	@Override
-	public boolean execute(boolean doExecuteNext, ValueHolder... params) {
+	public boolean execute(ValueHolder... params) {
 		try {
 			List<Expression> operation = new ArrayList<>(3);
 			operation.add(VarManager.get(target.getName(), lineIdentifier));
 			operation.add(op);
 			operation.add(val.getValue());
-			Value value = new Operation(lineIdentifier, operation).getValue();
+			Operation op = new Operation(lineIdentifier);
+			op.merge(operation);
+			Value value = op.getValue();
 			print("Changing the value of " + target + " to " + value);
 			VarManager.get(target.getName(), getOriginalLine()).setValue(value);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			throw new IllegalReturnException(getOriginalLine(), "Function has to return a value!");
 		}
-		return callNextLine(doExecuteNext);
+		return callNextLine();
 	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? this.getClass().getSimpleName() : type.toString();
-	}
-
 }

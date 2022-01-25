@@ -28,8 +28,8 @@ public abstract class Importer {
 	}
 
 	public static List<LineInfo> importData(List<LineInfo> lines) {
-		while (lines.get(0).line().startsWith(KeywordType.IMPORT.keyword)) {
-			String currentImport = lines.remove(0).line().substring(KeywordType.IMPORT.keyword.length()).stripLeading();
+		while (lines.get(0).line().startsWith(KeywordType.IMPORT.toString())) {
+			String currentImport = lines.remove(0).line().substring(KeywordType.IMPORT.toString().length()).stripLeading();
 			if (!IMPORTED.contains(currentImport)) {
 				print("Importing: " + currentImport);
 				IMPORTED.add(currentImport);

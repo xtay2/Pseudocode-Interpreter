@@ -2,18 +2,6 @@ package parsing.finder;
 
 import java.util.ArrayList;
 
-import expressions.main.functions.Function;
-import expressions.main.functions.MainFunction;
-import expressions.main.loops.ForEachLoop;
-import expressions.main.loops.FromToLoop;
-import expressions.main.loops.WhileUntilLoop;
-import expressions.main.statements.ElifStatement;
-import expressions.main.statements.ElseStatement;
-import expressions.main.statements.IfStatement;
-import expressions.main.statements.RepeatStatement;
-import expressions.main.statements.ReturnStatement;
-import expressions.normal.Keyword;
-import expressions.special.Expression;
 import parsing.program.KeywordType;
 
 public class KeywordFinder {
@@ -25,7 +13,7 @@ public class KeywordFinder {
 	private static int getMaxKeywordLength() {
 		int longest = -1;
 		for (KeywordType k : KeywordType.values())
-			longest = Math.max(longest, k.keyword.length());
+			longest = Math.max(longest, k.toString().length());
 		return longest;
 	}
 
@@ -33,36 +21,10 @@ public class KeywordFinder {
 		return KEYWORDS.contains(string);
 	}
 
-	public static Expression keywordExpression(String arg, int line) {
-		if (KeywordType.FUNC.keyword.equals(arg))
-			return new Function(line);
-		if (KeywordType.MAIN.keyword.equals(arg))
-			return new MainFunction(line);
-		if (KeywordType.RETURN.keyword.equals(arg))
-			return new ReturnStatement(line);
-		if (KeywordType.IF.keyword.equals(arg))
-			return new IfStatement(line);
-		if (KeywordType.ELIF.keyword.equals(arg))
-			return new ElifStatement(line);
-		if (KeywordType.ELSE.keyword.equals(arg))
-			return new ElseStatement(line);
-		if (KeywordType.REPEAT.keyword.equals(arg))
-			return new RepeatStatement(line);
-		if (KeywordType.WHILE.keyword.equals(arg))
-			return new WhileUntilLoop(WhileUntilLoop.Type.WHILE, line);
-		if (KeywordType.UNTIL.keyword.equals(arg))
-			return new WhileUntilLoop(WhileUntilLoop.Type.UNTIL, line);
-		if (KeywordType.FROM.keyword.equals(arg))
-			return new FromToLoop(line);
-		if (KeywordType.FOR.keyword.equals(arg))
-			return new ForEachLoop(line);
-		return new Keyword(line, arg); // Generic Keyword
-	}
-
 	private static final ArrayList<String> keywordsAsStrings() {
 		ArrayList<String> keywords = new ArrayList<>();
 		for (KeywordType k : KeywordType.values())
-			keywords.add(k.keyword);
+			keywords.add(k.toString());
 		return keywords;
 	}
 }

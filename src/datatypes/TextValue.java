@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
+import expressions.normal.Expression;
 import expressions.special.DataType;
 import expressions.special.ValueHolder;
 
@@ -37,7 +38,7 @@ public class TextValue extends Value {
 			throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool.");
 		return new BoolValue(b.booleanValue());
 	}
-	
+
 	@Override
 	public ArrayValue asBoolArray() throws CastingException {
 		throw new CastingException("Text cannot be casted to an array.");
@@ -65,7 +66,9 @@ public class TextValue extends Value {
 		ValueHolder[] chars = new ValueHolder[value.length()];
 		for (int i = 0; i < value.length(); i++)
 			chars[i] = (new TextValue(value.charAt(i)));
-		return new ArrayValue(DataType.TEXT_ARRAY, chars);
+		ArrayValue arr = new ArrayValue(DataType.TEXT_ARRAY);
+		arr.merge((Expression[]) chars);
+		return arr;
 	}
 
 	@Override
@@ -73,7 +76,9 @@ public class TextValue extends Value {
 		ValueHolder[] chars = new ValueHolder[value.length()];
 		for (int i = 0; i < value.length(); i++)
 			chars[i] = (new TextValue(value.charAt(i)));
-		return new ArrayValue(DataType.VAR_ARRAY, chars);
+		ArrayValue arr = new ArrayValue(DataType.TEXT_ARRAY);
+		arr.merge((Expression[]) chars);
+		return arr;
 	}
 
 	@Override
@@ -85,8 +90,8 @@ public class TextValue extends Value {
 		case TEXT -> true; // Gibt text-repräsentation zurück
 		case BOOL -> Value.asBoolValue(value) != null; // Nur wenn es tatsächlich ein Boolean literal ist.
 		case NUMBER -> Value.isNumber(value); // Nur wenn es tatsächlich eine Zahl ist. Siehe: TextValue#asNumber
-		case NUMBER_ARRAY -> false;
-		case BOOL_ARRAY -> false;
+		// Not Supported
+		case NUMBER_ARRAY, BOOL_ARRAY -> false;
 		};
 	}
 
@@ -102,11 +107,6 @@ public class TextValue extends Value {
 	 */
 	public String rawString() {
 		return value;
-	}
-
-	@Override
-	public String toString() {
-		return "\"" + value + "\"";
 	}
 
 	@Override

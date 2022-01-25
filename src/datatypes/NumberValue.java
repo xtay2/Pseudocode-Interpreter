@@ -91,6 +91,7 @@ public class NumberValue extends Value {
 	public NumberValue asNumber() throws CastingException {
 		return this;
 	}
+	
 
 	// STATIC OPERATIONS
 
@@ -142,8 +143,7 @@ public class NumberValue extends Value {
 	 * Do not use this in an Operation!
 	 */
 	public double rawFloat() {
-		double a = value.doubleValue();
-		return a;
+		return value.doubleValue();
 	}
 
 	/**
@@ -161,5 +161,6 @@ public class NumberValue extends Value {
 			return value.equals(n.value);
 		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
 	}
+
 
 }

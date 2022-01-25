@@ -1,7 +1,9 @@
-import stdlib.lang.System
-
 main {
-	var a = [1, 2, 3]
-	print(++a)
-	print(a[1]++)
+	var a = 10
+	
+	a++
+	
+	print(a)
 }
+
+native func print(text msg)

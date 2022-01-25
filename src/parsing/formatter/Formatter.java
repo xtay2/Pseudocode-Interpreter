@@ -15,6 +15,20 @@ public class Formatter {
 
 	private static List<String> rawProgram;
 
+	public static List<String> format(List<String> p) {
+		rawProgram = p;
+		stripTrailing();
+		lineBreakBetweenBlocks(0);
+		indent();
+		doSemicolons();
+		improveLogical();
+		correctSpaces();
+		addMissingMain();
+		moveImportsUp();
+		checkForLonelyBrackets();
+		return rawProgram;
+	}
+
 	/**
 	 * Adds a main-function if there isn't one already present.
 	 */
@@ -23,22 +37,26 @@ public class Formatter {
 			if (line.stripIndent().startsWith("main"))
 				return;
 		}
-		rawProgram.add(0, "main: exit();");
-		rawProgram.add(1, "");
+		rawProgram.add(0, "main {");
+		rawProgram.add(1, "\t#Implement me!");
+		rawProgram.add(2, "}");
+		rawProgram.add(3, "");
 	}
 
 	/**
-	 * Adds a semicolon behind each one line statement thats missing one.
+	 * Adds a semicolon behind each one-line-statement or native declaration, thats
+	 * missing one and remove the unnecessary ones.
 	 */
-	private static void addMissingSemicolon() {
+	private static void doSemicolons() {
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
-			if (!line.isEmpty() && line.charAt(line.length() - 1) != ';') {
-				for (int j = 0; j < line.length(); j++) {
-					if (line.charAt(j) == ':' && Helper.isNotInString(j, line)) {
+			if (!line.isEmpty()) {
+				if (line.contains(":") && Helper.isNotInString(line.indexOf(':'), line)) {
+					if (!line.endsWith(";"))
 						rawProgram.set(i, line + ";");
-						break;
-					}
+				} else {
+					while (rawProgram.get(i).endsWith(";"))
+						rawProgram.set(i, rawProgram.get(i).substring(0, rawProgram.get(i).length() - 1));
 				}
 			}
 		}
@@ -157,20 +175,6 @@ public class Formatter {
 
 	}
 
-	public static List<String> format(List<String> p) {
-		rawProgram = p;
-		stripTrailing();
-		lineBreakBetweenBlocks(0);
-		indent();
-		addMissingSemicolon();
-		improveLogical();
-		correctSpaces();
-		addMissingMain();
-		moveImportsUp();
-		checkForLonelyBrackets();
-		return rawProgram;
-	}
-
 	/**
 	 * <pre>
 	 * Removes all redundant logical statements such at:
@@ -273,7 +277,7 @@ public class Formatter {
 	private static void moveImportsUp() {
 		ArrayList<String> imports = new ArrayList<>();
 		for (int i = 0; i < rawProgram.size(); i++) {
-			if (rawProgram.get(i).startsWith(KeywordType.IMPORT.keyword)) {
+			if (rawProgram.get(i).startsWith(KeywordType.IMPORT.toString())) {
 				imports.add(rawProgram.get(i));
 				rawProgram.remove(i);
 			}

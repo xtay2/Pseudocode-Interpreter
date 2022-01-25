@@ -2,10 +2,12 @@ package parsing.program;
 
 import java.util.ArrayList;
 
-public class Program {
+public final class Program {
 
 	/** All lines of code, strongly indexed. */
 	private ArrayList<ProgramLine> program = new ArrayList<>(20);
+
+	private boolean constructed = false;
 
 	/**
 	 * Adds/Replaces a specified, stripped line of code in this datastructure.
@@ -14,13 +16,21 @@ public class Program {
 	 * @param line    is the original line-index
 	 * @return {@code true} if the line was changed.
 	 */
-	public boolean appendLine(String content, int line) {
+	public void appendLine(String content, int line) {
+		if (constructed)
+			throw new AssertionError("This program already got constructed.");
 		if (content == null)
 			throw new NullPointerException("Line can be empty, but not null.");
-		ProgramLine newline = new ProgramLine(content, program.size(), line, this);
-		program.add(newline); // Line was added.
-		newline.construct();
-		return true;
+		program.add(new ProgramLine(content, program.size(), line)); // Line was added.
+	}
+
+	/**
+	 * Constructs the whole program and locks writing access.
+	 */
+	public void construct() {
+		constructed = true;
+		for (ProgramLine line : program)
+			line.construct();
 	}
 
 	/**
