@@ -27,7 +27,7 @@ public class RepeatLoop extends Scope implements Loop {
 		if (e.length != 2)
 			throw new AssertionError("Merge on a repeat-loop has to contain two elements: counter and opened scope.");
 		counterInit = (ValueHolder) e[0];
-		block = (OpenScope) e[1];
+		openScope = (OpenScope) e[1];
 	}
 
 	@Override

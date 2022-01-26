@@ -51,7 +51,7 @@ public class Formatter {
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
 			if (!line.isEmpty()) {
-				if (line.contains(":") && Helper.isNotInString(line.indexOf(':'), line)) {
+				if (line.contains(":") && Helper.isRunnableCode(line.indexOf(':'), line)) {
 					if (!line.endsWith(";"))
 						rawProgram.set(i, line + ";");
 				} else {
@@ -69,7 +69,7 @@ public class Formatter {
 			String line = rawProgram.get(i);
 			for (int j = 0; j < line.length(); j++) {
 				char c = line.charAt(j);
-				if (Helper.isNotInString(j, line)) {
+				if (Helper.isRunnableCode(j, line)) {
 					if (c == '(')
 						simple++;
 					if (c == '{')
@@ -115,24 +115,24 @@ public class Formatter {
 			String line = rawProgram.get(i);
 
 			// Entferne alle mehrfachen spaces.
-			while (Helper.isNotInString(line.indexOf("  "), line))
+			while (Helper.isRunnableCode(line.indexOf("  "), line))
 				line = line.replaceAll("  ", " ");
 
 			// Entferne alle spaces vor kommatas und doppelpunkten.
 			for (int j = 1; j < line.length(); j++) {
-				if (Helper.isNotInString(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j - 1) == ' ')
+				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j - 1) == ' ')
 					line = removeCharAt(line, j - 1);
 			}
 
 			// F�ge ein space hinter jedem komma/doppelpunkt ein
 			for (int j = 0; j < line.length() - 1; j++) {
-				if (Helper.isNotInString(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j + 1) != ' ')
+				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j + 1) != ' ')
 					line = insertCharAt(' ', line, j + 1);
 			}
 
 			// Padding f�r single-char Operators
 			for (int j = 1; j < line.length() - 1; j++) {
-				if (Helper.isNotInString(j, line)) {
+				if (Helper.isRunnableCode(j, line)) {
 					// Arithmetische Operatoren
 					if (checkOperator(line.charAt(j), line.charAt(j - 1), line.charAt(j + 1))) {
 						if (line.charAt(j - 1) != ' ') {
@@ -254,14 +254,14 @@ public class Formatter {
 					// oder es gibt nur eine geschlossene klammer, die aber nicht alleine steht
 					|| (line.contains("}") && line.stripIndent().length() > 1))
 					// und diese klammer(n) nicht in einem String ist
-					&& Helper.isNotInString(line.indexOf('}'), line)) {
+					&& Helper.isRunnableCode(line.indexOf('}'), line)) {
 				rawProgram.set(i, rawProgram.get(i).replaceFirst("}", ""));
 				rawProgram.add(i + 1, "}");
 				lineBreakBetweenBlocks(i > 2 ? i - 2 : 0);
 				return;
 			}
 			int firstOBr = line.indexOf("{");
-			if (firstOBr != -1 && Helper.isNotInString(firstOBr, line)) {
+			if (firstOBr != -1 && Helper.isRunnableCode(firstOBr, line)) {
 				if (firstOBr != line.length() - 1) {
 					rawProgram.add(i + 1, rawProgram.get(i).substring(firstOBr + 1, line.length()));
 					rawProgram.set(i, rawProgram.get(i).substring(0, firstOBr + 1));
@@ -292,7 +292,7 @@ public class Formatter {
 			return line;
 		for (int s = 0; s < line.length() - expression.length(); s++) {
 			int e = s + expression.length();
-			if (line.substring(s, e).equals(expression) && Helper.isNotInString(s, line)) {
+			if (line.substring(s, e).equals(expression) && Helper.isRunnableCode(s, line)) {
 				line = line.substring(0, s) + line.substring(e);
 				s += e;
 			}
@@ -318,7 +318,7 @@ public class Formatter {
 
 /**
  * Methods that are tagged with this annotation can potentially interfere with
- * strings. They should use the function Formatter#isNotInString
+ * strings. They should use the function Formatter#isRunnableCode
  */
 @Retention(RetentionPolicy.SOURCE)
 @interface InterferesWithStrings {

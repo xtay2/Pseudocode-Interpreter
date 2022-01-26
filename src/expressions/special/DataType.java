@@ -2,6 +2,7 @@ package expressions.special;
 
 /** The Type of a Variable. If Type == null, the var has no specific type. */
 public enum DataType {
+	
 	// Vartypes
 	VAR("var"), TEXT("text"), BOOL("bool"), NUMBER("nr"),
 	// Types of arrays:

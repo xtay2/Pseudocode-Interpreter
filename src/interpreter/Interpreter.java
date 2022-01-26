@@ -31,9 +31,7 @@ public final class Interpreter {
 	public static Value call(String name, ValueHolder... params) {
 		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
 		f.execute(params);
-		Value returnVal = f.getValue();
-		f.setReturnVal(null);
-		return returnVal;
+		return f.retrieveReturnValue();
 	}
 
 	/**

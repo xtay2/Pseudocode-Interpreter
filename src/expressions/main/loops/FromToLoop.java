@@ -10,11 +10,11 @@ import static parsing.program.ExpressionType.NAME;
 
 import datatypes.NumberValue;
 import expressions.normal.Expression;
+import expressions.normal.brackets.OpenScope;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
-
 
 public class FromToLoop extends Scope implements Loop {
 
@@ -27,19 +27,20 @@ public class FromToLoop extends Scope implements Loop {
 		setExpectedExpressions(LITERAL, NAME);
 	}
 
-	/** [FROM] [TO] [?INTERVALL]) */
+	/** [FROM] [TO] [?INTERVALL]) [OPEN_SCOPE] */
 	@Override
 	public void merge(Expression... e) {
 		from = (ValueHolder) e[0];
 		to = (ValueHolder) e[1];
 		inc = (ValueHolder) e[2];
+		openScope = (OpenScope) e[3];
 	}
 
 	@Override
 	public boolean execute(ValueHolder... params) {
 		final NumberValue f = from.getValue().asInt();
 		final NumberValue t = to.getValue().asInt();
-		final NumberValue i = inc.getValue().asInt();
+		final NumberValue i = inc == null ? new NumberValue(1) : inc.getValue().asInt();
 		print("Executing FromToLoop-Loop. (From " + f + " to " + t + ". Inc: " + i);
 		for (NumberValue cnt = f; // INIT
 				(isSmallerThan(f, t).raw() ? isSmallerEq(cnt, t).raw() : !isSmallerThan(cnt, t).raw()); // LOOP CONDITION

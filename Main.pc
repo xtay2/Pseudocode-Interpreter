@@ -1,9 +1,9 @@
-main {
-	var a = 10
-	
-	a++
-	
-	print(a)
-}
+import stdlib.lang.System
 
-native func print(text msg)
+main: print(solution([3, 6, -2, -5, 7, 3]));
+
+func solution(arr) -> nr {
+	nr highest = 0
+	from 0 to arr - 2: if arr[i] + arr[i + 1] > highest: highest = arr[i] + arr[i + 1];
+	return highest
+}

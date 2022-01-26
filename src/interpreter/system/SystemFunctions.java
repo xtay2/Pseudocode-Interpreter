@@ -4,19 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import datatypes.ArrayValue;
 import datatypes.TextValue;
 import datatypes.Value;
 import expressions.special.ValueHolder;
 import helper.Output;
-import interpreter.Interpreter;
 
 public final class SystemFunctions {
 
 	/** Enum with all Systemfunctions and their names. */
 	public static enum SYSTEM_FUNCTION {
 
-		EXECUTE("execute"), EXIT("exit"), PRINT("print"), READ("read"), TYPE("type");
+		EXIT("exit"), PRINT("print"), READ("read"), TYPE("type");
 
 		public final String name;
 
@@ -30,17 +28,10 @@ public final class SystemFunctions {
 		case PRINT -> print(params);
 		case READ -> read(params);
 		case EXIT -> exit(params);
-		case EXECUTE -> execute(params);
 		case TYPE -> type(params);
 		};
 	}
-
-	private static Value execute(ValueHolder[] params) {
-		String funcName = params[0].getValue().asText().rawString();
-		ArrayValue arr = ((ArrayValue) params[1].getValue());
-		return Interpreter.call(funcName, arr.raw(true));
-	}
-
+	
 	private static Value exit(ValueHolder[] params) {
 		String exitMsg = params[0].getValue().toString();
 		System.err.println(exitMsg);

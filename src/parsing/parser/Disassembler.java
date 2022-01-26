@@ -42,7 +42,7 @@ public class Disassembler {
 		Declaration main = findMain();
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i).line();
-			if (Helper.isNotInString(line.indexOf("func"), line)) {
+			if (Helper.isRunnableCode(line.indexOf("func"), line)) {
 				int end = line.endsWith("{") ? findEndOfScope(i) : i;
 				String name = line.substring(line.indexOf("func") + "func".length() + 1, line.indexOf('('));
 				declarations.add(new Declaration(name, i, end, countParamsInDeclaration(line), findCallsBetween(i, end)));
@@ -77,7 +77,7 @@ public class Disassembler {
 	private static int countParamsInDeclaration(String call) {
 		int params = 0;
 		for (int i = 0; i < call.length(); i++) {
-			if (call.charAt(i) == ',' && Helper.isNotInString(i, call))
+			if (call.charAt(i) == ',' && Helper.isRunnableCode(i, call))
 				params++;
 		}
 		return params == 0 ? (call.charAt(call.indexOf('(') + 1) == ')' ? 0 : 1) : params + 1;
@@ -91,7 +91,7 @@ public class Disassembler {
 		textCalls.forEach((e) -> {
 			int brack = 1, args = 0, arr = 0;
 			for (int i = line.indexOf(e) + e.length(); i < line.length(); i++) {
-				if (Helper.isNotInString(i, line)) {
+				if (Helper.isRunnableCode(i, line)) {
 					if (line.charAt(i) == '[')
 						arr++;
 					if (line.charAt(i) == ']')
@@ -119,7 +119,7 @@ public class Disassembler {
 		for (int i = start; i <= end; i++) {
 			String line = program.get(i).line();
 			int funcKeyword = line.indexOf("func");
-			if (line.matches(".*\\w+\\(.*\\);?.*") && (funcKeyword == -1 || !Helper.isNotInString(funcKeyword, line)))
+			if (line.matches(".*\\w+\\(.*\\);?.*") && (funcKeyword == -1 || !Helper.isRunnableCode(funcKeyword, line)))
 				calls.addAll(findCalls(line));
 		}
 		return calls;
@@ -180,7 +180,7 @@ public class Disassembler {
 			int index = program.get(i).index();
 
 			int lineBreak = content.indexOf(":");
-			if (lineBreak != -1 && Helper.isNotInString(lineBreak, content)) {
+			if (lineBreak != -1 && Helper.isRunnableCode(lineBreak, content)) {
 				if (lineBreak == content.length() - 1)
 					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
 				// Ersetze Semikolon

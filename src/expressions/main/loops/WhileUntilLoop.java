@@ -33,7 +33,7 @@ public class WhileUntilLoop extends Scope implements Loop {
 		if (e.length != 2)
 			throw new AssertionError("Merge on a while-/until-statement has to contain a condition and an opened scope.");
 		condition = (ValueHolder) e[0];
-		block = (OpenScope) e[1];
+		openScope = (OpenScope) e[1];
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class IfStatement extends Scope implements ElifConstruct {
 		if (e.length != 2)
 			throw new AssertionError("If-Statement needs a boolean-expression and an opened scope.");
 		booleanExp = (ValueHolder) e[0];
-		block = (OpenScope) e[1];
+		openScope = (OpenScope) e[1];
 	}
 
 	@Override

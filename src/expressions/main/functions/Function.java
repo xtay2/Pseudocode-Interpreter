@@ -20,15 +20,23 @@ import expressions.normal.Flag;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.normal.brackets.OpenScope;
+import expressions.possible.Call;
 import expressions.special.DataType;
 import expressions.special.Flaggable;
 import expressions.special.Scope;
 import expressions.special.ValueHolder;
 import helper.Output;
+import interpreter.Interpreter;
 import interpreter.VarManager;
 import interpreter.system.SystemFunctions;
 
-public class Function extends Scope implements ValueHolder, Flaggable {
+/**
+ * This is the class for a Function-Declaration.
+ * 
+ * If a Function gets called, this happens through the {@link Call}-Class and
+ * {@link Interpreter#call}.
+ */
+public class Function extends Scope implements Flaggable {
 
 	// Keyword flags
 	boolean isNative = false;
@@ -56,7 +64,8 @@ public class Function extends Scope implements ValueHolder, Flaggable {
 					i += 2;
 					continue;
 				}
-				throw new IllegalCodeFormatException(getOriginalLine(), "Expected a name after the type " + e[i] + ". Got " + e[i + 1] + " instead.");
+				throw new IllegalCodeFormatException(getOriginalLine(),
+						"Expected a name after the type " + e[i] + ". Got " + e[i + 1] + " instead.");
 			} else if (e[i] instanceof Name) {
 				paramBlueprint.put((Name) e[i], null);
 				i++;
@@ -69,7 +78,7 @@ public class Function extends Scope implements ValueHolder, Flaggable {
 		else
 			returnType = DataType.VAR;
 		if (!isNative)
-			block = (OpenScope) e[e.length - 1];
+			openScope = (OpenScope) e[e.length - 1];
 	}
 
 	@Override
@@ -79,9 +88,10 @@ public class Function extends Scope implements ValueHolder, Flaggable {
 		} else {
 			print("Executing " + name + (params.length == 0 ? "" : " with " + Arrays.toString(params)));
 			registerParameters(params);
+			callNextLine();
 			if (returnType != null && returnVal == null)
 				throw new IllegalReturnException(getOriginalLine(),
-						"func " + name + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
+						"func " + name.getName() + " was defined to return a value of type: " + returnType.getName() + ", but returned nothing.");
 			VarManager.deleteScope(this);
 		}
 		return true;
@@ -103,12 +113,7 @@ public class Function extends Scope implements ValueHolder, Flaggable {
 
 	@Override
 	public String getScopeName() {
-		return "func" + name.getName() + getStart() + "-" + getEnd();
-	}
-
-	@Override
-	public Value getValue() {
-		return returnVal;
+		return "func_" + name.getName() + getStart() + "-" + getEnd();
 	}
 
 	@Override
@@ -156,6 +161,16 @@ public class Function extends Scope implements ValueHolder, Flaggable {
 			returnVal = val.as(returnType);
 		else
 			returnVal = val;
+	}
+
+	/**
+	 * Returns the returnvalue and resets it, so the function can get called again.
+	 * This Method should only get called by {@link Interpreter#call}.
+	 */
+	public Value retrieveReturnValue() {
+		Value v = returnVal;
+		returnVal = null;
+		return v;
 	}
 
 	@Override

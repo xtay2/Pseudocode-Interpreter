@@ -26,9 +26,9 @@ public class MainFunction extends Function implements MergedExpression {
 
 	@Override
 	public void merge(Expression... e) {
-		if (e.length != 1)
+		if (e.length != 1 || e[0] == null)
 			throw new AssertionError("Merge on a main-func has to contain the opened scope.");
-		block = (OpenScope) e[0];
+		openScope = (OpenScope) e[0];
 	}
 
 	@Override

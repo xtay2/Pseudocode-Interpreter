@@ -1,7 +1,5 @@
 package parsing.program;
 
-import static helper.Output.print;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -168,7 +166,6 @@ public class ProgramLine {
 		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
 		else if (main instanceof ElifStatement || main instanceof ElseStatement)
 			findLastIf().setNextElse((ElifConstruct) main);
-		print(expressions.toString());
 	}
 
 	/**

@@ -34,7 +34,7 @@ public class ForEachLoop extends Scope implements Loop {
 		elementName = (Name) e[0];
 		VarManager.nameCheck(elementName.getName(), getOriginalLine());
 		array = (ValueHolder) e[1];
-		block = (OpenScope) e[2];
+		openScope = (OpenScope) e[2];
 	}
 
 	@Override

@@ -5,13 +5,12 @@ import static parsing.program.ExpressionType.ARRAY_START;
 import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
-import datatypes.Value;
 import expressions.main.MainExpression;
 import expressions.main.functions.Function;
 import expressions.normal.Expression;
 import expressions.special.ValueHolder;
 
-public class ReturnStatement extends MainExpression implements ValueHolder, Statement {
+public class ReturnStatement extends MainExpression implements Statement {
 
 	private Function myFunc = null;
 	private ValueHolder val = null;
@@ -39,12 +38,6 @@ public class ReturnStatement extends MainExpression implements ValueHolder, Stat
 		 * execute-Funtionen auszuführen.
 		 */
 		return false;
-	}
-
-	/** The Returnvalue */
-	@Override
-	public Value getValue() {
-		return val.getValue();
 	}
 
 	public void setMyFunc(Function func) {

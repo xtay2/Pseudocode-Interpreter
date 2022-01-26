@@ -19,9 +19,9 @@ public class ElseStatement extends Scope implements ElifConstruct {
 
 	@Override
 	public void merge(Expression... e) {
-		if (e.length != 1)
+		if (e.length != 1 || e[0] == null)
 			throw new AssertionError("Merge on an else-statement has to contain an opened scope.");
-		block = (OpenScope) e[0];
+		openScope = (OpenScope) e[0];
 	}
 	
 	@Override
