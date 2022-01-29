@@ -65,7 +65,7 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 		StringBuilder b = new StringBuilder();
 		b.append('[');
 		for (int i = 0;; i++) {
-			b.append(get(i));
+			b.append(get(i).asText().rawString());
 			if (i == iMax)
 				return new TextValue(b.append(']').toString());
 			b.append(", ");
@@ -235,9 +235,17 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 		final int orgL = a.length();
 		ValueHolder[] content = new ValueHolder[orgL * n];
 		for (int i = 0; i < n; i++)
-			System.arraycopy(a, 0, content, i * orgL, orgL);
+			System.arraycopy(a.raw(true), 0, content, i * orgL, orgL);
 		ArrayValue arr = new ArrayValue(a.type);
-		arr.merge((Expression[]) content);
+		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
 		return arr;
+	}
+
+	public BoolValue contains(Value element) {
+		for(Value v : this) {
+			if(Value.eq(v, element).raw())
+				return new BoolValue(true);
+		}
+		return new BoolValue(false);
 	}
 }

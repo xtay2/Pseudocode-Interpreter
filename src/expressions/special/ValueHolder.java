@@ -1,7 +1,6 @@
 package expressions.special;
 
 import datatypes.Value;
-import expressions.main.functions.Function;
 import expressions.normal.Name;
 import expressions.normal.array.ArrayAccess;
 import expressions.normal.brackets.BracketedExpression;
@@ -25,7 +24,6 @@ import expressions.possible.Crement;
  * {@link Operation}
  * {@link BracketedExpression}
  * {@link Assignment}
- * {@link Function} 
  * </pre>
  */
 public interface ValueHolder {

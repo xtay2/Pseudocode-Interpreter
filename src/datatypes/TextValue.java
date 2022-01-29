@@ -115,4 +115,11 @@ public class TextValue extends Value {
 			return value.equals(n.value);
 		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
 	}
+
+	/**
+	 * Checks if this TextValue contains a element.
+	 */
+	public BoolValue contains(Value element) {
+		return new BoolValue(value.contains(element.asText().rawString()));
+	}
 }

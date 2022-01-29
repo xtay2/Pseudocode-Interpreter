@@ -73,6 +73,8 @@ public abstract class Operator extends Expression {
 			return new LogicalOperator(line, InfixOperator.XOR);
 		if (InfixOperator.XNOR.symbol.equals(s))
 			return new LogicalOperator(line, InfixOperator.XNOR);
+		if(InfixOperator.IN.symbol.equals(s))
+			return new InOperator(line, InfixOperator.IN);
 		throw new AssertionError(s + " should be known by now.");
 	}
 

@@ -10,12 +10,13 @@ import expressions.normal.Expression;
 import expressions.normal.Name;
 import expressions.normal.Variable;
 import expressions.special.MergedExpression;
+import expressions.special.ValueChanger;
 import expressions.special.ValueHolder;
 import interpreter.VarManager;
 
 public class Assignment extends PossibleMainExpression implements ValueHolder, MergedExpression {
 
-	private Name target;
+	private ValueChanger target;
 	private ValueHolder value;
 
 	public Assignment(int line) {
@@ -26,9 +27,8 @@ public class Assignment extends PossibleMainExpression implements ValueHolder, M
 	/** Modifies the Value in the {@link VarManager} and returns the result. */
 	@Override
 	public Value getValue() {
-		Variable v = VarManager.get(target.getName(), getOriginalLine());
 		Value newVal = value.getValue();
-		v.setValue(newVal);
+		target.setValue(newVal);
 		return newVal;
 	}
 
@@ -36,7 +36,7 @@ public class Assignment extends PossibleMainExpression implements ValueHolder, M
 	public void merge(Expression... e) {
 		if (e.length != 2)
 			throw new AssertionError("");
-		target = (Name) e[0];
+		target = (ValueChanger) e[0];
 		value = (ValueHolder) e[1];
 	}
 

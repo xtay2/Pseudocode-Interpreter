@@ -183,8 +183,9 @@ public class Disassembler {
 			if (lineBreak != -1 && Helper.isRunnableCode(lineBreak, content)) {
 				if (lineBreak == content.length() - 1)
 					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
-				// Ersetze Semikolon
-				content = content.substring(0, content.length() - 1);
+				// Replace Semikolon with ScopeBrackets
+				if(content.endsWith(";")) //For Nested Loops/Statements
+					content = content.substring(0, content.length() - 1);
 				program.add(i + 1, new LineInfo("}", index));
 				program.add(i + 1, new LineInfo(content.substring(lineBreak + 2), index)); // Teil nach :
 				program.set(i, new LineInfo(content.substring(0, lineBreak) + " {", index));

@@ -40,6 +40,8 @@ public class Call extends PossibleMainExpression implements ValueHolder, MergedE
 
 	/**
 	 * Gets build from an Array, containing the Name and parameters.
+	 * 
+	 * [Name] [?Param]...
 	 */
 	@Override
 	public void merge(Expression... e) {

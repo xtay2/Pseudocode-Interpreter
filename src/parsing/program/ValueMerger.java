@@ -65,12 +65,15 @@ public abstract class ValueMerger {
 	 * @param line
 	 */
 	static MainExpression buildLine(List<Expression> myLine, final int myLineID, final int myLineIndex) {
-		line = myLine;
-		orgLine = Collections.unmodifiableList(line);
+		line = new ArrayList<>(myLine);
+		orgLine = Collections.unmodifiableList(new ArrayList<>(line));
 		lineID = myLineID;
 		lineIndex = myLineIndex;
 		try {
-			return (MainExpression) build();
+			MainExpression main = (MainExpression) build();
+			if(main == null || !line.isEmpty())
+				throw new AssertionError("Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
+			return main;
 		} catch (ClassCastException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 			System.err.print("\nCaused: ");
@@ -159,6 +162,10 @@ public abstract class ValueMerger {
 			line.add(0, result);
 			return buildOperation();
 		}
+		if (!line.isEmpty() && line.get(0) instanceof Assignment) {
+			line.add(0, result);
+			return buildAssignment();
+		}
 		return result;
 	}
 
@@ -193,7 +200,7 @@ public abstract class ValueMerger {
 	 */
 	private static Assignment buildAssignment() {
 		Assignment a = (Assignment) line.remove(1); // Remove Assign-Operator
-		a.merge(line.remove(0), line.remove(0)); // Name, Value
+		a.merge(line.remove(0), build()); // Name, Value
 		return a;
 	}
 
@@ -218,20 +225,17 @@ public abstract class ValueMerger {
 	 * Builds a call and packages its parameters.
 	 * 
 	 * <pre>
-	 * [NAME] [(] [?TYPE] [?PARAM] [?COMMA] [?TYPE] [PARAM] ... [)]
+	 * [NAME] [(] ([?PARAM] [?COMMA])... [)]
 	 * </pre>
 	 */
 	private static Call buildCall() {
 		Call c = new Call(lineID);
 		List<Expression> parts = new ArrayList<>();
-		parts.add(line.remove(0));
-		// REMOVE OPEN BRACKET
-		line.remove(0);
+		parts.add(line.remove(0)); // Name
+		line.remove(0); // Remove OpenBracket
 		do {
 			parts.add(build());
 		} while (line.remove(0) instanceof Comma);
-		// Filter out Commas
-		parts = parts.stream().filter(elem -> !(elem instanceof Comma)).toList();
 		c.merge(parts);
 		return c;
 	}
@@ -246,10 +250,9 @@ public abstract class ValueMerger {
 	private static ArrayValue buildArrayLiteral() {
 		ArrayValue e = new ArrayValue(DataType.VAR_ARRAY);
 		List<Expression> parts = new ArrayList<>();
-		// REMOVE OPEN BRACKET
-		line.remove(0);
+		line.remove(0);	// Remove OpenBrack
 		do {
-			if (!(line.get(0) instanceof ArrayEnd) || !(line.get(0) instanceof Comma))
+			if (!(line.get(0) instanceof ArrayEnd))
 				parts.add(build());
 		} while (line.remove(0) instanceof Comma); // Removes Comma / Closebrack
 		// Filter out Commas
@@ -317,7 +320,7 @@ public abstract class ValueMerger {
 		RepeatLoop e = new RepeatLoop(lineID);
 		line.remove(0); // Repeat-Keyword
 		e.merge(build(), line.remove(0)); // Repetitions, OpenScope
-		return null;
+		return e;
 	}
 
 	/** [WHILE/UNTIL] [CONDITION] [OPEN_SCOPE] */

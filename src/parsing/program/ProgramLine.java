@@ -99,6 +99,8 @@ public class ProgramLine {
 			throw new IllegalCodeFormatException(lineIndex, "String has to be closed.");
 		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
+		if(expressions.isEmpty())
+			throw new AssertionError("Line has to contain atleast one Expression.");
 		initMainExpression();
 	}
 
@@ -134,7 +136,7 @@ public class ProgramLine {
 	public MainExpression getMainExpression() {
 		if (main != null)
 			return main;
-		throw new AssertionError("Main of line " + lineIndex + " is null at this point.");
+		throw new AssertionError("MainExpression of line " + lineIndex + " is null at this point.");
 	}
 
 	/**

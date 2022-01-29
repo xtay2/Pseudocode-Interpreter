@@ -1,9 +1,8 @@
 import stdlib.lang.System
 
-main: print(solution([3, 6, -2, -5, 7, 3]));
-
-func solution(arr) -> nr {
-	nr highest = 0
-	from 0 to arr - 2: if arr[i] + arr[i + 1] > highest: highest = arr[i] + arr[i + 1];
-	return highest
+main {
+	var[] arr = [[0] * 10] * 10
+	print("Hey")
+	repeat 10: arr[i][0] = i + 0;
+	print(arr)
 }
