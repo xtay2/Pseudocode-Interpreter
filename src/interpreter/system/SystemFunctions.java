@@ -3,8 +3,6 @@ package interpreter.system;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-
 import datatypes.TextValue;
 import datatypes.Value;
 import expressions.special.ValueHolder;
@@ -32,9 +30,9 @@ public final class SystemFunctions {
 		case TYPE -> type(params);
 		};
 	}
-	
+
 	private static Value exit(ValueHolder[] params) {
-		String exitMsg = params[0].getValue().toString();
+		String exitMsg = params[0].getValue().asText().rawString();
 		System.err.println(exitMsg);
 		System.exit(0);
 		return null;

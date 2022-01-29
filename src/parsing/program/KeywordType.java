@@ -10,6 +10,7 @@ import expressions.main.loops.WhileUntilLoop.Type;
 import expressions.main.statements.ElifStatement;
 import expressions.main.statements.ElseStatement;
 import expressions.main.statements.IfStatement;
+import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.Expression;
 import expressions.normal.Flag;
@@ -17,7 +18,7 @@ import expressions.normal.Flag.FlagType;
 
 public enum KeywordType {
 	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"), NATIVE("native"),
-	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while");
+	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
 
 	public static KeywordType getKeywordTypeFromString(String val) {
 		for (KeywordType k : KeywordType.values()) {
@@ -53,6 +54,7 @@ public enum KeywordType {
 		case FROM -> new FromToLoop(lineID);
 		case FUNC -> new Function(lineID);
 		case IF -> new IfStatement(lineID);
+		case IS -> new IsStatement(lineID);
 		case MAIN -> new MainFunction(lineID);
 		case REPEAT -> new RepeatLoop(lineID);
 		case RETURN -> new ReturnStatement(lineID);

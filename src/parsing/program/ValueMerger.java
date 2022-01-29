@@ -20,6 +20,7 @@ import expressions.main.loops.RepeatLoop;
 import expressions.main.loops.WhileUntilLoop;
 import expressions.main.statements.ElifConstruct;
 import expressions.main.statements.ElseStatement;
+import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.main.statements.Statement;
 import expressions.normal.Comma;
@@ -103,18 +104,21 @@ public abstract class ValueMerger {
 			case OpenBracket call -> buildCall();
 			case ArrayStart arrayAccess -> buildArrayAccess();
 			case OperationAssignment opAssign -> buildOperationAssignment();
+			case IsStatement is -> buildIsStatement();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
 		case Value value:
 			yield switch (sec) {
 			case Operator operation -> buildOperation();
+			case IsStatement is -> buildIsStatement();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
 		case ArrayAccess access:
 			yield switch (sec) {
 			case Operator operation -> buildOperation();
+			case IsStatement is -> buildIsStatement();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
@@ -280,6 +284,15 @@ public abstract class ValueMerger {
 		return a;
 	}
 
+	/**
+	 * [VALUE_HOLDER] [IS] [EXPECTED_TYPE]
+	 */
+	private static IsStatement buildIsStatement() {
+		IsStatement e = (IsStatement) line.remove(1);
+		e.merge(build(), line.remove(0));
+		return e;
+	}
+	
 	/**
 	 * Boxes a Value/Operation into a BracketedExpression.
 	 * 

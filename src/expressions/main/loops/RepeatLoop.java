@@ -36,7 +36,7 @@ public class RepeatLoop extends Scope implements Loop {
 		NumberValue max = counterInit.getValue().asInt();
 		if (NumberValue.isSmallerThan(max, new NumberValue(0)).raw())
 			throw new DeclarationException(getOriginalLine(), "Count of repetitions must be positive.");
-		for (NumberValue i = new NumberValue(0); NumberValue.isSmallerThan(i, max).raw(); NumberValue.add(i, new NumberValue(1))) {
+		for (NumberValue i = new NumberValue(0); NumberValue.isSmallerThan(i, max).raw(); i = NumberValue.add(i, new NumberValue(1))) {
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, i, getOriginalLine());
 			if (!callNextLine()) {

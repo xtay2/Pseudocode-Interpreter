@@ -11,6 +11,11 @@ import expressions.special.DataType;
 import expressions.special.ValueHolder;
 
 public abstract class Value extends Expression implements ValueHolder {
+	
+	public Value() {
+		super(-1);
+		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END, KEYWORD);
+	}
 
 	/** This should get exclusivly used when casting from text to bool. */
 	public static Boolean asBoolValue(String value) {
@@ -68,11 +73,6 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	public static boolean isValue(String arg) {
 		return isNumber(arg) || isBoolean(arg) || isString(arg);
-	}
-
-	public Value() {
-		super(-1);
-		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END);
 	}
 
 	/**

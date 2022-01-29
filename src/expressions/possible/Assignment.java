@@ -1,14 +1,9 @@
 package expressions.possible;
 
-import static parsing.program.ExpressionType.ARRAY_START;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
-import static parsing.program.ExpressionType.OPEN_BRACKET;
+import static parsing.program.ExpressionType.*;
 
 import datatypes.Value;
 import expressions.normal.Expression;
-import expressions.normal.Name;
-import expressions.normal.Variable;
 import expressions.special.MergedExpression;
 import expressions.special.ValueChanger;
 import expressions.special.ValueHolder;

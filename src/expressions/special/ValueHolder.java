@@ -1,6 +1,7 @@
 package expressions.special;
 
 import datatypes.Value;
+import expressions.main.statements.IsStatement;
 import expressions.normal.Name;
 import expressions.normal.array.ArrayAccess;
 import expressions.normal.brackets.BracketedExpression;
@@ -21,6 +22,7 @@ import expressions.possible.Crement;
  * {@link Crement}
  * 
  * Boxed ValueHolders
+ * {@link IsStatement}
  * {@link Operation}
  * {@link BracketedExpression}
  * {@link Assignment}

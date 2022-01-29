@@ -72,14 +72,14 @@ public enum ExpressionType {
 	 * @see ExpectedReturnType
 	 */
 	EXPECTED_RETURN_TYPE("->"),
-
+	
 	/**
 	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
 	 * text.
 	 *
 	 * @see ExpectedType
 	 */
-	EXPECTED_TYPE("Return-Type"),
+	EXPECTED_TYPE("Data-Type"),
 
 	/**
 	 * Infixoperatoren wie +, -, and, or, <, !=

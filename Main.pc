@@ -1,8 +1,6 @@
 import stdlib.lang.System
 
 main {
-	var[] arr = [[0] * 10] * 10
-	print("Hey")
-	repeat 10: arr[i][0] = i + 0;
-	print(arr)
+	var a = [1, 2, 3, 4, true, 5, "lel", false, [1, 2, 3], 6]
+	for e in a: if e is nr: print(e);
 }
