@@ -1,6 +1,5 @@
 import stdlib.lang.System
 
 main {
-	var a = [1, 2, 3, 4, true, 5, "lel", false, [1, 2, 3], 6]
-	for e in a: if e is nr: print(e);
+	print(sqrt(16))
 }

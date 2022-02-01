@@ -72,8 +72,9 @@ public abstract class ValueMerger {
 		lineIndex = myLineIndex;
 		try {
 			MainExpression main = (MainExpression) build();
-			if(main == null || !line.isEmpty())
-				throw new AssertionError("Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
+			if (main == null || !line.isEmpty())
+				throw new AssertionError(
+						"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
 			return main;
 		} catch (ClassCastException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -254,7 +255,7 @@ public abstract class ValueMerger {
 	private static ArrayValue buildArrayLiteral() {
 		ArrayValue e = new ArrayValue(DataType.VAR_ARRAY);
 		List<Expression> parts = new ArrayList<>();
-		line.remove(0);	// Remove OpenBrack
+		line.remove(0); // Remove OpenBrack
 		do {
 			if (!(line.get(0) instanceof ArrayEnd))
 				parts.add(build());
@@ -292,7 +293,7 @@ public abstract class ValueMerger {
 		e.merge(build(), line.remove(0));
 		return e;
 	}
-	
+
 	/**
 	 * Boxes a Value/Operation into a BracketedExpression.
 	 * 
@@ -332,7 +333,7 @@ public abstract class ValueMerger {
 	private static RepeatLoop buildRepeat() {
 		RepeatLoop e = new RepeatLoop(lineID);
 		line.remove(0); // Repeat-Keyword
-		e.merge(build(), line.remove(0)); // Repetitions, OpenScope
+		e.merge(line.get(0) instanceof OpenScope ? null : build(), line.remove(0)); // Repetitions, OpenScope
 		return e;
 	}
 
@@ -373,10 +374,10 @@ public abstract class ValueMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	private static Declaration buildDeclaration() {
-		Declaration e = new Declaration(lineID);
 		DataType type = ((ExpectedType) line.remove(0)).type;
 		Name name = (Name) line.remove(0);
 		line.remove(0); // Remove Assignment
+		Declaration e = new Declaration(lineID);
 		ValueHolder value = (ValueHolder) build();
 		e.merge(new Variable(lineID, type, name), (Expression) value);
 		return e;

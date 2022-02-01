@@ -20,3 +20,5 @@ func abs(nr a) -> nr {
 }
 
 func intDiv(nr a, nr b) -> nr: return floor(rnd(a) / rnd(b));
+
+func sqrt(nr a) -> nr: return 2 root a;

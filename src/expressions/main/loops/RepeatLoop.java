@@ -1,8 +1,7 @@
 package expressions.main.loops;
 
 import static helper.Output.print;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
+import static parsing.program.ExpressionType.*;
 
 import datatypes.NumberValue;
 import exceptions.runtime.DeclarationException;
@@ -19,14 +18,14 @@ public class RepeatLoop extends Scope implements Loop {
 
 	public RepeatLoop(int line) {
 		super(line);
-		setExpectedExpressions(LITERAL, NAME);
+		setExpectedExpressions(LITERAL, NAME, OPEN_SCOPE);
 	}
 
 	@Override
 	public void merge(Expression... e) {
 		if (e.length != 2)
 			throw new AssertionError("Merge on a repeat-loop has to contain two elements: counter and opened scope.");
-		counterInit = (ValueHolder) e[0];
+		counterInit = e[0] == null ? NumberValue.POS_INF : (ValueHolder) e[0];
 		openScope = (OpenScope) e[1];
 	}
 
@@ -34,9 +33,9 @@ public class RepeatLoop extends Scope implements Loop {
 	public boolean execute(ValueHolder... params) {
 		print("Executing Repeat-Statement.");
 		NumberValue max = counterInit.getValue().asInt();
-		if (NumberValue.isSmallerThan(max, new NumberValue(0)).raw())
+		if (max.isSmallerThan(NumberValue.ONE))
 			throw new DeclarationException(getOriginalLine(), "Count of repetitions must be positive.");
-		for (NumberValue i = new NumberValue(0); NumberValue.isSmallerThan(i, max).raw(); i = NumberValue.add(i, new NumberValue(1))) {
+		for (NumberValue i = NumberValue.ZERO; i.isSmallerThan(max); i = NumberValue.add(i, NumberValue.ONE)) {
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, i, getOriginalLine());
 			if (!callNextLine()) {

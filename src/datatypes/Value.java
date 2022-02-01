@@ -11,7 +11,7 @@ import expressions.special.DataType;
 import expressions.special.ValueHolder;
 
 public abstract class Value extends Expression implements ValueHolder {
-	
+
 	public Value() {
 		super(-1);
 		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END, KEYWORD);
@@ -64,7 +64,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	}
 
 	public static boolean isNumber(String value) {
-		return Pattern.matches("^(-?)(0|(\\d*))(\\.\\d+)?$", value);
+		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|(" + NumberValue.State.NAN.toString()+ "))$", value);
 	}
 
 	public static boolean isString(String value) {

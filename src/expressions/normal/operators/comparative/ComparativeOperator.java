@@ -1,7 +1,6 @@
 package expressions.normal.operators.comparative;
 
 import datatypes.BoolValue;
-import datatypes.NumberValue;
 import datatypes.Value;
 import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
@@ -9,7 +8,6 @@ import expressions.special.ValueHolder;
 
 @FunctionalInterface
 interface ComparativeOperation {
-
 	BoolValue execute(Value a, Value b);
 }
 
@@ -23,11 +21,11 @@ public final class ComparativeOperator extends Operator {
 		case EQUALS -> (a, b) -> Value.eq(a, b);
 		case NOT_EQUALS -> (a, b) -> (Value.eq(a, b)).not();
 
-		case LESS -> (a, b) -> NumberValue.isSmallerThan(a.asNumber(), b.asNumber());
-		case LESS_EQ -> (a, b) -> NumberValue.isSmallerEq(a.asNumber(), b.asNumber());
+		case LESS -> (a, b) -> new BoolValue(a.asNumber().isSmallerThan(b.asNumber()));
+		case LESS_EQ -> (a, b) -> new BoolValue(a.asNumber().isSmallerEq(b.asNumber()));
 
-		case GREATER -> (a, b) -> NumberValue.isSmallerEq(a.asNumber(), b.asNumber()).not();
-		case GREATER_EQ -> (a, b) -> NumberValue.isSmallerThan(a.asNumber(), b.asNumber()).not();
+		case GREATER -> (a, b) -> new BoolValue(a.asNumber().isGreaterThan(b.asNumber()));
+		case GREATER_EQ -> (a, b) -> new BoolValue(a.asNumber().isGreaterEq(b.asNumber()));
 
 		default -> throw new IllegalArgumentException("Unexpected value: " + operator);
 		};

@@ -12,6 +12,7 @@ import expressions.normal.operators.arithmetic.DivOperator;
 import expressions.normal.operators.arithmetic.ModOperator;
 import expressions.normal.operators.arithmetic.MultOperator;
 import expressions.normal.operators.arithmetic.PowOperator;
+import expressions.normal.operators.arithmetic.RootOperator;
 import expressions.normal.operators.arithmetic.SubOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
@@ -47,6 +48,8 @@ public abstract class Operator extends Expression {
 			return new ModOperator(line, InfixOperator.MOD);
 		if (InfixOperator.POW.symbol.equals(s))
 			return new PowOperator(line, InfixOperator.POW);
+		if (InfixOperator.ROOT.symbol.equals(s))
+			return new RootOperator(line, InfixOperator.ROOT);
 		/** Comparison */
 		if (InfixOperator.EQUALS.symbol.equals(s))
 			return new ComparativeOperator(line, InfixOperator.EQUALS);

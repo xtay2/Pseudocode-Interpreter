@@ -4,6 +4,7 @@ import static parsing.program.ExpressionType.EXPECTED_TYPE;
 
 import datatypes.BoolValue;
 import datatypes.Value;
+import exceptions.parsing.IllegalCodeFormatException;
 import expressions.normal.ExpectedType;
 import expressions.normal.Expression;
 import expressions.special.DataType;
@@ -26,8 +27,12 @@ public class IsStatement extends Expression implements ValueHolder, MergedExpres
 
 	@Override
 	public void merge(Expression... e) {
+		if(e.length != 2)
+			throw new AssertionError("IsStatement has to be merged on two values.");
 		val = (ValueHolder) e[0];
 		type = ((ExpectedType) e[1]).type;
+		if(type == DataType.VAR)
+			throw new IllegalCodeFormatException(getOriginalLine(), "Var is no datatype that can be checked.");
 	}
 
 	@Override

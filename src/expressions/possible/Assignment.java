@@ -16,7 +16,7 @@ public class Assignment extends PossibleMainExpression implements ValueHolder, M
 
 	public Assignment(int line) {
 		super(line);
-		setExpectedExpressions(NAME, OPEN_BRACKET, LITERAL, ARRAY_START);
+		setExpectedExpressions(LITERAL, NAME, OPEN_BRACKET, ARRAY_START);
 	}
 
 	/** Modifies the Value in the {@link VarManager} and returns the result. */

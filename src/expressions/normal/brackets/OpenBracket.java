@@ -16,7 +16,7 @@ public class OpenBracket extends Expression implements Bracket {
 
 	public OpenBracket(int line) {
 		super(line);
-		setExpectedExpressions(CLOSE_BRACKET, EXPECTED_TYPE, LITERAL, NAME, ARRAY_START, CREMENT);
+		setExpectedExpressions(LITERAL, CLOSE_BRACKET, EXPECTED_TYPE, NAME, ARRAY_START, CREMENT);
 	}
 
 	@Override

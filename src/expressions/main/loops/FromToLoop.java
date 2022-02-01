@@ -1,8 +1,6 @@
 package expressions.main.loops;
 
 import static datatypes.NumberValue.add;
-import static datatypes.NumberValue.isSmallerEq;
-import static datatypes.NumberValue.isSmallerThan;
 import static datatypes.NumberValue.sub;
 import static helper.Output.print;
 import static parsing.program.ExpressionType.LITERAL;
@@ -40,11 +38,11 @@ public class FromToLoop extends Scope implements Loop {
 	public boolean execute(ValueHolder... params) {
 		final NumberValue f = from.getValue().asInt();
 		final NumberValue t = to.getValue().asInt();
-		final NumberValue i = inc == null ? new NumberValue(1) : inc.getValue().asInt();
+		final NumberValue i = inc == null ? NumberValue.ONE : inc.getValue().asInt();
 		print("Executing FromToLoop-Loop. (From " + f + " to " + t + ". Inc: " + i);
 		for (NumberValue cnt = f; // INIT
-				(isSmallerThan(f, t).raw() ? isSmallerEq(cnt, t).raw() : !isSmallerThan(cnt, t).raw()); // LOOP CONDITION
-				cnt = add(cnt, (isSmallerThan(f, t).raw() ? i : sub(new NumberValue(0), i)))) { // INCREMENT
+				(f.isSmallerThan(t) ? cnt.isSmallerEq(t) : cnt.isGreaterEq(t)); // LOOP CONDITION
+				cnt = add(cnt, (f.isSmallerThan(t) ? i : sub(NumberValue.ZERO, i)))) { // INCREMENT
 			VarManager.registerScope(this);
 			VarManager.initCounter(this, cnt, getOriginalLine());
 			if (!Interpreter.execute(lineIdentifier + 1)) {
