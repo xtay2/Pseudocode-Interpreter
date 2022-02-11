@@ -10,6 +10,7 @@ import expressions.normal.array.ArrayEnd;
 import expressions.normal.array.ArrayStart;
 import expressions.normal.brackets.CloseBracket;
 import expressions.normal.brackets.OpenBracket;
+import expressions.normal.iteration.MultiCall;
 import expressions.normal.operators.Operator;
 
 public enum ExpressionType {
@@ -55,7 +56,7 @@ public enum ExpressionType {
 	/**
 	 * Pre- or Post- In- or Decrement.
 	 * 
-	 *  x++, ++x, x--, --x
+	 * x++, ++x, x--, --x
 	 */
 	CREMENT("Crement"),
 
@@ -72,7 +73,14 @@ public enum ExpressionType {
 	 * @see ExpectedReturnType
 	 */
 	EXPECTED_RETURN_TYPE("->"),
-	
+
+	/**
+	 * Trennlinie vor und hinter den Parametern vom {@link MultiCall}.
+	 * 
+	 * @see MultiCall
+	 */
+	MULTI_CALL_LINE("|"),
+
 	/**
 	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
 	 * text.
@@ -94,7 +102,7 @@ public enum ExpressionType {
 	 * @see KeywordType
 	 */
 	KEYWORD("Keyword"),
-	
+
 	/**
 	 * Ausgeschriebener Wert.
 	 *
@@ -102,15 +110,6 @@ public enum ExpressionType {
 	 */
 	LITERAL("Literal"),
 
-	/**
-	 * Verbindungsworte in Schleifen.
-	 *
-	 * Beispiele: "to" (from 0 to 10)
-	 *
-	 * @see LoopConnector
-	 */
-	LOOP_CONNECTOR("to"),
-	
 	/**
 	 * Ausgeschriebener alphanumerischer Name.
 	 *

@@ -75,8 +75,6 @@ public class Function extends Scope implements Flaggable {
 		}
 		if (e[e.length - 2] instanceof ExpectedType t)
 			returnType = t.type;
-		else
-			returnType = DataType.VAR;
 		if (!isNative)
 			openScope = (OpenScope) e[e.length - 1];
 	}

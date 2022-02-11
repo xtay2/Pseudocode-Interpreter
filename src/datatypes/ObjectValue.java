@@ -4,12 +4,14 @@ import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.special.DataType;
 
-@Deprecated
+/**
+ * @deprecated WIP: Don't use this, its only implemented here.
+ */
 public class ObjectValue extends Value {
 
 	@Deprecated
 	public ObjectValue() {
-		throw new AssertionError("This isn't implemented, yet.");
+		throw new AssertionError("WIP: This isn't implemented, yet.");
 	}
 
 	@Override

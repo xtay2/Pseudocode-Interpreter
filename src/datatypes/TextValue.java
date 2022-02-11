@@ -1,6 +1,7 @@
 package datatypes;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
@@ -46,9 +47,39 @@ public class TextValue extends Value {
 
 	@Override
 	public NumberValue asNumber() throws CastingException {
-		if (Value.isNumber(value))
-			return new NumberValue(new BigDecimal(value));
-		throw new CastingException("Cannot cast values other than numbers or boolean literals from text to number.\n");
+		String t = value.strip();
+		if (!t.contains("/")) {
+			if (t.equals(NumberValue.State.POS_INF.toString()))
+				return NumberValue.POS_INF;
+			if (t.equals(NumberValue.State.NEG_INF.toString()))
+				return NumberValue.NEG_INF;
+			if (t.matches("-?\\d+")) // Integer 1, -1, 10, 100, -100, 010
+				return NumberValue.create(new BigInteger(t));
+			if (t.matches("-?\\d+.\\d+")) // Decimal
+				return NumberValue.create(new BigDecimal(t));
+			if (t.matches("-?\\d+.\\d*\\(\\d+\\)")) { // Periodic to fraction
+				int ps = t.indexOf('('), pe = t.indexOf(')'); // Periode start/end
+				int d = ps - t.indexOf('.') - 1;
+				int pLength = pe - ps - 1;
+				boolean isNeg = t.startsWith("-");
+				//@formatter:off
+				NumberValue n = 
+					NumberValue.add(
+						NumberValue.create(new BigDecimal(t.substring(isNeg ? 1 : 0, ps))),
+						NumberValue.mult(
+							NumberValue.create(BigInteger.ONE, BigInteger.TEN.pow(d)),
+							NumberValue.div(
+								NumberValue.create(new BigInteger(t.substring(ps + 1, pe))),
+								NumberValue.create(new BigInteger("9".repeat(pLength))))));
+				//@formatter:on
+				return isNeg ? NumberValue.signum(n) : n;
+			}
+		}
+		// Fractions and NaN
+		String[] parts = t.split("/");
+		if (parts.length != 2)
+			return NumberValue.NAN;
+		return NumberValue.div(new TextValue(parts[0]).asNumber(), new TextValue(parts[1]).asNumber());
 	}
 
 	@Override
@@ -73,12 +104,7 @@ public class TextValue extends Value {
 
 	@Override
 	public ArrayValue asVarArray() throws CastingException {
-		ValueHolder[] chars = new ValueHolder[value.length()];
-		for (int i = 0; i < value.length(); i++)
-			chars[i] = (new TextValue(value.charAt(i)));
-		ArrayValue arr = new ArrayValue(DataType.TEXT_ARRAY);
-		arr.merge((Expression[]) chars);
-		return arr;
+		return asTextArray().asVarArray();
 	}
 
 	@Override
@@ -88,8 +114,8 @@ public class TextValue extends Value {
 		case VAR_ARRAY -> true; // Gibt char-array zurück
 		case TEXT_ARRAY -> true; // Gibt char-array zurück
 		case TEXT -> true; // Gibt text-repräsentation zurück
+		case NUMBER -> true; // Wenn es eine Zahl ist, die Zahl, sonst NaN
 		case BOOL -> Value.asBoolValue(value) != null; // Nur wenn es tatsächlich ein Boolean literal ist.
-		case NUMBER -> Value.isNumber(value); // Nur wenn es tatsächlich eine Zahl ist. Siehe: TextValue#asNumber
 		// Not Supported
 		case NUMBER_ARRAY, BOOL_ARRAY -> false;
 		};

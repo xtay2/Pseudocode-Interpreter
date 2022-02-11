@@ -58,10 +58,10 @@ public class Crement extends PossibleMainExpression implements ValueHolder, Merg
 			NumberValue edited = pure.asNumber();
 			// Increment
 			if (change == Change.INC)
-				edited = NumberValue.add(edited, new NumberValue(1));
+				edited = NumberValue.add(edited, NumberValue.ONE);
 			// Decrement
 			else
-				edited = NumberValue.sub(edited, new NumberValue(1));
+				edited = NumberValue.sub(edited, NumberValue.ONE);
 			target.setValue(edited);
 			if (pos == Position.PRE)
 				return edited;

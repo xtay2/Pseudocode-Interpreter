@@ -40,7 +40,7 @@ public class ForEachLoop extends Scope implements Loop {
 	@Override
 	public boolean execute(ValueHolder... params) {
 		print("Executing For-Each-In-Loop.");
-		NumberValue repetitions = new NumberValue(0);
+		NumberValue repetitions = NumberValue.ZERO;
 		try {
 			for (Value e : array.getValue().asVarArray()) { // Cast to Var-Array
 				VarManager.registerScope(this);
@@ -50,7 +50,7 @@ public class ForEachLoop extends Scope implements Loop {
 					VarManager.deleteScope(this);
 					return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
 				}
-				repetitions = NumberValue.add(repetitions, new NumberValue(1));
+				repetitions = NumberValue.add(repetitions, NumberValue.ONE);
 				VarManager.deleteScope(this);
 			}
 		} catch (ClassCastException e) {

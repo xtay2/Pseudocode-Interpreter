@@ -1,6 +1,5 @@
 package expressions.special;
 
-import java.util.Arrays;
 import java.util.List;
 
 import expressions.normal.Expression;
@@ -19,9 +18,7 @@ public interface MergedExpression {
 	 * 
 	 * @param e are optional Expressions.
 	 */
-	default void merge(Expression... e) {
-		merge(Arrays.asList(e));
-	}
+	void merge(Expression... e);
 
 	/**
 	 * Construct a MergedExpression from multiple Expressions.

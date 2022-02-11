@@ -35,14 +35,16 @@ import expressions.normal.array.ArrayAccess;
 import expressions.normal.array.ArrayEnd;
 import expressions.normal.array.ArrayStart;
 import expressions.normal.brackets.BracketedExpression;
+import expressions.normal.brackets.CloseBracket;
 import expressions.normal.brackets.OpenBracket;
 import expressions.normal.brackets.OpenScope;
-import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
+import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.possible.Assignment;
 import expressions.possible.Call;
 import expressions.possible.Crement;
+import expressions.special.BuilderExpression;
 import expressions.special.DataType;
 import expressions.special.ValueHolder;
 
@@ -89,10 +91,23 @@ public abstract class ValueMerger {
 	}
 
 	/**
-	 * Takes the first identifieable group, and executes the according
-	 * build-sub-routine.
+	 * Call this if the Merger is not currently evaluating an {@link Operation}.
+	 * (Default-Implementation)
 	 */
 	private static Expression build() {
+		return build(false);
+	}
+
+	/**
+	 * Takes the first identifieable group, and executes the according
+	 * build-sub-routine.
+	 * 
+	 * @param isInOperation is true if the call to this build-function was made by
+	 *                      {@link ValueMerger#buildOperation()} and no new
+	 *                      recursive calls of buildOperation are allowed. If this
+	 *                      should be false, call {@link #build()} instead.
+	 */
+	private static Expression build(boolean isInOperation) {
 		Expression fst = line.get(0);
 		Expression sec = line.size() > 1 ? line.get(1) : null;
 		// Build the right MainExpression through recursive pattern matching.
@@ -101,25 +116,25 @@ public abstract class ValueMerger {
 			yield switch (sec) {
 			case Crement crement -> buildPostCrement();
 			case Assignment assignment -> buildAssignment();
-			case Operator operation -> buildOperation();
 			case OpenBracket call -> buildCall();
 			case ArrayStart arrayAccess -> buildArrayAccess();
 			case OperationAssignment opAssign -> buildOperationAssignment();
 			case IsStatement is -> buildIsStatement();
+			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
 		case Value value:
 			yield switch (sec) {
-			case Operator operation -> buildOperation();
 			case IsStatement is -> buildIsStatement();
+			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
 		case ArrayAccess access:
 			yield switch (sec) {
-			case Operator operation -> buildOperation();
 			case IsStatement is -> buildIsStatement();
+			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
 			case null -> line.remove(0);
 			default -> line.remove(0);
 			};
@@ -163,7 +178,7 @@ public abstract class ValueMerger {
 			throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
 		};
 		// Wenn gebauter ValueHolder muss nach Operatorenverknüpfung getestet werden.
-		if (!line.isEmpty() && line.get(0) instanceof Operator) {
+		if (!line.isEmpty() && !isInOperation && line.get(0) instanceof Operator) {
 			line.add(0, result);
 			return buildOperation();
 		}
@@ -220,7 +235,7 @@ public abstract class ValueMerger {
 		parts.add(line.remove(0));
 		while (!line.isEmpty() && line.get(0) instanceof Operator) {
 			parts.add(line.remove(0));
-			parts.add(build());
+			parts.add(build(true));
 		}
 		op.merge(parts);
 		return op;
@@ -239,7 +254,8 @@ public abstract class ValueMerger {
 		parts.add(line.remove(0)); // Name
 		line.remove(0); // Remove OpenBracket
 		do {
-			parts.add(build());
+			if (!(line.get(0) instanceof CloseBracket))
+				parts.add(build());
 		} while (line.remove(0) instanceof Comma);
 		c.merge(parts);
 		return c;
@@ -350,7 +366,7 @@ public abstract class ValueMerger {
 		ValueHolder from = (ValueHolder) build();
 		line.remove(0); // To-Keyword
 		ValueHolder to = (ValueHolder) build();
-		if (line.get(0) instanceof LoopConnector) {
+		if (line.get(0) instanceof BuilderExpression b && b.type == Type.STEP) {
 			line.remove(0); // LoopConnector
 			e.merge((Expression) from, (Expression) to, build(), line.remove(0));
 		} else

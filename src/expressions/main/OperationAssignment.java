@@ -25,7 +25,7 @@ import interpreter.VarManager;
 public class OperationAssignment extends MainExpression implements MergedExpression {
 
 	public static enum Type {
-		ADDI("+="), DIVI("/="), MODI("%="), MULTI("*="), POWI("^="), SUBI("-=");
+		ADDI("+="), SUBI("-="), MULTI("*="), DIVI("/="), POWI("^="), MODI("%=");
 
 		public static Type getType(String arg) {
 			for (Type t : values()) {
@@ -56,7 +56,7 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 	/** [NAME] [VALUE_HOLDER] */
 	@Override
 	public void merge(Expression... e) {
-		if(e.length != 2)
+		if (e.length != 2)
 			throw new AssertionError("Merge on a OperationAssignment has to contain a Name and a ValueHolder.");
 		target = (Name) e[0];
 		val = (ValueHolder) e[1];

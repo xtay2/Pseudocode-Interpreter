@@ -15,10 +15,12 @@ import expressions.main.statements.ReturnStatement;
 import expressions.normal.Expression;
 import expressions.normal.Flag;
 import expressions.normal.Flag.FlagType;
+import expressions.normal.operators.InOperator;
+import expressions.special.BuilderExpression;
 
 public enum KeywordType {
-	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"), NATIVE("native"),
-	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
+	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), TO("to"), STEP("step"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"),
+	NATIVE("native"), REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
 
 	public static KeywordType getKeywordTypeFromString(String val) {
 		for (KeywordType k : KeywordType.values()) {
@@ -28,7 +30,7 @@ public enum KeywordType {
 		return null;
 	}
 
-	private final String keyword;
+	final String keyword;
 
 	private KeywordType(final String keyword) {
 		this.keyword = keyword;
@@ -61,6 +63,9 @@ public enum KeywordType {
 		case WHILE -> new WhileUntilLoop(Type.WHILE, lineID);
 		case UNTIL -> new WhileUntilLoop(Type.UNTIL, lineID);
 		case NATIVE -> new Flag(FlagType.NATIVE, lineID);
+		
+		case TO, STEP -> BuilderExpression.build(arg);
+		
 		case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
 		};
 	}

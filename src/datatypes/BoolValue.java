@@ -24,7 +24,7 @@ public class BoolValue extends Value {
 
 	@Override
 	public NumberValue asNumber() {
-		return value ? new NumberValue(1) : new NumberValue(0);
+		return value ? NumberValue.ONE : NumberValue.ZERO;
 	}
 
 	@Override

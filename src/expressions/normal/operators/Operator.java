@@ -7,6 +7,7 @@ import static parsing.program.ExpressionType.OPEN_BRACKET;
 
 import datatypes.Value;
 import expressions.normal.Expression;
+import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.arithmetic.AddOperator;
 import expressions.normal.operators.arithmetic.DivOperator;
 import expressions.normal.operators.arithmetic.ModOperator;

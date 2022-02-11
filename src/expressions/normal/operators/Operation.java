@@ -1,9 +1,12 @@
 package expressions.normal.operators;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import datatypes.Value;
 import expressions.normal.Expression;
+import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
 import expressions.special.MergedExpression;
@@ -30,6 +33,14 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 		convertComparative();
 	}
 
+	@Override
+	public void merge(Expression... e) {
+		if (e.length < 3)
+			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + e);
+		this.operation = new ArrayList<>(Arrays.asList(e));
+		convertComparative();
+	}
+
 	/** Converts multiple ComparativeOperators */
 	private void convertComparative() {
 		for (int i = 1; i < operation.size(); i += 2) {
@@ -52,9 +63,8 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 		if (indexOfA + 3 < operation.size()) { // Associativity-Check
 			Operator next = (Operator) operation.get(indexOfA + 3);
 			ValueHolder c = (ValueHolder) operation.get(indexOfA + 4);
-			if (next.op.rank > o.op.rank || o.isRightAssociative()) {
+			if (next.op.rank > o.op.rank || o.isRightAssociative())
 				return o.perform(a, recValue(b, next, c, indexOfA + 2));
-			}
 			return recValue(o.perform(a, b), next, c, indexOfA + 2);
 		}
 		return o.perform(a, b);

@@ -1,22 +1,21 @@
 package expressions.normal.brackets;
 
-import static parsing.program.ExpressionType.ARRAY_START;
-import static parsing.program.ExpressionType.CLOSE_BRACKET;
-import static parsing.program.ExpressionType.CREMENT;
-import static parsing.program.ExpressionType.EXPECTED_TYPE;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
+import static parsing.program.ExpressionType.*;
 
 import expressions.normal.Expression;
 import expressions.special.Bracket;
+import parsing.parser.Call;
 
+/**
+ * Used in {@link Call} and {@link BracketedExpression}.
+ */
 public class OpenBracket extends Expression implements Bracket {
 
 	private CloseBracket match;
 
 	public OpenBracket(int line) {
 		super(line);
-		setExpectedExpressions(LITERAL, CLOSE_BRACKET, EXPECTED_TYPE, NAME, ARRAY_START, CREMENT);
+		setExpectedExpressions(LITERAL, OPEN_BRACKET, CLOSE_BRACKET, EXPECTED_TYPE, NAME, ARRAY_START, CREMENT);
 	}
 
 	@Override
@@ -26,6 +25,6 @@ public class OpenBracket extends Expression implements Bracket {
 
 	@Override
 	public void setMyMatch(Bracket match) {
-		throw new AssertionError("This is unimplemented but can be later, when needed.");
+		throw new AssertionError("This is unimplemented but will be later, when needed.");
 	}
 }

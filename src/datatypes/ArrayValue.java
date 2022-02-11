@@ -1,5 +1,6 @@
 package datatypes;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -37,24 +38,36 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 
 	// CASTING--------------------------------------------------
 
+	/** Acts as a isEmpty-Function */
 	@Override
 	public BoolValue asBool() {
 		return length() != 0 ? new BoolValue(true) : new BoolValue(false);
 	}
 
-	@Override
-	public ArrayValue asBoolArray() throws CastingException {
-		return asTypedArray(DataType.BOOL_ARRAY);
-	}
-
+	/** Returns the length of this Array, wrapped in a NumberValue. */
 	@Override
 	public NumberValue asNumber() {
-		return new NumberValue(length());
+		return NumberValue.create(new BigDecimal(length()));
+	}
+	
+	@Override
+	public ArrayValue asVarArray() {
+		return asTypedArray(DataType.VAR_ARRAY);
 	}
 
 	@Override
 	public ArrayValue asNumberArray() throws CastingException {
 		return asTypedArray(DataType.NUMBER_ARRAY);
+	}
+	
+	@Override
+	public ArrayValue asBoolArray() throws CastingException {
+		return asTypedArray(DataType.BOOL_ARRAY);
+	}
+	
+	@Override
+	public ArrayValue asTextArray() throws CastingException {
+		return asTypedArray(DataType.TEXT_ARRAY);
 	}
 
 	@Override
@@ -72,11 +85,6 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 		}
 	}
 
-	@Override
-	public ArrayValue asTextArray() throws CastingException {
-		return asTypedArray(DataType.TEXT_ARRAY);
-	}
-
 	/**
 	 * Lazily casts every value in this Array to the specified type.
 	 */
@@ -86,11 +94,6 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 		ArrayValue arr = new ArrayValue(t);
 		arr.merge(Arrays.copyOf(container, container.length, Expression[].class));
 		return arr;
-	}
-
-	@Override
-	public ArrayValue asVarArray() {
-		return asTypedArray(DataType.VAR_ARRAY);
 	}
 
 	// Non-Static Methods-----------------------------------------------------------
@@ -127,14 +130,6 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 	@Override
 	public DataType getType() {
 		return type;
-	}
-
-	/**
-	 * Returns this/the whole array.
-	 */
-	@Override
-	public ArrayValue getValue() {
-		return this;
 	}
 
 	/** Gets primarily used by the {@link ForEachLoop}. */
@@ -242,8 +237,8 @@ public final class ArrayValue extends Value implements Iterable<Value>, MergedEx
 	}
 
 	public BoolValue contains(Value element) {
-		for(Value v : this) {
-			if(Value.eq(v, element).raw())
+		for (Value v : this) {
+			if (Value.eq(v, element).raw())
 				return new BoolValue(true);
 		}
 		return new BoolValue(false);

@@ -3,6 +3,7 @@ package expressions.normal.operators;
 import static expressions.special.DataType.isArrayType;
 
 import datatypes.Value;
+import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.special.ValueHolder;
 public class InOperator extends Operator {
 

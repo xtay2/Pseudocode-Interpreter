@@ -1,5 +1,12 @@
 import stdlib.lang.System
+import stdlib.lang.type.Number
 
 main {
-	print(sqrt(16))
+	
+	if (|a, b, c | + 1) == | 10, 11, 100 | {
+
+	}
+
+	if 0 < a < 100
+
 }

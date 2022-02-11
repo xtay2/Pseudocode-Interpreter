@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import exceptions.parsing.IllegalCodeFormatException;
+import expressions.main.CloseScope;
+import expressions.normal.brackets.OpenScope;
 import helper.Helper;
 import parsing.parser.Parser.LineInfo;
 
@@ -42,7 +44,7 @@ public class Disassembler {
 		Declaration main = findMain();
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i).line();
-			if (Helper.isRunnableCode(line.indexOf("func"), line)) {
+			if (Helper.isNotInString(line.indexOf("func"), line)) {
 				int end = line.endsWith("{") ? findEndOfScope(i) : i;
 				String name = line.substring(line.indexOf("func") + "func".length() + 1, line.indexOf('('));
 				declarations.add(new Declaration(name, i, end, countParamsInDeclaration(line), findCallsBetween(i, end)));
@@ -83,11 +85,15 @@ public class Disassembler {
 		return params == 0 ? (call.charAt(call.indexOf('(') + 1) == ')' ? 0 : 1) : params + 1;
 	}
 
+	/**
+	 * Takes every region in a line, that matches a "call" pattern and is not in a
+	 * text, transforms them into {@link Call}, puts them in a list, and returns it.
+	 */
 	private static List<Call> findCalls(String line) {
 		Matcher m = Pattern.compile("\\w+\\(").matcher(line);
 		List<String> textCalls = new ArrayList<>();
 		List<Call> calls = new ArrayList<>();
-		m.results().forEach((e) -> textCalls.add(e.group()));
+		m.results().filter(r -> Helper.isNotInString(r.start(), line)).forEach((e) -> textCalls.add(e.group()));
 		textCalls.forEach((e) -> {
 			int brack = 1, args = 0, arr = 0;
 			for (int i = line.indexOf(e) + e.length(); i < line.length(); i++) {
@@ -114,11 +120,17 @@ public class Disassembler {
 		return calls;
 	}
 
+	/**
+	 * Find all calls between two lines ie {@link OpenScope} and {@link CloseScope}
+	 * of a {@link Declaration} and returns them as a List of {@link Call}.
+	 */
 	private static List<Call> findCallsBetween(int start, int end) {
 		List<Call> calls = new ArrayList<>();
 		for (int i = start; i <= end; i++) {
 			String line = program.get(i).line();
 			int funcKeyword = line.indexOf("func");
+			// Wenn es einem call pattern matched und in der zeile nicht das wort func
+			// steht, oder wenn doch in einem string.
 			if (line.matches(".*\\w+\\(.*\\);?.*") && (funcKeyword == -1 || !Helper.isRunnableCode(funcKeyword, line)))
 				calls.addAll(findCalls(line));
 		}
@@ -184,7 +196,7 @@ public class Disassembler {
 				if (lineBreak == content.length() - 1)
 					throw new IllegalCodeFormatException(program.get(i).index(), "This one-line statement has to end with a semicolon.");
 				// Replace Semikolon with ScopeBrackets
-				if(content.endsWith(";")) //For Nested Loops/Statements
+				if (content.endsWith(";")) // For Nested Loops/Statements
 					content = content.substring(0, content.length() - 1);
 				program.add(i + 1, new LineInfo("}", index));
 				program.add(i + 1, new LineInfo(content.substring(lineBreak + 2), index)); // Teil nach :

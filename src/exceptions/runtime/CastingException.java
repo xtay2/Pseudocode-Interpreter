@@ -9,6 +9,7 @@ public class CastingException extends AbstractRuntimeException {
 
 	public CastingException(int line, String message) {
 		super(line, message);
+		
 	}
 
 	/**

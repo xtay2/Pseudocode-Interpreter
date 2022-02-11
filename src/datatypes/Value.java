@@ -17,16 +17,6 @@ public abstract class Value extends Expression implements ValueHolder {
 		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END, KEYWORD);
 	}
 
-	/** This should get exclusivly used when casting from text to bool. */
-	public static Boolean asBoolValue(String value) {
-		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value) || "on".equals(value))
-			return true;
-		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value) || "off".equals(value))
-			return false;
-		else
-			return null;
-	}
-
 	/**
 	 * <pre>
 	 * Compares the equality of values. (Commutative)
@@ -35,6 +25,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * -Values with identical types.
 	 * -BoolValues with textual boolean literals.
 	 * -Numbers with textual numbers.
+	 * -Anything else with NaN
 	 * 
 	 * Not Comparable:
 	 * -Arrays with Numbers or Booleans
@@ -43,10 +34,22 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * 
 	 * @throws UnexpectedTypeError if the types aren't comparable.
 	 */
-	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {
+	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {		
 		if (a.getType() == b.getType())
 			return new BoolValue(a.valueCompare(b));
 		throw new UnexpectedTypeError("Tried to compare Values of type " + a.getType() + " and " + b.getType() + ".");
+	}
+
+	// Static String-Checks
+
+	/** This should get exclusivly used when casting from text to bool. */
+	public static Boolean asBoolValue(String value) {
+		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value) || "on".equals(value))
+			return true;
+		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value) || "off".equals(value))
+			return false;
+		else
+			return null;
 	}
 
 	/**
@@ -64,7 +67,9 @@ public abstract class Value extends Expression implements ValueHolder {
 	}
 
 	public static boolean isNumber(String value) {
-		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|(" + NumberValue.State.NAN.toString()+ "))$", value);
+		return Pattern.matches(
+				"^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|(" + NumberValue.State.NAN.toString() + "))$",
+				value);
 	}
 
 	public static boolean isString(String value) {
@@ -87,8 +92,8 @@ public abstract class Value extends Expression implements ValueHolder {
 		case NUMBER -> asNumber();
 		case NUMBER_ARRAY -> asNumberArray();
 		case TEXT -> asText();
-		case TEXT_ARRAY -> asTextArray();
 		case VAR_ARRAY -> asVarArray();
+		case TEXT_ARRAY -> asTextArray();
 		case VAR -> getValue();
 		default -> throw new UnexpectedTypeError("Unexpected type: " + t);
 		};
@@ -102,16 +107,19 @@ public abstract class Value extends Expression implements ValueHolder {
 		return asNumber().asInt();
 	}
 
-	public abstract NumberValue asNumber() throws CastingException;
+	/** Everything should have a text-representation. */
+	public abstract TextValue asText();
+
+	/** Everything can be casted to a number or NaN */
+	public abstract NumberValue asNumber();
 
 	public abstract ArrayValue asNumberArray() throws CastingException;
 
-	public abstract TextValue asText() throws CastingException;
-
-	public abstract ArrayValue asTextArray() throws CastingException;
-
-	// Static String-Checks
-
+	/** Returns a characterwise textrepresentation. */
+	public ArrayValue asTextArray() {
+		return asText().asVarArray();
+	}
+	
 	public abstract ArrayValue asVarArray() throws CastingException;
 
 	/** Tells, if this Value can always be safely casted to the suggested type. */
@@ -120,7 +128,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	public abstract DataType getType();
 
 	@Override
-	public Value getValue() {
+	public final Value getValue() {
 		return this;
 	}
 

@@ -110,10 +110,6 @@ public class ExpressionFinder {
 			if ("->".equals(arg))
 				yield new ExpectedReturnType(lineID);
 			yield null;
-		case LOOP_CONNECTOR:
-			if ("to".equals(arg) || "|".equals(arg))
-				yield new LoopConnector(lineID);
-			yield null;
 		case CREMENT:
 			if ("++".equals(arg))
 				yield new Crement(Crement.Change.INC, lineID);

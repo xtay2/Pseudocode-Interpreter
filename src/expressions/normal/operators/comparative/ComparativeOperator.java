@@ -2,8 +2,8 @@ package expressions.normal.operators.comparative;
 
 import datatypes.BoolValue;
 import datatypes.Value;
-import expressions.normal.operators.InfixOperator;
 import expressions.normal.operators.Operator;
+import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.special.ValueHolder;
 
 @FunctionalInterface
@@ -38,7 +38,7 @@ public final class ComparativeOperator extends Operator {
 
 	@Override
 	public final Value perform(ValueHolder a, ValueHolder b) {
-		return operation.execute(a.getValue().asBool(), b.getValue().asBool());
+		return operation.execute(a.getValue(), b.getValue());
 	}
 
 }
