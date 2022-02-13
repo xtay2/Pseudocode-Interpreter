@@ -5,8 +5,6 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.HashMap;
 
-import javax.naming.ldap.PagedResultsControl;
-
 import ch.obermuhlner.math.big.BigDecimalMath;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
@@ -297,8 +295,8 @@ public class NumberValue extends Value {
 		if ((a1.isNegative() && a2.isNegative() && either(a1, a2, State.NEG_INF))
 				|| (a1.isPositive() && a2.isPositive() && either(a1, a2, State.POS_INF)))
 			return POS_INF;
-		if ((a1 == POS_INF && a2.isNegative()) || (a1.isNegative() && a2 == POS_INF) || (a1 == NEG_INF && a2.isPositive())
-				|| (a1.isPositive() && a2 == NEG_INF))
+		if ((a1 == POS_INF && a2.isNegative()) || (a1.isNegative() && a2 == POS_INF)
+				|| (a1 == NEG_INF && a2.isPositive()) || (a1.isPositive() && a2 == NEG_INF))
 			return NEG_INF;
 		return create(a1.num.multiply(a2.num), a1.denom.multiply(a2.denom));
 	}
@@ -415,7 +413,7 @@ public class NumberValue extends Value {
 		if (either(deg, rad, State.NAN) || rad.isNegative() || deg.valueCompare(ZERO) || deg.isInfinite())
 			return NAN;
 		// the nth power of INF is always INF.
-		if(rad == POS_INF)
+		if (rad == POS_INF)
 			return POS_INF;
 		// Root with Integer-Degree
 		if (deg.denom.equals(BigInteger.ONE))

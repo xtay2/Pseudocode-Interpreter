@@ -5,12 +5,13 @@ import static parsing.program.ExpressionType.ARRAY_START;
 import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
+import parsing.program.KeywordType;
 
 public class IfStatement extends Scope implements ElifConstruct {
 
@@ -18,7 +19,7 @@ public class IfStatement extends Scope implements ElifConstruct {
 	protected ElifConstruct nextElse;
 
 	public IfStatement(int line) {
-		super(line);
+		super(line, KeywordType.IF);
 		setExpectedExpressions(LITERAL, NAME, ARRAY_START);
 	}
 

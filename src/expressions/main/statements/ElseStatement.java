@@ -4,16 +4,17 @@ import static helper.Output.print;
 import static parsing.program.ExpressionType.OPEN_SCOPE;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import interpreter.VarManager;
+import parsing.program.KeywordType;
 
 public class ElseStatement extends Scope implements ElifConstruct {
 
 	public ElseStatement(int line) {
-		super(line);
+		super(line, KeywordType.ELSE);
 		setExpectedExpressions(OPEN_SCOPE);
 	}
 

@@ -2,8 +2,8 @@ package expressions.main.statements;
 
 import static helper.Output.print;
 
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 public class ElifStatement extends IfStatement implements ElifConstruct {

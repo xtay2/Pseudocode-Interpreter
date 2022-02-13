@@ -5,11 +5,13 @@ import static parsing.program.ExpressionType.EXPECTED_TYPE;
 import datatypes.BoolValue;
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.ExpectedType;
-import expressions.normal.Expression;
 import expressions.special.DataType;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 /**
  * Nearly identical to instanceof in Java. Checks if a value is an instance of a
@@ -21,7 +23,7 @@ public class IsStatement extends Expression implements ValueHolder, MergedExpres
 	ValueHolder val;
 
 	public IsStatement(int line) {
-		super(line);
+		super(line, KeywordType.IS);
 		setExpectedExpressions(EXPECTED_TYPE);
 	}
 

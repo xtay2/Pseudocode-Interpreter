@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import datatypes.Value;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
 import parsing.program.ValueMerger;
 
 /**

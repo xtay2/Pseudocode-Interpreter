@@ -1,11 +1,13 @@
 package expressions.main;
 
-import expressions.normal.Expression;
-import expressions.normal.Variable;
-import expressions.special.MergedExpression;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MainExpression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
+import expressions.normal.containers.Variable;
 import interpreter.VarManager;
+import parsing.program.ExpressionType;
 
 public class Declaration extends MainExpression implements MergedExpression {
 
@@ -13,7 +15,7 @@ public class Declaration extends MainExpression implements MergedExpression {
 	private ValueHolder val;
 
 	public Declaration(int line) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 	}
 
 	/** [VARIABLE] [VALUEHOLDER] */

@@ -2,9 +2,9 @@ package expressions.normal.operators.logic;
 
 import datatypes.BoolValue;
 import datatypes.Value;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
-import expressions.special.ValueHolder;
 
 @FunctionalInterface
 interface LogicalOperation {

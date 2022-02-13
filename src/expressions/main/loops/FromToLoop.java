@@ -7,12 +7,13 @@ import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
 import datatypes.NumberValue;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
+import parsing.program.KeywordType;
 
 public class FromToLoop extends Scope implements Loop {
 
@@ -21,7 +22,7 @@ public class FromToLoop extends Scope implements Loop {
 	private ValueHolder inc;
 
 	public FromToLoop(int line) {
-		super(line);
+		super(line, KeywordType.FROM);
 		setExpectedExpressions(LITERAL, NAME);
 	}
 

@@ -6,9 +6,9 @@ import java.math.BigInteger;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.ValueHolder;
 import expressions.special.DataType;
-import expressions.special.ValueHolder;
 
 public class TextValue extends Value {
 

@@ -9,10 +9,10 @@ import datatypes.NumberValue;
 import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalCallException;
-import expressions.normal.Name;
-import expressions.normal.Variable;
+import expressions.abstractions.Scope;
+import expressions.normal.containers.Name;
+import expressions.normal.containers.Variable;
 import expressions.special.DataType;
-import expressions.special.Scope;
 import parsing.finder.KeywordFinder;
 
 public abstract class VarManager {

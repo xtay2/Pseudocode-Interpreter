@@ -1,8 +1,7 @@
-package expressions.special;
+package expressions.abstractions;
 
 import java.util.List;
 
-import expressions.normal.Expression;
 import parsing.program.ValueMerger;
 
 /**

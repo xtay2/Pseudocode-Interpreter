@@ -5,10 +5,11 @@ import static parsing.program.ExpressionType.ARRAY_START;
 import static parsing.program.ExpressionType.LITERAL;
 import static parsing.program.ExpressionType.NAME;
 
-import expressions.main.MainExpression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MainExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.main.functions.Function;
-import expressions.normal.Expression;
-import expressions.special.ValueHolder;
+import parsing.program.KeywordType;
 
 public class ReturnStatement extends MainExpression implements Statement {
 
@@ -16,7 +17,7 @@ public class ReturnStatement extends MainExpression implements Statement {
 	private ValueHolder val = null;
 
 	public ReturnStatement(int line) {
-		super(line);
+		super(line, KeywordType.RETURN);
 		setExpectedExpressions(LITERAL, NAME, ARRAY_START);
 	}
 

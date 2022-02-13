@@ -1,57 +1,25 @@
 package parsing.program;
 
+import expressions.abstractions.MergedExpression;
 import expressions.main.Declaration;
-import expressions.normal.Comma;
-import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
-import expressions.normal.LoopConnector;
-import expressions.normal.Name;
-import expressions.normal.array.ArrayEnd;
-import expressions.normal.array.ArrayStart;
-import expressions.normal.brackets.CloseBracket;
-import expressions.normal.brackets.OpenBracket;
-import expressions.normal.iteration.MultiCall;
+import expressions.normal.containers.Name;
 import expressions.normal.operators.Operator;
+import expressions.possible.Assignment;
 
 public enum ExpressionType {
 
-	/**
-	 * ] Zeichen. Signalisiert, dass der Arraybereich endet.
-	 * 
-	 * @see ArrayEnd
-	 * @see Array
-	 */
-	ARRAY_END("]"),
+	// BUILDER EXPRESSIONS (String has to match code.)
 
-	/**
-	 * [ Zeichen. Signalisiert, dass nun etwas kommt, dass mit einem Array zutun
-	 * hat.
-	 * 
-	 * @see ArrayStart
-	 * @see Array
-	 */
-	ARRAY_START("["),
+	ARRAY_END("]"), ARRAY_START("["),
 
-	/**
-	 * } Zeichen
-	 *
-	 * @see CloseBlock
-	 */
-	CLOSE_SCOPE("}"),
+	OPEN_BRACKET("("), CLOSE_BRACKET(")"),
 
-	/**
-	 * ) Zeichen
-	 *
-	 * @see CloseBracket
-	 */
-	CLOSE_BRACKET(")"),
+	EXPECTED_RETURN_TYPE("->"), COMMA(","),
 
-	/**
-	 * , Zeichen
-	 *
-	 * @see Comma
-	 */
-	COMMA("','"),
+	MULTI_CALL_LINE("|"),
+
+	// NON-BUILDER EXPRESSIONS
 
 	/**
 	 * Pre- or Post- In- or Decrement.
@@ -64,22 +32,9 @@ public enum ExpressionType {
 	 * = Zeichen
 	 *
 	 * @see Declaration
+	 * @see Assignment
 	 */
 	ASSIGNMENT("="),
-
-	/**
-	 * Pfeil ->
-	 *
-	 * @see ExpectedReturnType
-	 */
-	EXPECTED_RETURN_TYPE("->"),
-
-	/**
-	 * Trennlinie vor und hinter den Parametern vom {@link MultiCall}.
-	 * 
-	 * @see MultiCall
-	 */
-	MULTI_CALL_LINE("|"),
 
 	/**
 	 * Identifier bei Parameterdeklaration/Returntype in Funktionen. bool, nr oder
@@ -125,18 +80,23 @@ public enum ExpressionType {
 	OPEN_SCOPE("{"),
 
 	/**
-	 * ( Zeichen
+	 * } Zeichen
 	 *
-	 * @see OpenBracket
+	 * @see CloseBlock
 	 */
-	OPEN_BRACKET("("),
+	CLOSE_SCOPE("}"),
 
 	/**
 	 * +=, -=, *=, /=, %=, ^=
 	 * 
 	 * @see OperationDeclaration
 	 */
-	OPERATION_ASSIGNMENT("Operation-Declaration");
+	OPERATION_ASSIGNMENT("Operation-Declaration"), 
+	
+	/**
+	 * Any {@link MergedExpression}
+	 */
+	MERGED("Merged");
 
 	private final String name;
 

@@ -1,15 +1,15 @@
-package expressions.normal.array;
+package expressions.normal.containers;
 
 import java.util.ArrayList;
 
 import datatypes.ArrayValue;
 import datatypes.Value;
 import exceptions.runtime.ArrayAccessException;
-import expressions.normal.Expression;
-import expressions.normal.Name;
-import expressions.special.MergedExpression;
-import expressions.special.ValueChanger;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueChanger;
+import expressions.abstractions.ValueHolder;
+import parsing.program.ExpressionType;
 
 /** Access at a specific index for example a[19] */
 public class ArrayAccess extends Expression implements ValueChanger, MergedExpression {
@@ -18,7 +18,7 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 	private Name name;
 
 	public ArrayAccess(int line) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 	}
 
 	@Override

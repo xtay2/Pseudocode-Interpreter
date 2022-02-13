@@ -4,10 +4,10 @@ import datatypes.ArrayValue;
 import datatypes.NumberValue;
 import datatypes.TextValue;
 import datatypes.Value;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.special.DataType;
-import expressions.special.ValueHolder;
 
 public class MultOperator extends Operator {
 

@@ -1,17 +1,17 @@
-package expressions.normal.iteration;
+package expressions.possible.multicall;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.PossibleMainExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.main.statements.IsStatement;
-import expressions.normal.Expression;
 import expressions.normal.operators.InOperator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.logic.LogicalOperator;
 import expressions.possible.Call;
 import expressions.possible.Crement;
-import expressions.possible.PossibleMainExpression;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
 
 /**
  * Performs the outer Expression for each {@link MultiCallable} in it.

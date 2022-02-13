@@ -6,15 +6,16 @@ import static parsing.program.ExpressionType.NAME;
 import datatypes.NumberValue;
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.normal.Expression;
-import expressions.normal.Name;
-import expressions.normal.Variable;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
+import expressions.normal.containers.Name;
+import expressions.normal.containers.Variable;
 import expressions.special.DataType;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
+import parsing.program.KeywordType;
 
 public class ForEachLoop extends Scope implements Loop {
 
@@ -22,7 +23,7 @@ public class ForEachLoop extends Scope implements Loop {
 	private Name elementName = null;
 
 	public ForEachLoop(int line) {
-		super(line);
+		super(line, KeywordType.FOR);
 		setExpectedExpressions(NAME);
 	}
 

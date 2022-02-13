@@ -5,10 +5,11 @@ import static helper.Output.print;
 import java.util.Arrays;
 
 import datatypes.Value;
-import expressions.normal.Expression;
-import expressions.normal.Name;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.PossibleMainExpression;
+import expressions.abstractions.ValueHolder;
+import expressions.normal.containers.Name;
 import interpreter.Interpreter;
 
 public class Call extends PossibleMainExpression implements ValueHolder, MergedExpression {

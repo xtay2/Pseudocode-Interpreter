@@ -1,17 +1,25 @@
-package expressions.main;
+package expressions.abstractions;
 
-import expressions.normal.Expression;
-import expressions.possible.PossibleMainExpression;
-import expressions.special.ValueHolder;
 import interpreter.Interpreter;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 /**
- * An Expression that can be build and executed.
+ * An Expression that can be build and executed. There exists only one
+ * MainExpression per line!
+ * 
+ * @see Expression
+ * @see MergedExpression
+ * @see PossibleMainExpression
  */
 public abstract class MainExpression extends Expression {
 
-	public MainExpression(int line) {
-		super(line);
+	public MainExpression(int line, KeywordType myKeyword) {
+		super(line, myKeyword);
+	}
+
+	public MainExpression(int line, ExpressionType myType) {
+		super(line, myType);
 	}
 
 	/**

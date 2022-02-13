@@ -1,6 +1,6 @@
 package expressions.main.loops;
 
-import expressions.special.MergedExpression;
+import expressions.abstractions.MergedExpression;
 
 /**
  * Currently a marker-interface.

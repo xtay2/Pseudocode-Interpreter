@@ -1,8 +1,11 @@
-package expressions.possible;
+package expressions.abstractions;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.main.MainExpression;
-import expressions.normal.Expression;
+import expressions.possible.Call;
+import expressions.possible.Crement;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
+
 /**
  * Every class that extends this one has the possibility to stand alone in a
  * line, (ie be a main expression), as well as being just a part of a line.
@@ -14,16 +17,19 @@ import expressions.normal.Expression;
  * multiple PossibleMainExpressions in a line.
  * 
  * Some PossibleMainExpressions include:
+ * {@link Crement}, {@link Call} and {@link MultiCall}.
  * 
- * @see {@link Crement}
- * @see {@link Call}
+ * @see Expression
+ * @see MainExpression
+ * 
  */
 public abstract class PossibleMainExpression extends MainExpression {
+	
+	public PossibleMainExpression(int line, KeywordType myKeyword) {
+		super(line, myKeyword);
+	}
 
-	/**
-	 * As defined in {@link Expression}.
-	 */
-	public PossibleMainExpression(int line) {
-		super(line);
+	public PossibleMainExpression(int line, ExpressionType myType) {
+		super(line, myType);
 	}
 }

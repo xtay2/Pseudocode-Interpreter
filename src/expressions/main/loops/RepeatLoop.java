@@ -5,19 +5,20 @@ import static parsing.program.ExpressionType.*;
 
 import datatypes.NumberValue;
 import exceptions.runtime.DeclarationException;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import interpreter.Interpreter;
 import interpreter.VarManager;
+import parsing.program.KeywordType;
 
 public class RepeatLoop extends Scope implements Loop {
 
 	private ValueHolder counterInit = null;
 
 	public RepeatLoop(int line) {
-		super(line);
+		super(line, KeywordType.REPEAT);
 		setExpectedExpressions(LITERAL, NAME, OPEN_SCOPE);
 	}
 

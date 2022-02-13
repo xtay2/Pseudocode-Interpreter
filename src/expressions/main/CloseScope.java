@@ -1,10 +1,12 @@
 package expressions.main;
 
+import expressions.abstractions.MainExpression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
 import expressions.special.Bracket;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import main.Main;
+import parsing.program.ExpressionType;
 
 public class CloseScope extends MainExpression implements Bracket {
 
@@ -14,7 +16,7 @@ public class CloseScope extends MainExpression implements Bracket {
 	 * Finds the matching {@link OpenScope} after getting constructed.
 	 */
 	public CloseScope(int line) {
-		super(line);
+		super(line, ExpressionType.CLOSE_SCOPE);
 		setExpectedExpressions();
 		findMatchingOpenScope();
 	}

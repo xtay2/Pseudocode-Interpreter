@@ -6,12 +6,11 @@ import static parsing.program.ExpressionType.OPEN_SCOPE;
 import java.util.List;
 
 import exceptions.parsing.UnexpectedFlagException;
-import expressions.normal.Expression;
-import expressions.normal.Flag;
-import expressions.normal.Name;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
+import expressions.normal.containers.Name;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import parsing.program.KeywordType;
@@ -32,7 +31,7 @@ public class MainFunction extends Function implements MergedExpression {
 	}
 
 	@Override
-	public void setFlags(List<Flag> flags) throws UnexpectedFlagException {
+	public void setFlags(List<KeywordType> flags) throws UnexpectedFlagException {
 		throw new UnexpectedFlagException(getOriginalLine(), "The main-function doesn't take any flags.");
 	}
 

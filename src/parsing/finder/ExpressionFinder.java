@@ -1,22 +1,16 @@
 package parsing.finder;
 
 import datatypes.Value;
+import expressions.abstractions.Expression;
 import expressions.main.CloseScope;
 import expressions.main.OperationAssignment;
-import expressions.normal.Comma;
-import expressions.normal.ExpectedReturnType;
 import expressions.normal.ExpectedType;
-import expressions.normal.Expression;
-import expressions.normal.LoopConnector;
-import expressions.normal.Name;
-import expressions.normal.array.ArrayEnd;
-import expressions.normal.array.ArrayStart;
-import expressions.normal.brackets.CloseBracket;
-import expressions.normal.brackets.OpenBracket;
 import expressions.normal.brackets.OpenScope;
+import expressions.normal.containers.Name;
 import expressions.normal.operators.Operator;
 import expressions.possible.Assignment;
 import expressions.possible.Crement;
+import expressions.special.BuilderExpression;
 import expressions.special.DataType;
 import parsing.program.ExpressionType;
 import parsing.program.KeywordType;
@@ -44,8 +38,8 @@ public class ExpressionFinder {
 	/**
 	 * Checks, if a String matches the expected expression.
 	 *
-	 * @param arg  is the String.
-	 * @param exp  is the exprected expression.
+	 * @param arg    is the String.
+	 * @param exp    is the exprected expression.
 	 * @param lineID is the lineID
 	 * @return the expression or {@code null} if the String doesnt match.
 	 */
@@ -78,14 +72,6 @@ public class ExpressionFinder {
 			if (type != null)
 				yield new OperationAssignment(lineID, type);
 			yield null;
-		case OPEN_BRACKET:
-			if ("(".equals(arg))
-				yield new OpenBracket(lineID);
-			yield null;
-		case CLOSE_BRACKET:
-			if (")".equals(arg))
-				yield new CloseBracket(lineID);
-			yield null;
 		case OPEN_SCOPE:
 			if ("{".equals(arg))
 				yield new OpenScope(lineID);
@@ -94,28 +80,14 @@ public class ExpressionFinder {
 			if ("}".equals(arg))
 				yield new CloseScope(lineID);
 			yield null;
-		case ARRAY_START:
-			if ("[".equals(arg))
-				yield new ArrayStart(lineID);
-			yield null;
-		case ARRAY_END:
-			if ("]".equals(arg))
-				yield new ArrayEnd(lineID);
-			yield null;
-		case COMMA:
-			if (",".equals(arg))
-				yield new Comma(lineID);
-			yield null;
-		case EXPECTED_RETURN_TYPE:
-			if ("->".equals(arg))
-				yield new ExpectedReturnType(lineID);
-			yield null;
 		case CREMENT:
 			if ("++".equals(arg))
 				yield new Crement(Crement.Change.INC, lineID);
 			if ("--".equals(arg))
 				yield new Crement(Crement.Change.DEC, lineID);
 			yield null;
+		default:
+			yield BuilderExpression.create(arg);
 		};
 	}
 }

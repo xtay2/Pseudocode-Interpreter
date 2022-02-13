@@ -1,9 +1,10 @@
-package expressions.special;
+package expressions.abstractions;
 
 import expressions.main.CloseScope;
-import expressions.main.MainExpression;
 import expressions.normal.brackets.OpenScope;
 import main.Main;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 /**
  * {@link OpenScope} {@link CloseScope}
@@ -12,12 +13,16 @@ public abstract class Scope extends MainExpression {
 
 	protected OpenScope openScope = null;
 
-	public Scope(int line) {
-		super(line);
-	}
-
 	public abstract String getScopeName();
 
+	public Scope(int line, KeywordType myKeyword) {
+		super(line, myKeyword);
+	}
+
+	public Scope(int line, ExpressionType myType) {
+		super(line, myType);
+	}
+	
 	public int getStart() {
 		return openScope.lineIdentifier;
 	}
@@ -43,7 +48,7 @@ public abstract class Scope extends MainExpression {
 		cs.setMyMatch(openScope);
 	}
 
-	public static final Scope GLOBAL_SCOPE = new Scope(-1) {
+	public static final Scope GLOBAL_SCOPE = new Scope(-1, ExpressionType.MERGED) {
 
 		@Override
 		public boolean execute(ValueHolder... params) {

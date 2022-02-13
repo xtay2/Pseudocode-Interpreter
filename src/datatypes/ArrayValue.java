@@ -7,12 +7,12 @@ import java.util.Iterator;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueHolder;
 import expressions.main.loops.ForEachLoop;
-import expressions.normal.Expression;
-import expressions.normal.array.ArrayAccess;
+import expressions.normal.containers.ArrayAccess;
 import expressions.special.DataType;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
 
 /**
  * <pre>

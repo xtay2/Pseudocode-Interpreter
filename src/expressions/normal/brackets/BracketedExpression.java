@@ -3,16 +3,17 @@ package expressions.normal.brackets;
 import static parsing.program.ExpressionType.INFIX_OPERATOR;
 
 import datatypes.Value;
-import expressions.normal.Expression;
-import expressions.special.MergedExpression;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.ValueHolder;
+import parsing.program.ExpressionType;
 
 public class BracketedExpression extends Expression implements ValueHolder, MergedExpression {
 
 	private ValueHolder value;
 
 	public BracketedExpression(int line) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 		setExpectedExpressions(INFIX_OPERATOR);
 	}
 	

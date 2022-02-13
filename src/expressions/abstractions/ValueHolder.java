@@ -1,14 +1,15 @@
-package expressions.special;
+package expressions.abstractions;
 
 import datatypes.Value;
 import expressions.main.statements.IsStatement;
-import expressions.normal.Name;
-import expressions.normal.array.ArrayAccess;
 import expressions.normal.brackets.BracketedExpression;
+import expressions.normal.containers.ArrayAccess;
+import expressions.normal.containers.Name;
 import expressions.normal.operators.Operation;
 import expressions.possible.Assignment;
 import expressions.possible.Call;
 import expressions.possible.Crement;
+import expressions.possible.multicall.MultiCall;
 
 /**
  * An interface for everything that can return a Value in code.
@@ -26,6 +27,7 @@ import expressions.possible.Crement;
  * {@link Operation}
  * {@link BracketedExpression}
  * {@link Assignment}
+ * {@link MultiCall}
  * </pre>
  */
 public interface ValueHolder {

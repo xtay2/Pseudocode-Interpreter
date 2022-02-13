@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import datatypes.NumberValue;
 import datatypes.TextValue;
 import datatypes.Value;
-import expressions.special.ValueHolder;
+import expressions.abstractions.ValueHolder;
 import helper.Output;
 
 public final class SystemFunctions {

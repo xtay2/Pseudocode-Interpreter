@@ -14,21 +14,21 @@ import exceptions.parsing.UnexpectedFlagException;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalReturnException;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueHolder;
 import expressions.normal.ExpectedType;
-import expressions.normal.Expression;
-import expressions.normal.Flag;
-import expressions.normal.Name;
-import expressions.normal.Variable;
 import expressions.normal.brackets.OpenScope;
+import expressions.normal.containers.Name;
+import expressions.normal.containers.Variable;
+import expressions.normal.flag.Flaggable;
 import expressions.possible.Call;
 import expressions.special.DataType;
-import expressions.special.Flaggable;
-import expressions.special.Scope;
-import expressions.special.ValueHolder;
 import helper.Output;
 import interpreter.Interpreter;
 import interpreter.VarManager;
 import interpreter.system.SystemFunctions;
+import parsing.program.KeywordType;
 
 /**
  * This is the class for a Function-Declaration.
@@ -47,7 +47,7 @@ public class Function extends Scope implements Flaggable {
 	private Value returnVal = null;
 
 	public Function(int line) {
-		super(line);
+		super(line, KeywordType.FUNC);
 		setExpectedExpressions(NAME);
 	}
 
@@ -115,9 +115,9 @@ public class Function extends Scope implements Flaggable {
 	}
 
 	@Override
-	public void setFlags(List<Flag> flags) throws UnexpectedFlagException {
+	public void setFlags(List<KeywordType> flags) throws UnexpectedFlagException {
 		while (!flags.isEmpty()) {
-			switch (((Flag) flags.remove(0)).flagType) {
+			switch (flags.remove(0)) {
 			case NATIVE -> isNative = true;
 			default -> throw new UnexpectedFlagException(getOriginalLine(), " Flagtype has to be defined!");
 			}

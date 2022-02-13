@@ -3,10 +3,11 @@ package expressions.possible;
 import static parsing.program.ExpressionType.*;
 
 import datatypes.Value;
-import expressions.normal.Expression;
-import expressions.special.MergedExpression;
-import expressions.special.ValueChanger;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.PossibleMainExpression;
+import expressions.abstractions.ValueChanger;
+import expressions.abstractions.ValueHolder;
 import interpreter.VarManager;
 
 public class Assignment extends PossibleMainExpression implements ValueHolder, MergedExpression {

@@ -1,15 +1,19 @@
-package expressions.normal;
+package expressions.normal.containers;
 
 import static parsing.program.ExpressionType.ARRAY_START;
 import static parsing.program.ExpressionType.NAME;
 
 import datatypes.Value;
 import exceptions.runtime.CastingException;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueChanger;
+import expressions.normal.ExpectedType;
 import expressions.possible.Call;
 import expressions.special.DataType;
-import expressions.special.Scope;
-import expressions.special.ValueChanger;
 import interpreter.VarManager;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 /**
  * Has a Name and a Value. The Name has a scope.
@@ -27,7 +31,7 @@ public class Variable extends Expression implements ValueChanger {
 
 	/** Initialise a Variable */
 	public Variable(int line, DataType type, Name name) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 		setExpectedExpressions(NAME, ARRAY_START);
 		this.type = type;
 		this.name = name;

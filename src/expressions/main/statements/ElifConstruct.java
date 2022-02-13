@@ -1,6 +1,6 @@
 package expressions.main.statements;
 
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
 
 /**
  * Groups the {@link IfStatement}, {@link ElifStatement} and {@link ElseStatement}.

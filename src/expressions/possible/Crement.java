@@ -7,10 +7,11 @@ import datatypes.NumberValue;
 import datatypes.TextValue;
 import datatypes.Value;
 import exceptions.runtime.CastingException;
-import expressions.normal.Expression;
-import expressions.special.MergedExpression;
-import expressions.special.ValueChanger;
-import expressions.special.ValueHolder;
+import expressions.abstractions.Expression;
+import expressions.abstractions.MergedExpression;
+import expressions.abstractions.PossibleMainExpression;
+import expressions.abstractions.ValueChanger;
+import expressions.abstractions.ValueHolder;
 import parsing.program.ValueMerger;
 
 /**

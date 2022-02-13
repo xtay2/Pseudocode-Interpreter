@@ -1,14 +1,15 @@
 package expressions.special;
 
+import expressions.abstractions.Scope;
 import expressions.main.CloseScope;
-import expressions.normal.brackets.CloseBracket;
-import expressions.normal.brackets.OpenBracket;
 import expressions.normal.brackets.OpenScope;
 
 /**
- * {@link OpenBracket} {@link CloseBracket}
+ * An interface for any {@link Scope}-Bracket, that has to be connected with the
+ * match.
  * 
- * {@link OpenScope} {@link CloseScope}
+ * @see OpenScope
+ * @see CloseScope
  */
 public interface Bracket {
 

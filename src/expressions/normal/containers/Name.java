@@ -1,12 +1,15 @@
-package expressions.normal;
+package expressions.normal.containers;
 
 import static parsing.program.ExpressionType.*;
 
 import datatypes.Value;
-import expressions.special.Scope;
-import expressions.special.ValueChanger;
+import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
+import expressions.abstractions.ValueChanger;
 import helper.Output;
 import interpreter.VarManager;
+import parsing.program.ExpressionType;
+import parsing.program.KeywordType;
 
 public class Name extends Expression implements ValueChanger {
 
@@ -16,9 +19,9 @@ public class Name extends Expression implements ValueChanger {
 	private Scope scope = null;
 
 	public Name(String name, int line) {
-		super(line);
+		super(line, ExpressionType.NAME);
 		setExpectedExpressions(ASSIGNMENT, OPERATION_ASSIGNMENT, OPEN_BRACKET, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR,
-				LOOP_CONNECTOR, ARRAY_START, ARRAY_END, CREMENT, KEYWORD);
+				TO, STEP, ARRAY_START, ARRAY_END, CREMENT, KEYWORD);
 		this.name = name;
 	}
 

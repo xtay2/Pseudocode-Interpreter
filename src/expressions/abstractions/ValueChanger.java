@@ -1,8 +1,8 @@
-package expressions.special;
+package expressions.abstractions;
 
 import datatypes.Value;
-import expressions.normal.Name;
-import expressions.normal.array.ArrayAccess;
+import expressions.normal.containers.ArrayAccess;
+import expressions.normal.containers.Name;
 
 /**
  * Everything that can change its value.

@@ -1,8 +1,8 @@
-package expressions.normal.iteration;
+package expressions.possible.multicall;
 
 import datatypes.Value;
-import expressions.main.MainExpression;
-import expressions.special.ValueHolder;
+import expressions.abstractions.MainExpression;
+import expressions.abstractions.ValueHolder;
 
 public interface MultiCallable {
 

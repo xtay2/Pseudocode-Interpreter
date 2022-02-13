@@ -1,6 +1,6 @@
 package exceptions.parsing;
 
-import expressions.special.Flaggable;
+import expressions.normal.flag.Flaggable;
 
 /**
  * Gets thrown when theres a wrong flag standing in front of a {@link Flaggable}.

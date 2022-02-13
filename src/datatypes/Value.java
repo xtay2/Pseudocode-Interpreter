@@ -6,15 +6,17 @@ import java.util.regex.Pattern;
 
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
-import expressions.normal.Expression;
+import expressions.abstractions.Expression;
+import expressions.abstractions.ValueHolder;
 import expressions.special.DataType;
-import expressions.special.ValueHolder;
+import parsing.program.ExpressionType;
 
 public abstract class Value extends Expression implements ValueHolder {
 
 	public Value() {
-		super(-1);
-		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, LOOP_CONNECTOR, ARRAY_END, KEYWORD);
+		super(-1, ExpressionType.LITERAL);
+		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, TO, STEP, ARRAY_END,
+				KEYWORD);
 	}
 
 	/**
@@ -34,7 +36,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * 
 	 * @throws UnexpectedTypeError if the types aren't comparable.
 	 */
-	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {		
+	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {
 		if (a.getType() == b.getType())
 			return new BoolValue(a.valueCompare(b));
 		throw new UnexpectedTypeError("Tried to compare Values of type " + a.getType() + " and " + b.getType() + ".");
@@ -44,9 +46,11 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	/** This should get exclusivly used when casting from text to bool. */
 	public static Boolean asBoolValue(String value) {
-		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value) || "on".equals(value))
+		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value)
+				|| "on".equals(value))
 			return true;
-		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value) || "off".equals(value))
+		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value)
+				|| "off".equals(value))
 			return false;
 		else
 			return null;
@@ -67,9 +71,8 @@ public abstract class Value extends Expression implements ValueHolder {
 	}
 
 	public static boolean isNumber(String value) {
-		return Pattern.matches(
-				"^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|(" + NumberValue.State.NAN.toString() + "))$",
-				value);
+		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|("
+				+ NumberValue.State.NAN.toString() + "))$", value);
 	}
 
 	public static boolean isString(String value) {
@@ -119,7 +122,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	public ArrayValue asTextArray() {
 		return asText().asVarArray();
 	}
-	
+
 	public abstract ArrayValue asVarArray() throws CastingException;
 
 	/** Tells, if this Value can always be safely casted to the suggested type. */
