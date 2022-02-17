@@ -1,4 +1,4 @@
-package expressions.abstractions;
+package expressions.abstractions.interfaces;
 
 import datatypes.Value;
 import expressions.main.statements.IsStatement;
@@ -12,7 +12,7 @@ import expressions.possible.Crement;
 import expressions.possible.multicall.MultiCall;
 
 /**
- * An interface for everything that can return a Value in code.
+ * An interface for everything that can return a {@link Value} in code.
  * 
  * <pre>
  * Raw ValueHolders

@@ -1,13 +1,21 @@
 package unittests.datatypes;
 
+import static datatypes.numerical.NumberValue.NEG_ONE;
+import static datatypes.numerical.NumberValue.ONE;
+import static datatypes.numerical.NumberValue.ZERO;
+import static datatypes.numerical.NumberValue.create;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import datatypes.NumberValue;
 import datatypes.TextValue;
+import datatypes.numerical.DecimalValue;
+import datatypes.numerical.NumberValue;
+
+import static datatypes.numerical.ConceptualNrValue.*;
 
 public class Number {
 
@@ -19,30 +27,30 @@ public class Number {
 	void testOperations() {
 		List<NumberValue> l = List.of(
 		//@formatter:off
-			NumberValue.ZERO, 
-			NumberValue.ONE, 
-			NumberValue.NEG_ONE, 
-			NumberValue.create(BigDecimal.valueOf(0.5)),
-			NumberValue.create(BigDecimal.valueOf(-0.5)), 
-			NumberValue.create(BigInteger.valueOf(100)),
-			NumberValue.create(BigInteger.valueOf(-100)), 
-			NumberValue.create(BigInteger.valueOf(7)),
-			NumberValue.create(BigInteger.valueOf(-7)), 
-			NumberValue.POS_INF, 
-			NumberValue.NEG_INF, 
-			NumberValue.NAN,
-			NumberValue.create(BigInteger.valueOf(1), BigInteger.valueOf(3)),
-			NumberValue.create(BigInteger.valueOf(-1), BigInteger.valueOf(3)),
+			ZERO, 
+			ONE, 
+			NEG_ONE, 
+			create(BigDecimal.valueOf(0.5)),
+			create(BigDecimal.valueOf(-0.5)), 
+			create(BigInteger.valueOf(100)),
+			create(BigInteger.valueOf(-100)), 
+			create(BigInteger.valueOf(7)),
+			create(BigInteger.valueOf(-7)), 
+			POS_INF, 
+			NEG_INF, 
+			NAN,
+			create(BigInteger.valueOf(1), BigInteger.valueOf(3)),
+			create(BigInteger.valueOf(-1), BigInteger.valueOf(3)),
 			new TextValue("-10.745(3701)").asNumber()
 		//@formatter:on
 		);
-//		testPerms((a, b) -> NumberValue.add(a, b), l, "+");
-//		testPerms((a, b) -> NumberValue.sub(a, b), l, "-");
-//		testPerms((a, b) -> NumberValue.mult(a, b), l, "*");
-//		testPerms((a, b) -> NumberValue.div(a, b), l, "/");
-//		testPerms((a, b) -> NumberValue.mod(a, b), l, "%");
-		testPerms((a, b) -> NumberValue.pow(a, b), l, "^");
-		testPerms((a, b) -> NumberValue.root(a, b), l, "root");
+		testPerms((a, b) -> a.add(b), l, "+");
+		testPerms((a, b) -> a.sub(b), l, "-");
+		testPerms((a, b) -> a.mult(b), l, "*");
+		testPerms((a, b) -> a.div(b), l, "/");
+		testPerms((a, b) -> a.mod(b), l, "%");
+		testPerms((a, b) -> a.pow(b), l, "^");
+		testPerms((a, b) -> a.root(b), l, "root");
 	}
 
 	void testPerms(ArithmeticOperation o, List<NumberValue> l, String op) {

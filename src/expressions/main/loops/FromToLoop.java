@@ -1,62 +1,39 @@
 package expressions.main.loops;
 
-import static datatypes.NumberValue.add;
-import static datatypes.NumberValue.sub;
-import static helper.Output.print;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
+import static types.ExpressionType.LITERAL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_START;
 
-import datatypes.NumberValue;
+import datatypes.numerical.NumberValue;
 import expressions.abstractions.Expression;
-import expressions.abstractions.Scope;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import interpreter.Interpreter;
-import interpreter.VarManager;
-import parsing.program.KeywordType;
+import types.specific.KeywordType;
 
-public class FromToLoop extends Scope implements Loop {
+public class FromToLoop extends Loop {
 
-	private ValueHolder from;
-	private ValueHolder to;
-	private ValueHolder inc;
+	private ValueHolder end;
 
 	public FromToLoop(int line) {
-		super(line, KeywordType.FROM);
-		setExpectedExpressions(LITERAL, NAME);
+		super(line, KeywordType.FROM, LITERAL, NAME, ARRAY_START);
 	}
 
 	/** [FROM] [TO] [?INTERVALL]) [OPEN_SCOPE] */
 	@Override
 	public void merge(Expression... e) {
-		from = (ValueHolder) e[0];
-		to = (ValueHolder) e[1];
+		if (e.length != 4)
+			throw new AssertionError("The From-To-Loop expects a start, end, increment and scope.");
+		start = (ValueHolder) e[0];
+		end = (ValueHolder) e[1];
 		inc = (ValueHolder) e[2];
-		openScope = (OpenScope) e[3];
+		initScope((OpenScope) e[3]);
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
-		final NumberValue f = from.getValue().asInt();
-		final NumberValue t = to.getValue().asInt();
-		final NumberValue i = inc == null ? NumberValue.ONE : inc.getValue().asInt();
-		print("Executing FromToLoop-Loop. (From " + f + " to " + t + ". Inc: " + i);
-		for (NumberValue cnt = f; // INIT
-				(f.isSmallerThan(t) ? cnt.isSmallerEq(t) : cnt.isGreaterEq(t)); // LOOP CONDITION
-				cnt = add(cnt, (f.isSmallerThan(t) ? i : sub(NumberValue.ZERO, i)))) { // INCREMENT
-			VarManager.registerScope(this);
-			VarManager.initCounter(this, cnt, getOriginalLine());
-			if (!Interpreter.execute(lineIdentifier + 1)) {
-				VarManager.deleteScope(this);
-				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
-			}
-			VarManager.deleteScope(this);
-		}
-		return Interpreter.execute(getEnd());
-	}
-
-	@Override
-	public String getScopeName() {
-		return "fromto" + getStart() + "-" + getEnd();
+	protected boolean doContinue(NumberValue iteration) {
+		NumberValue s = start.getValue().asNumber();
+		NumberValue e = end.getValue().asNumber();
+		NumberValue i = inc.getValue().asNumber().abs();
+		return s.isSmallerThan(e) ? iteration.add(i).isSmallerEq(e) : iteration.sub(i).isGreaterEq(e);
 	}
 }

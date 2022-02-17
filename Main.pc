@@ -1,12 +1,5 @@
 import stdlib.lang.System
-import stdlib.lang.type.Number
 
 main {
-	
-	if (|a, b, c | + 1) == | 10, 11, 100 | {
-
-	}
-
-	if 0 < a < 100
-
+	print("Hi")
 }

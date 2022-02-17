@@ -2,7 +2,7 @@ package parsing.finder;
 
 import java.util.ArrayList;
 
-import parsing.program.KeywordType;
+import types.specific.KeywordType;
 
 public class KeywordFinder {
 

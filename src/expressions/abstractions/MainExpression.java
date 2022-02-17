@@ -1,8 +1,9 @@
 package expressions.abstractions;
 
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import interpreter.Interpreter;
-import parsing.program.ExpressionType;
-import parsing.program.KeywordType;
+import types.AbstractType;
 
 /**
  * An Expression that can be build and executed. There exists only one
@@ -14,12 +15,12 @@ import parsing.program.KeywordType;
  */
 public abstract class MainExpression extends Expression {
 
-	public MainExpression(int line, KeywordType myKeyword) {
-		super(line, myKeyword);
-	}
-
-	public MainExpression(int line, ExpressionType myType) {
-		super(line, myType);
+	/**
+	 * Copies the following Constructor:
+	 * {@link Expression#Expression(int, AbstractType, AbstractType...)}.
+	 */
+	public MainExpression(int lineID, AbstractType myType, AbstractType... expected) {
+		super(lineID, myType, expected);
 	}
 
 	/**

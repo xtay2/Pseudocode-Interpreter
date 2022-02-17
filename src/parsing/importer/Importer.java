@@ -10,7 +10,7 @@ import java.util.List;
 
 import exceptions.parsing.ImportingException;
 import parsing.parser.Parser.LineInfo;
-import parsing.program.KeywordType;
+import types.specific.KeywordType;
 
 public abstract class Importer {
 

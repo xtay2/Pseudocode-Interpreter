@@ -1,17 +1,21 @@
 package expressions.possible.multicall;
 
+import static types.ExpressionType.INFIX_OPERATOR;
+import static types.ExpressionType.NAME;
+
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MergedExpression;
 import expressions.abstractions.PossibleMainExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.statements.IsStatement;
 import expressions.normal.operators.InOperator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.logic.LogicalOperator;
 import expressions.possible.Call;
 import expressions.possible.Crement;
+import types.specific.BuilderType;
 
 /**
  * Performs the outer Expression for each {@link MultiCallable} in it.
@@ -34,7 +38,8 @@ import expressions.possible.Crement;
  * 	a in |b, c| -> (a in b) or (a in c)
  *  
  *  - The {@link IsStatement}
- *  
+ * 	|a, b| is type -> (a is type) or (b is type)
+ * 
  * Should explicitly not support:
  * 
  *  - An {@link MultiCall} thats somehow connected with anotherone, like:
@@ -49,7 +54,7 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 	private final MultiCallable outer;
 
 	public MultiCall(MultiCallable outer, int line) {
-		super(line);
+		super(line, BuilderType.MULTI_CALL_LINE, INFIX_OPERATOR, NAME);
 		this.outer = outer;
 	}
 
@@ -70,5 +75,4 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 		getValue();
 		return callNextLine();
 	}
-
 }

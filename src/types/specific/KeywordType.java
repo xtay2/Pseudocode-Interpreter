@@ -1,24 +1,26 @@
-package parsing.program;
+package types.specific;
 
 import expressions.abstractions.Expression;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
+import expressions.main.loops.ConditionalLoop;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
 import expressions.main.loops.RepeatLoop;
-import expressions.main.loops.WhileUntilLoop;
-import expressions.main.loops.WhileUntilLoop.Type;
-import expressions.main.statements.ElifStatement;
-import expressions.main.statements.ElseStatement;
-import expressions.main.statements.IfStatement;
+import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
-import expressions.special.BuilderExpression;
+import types.SpecificType;
 
-public enum KeywordType {
-	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), TO("to"), STEP("step"), FUNC("func"), IF("if"),
-	IMPORT("import"), MAIN("main"), NATIVE("native"), REPEAT("repeat"), RETURN("return"), UNTIL("until"),
-	WHILE("while"), IS("is");
+/**
+ * Specifies all Keywords and their text-representations. This includes
+ * non-functional keywords like include and flags like native.
+ *
+ */
+public enum KeywordType implements SpecificType {
+
+	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"),
+	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
 
 	public static KeywordType getKeywordTypeFromString(String val) {
 		for (KeywordType k : KeywordType.values()) {
@@ -30,7 +32,7 @@ public enum KeywordType {
 
 	final String keyword;
 
-	private KeywordType(final String keyword) {
+	private KeywordType(String keyword) {
 		this.keyword = keyword;
 	}
 
@@ -48,19 +50,15 @@ public enum KeywordType {
 		if (type == null)
 			return null;
 		return switch (type) {
-		case ELIF -> new ElifStatement(lineID);
-		case ELSE -> new ElseStatement(lineID);
 		case FOR -> new ForEachLoop(lineID);
 		case FROM -> new FromToLoop(lineID);
 		case FUNC -> new Function(lineID);
-		case IF -> new IfStatement(lineID);
 		case IS -> new IsStatement(lineID);
 		case MAIN -> new MainFunction(lineID);
 		case REPEAT -> new RepeatLoop(lineID);
 		case RETURN -> new ReturnStatement(lineID);
-		case WHILE -> new WhileUntilLoop(Type.WHILE, lineID);
-		case UNTIL -> new WhileUntilLoop(Type.UNTIL, lineID);
-		case NATIVE, TO, STEP -> new BuilderExpression(type);
+		case IF, ELIF, ELSE -> new ConditionalStatement(lineID, type);
+		case WHILE, UNTIL -> new ConditionalLoop(lineID, type);
 		case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
 		};
 	}

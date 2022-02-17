@@ -1,14 +1,13 @@
 package expressions.main;
 
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.Scope;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ScopeBracket;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import expressions.special.Bracket;
 import main.Main;
-import parsing.program.ExpressionType;
+import types.ExpressionType;
 
-public class CloseScope extends MainExpression implements Bracket {
+public final class CloseScope extends MainExpression implements ScopeBracket {
 
 	private OpenScope myMatch;
 
@@ -17,23 +16,23 @@ public class CloseScope extends MainExpression implements Bracket {
 	 */
 	public CloseScope(int line) {
 		super(line, ExpressionType.CLOSE_SCOPE);
-		setExpectedExpressions();
 		findMatchingOpenScope();
 	}
 
 	/**
 	 * Should only get called by the constructor of this.
 	 */
+	@Deprecated
 	private final void findMatchingOpenScope() {
 		int brack = -1;
 		for (int i = lineIdentifier - 1; i >= 0; i--) {
 			MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
 			if (m instanceof CloseScope)
 				brack--;
-			if (m instanceof Scope s) {
+			if (m instanceof ScopeBracket b) {
 				brack++;
 				if (brack == 0) {
-					s.connectScopeEnd(this);
+					b.setMyMatch(this);
 					return;
 				}
 			}
@@ -47,12 +46,12 @@ public class CloseScope extends MainExpression implements Bracket {
 	}
 
 	@Override
-	public Bracket getMatch() {
+	public ScopeBracket getMatch() {
 		return myMatch;
 	}
 
 	@Override
-	public void setMyMatch(Bracket match) {
+	public void setMyMatch(ScopeBracket match) {
 		myMatch = (OpenScope) match;
 	}
 }

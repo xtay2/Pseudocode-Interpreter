@@ -2,8 +2,11 @@ package expressions.possible.multicall;
 
 import datatypes.Value;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 
+/**
+ * Target for any {@link MultiCall}.
+ */
 public interface MultiCallable {
 
 	/**

@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import datatypes.NumberValue;
 import datatypes.TextValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import datatypes.numerical.DecimalValue;
+import datatypes.numerical.IntValue;
+import datatypes.numerical.NumberValue;
+import expressions.abstractions.interfaces.ValueHolder;
 import helper.Output;
 
 public final class SystemFunctions {
@@ -44,7 +46,7 @@ public final class SystemFunctions {
 
 	/** native func exit(text msg) */
 	private static Value exit(ValueHolder[] params) {
-		String exitMsg = params[0].getValue().asText().rawString();
+		String exitMsg = params[0].getValue().asText().value;
 		System.err.println(exitMsg);
 		System.exit(0);
 		return null;
@@ -52,7 +54,7 @@ public final class SystemFunctions {
 
 	/** native func read(text msg) */
 	private static Value print(ValueHolder[] params) {
-		System.out.println((Output.DEBUG ? "Printing: " : "") + (params[0].getValue().asText().rawString()));
+		System.out.println((Output.DEBUG ? "Printing: " : "") + (params[0].getValue().asText().value));
 		return null;
 	}
 
@@ -69,10 +71,12 @@ public final class SystemFunctions {
 	/** Implementation: native func asRational(nr n) -> text */
 	private static Value asRational(ValueHolder[] params) {
 		NumberValue n = params[0].getValue().asNumber();
-		return new TextValue(n.asRational());
+		if (n instanceof DecimalValue d)
+			return new TextValue(d.asRational());
+		return n instanceof IntValue i ? new TextValue(i.value.toString() + "/1") : n.asText();
 	}
 
 	private static Value type(ValueHolder[] params) {
-		return new TextValue(params[0].getValue().getType().toString());
+		return new TextValue(params[0].getValue().type.toString());
 	}
 }

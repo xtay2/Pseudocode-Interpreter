@@ -4,17 +4,18 @@ import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.main.CloseScope;
 import expressions.main.OperationAssignment;
+import expressions.normal.BuilderExpression;
 import expressions.normal.ExpectedType;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.operators.Operator;
 import expressions.possible.Assignment;
 import expressions.possible.Crement;
-import expressions.special.BuilderExpression;
-import expressions.special.DataType;
-import parsing.program.ExpressionType;
-import parsing.program.KeywordType;
 import parsing.program.ValueBuilder;
+import types.AbstractType;
+import types.specific.DataType;
+import types.specific.KeywordType;
+import static types.ExpressionType.*;
 
 public class ExpressionFinder {
 
@@ -26,8 +27,8 @@ public class ExpressionFinder {
 	 * @return the matching Expression
 	 * @throws IllegalArgumentException if no matching expression was found.
 	 */
-	public static Expression find(String current, ExpressionType[] expected, int line) {
-		for (ExpressionType expT : expected) {
+	public static Expression find(String current, AbstractType[] expected, int line) {
+		for (AbstractType expT : expected) {
 			Expression exp = matches(current, expT, line);
 			if (exp != null)
 				return exp;
@@ -43,19 +44,19 @@ public class ExpressionFinder {
 	 * @param lineID is the lineID
 	 * @return the expression or {@code null} if the String doesnt match.
 	 */
-	private static Expression matches(String arg, ExpressionType exp, int lineID) {
+	private static Expression matches(String arg, AbstractType exp, int lineID) {
 		return switch (exp) {
 		case KEYWORD:
 			yield KeywordType.buildKeywordExpressionFromString(arg, lineID);
 		case NAME:
 			if (Name.isName(arg))
-				yield new Name(arg, lineID);
+				yield new Name(lineID, arg);
 			yield null;
 		case LITERAL:
 			if (Value.isValue(arg))
 				yield ValueBuilder.stringToLiteral(arg);
 			yield null;
-		case EXPECTED_TYPE:
+		case DATA_TYPE:
 			if (DataType.isType(arg))
 				yield new ExpectedType(arg, lineID);
 			yield null;

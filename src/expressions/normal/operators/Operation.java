@@ -6,12 +6,13 @@ import java.util.List;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MergedExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
 import parsing.program.ValueMerger;
+import types.ExpressionType;
 
 /**
  * Consist of n Operators and n + 1 ValueHolders.
@@ -22,7 +23,7 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 
 	/** Gets called when an Operation is constructed in the {@link ValueMerger}. */
 	public Operation(int line) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 	}
 
 	@Override

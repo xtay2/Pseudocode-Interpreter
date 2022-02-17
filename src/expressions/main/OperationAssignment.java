@@ -1,10 +1,9 @@
 package expressions.main;
 
 import static helper.Output.print;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
-import static parsing.program.ExpressionType.OPEN_BRACKET;
-
+import static types.ExpressionType.LITERAL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.OPEN_BRACKET;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,13 +11,13 @@ import datatypes.Value;
 import exceptions.runtime.IllegalReturnException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.MergedExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
+import types.ExpressionType;
 
 /**
  * Similar to the {@link Declaration}, but this one modifies the value before it
@@ -50,8 +49,7 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 	private ValueHolder val;
 
 	public OperationAssignment(int line, Type type) {
-		super(line, ExpressionType.OPERATION_ASSIGNMENT);
-		setExpectedExpressions(LITERAL, NAME, OPEN_BRACKET);
+		super(line, ExpressionType.OPERATION_ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET);
 		op = Operator.operatorExpression(type.label.substring(0, 1), line);
 	}
 

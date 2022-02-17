@@ -1,10 +1,14 @@
 package expressions.abstractions;
 
-import expressions.special.BuilderExpression;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.normal.BuilderExpression;
 import main.Main;
-import parsing.program.ExpressionType;
-import parsing.program.KeywordType;
+import parsing.program.ProgramLine;
 import parsing.program.ValueMerger;
+import types.AbstractType;
+import types.ExpressionType;
+import types.SpecificType;
+import types.specific.KeywordType;
 
 /**
  * Every little part of a program is an expression. This includes names, values,
@@ -22,36 +26,38 @@ public abstract class Expression {
 	 * The load of possible following expressions. {@code null} corresponds to an
 	 * expected linebreak.
 	 */
-	protected ExpressionType[] expected = null;
+	protected AbstractType[] expected = null;
 
 	/** The line in which this Expression is defined. */
 	public final int lineIdentifier;
 
-	/** The Type of this Expression (non-null) */
-	public final ExpressionType myType;
+	/** The Type of this Expression. */
+	public final AbstractType type;
 
-	/** Optional KeywordType (can be null) */
-	public KeywordType myKeyword = null;
-
-	public Expression(int line, KeywordType myKeyword) {
-		this(line, ExpressionType.KEYWORD);
-		this.myKeyword = myKeyword;
-	}
-
-	public Expression(int line, ExpressionType myType) {
-		this.lineIdentifier = line;
-		this.myType = myType;
-		if(myType == null)
-			throw new AssertionError("ExpressionType cannot be null.");
+	/**
+	 * Builds an Expression.
+	 * 
+	 * @param lineID   is the identifier of the matching {@link ProgramLine}.
+	 * @param myType   is any {@link AbstractType} that describes this expression
+	 *                 the best. Use a {@link SpecificType}, if possible.
+	 * @param expected is an array of expected types following after this
+	 *                 Expression.
+	 */
+	public Expression(int lineID, AbstractType myType, AbstractType... expected) {
+		this.lineIdentifier = lineID;
+		this.type = myType;
+		this.expected = expected;
+		if (myType == null)
+			throw new AssertionError("Type cannot be null.");
 	}
 
 	/**
-	 * @return All possible expected expression-types after this one. {@code null}
-	 *         if the only expexted thing is a linebreak.
+	 * Returns all possible expected expression-types after this one or {@code null}
+	 * if the only expexted thing is a linebreak.
 	 */
-	public final ExpressionType[] getExpectedExpressions() {
+	public final AbstractType[] getExpectedExpressions() {
 		if (expected == null)
-			throw new AssertionError("The constructor of " + this + " must specify expected Expressions().");
+			throw new AssertionError("The constructor of " + this + " must specify expected expressions.");
 		return expected;
 	}
 
@@ -63,32 +69,12 @@ public abstract class Expression {
 	}
 
 	/**
-	 * Used in all extending constructors.
-	 *
-	 * @param exp is the load of possible following expressions.
-	 */
-	protected final void setExpectedExpressions(ExpressionType... exp) {
-		if (exp != null)
-			throw new AssertionError(this + " has already defined its expected Expressions.");
-		expected = exp;
-	}
-
-	/**
-	 * Used mostly in the {@link ValueMerger} for any {@link BuilderExpression} to
-	 * assure, that this Expression is of a certain {@link ExpressionType}, when
-	 * instanceof is no option.
-	 */
-	public final boolean is(ExpressionType t) {
-		return t == myType;
-	}
-
-	/**
 	 * Used mostly in the {@link ValueMerger} for any {@link BuilderExpression} to
 	 * assure, that this Expression is of a certain {@link KeywordType}, when
 	 * instanceof is no option.
 	 */
-	public final boolean is(KeywordType t) {
-		return myKeyword != null && t == myKeyword;
+	public final boolean is(AbstractType type) {
+		return type == this.type || (type instanceof SpecificType s && s.getExpressionType() == this.type);
 	}
 
 	/**

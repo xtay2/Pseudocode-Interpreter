@@ -1,58 +1,55 @@
 package datatypes;
 
+import static datatypes.numerical.ConceptualNrValue.NAN;
+import static datatypes.numerical.ConceptualNrValue.NEG_INF;
+import static datatypes.numerical.ConceptualNrValue.POS_INF;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import datatypes.numerical.IntValue;
+import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
-import expressions.abstractions.ValueHolder;
-import expressions.special.DataType;
+import expressions.abstractions.interfaces.ValueHolder;
+import types.specific.DataType;
 
-public class TextValue extends Value {
+public final class TextValue extends Value {
 
-	public static TextValue concat(TextValue t1, TextValue t2) {
-		return new TextValue(t1.value + t2.value);
-	}
+	public final String value;
 
-	public static TextValue multiply(TextValue t, int times, int executedInLine) {
-		if (times < 0)
-			throw new ShouldBeNaturalNrException(executedInLine, "Text cannot be multiplied with negative numbers.");
-		return new TextValue(t.value.repeat(times));
-	}
-
-	private final String value;
-
+	/** Creates a {@link TextValue} from a {@link Character}. */
 	public TextValue(char val) {
 		this(String.valueOf(val));
 	}
 
+	/** Creates a {@link TextValue} from a {@link String}. */
 	public TextValue(String val) {
+		super(DataType.TEXT);
 		value = val;
 	}
 
-	@Override
-	public BoolValue asBool() throws CastingException {
-		Boolean b = asBoolValue(value);
-		if (b == null)
-			throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool.");
-		return new BoolValue(b.booleanValue());
-	}
+	// Casting
 
 	@Override
-	public ArrayValue asBoolArray() throws CastingException {
-		throw new CastingException("Text cannot be casted to an array.");
+	public BoolValue asBool() throws CastingException {
+		if ("true".equals(value))
+			return BoolValue.valueOf(true);
+		if ("false".equals(value))
+			return BoolValue.valueOf(false);
+		throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool.");
 	}
 
 	@Override
 	public NumberValue asNumber() throws CastingException {
 		String t = value.strip();
 		if (!t.contains("/")) {
-			if (t.equals(NumberValue.State.POS_INF.toString()))
-				return NumberValue.POS_INF;
-			if (t.equals(NumberValue.State.NEG_INF.toString()))
-				return NumberValue.NEG_INF;
+			if (t.equals(POS_INF.txt))
+				return POS_INF;
+			if (t.equals(NEG_INF.txt))
+				return NEG_INF;
 			if (t.matches("-?\\d+")) // Integer 1, -1, 10, 100, -100, 010
 				return NumberValue.create(new BigInteger(t));
 			if (t.matches("-?\\d+.\\d+")) // Decimal
@@ -62,29 +59,24 @@ public class TextValue extends Value {
 				int d = ps - t.indexOf('.') - 1;
 				int pLength = pe - ps - 1;
 				boolean isNeg = t.startsWith("-");
-				//@formatter:off
-				NumberValue n = 
-					NumberValue.add(
-						NumberValue.create(new BigDecimal(t.substring(isNeg ? 1 : 0, ps))),
-						NumberValue.mult(
-							NumberValue.create(BigInteger.ONE, BigInteger.TEN.pow(d)),
-							NumberValue.div(
-								NumberValue.create(new BigInteger(t.substring(ps + 1, pe))),
-								NumberValue.create(new BigInteger("9".repeat(pLength))))));
-				//@formatter:on
-				return isNeg ? NumberValue.signum(n) : n;
+				NumberValue n = NumberValue.create(new BigDecimal(t.substring(isNeg ? 1 : 0, ps)))
+						.add(NumberValue.create(BigInteger.ONE, BigInteger.TEN.pow(d))
+								.mult(NumberValue.create(new BigInteger(t.substring(ps + 1, pe))))
+								.div(NumberValue.create(new BigInteger("9".repeat(pLength)))));
+
+				return isNeg ? n.negate() : n;
 			}
 		}
 		// Fractions and NaN
 		String[] parts = t.split("/");
 		if (parts.length != 2)
-			return NumberValue.NAN;
-		return NumberValue.div(new TextValue(parts[0]).asNumber(), new TextValue(parts[1]).asNumber());
+			return NAN;
+		return new TextValue(parts[0]).asNumber().div(new TextValue(parts[1]).asNumber());
 	}
 
 	@Override
-	public ArrayValue asNumberArray() throws CastingException {
-		throw new CastingException("Text cannot be casted to a number-array.");
+	public IntValue asInt() {
+		return asNumber().asInt();
 	}
 
 	@Override
@@ -110,31 +102,15 @@ public class TextValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR -> true; // Gibt sich selbst zurück
-		case VAR_ARRAY -> true; // Gibt char-array zurück
-		case TEXT_ARRAY -> true; // Gibt char-array zurück
-		case TEXT -> true; // Gibt text-repräsentation zurück
-		case NUMBER -> true; // Wenn es eine Zahl ist, die Zahl, sonst NaN
-		case BOOL -> Value.asBoolValue(value) != null; // Nur wenn es tatsächlich ein Boolean literal ist.
+		case VAR, TEXT -> true; // Returns this
+		case VAR_ARRAY, TEXT_ARRAY -> true; // CharArray-Representation.
+		case NUMBER, INT -> true; // The number or NAN if its just text.
+		case BOOL -> value.equals("true") || value.equals("false"); // Nur wenn es tatsächlich ein Boolean literal ist.
 		// Not Supported
-		case NUMBER_ARRAY, BOOL_ARRAY -> false;
+		case NUMBER_ARRAY, INT_ARRAY, BOOL_ARRAY, OBJECT, OBJECT_ARRAY -> false;
 		};
 	}
-
-	@Override
-	public DataType getType() {
-		return DataType.TEXT;
-	}
-
-	/**
-	 * Returns the raw String value of this TextValue.
-	 * 
-	 * Do not use this in an Operation!
-	 */
-	public String rawString() {
-		return value;
-	}
-
+	
 	@Override
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof TextValue n)
@@ -142,10 +118,22 @@ public class TextValue extends Value {
 		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
 	}
 
-	/**
-	 * Checks if this TextValue contains a element.
-	 */
+	// OPERATIONS
+
+	/** Checks if this TextValue contains a element. */
 	public BoolValue contains(Value element) {
-		return new BoolValue(value.contains(element.asText().rawString()));
+		return BoolValue.valueOf(value.contains(element.asText().value));
+	}
+
+	/** Appends a second text after this one. */
+	public TextValue concat(TextValue v) {
+		return new TextValue(value + v.value);
+	}
+
+	/** Multiplies this text n times. */
+	public TextValue multiply(int times, int executedInLine) {
+		if (times < 0)
+			throw new ShouldBeNaturalNrException(executedInLine, "Text cannot be multiplied with negative numbers.");
+		return new TextValue(value.repeat(times));
 	}
 }

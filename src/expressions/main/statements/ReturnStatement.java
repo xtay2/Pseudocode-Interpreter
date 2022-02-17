@@ -1,15 +1,14 @@
 package expressions.main.statements;
 
-import static helper.Output.print;
-import static parsing.program.ExpressionType.ARRAY_START;
-import static parsing.program.ExpressionType.LITERAL;
-import static parsing.program.ExpressionType.NAME;
+import static types.ExpressionType.LITERAL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_START;
 
 import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.functions.Function;
-import parsing.program.KeywordType;
+import types.specific.KeywordType;
 
 public class ReturnStatement extends MainExpression implements Statement {
 
@@ -17,31 +16,31 @@ public class ReturnStatement extends MainExpression implements Statement {
 	private ValueHolder val = null;
 
 	public ReturnStatement(int line) {
-		super(line, KeywordType.RETURN);
-		setExpectedExpressions(LITERAL, NAME, ARRAY_START);
+		super(line, KeywordType.RETURN, LITERAL, NAME, ARRAY_START);
 	}
 
-	/** [VALUE] */
+	/** (VALUE) */
 	@Override
 	public void merge(Expression... e) {
-		if (e.length != 1)
-			throw new AssertionError("Merge on a return has to contain one value.");
+		if (e.length > 1)
+			throw new AssertionError("Merge on a return can take one value at max.");
 		val = (ValueHolder) e[0];
 	}
 
+	/** Set the return-value of the function, and well... return. */
 	@Override
 	public boolean execute(ValueHolder... params) {
-		print("Returning " + (val != null ? val : ""));
+		if (myFunc == null)
+			throw new AssertionError("This return-value has to be connected to a function.");
 		if (val != null)
 			myFunc.setReturnVal(val.getValue());
-		/*
-		 * Fordere alle Expressions in dieser Funktion auf, keine weiteren
-		 * execute-Funtionen auszuführen.
-		 */
 		return false;
 	}
 
-	public void setMyFunc(Function func) {
+	/** Connect this {@link ReturnStatement} to a {@link Function}. */
+	public void initFunc(Function func) {
+		if (myFunc != null)
+			throw new AssertionError("The function was already initialised.");
 		myFunc = func;
 	}
 }

@@ -1,4 +1,4 @@
-package expressions.abstractions;
+package expressions.abstractions.interfaces;
 
 import datatypes.Value;
 import expressions.normal.containers.ArrayAccess;
@@ -6,8 +6,8 @@ import expressions.normal.containers.Name;
 
 /**
  * Everything that can change its value.
- * @see {@link Name}
- * @see {@link ArrayAccess}
+ * @see Name
+ * @see ArrayAccess
  */
 public interface ValueChanger extends ValueHolder {
 

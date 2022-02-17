@@ -1,13 +1,15 @@
 package expressions.main;
 
+import static expressions.abstractions.GlobalScope.GLOBAL;
+
 import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.MergedExpression;
 import expressions.abstractions.Scope;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Variable;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
+import types.ExpressionType;
 
 public class Declaration extends MainExpression implements MergedExpression {
 
@@ -21,7 +23,7 @@ public class Declaration extends MainExpression implements MergedExpression {
 	/** [VARIABLE] [VALUEHOLDER] */
 	@Override
 	public void merge(Expression... e) {
-		if(e.length != 2)
+		if (e.length != 2)
 			throw new AssertionError("Merge on a Declaration has to contain a Variable and a ValueHolder.");
 		var = (Variable) e[0];
 		val = (ValueHolder) e[1];
@@ -35,17 +37,15 @@ public class Declaration extends MainExpression implements MergedExpression {
 	}
 
 	/**
-	 * Registers and initialises this variable if it is in the
-	 * {@link Scope#GLOBAL_SCOPE}.
+	 * Registers and initialises this variable if it is in the {@link Scope#GLOBAL_SCOPE}.
 	 */
 	public void registerIfGlobal() {
-		if (var.getScope() == Scope.GLOBAL_SCOPE)
+		if (var.getScope() == GLOBAL)
 			initAndRegister();
 	}
 
 	/**
-	 * Initialises the {@link Variable} with its value and registers it at the
-	 * {@link VarManager}.
+	 * Initialises the {@link Variable} with its value and registers it at the {@link VarManager}.
 	 */
 	private void initAndRegister() {
 		VarManager.registerVar(var);

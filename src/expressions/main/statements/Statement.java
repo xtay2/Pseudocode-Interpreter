@@ -1,6 +1,6 @@
 package expressions.main.statements;
 
-import expressions.abstractions.MergedExpression;
+import expressions.abstractions.interfaces.MergedExpression;
 import parsing.program.ValueMerger;
 
 /**

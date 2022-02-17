@@ -1,27 +1,35 @@
 package parsing.program;
 
+import static types.ExpressionType.CLOSE_SCOPE;
+import static types.ExpressionType.CREMENT;
+import static types.ExpressionType.DATA_TYPE;
+import static types.ExpressionType.KEYWORD;
+import static types.ExpressionType.NAME;
+import static types.specific.KeywordType.ELIF;
+import static types.specific.KeywordType.ELSE;
+import static types.specific.KeywordType.IF;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
+import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.Scope;
+import expressions.abstractions.ScopeHolder;
 import expressions.main.CloseScope;
 import expressions.main.functions.Function;
-import expressions.main.statements.ElifConstruct;
-import expressions.main.statements.ElifStatement;
-import expressions.main.statements.ElseStatement;
-import expressions.main.statements.IfStatement;
+import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.brackets.OpenScope;
-import expressions.normal.containers.Name;
 import expressions.normal.operators.Operator;
-import expressions.special.DataType;
 import interpreter.Interpreter;
 import main.Main;
 import parsing.finder.ExpressionFinder;
 import parsing.parser.Parser;
+import types.AbstractType;
+import types.specific.DataType;
 
 public class ProgramLine {
 
@@ -43,31 +51,12 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Connect the Scope of all parameters in this line.
-	 *
-	 * Find all calls (name, open_bracket, params, close_bracket) and merge them to
-	 * one call.
-	 */
-	private void initScopesAndMain() {
-		// Setze die Scopes aller Namen noch vor dem Call-Merge
-		Scope scope = searchForScope();
-		for (Expression e : expressions)
-			if (e instanceof Name)
-				((Name) e).initScope(scope);
-		// Merge Zeile in eine MainExpression
-		main = ValueMerger.buildLine(expressions, lineIdentifier, lineIndex);
-		expressions.clear();
-	}
-
-	/**
-	 * Reads the line and constructs an object-expression-notation from the
-	 * information.
+	 * Reads the line and constructs an object-expression-notation from the information.
 	 */
 	public void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		ExpressionType expectedExpressionTypes[] = { ExpressionType.KEYWORD, ExpressionType.EXPECTED_TYPE, ExpressionType.NAME,
-				ExpressionType.CLOSE_SCOPE, ExpressionType.CREMENT };
+		AbstractType expectedExpressionTypes[] = { KEYWORD, DATA_TYPE, NAME, CLOSE_SCOPE, CREMENT };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -99,16 +88,15 @@ public class ProgramLine {
 			throw new IllegalCodeFormatException(lineIndex, "String has to be closed.");
 		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
-		if(expressions.isEmpty())
+		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
 		initMainExpression();
 	}
 
 	/**
-	 * Construct and lists an Expression, based on which ExpressionType(s) are
-	 * expected.
+	 * Construct and lists an Expression, based on which ExpressionType(s) are expected.
 	 */
-	private ExpressionType[] constructExpression(String current, ExpressionType[] expectedExpressionTypes) {
+	private AbstractType[] constructExpression(String current, AbstractType[] expectedExpressionTypes) {
 		Expression exp = ExpressionFinder.find(current, expectedExpressionTypes, lineIdentifier);
 		if (exp == null)
 			throw new IllegalCodeFormatException(lineIndex, "No matching Expression was found for: " //
@@ -121,12 +109,12 @@ public class ProgramLine {
 	}
 
 	/** Returns the last IfStatement or ElifStatement. */
-	private ElifConstruct findLastIf() {
+	private ConditionalStatement findLastIf() {
 		if (lineIdentifier == 0)
 			throw new IllegalCodeFormatException(lineIndex, "An elif/else Statement needs a predecessing IfStatement.");
 		MainExpression previous = Main.PROGRAM.getLine(lineIdentifier - 1).getMainExpression();
-		if (previous instanceof IfStatement || previous instanceof ElifStatement)
-			return (ElifConstruct) previous;
+		if (previous.is(IF) || previous.is(ELIF))
+			return (ConditionalStatement) previous;
 		return Main.PROGRAM.getLine(lineIdentifier - 1).findLastIf();
 	}
 
@@ -140,8 +128,7 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Tells if the current word is a closed expression. The next char is taken to
-	 * confirm this choice.
+	 * Tells if the current word is a closed expression. The next char is taken to confirm this choice.
 	 *
 	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
 	 */
@@ -161,18 +148,18 @@ public class ProgramLine {
 
 	/** Initialises certain types of main expressions, like Scopes. */
 	private void initMainExpression() {
-		initScopesAndMain();
+		main = ValueMerger.buildLine(expressions, lineIdentifier, lineIndex);
+		expressions.clear();
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		if (main instanceof ReturnStatement)
-			((ReturnStatement) main).setMyFunc(Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc());
+			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc());
 		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
-		else if (main instanceof ElifStatement || main instanceof ElseStatement)
-			findLastIf().setNextElse((ElifConstruct) main);
+		else if (main.is(ELIF) || main.is(ELSE))
+			findLastIf().setNextElse((ConditionalStatement) main);
 	}
 
 	/**
-	 * Recursivly searches for func-declaration. Breaks when encountering the start
-	 * of the file.
+	 * Recursivly searches for func-declaration. Breaks when encountering the start of the file.
 	 */
 	private Function searchForFunc() {
 		if (main instanceof Function)
@@ -185,25 +172,24 @@ public class ProgramLine {
 	/**
 	 * Recursivly searches for the scope of this line.
 	 * 
-	 * If this line contains a function declaration, the returned scope is the scope
-	 * of that function.
+	 * If this line contains a function declaration, the returned scope is the scope of that function.
 	 * 
 	 * @see Interpreter#registerFunctions()
 	 * @see ProgramLine#initScopesAndMain()
 	 */
 	public Scope searchForScope() {
 		if (main instanceof Function f && f.isNative())
-			return Scope.GLOBAL_SCOPE;
-		if (main instanceof Scope)
-			return (Scope) main;
+			return GlobalScope.GLOBAL;
+		if (main instanceof ScopeHolder s)
+			return s.getScope();
 		if (lineIdentifier == 0)
-			return Scope.GLOBAL_SCOPE;
+			return GlobalScope.GLOBAL;
 		if (main instanceof CloseScope) {
 			ProgramLine match = Main.PROGRAM.getLine(((OpenScope) ((CloseScope) main).getMatch()).lineIdentifier);
 			// Da alle Zeilen über dieser bereits ausgewertet wurden, existiert eine
 			// MainExpression, die man auswerten kann.
 			if (match.getMainExpression() instanceof Function)
-				return Scope.GLOBAL_SCOPE;
+				return GlobalScope.GLOBAL;
 		}
 		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForScope();
 	}

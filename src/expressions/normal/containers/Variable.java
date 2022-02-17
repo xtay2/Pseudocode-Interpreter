@@ -1,19 +1,25 @@
 package expressions.normal.containers;
 
-import static parsing.program.ExpressionType.ARRAY_START;
-import static parsing.program.ExpressionType.NAME;
+import static datatypes.NullValue.NULL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_START;
 
+import java.util.Arrays;
+import java.util.List;
+
+import datatypes.NullValue;
 import datatypes.Value;
+import exceptions.parsing.UnexpectedFlagException;
 import exceptions.runtime.CastingException;
+import exceptions.runtime.DeclarationException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.Scope;
-import expressions.abstractions.ValueChanger;
+import expressions.abstractions.interfaces.ValueChanger;
 import expressions.normal.ExpectedType;
+import expressions.normal.flag.Flaggable;
 import expressions.possible.Call;
-import expressions.special.DataType;
 import interpreter.VarManager;
-import parsing.program.ExpressionType;
-import parsing.program.KeywordType;
+import types.specific.DataType;
+import types.specific.FlagType;
 
 /**
  * Has a Name and a Value. The Name has a scope.
@@ -23,45 +29,65 @@ import parsing.program.KeywordType;
  *
  * Gets saved in the {@link VarManager} and should only get accessed by it.
  */
-public class Variable extends Expression implements ValueChanger {
+public class Variable extends Expression implements ValueChanger, Flaggable {
 
+	// DATA
 	private Name name;
-	private final DataType type;
-	private Value value = null;
+	private Value value;
 
-	/** Initialise a Variable */
-	public Variable(int line, DataType type, Name name) {
-		super(line, ExpressionType.MERGED);
-		setExpectedExpressions(NAME, ARRAY_START);
-		this.type = type;
-		this.name = name;
+	// FLAGS
+	private boolean isConstant = false;
+
+	/**
+	 * Creates and registers a Variable. This gets called in
+	 * {@link VarManager#initCounter}.
+	 * 
+	 * @param lineID is lineID of the {@link Expression} in which this var gets
+	 *               created.
+	 * @param type   is the {@link DataType} of this {@link Variable}.
+	 * @param name   is the unique {@link Name} of this {@link Variable}.
+	 * @param val    is an optional {@link Variable}. Input null if no value is
+	 *               wanted.
+	 * @param flags  are optional {@link FlagType}s.
+	 * @return the finished/registered {@link Variable}.
+	 */
+	public static Variable quickCreate(int lineID, DataType type, Name name, Value val, FlagType... flags) {
+		Variable v = new Variable(lineID, type);
+		v.merge(name, val);
+		v.setFlags(Arrays.asList(flags));
+		VarManager.registerVar(v);
+		return v;
 	}
 
 	/**
 	 * Initialise a Variable with an inital Value. Used in {@link Call} and
 	 * {@link VarManager}.
 	 */
-	public Variable(int line, DataType type, Name name, Value val) {
-		this(line, type, name);
-		setValue(val);
+	public Variable(int lineID, DataType type) {
+		super(lineID, type, NAME, ARRAY_START);
+		if (type == null)
+			throw new AssertionError("The type cannot be null.");
+	}
+
+	/** [NAME] [VALUE] */
+	@Override
+	public void merge(Expression... e) {
+		name = (Name) e[0];
+		value = (Value) e[1];
 	}
 
 	public String getName() {
 		return name.getName();
 	}
 
-	public Scope getScope() {
-		return name.getScope();
-	}
-
-	public DataType getType() {
-		return type;
-	}
-
+	/**
+	 * Returns the {@link Value} of this variable or {@link NullValue#NULL} if it
+	 * isn't initialised yet.
+	 */
 	@Override
 	public Value getValue() {
 		if (value == null)
-			throw new AssertionError("Value cannot be null.");
+			return NULL;
 		return value;
 	}
 
@@ -74,6 +100,25 @@ public class Variable extends Expression implements ValueChanger {
 	public void setValue(Value val) throws CastingException {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
-		value = val.as(type);
+		if (isConstant && value != null)
+			throw new DeclarationException(getOriginalLine(), "Trying to modify the constant variable " + getName());
+		value = val.as((DataType) type);
+	}
+
+	/**
+	 * Sets the flags for this {@link Variable}. Viable flags include:
+	 * 
+	 * <pre>
+	 * - {@link FlagType#CONSTANT} makes the value immutable.
+	 * </pre>
+	 */
+	@Override
+	public void setFlags(List<FlagType> flags) throws UnexpectedFlagException {
+		for (FlagType f : flags) {
+			switch (f) {
+			case CONSTANT -> isConstant = true;
+			default -> throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
+			}
+		}
 	}
 }

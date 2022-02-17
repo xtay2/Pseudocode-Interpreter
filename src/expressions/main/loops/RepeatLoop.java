@@ -1,55 +1,39 @@
 package expressions.main.loops;
 
-import static helper.Output.print;
-import static parsing.program.ExpressionType.*;
+import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.ExpressionType.LITERAL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_START;
 
-import datatypes.NumberValue;
-import exceptions.runtime.DeclarationException;
+import datatypes.numerical.NumberValue;
 import expressions.abstractions.Expression;
-import expressions.abstractions.Scope;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import interpreter.Interpreter;
-import interpreter.VarManager;
-import parsing.program.KeywordType;
+import parsing.program.ProgramLine;
+import types.specific.KeywordType;
 
-public class RepeatLoop extends Scope implements Loop {
+public class RepeatLoop extends Loop {
 
-	private ValueHolder counterInit = null;
+	private ValueHolder end;
 
-	public RepeatLoop(int line) {
-		super(line, KeywordType.REPEAT);
-		setExpectedExpressions(LITERAL, NAME, OPEN_SCOPE);
+	/**
+	 * Creates a {@link RepeatLoop}.
+	 * 
+	 * @param lineID is the identifier of the matching {@link ProgramLine}.
+	 */
+	public RepeatLoop(int lineID) {
+		super(lineID, KeywordType.REPEAT, NAME, LITERAL, ARRAY_START);
 	}
 
+	/** Merges from an optional ValueHolder and a OpenScope. */
 	@Override
 	public void merge(Expression... e) {
-		if (e.length != 2)
-			throw new AssertionError("Merge on a repeat-loop has to contain two elements: counter and opened scope.");
-		counterInit = e[0] == null ? NumberValue.POS_INF : (ValueHolder) e[0];
-		openScope = (OpenScope) e[1];
+		end = e.length == 2 ? (ValueHolder) e[0] : POS_INF;
+		initScope((OpenScope) e[e.length - 1]);
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
-		print("Executing Repeat-Statement.");
-		NumberValue max = counterInit.getValue().asInt();
-		if (max.isSmallerThan(NumberValue.ONE))
-			throw new DeclarationException(getOriginalLine(), "Count of repetitions must be positive.");
-		for (NumberValue i = NumberValue.ZERO; i.isSmallerThan(max); i = NumberValue.add(i, NumberValue.ONE)) {
-			VarManager.registerScope(this);
-			VarManager.initCounter(this, i, getOriginalLine());
-			if (!callNextLine()) {
-				VarManager.deleteScope(this);
-				return false; // Wenn durch return im Block abgebrochen wurde rufe nichts dahinter auf.
-			}
-			VarManager.deleteScope(this);
-		}
-		return Interpreter.execute(getEnd());
-	}
-
-	@Override
-	public String getScopeName() {
-		return "repeat" + getStart() + "-" + getEnd();
+	protected boolean doContinue(NumberValue iteration) {
+		return iteration.isSmallerThan(end.getValue().asNumber());
 	}
 }

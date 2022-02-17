@@ -2,72 +2,79 @@ package expressions.abstractions;
 
 import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
-import main.Main;
-import parsing.program.ExpressionType;
-import parsing.program.KeywordType;
+import interpreter.VarManager;
 
 /**
- * {@link OpenScope} {@link CloseScope}
+ * A Scope limits the visibility of variables.
+ * 
+ * Every {@link ScopeHolder} contains a Scope.
+ * 
+ * @see OpenScope
+ * @see CloseScope
  */
-public abstract class Scope extends MainExpression {
+public class Scope {
 
-	protected OpenScope openScope = null;
+	private final int openScope;
+	private final int closeScope;
 
-	public abstract String getScopeName();
-
-	public Scope(int line, KeywordType myKeyword) {
-		super(line, myKeyword);
-	}
-
-	public Scope(int line, ExpressionType myType) {
-		super(line, myType);
-	}
-	
-	public int getStart() {
-		return openScope.lineIdentifier;
-	}
+	private final String scopeName;
 
 	/**
-	 * Returns the lineIdentifier of the matching {@link CloseScope}.
-	 */
-	public int getEnd() {
-		try {
-			return ((CloseScope) openScope.getMatch()).lineIdentifier + 1;
-		} catch (NullPointerException e) {
-			throw new AssertionError("The scope " + this + " doesn't get closed. Use a ; or a }.");
-		}
-	}
-
-	/**
-	 * Gets called by {@link CloseScope} after construction.
+	 * Constructs a Scope and connects both Scope-Brackets.
 	 * 
-	 * @param cs is the closing scope bracket, that searches for its partner.
+	 * @param scopeName is the name of this scope. This class adds the lineIDs to
+	 *                  make it unique.
+	 * @param os        is the {@link OpenScope} bracket. If null, the scope gets
+	 *                  reduced to the lineID.
+	 * @param cs        is the matching {@link CloseScope}.
 	 */
-	public final void connectScopeEnd(CloseScope cs) {
-		openScope.setMyMatch(cs);
-		cs.setMyMatch(openScope);
+	public Scope(String scopeName, OpenScope os, CloseScope cs) {
+		this.openScope = os.lineIdentifier;
+		this.closeScope = cs.lineIdentifier + 1;
+		this.scopeName = scopeName + getStart() + "-" + getEnd();
+		if (scopeName == null || os == null || cs == null)
+			throw new AssertionError("Neither the name nor Open- or Close-Scope can be null.");
 	}
 
-	public static final Scope GLOBAL_SCOPE = new Scope(-1, ExpressionType.MERGED) {
+	/**
+	 * Protected Constructor for the {@link GlobalScope}.
+	 */
+	protected Scope() {
+		this.scopeName = GlobalScope.NAME;
+		this.openScope = 0;
+		this.closeScope = Integer.MAX_VALUE;
+	}
 
-		@Override
-		public boolean execute(ValueHolder... params) {
-			throw new AssertionError("The global scope should not be treated like an expression.");
-		}
+	/** Returns a universal identifying name for every scope. */
+	public String getScopeName() {
+		return scopeName;
+	}
 
-		@Override
-		public int getEnd() {
-			return Main.PROGRAM.size();
-		}
+	/** Returns the start of this Scope. */
+	public int getStart() {
+		return openScope;
+	}
 
-		@Override
-		public String getScopeName() {
-			return "global";
-		}
+	/** Returns the end of this Scope. */
+	public int getEnd() {
+		return closeScope;
+	}
 
-		@Override
-		public int getStart() {
-			return 0;
-		}
-	};
+	/**
+	 * Registers this scope at the {@link VarManager}.
+	 * 
+	 * Identical to {@code VarManager.registerScope(this);}
+	 */
+	public void reg() {
+		VarManager.registerScope(this);
+	}
+
+	/**
+	 * Deletes this scope at the {@link VarManager}.
+	 * 
+	 * Identical to {@code VarManager.deleteScope(this);}
+	 */
+	public void del() {
+		VarManager.deleteScope(this);
+	}
 }

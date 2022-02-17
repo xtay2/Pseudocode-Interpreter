@@ -1,8 +1,7 @@
 package expressions.normal.operators.arithmetic;
 
-import datatypes.NumberValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 
@@ -19,6 +18,6 @@ public class PowOperator extends Operator {
 
 	@Override
 	public Value perform(ValueHolder a, ValueHolder b) {
-		return NumberValue.pow(a.getValue().asNumber(), b.getValue().asNumber());
+		return a.getValue().asNumber().pow(b.getValue().asNumber());
 	}
 }

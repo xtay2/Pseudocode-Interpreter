@@ -1,5 +1,9 @@
 package parsing.program;
 
+import static types.ExpressionType.*;
+import static types.specific.BuilderType.*;
+import static types.specific.KeywordType.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,43 +13,36 @@ import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.CloseScope;
 import expressions.main.Declaration;
 import expressions.main.OperationAssignment;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
+import expressions.main.loops.ConditionalLoop;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
 import expressions.main.loops.Loop;
 import expressions.main.loops.RepeatLoop;
-import expressions.main.loops.WhileUntilLoop;
-import expressions.main.statements.ElifConstruct;
-import expressions.main.statements.ElseStatement;
+import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.main.statements.Statement;
-import expressions.normal.Comma;
-import expressions.normal.ExpectedReturnType;
+import expressions.normal.BuilderExpression;
 import expressions.normal.ExpectedType;
 import expressions.normal.brackets.BracketedExpression;
-import expressions.normal.brackets.CloseBracket;
-import expressions.normal.brackets.OpenBracket;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.ArrayAccess;
-import expressions.normal.containers.ArrayEnd;
-import expressions.normal.containers.ArrayStart;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
-import expressions.normal.flag.Flag;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.possible.Assignment;
 import expressions.possible.Call;
 import expressions.possible.Crement;
-import expressions.special.BuilderExpression;
-import expressions.special.DataType;
+import types.specific.DataType;
+import types.specific.FlagType;
 
 /**
  * The new and better ValueBuilder.
@@ -61,8 +58,8 @@ public abstract class ValueMerger {
 	static int lineIndex;
 
 	/**
-	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and
-	 * merges them into a {@link MainExpression}.
+	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
+	 * {@link MainExpression}.
 	 * 
 	 * @param line
 	 */
@@ -73,9 +70,8 @@ public abstract class ValueMerger {
 		lineIndex = myLineIndex;
 		try {
 			MainExpression main = (MainExpression) build();
-			if (main == null || !line.isEmpty())
-				throw new AssertionError(
-						"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
+			if (main == null || !line.isEmpty()) throw new AssertionError(
+					"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
 			return main;
 		} catch (ClassCastException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -98,13 +94,12 @@ public abstract class ValueMerger {
 	}
 
 	/**
-	 * Takes the first identifieable group, and executes the according
-	 * build-sub-routine.
+	 * Takes the first identifieable group, and executes the according build-sub-routine.
 	 * 
 	 * @param isInOperation is true if the call to this build-function was made by
-	 *                      {@link ValueMerger#buildOperation()} and no new
-	 *                      recursive calls of buildOperation are allowed. If this
-	 *                      should be false, call {@link #build()} instead.
+	 *                      {@link ValueMerger#buildOperation()} and no new recursive calls of
+	 *                      buildOperation are allowed. If this should be false, call {@link #build()}
+	 *                      instead.
 	 */
 	private static Expression build(boolean isInOperation) {
 		Expression fst = line.get(0);
@@ -112,17 +107,20 @@ public abstract class ValueMerger {
 		// Build the right MainExpression through recursive pattern matching.
 		Expression result = (Expression) switch (fst) {
 		case Name name:
-			yield switch (sec) {
-			case Crement crement -> buildPostCrement();
-			case Assignment assignment -> buildAssignment();
-			case OpenBracket call -> buildCall();
-			case ArrayStart arrayAccess -> buildArrayAccess();
-			case OperationAssignment opAssign -> buildOperationAssignment();
-			case IsStatement is -> buildIsStatement();
-			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
-			case null -> line.remove(0);
-			default -> line.remove(0);
-			};
+			if (sec.is(OPEN_BRACKET))
+				yield buildCall();
+			else if (sec.is(ARRAY_START))
+				yield buildArrayAccess();
+			else
+				yield switch (sec) {
+				case Crement crement -> buildPostCrement();
+				case Assignment assignment -> buildAssignment();
+				case OperationAssignment opAssign -> buildOperationAssignment();
+				case IsStatement is -> buildIsStatement();
+				case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+				case null -> line.remove(0);
+				default -> line.remove(0);
+				};
 		case Value value:
 			yield switch (sec) {
 			case IsStatement is -> buildIsStatement();
@@ -142,12 +140,12 @@ public abstract class ValueMerger {
 			case ForEachLoop forEach -> buildForEach();
 			case RepeatLoop repeat -> buildRepeat();
 			case FromToLoop fromTo -> buildFromTo();
-			case WhileUntilLoop whileUntil -> buildWhileUntil();
+			case ConditionalLoop whileUntil -> buildWhileUntil();
 			default -> throw new AssertionError("Undefined Loop: " + loop);
 			};
 		case Statement statement:
 			yield switch (statement) {
-			case ElifConstruct elif -> buildElif();
+			case ConditionalStatement elif -> buildElif();
 			case ReturnStatement returnStmt -> buildReturn();
 			default -> throw new AssertionError("Undefined Statement: " + statement);
 			};
@@ -157,22 +155,22 @@ public abstract class ValueMerger {
 			yield buildDeclaration();
 		case Crement crement:
 			yield buildPreCrement();
-		case ArrayStart array:
-			yield buildArrayLiteral();
-		case OpenBracket open:
-			yield buildBracketedExpression();
 		case MainFunction main:
 			yield buildMain();
 		case Function func:
 			yield buildFunc();
-		case Flag f:
-			for (Expression e : line) {
-				if (e instanceof Function)
-					yield buildFunc();
-//				if (e instanceof ExpectedType)
-//					yield buildDeclaration();
+		case BuilderExpression build: {
+			if (build.is(ARRAY_START)) yield buildArrayLiteral();
+			if (build.is(OPEN_BRACKET)) yield buildBracketedExpression();
+			if (build.is(FLAG)) {
+				for (Expression e : line) {
+					if (e instanceof Function) yield buildFunc();
+					// TODO Implement Flags in declaration.
+					if (e instanceof ExpectedType) yield buildDeclaration();
+				}
+				throw new AssertionError("Flag " + build + " has to be followed by function or var-declaration.");
 			}
-			throw new AssertionError("Flag " + f + " has to be followed by function or var-declaration.");
+		}
 		default:
 			throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
 		};
@@ -253,9 +251,8 @@ public abstract class ValueMerger {
 		parts.add(line.remove(0)); // Name
 		line.remove(0); // Remove OpenBracket
 		do {
-			if (!(line.get(0) instanceof CloseBracket))
-				parts.add(build());
-		} while (line.remove(0) instanceof Comma);
+			if (!(line.get(0).is(CLOSE_BRACKET))) parts.add(build());
+		} while (line.remove(0).is(COMMA));
 		c.merge(parts);
 		return c;
 	}
@@ -272,9 +269,8 @@ public abstract class ValueMerger {
 		List<Expression> parts = new ArrayList<>();
 		line.remove(0); // Remove OpenBrack
 		do {
-			if (!(line.get(0) instanceof ArrayEnd))
-				parts.add(build());
-		} while (line.remove(0) instanceof Comma); // Removes Comma / Closebrack
+			if (!(line.get(0).is(ARRAY_END))) parts.add(build());
+		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		// Filter out Commas
 		e.merge(parts);
 		return e;
@@ -291,7 +287,7 @@ public abstract class ValueMerger {
 		ArrayAccess a = new ArrayAccess(lineID);
 		List<Expression> parts = new ArrayList<>();
 		parts.add(line.remove(0)); // NAME
-		while (!line.isEmpty() && line.get(0) instanceof ArrayStart) {
+		while (!line.isEmpty() && line.get(0).is(ARRAY_START)) {
 			line.remove(0);// ArrayStart
 			parts.add(build()); // INDEX
 			line.remove(0);// ArrayEnd
@@ -325,9 +321,9 @@ public abstract class ValueMerger {
 	}
 
 	/** [IF/ELIF/ELSE] [?BOOL] [OPEN_SCOPE] */
-	private static ElifConstruct buildElif() {
-		ElifConstruct e = (ElifConstruct) line.remove(0);
-		if (e instanceof ElseStatement)
+	private static ConditionalStatement buildElif() {
+		ConditionalStatement e = (ConditionalStatement) line.remove(0);
+		if (e.is(ELSE))
 			e.merge(line.remove(0)); // OpenScope
 		else // e is instance of If or Elif
 			e.merge(build(), line.remove(0)); // BoolExp, OpenScope
@@ -353,8 +349,8 @@ public abstract class ValueMerger {
 	}
 
 	/** [WHILE/UNTIL] [CONDITION] [OPEN_SCOPE] */
-	private static WhileUntilLoop buildWhileUntil() {
-		WhileUntilLoop e = (WhileUntilLoop) line.remove(0);
+	private static ConditionalLoop buildWhileUntil() {
+		ConditionalLoop e = (ConditionalLoop) line.remove(0);
 		e.merge(build(), line.remove(0));
 		return e;
 	}
@@ -363,9 +359,10 @@ public abstract class ValueMerger {
 	private static FromToLoop buildFromTo() {
 		FromToLoop e = (FromToLoop) line.remove(0);
 		ValueHolder from = (ValueHolder) build();
-		line.remove(0); // To-Keyword
+		if (!line.remove(0).is(TO))// To-Keyword
+			throw new IllegalCodeFormatException(lineIndex, "Missing \"to\"-Keyword in from-to-loop.");
 		ValueHolder to = (ValueHolder) build();
-		if (line.get(0) instanceof BuilderExpression b && b.type == Type.STEP) {
+		if (line.get(0).is(STEP)) {
 			line.remove(0); // LoopConnector
 			e.merge((Expression) from, (Expression) to, build(), line.remove(0));
 		} else
@@ -394,7 +391,7 @@ public abstract class ValueMerger {
 		line.remove(0); // Remove Assignment
 		Declaration e = new Declaration(lineID);
 		ValueHolder value = (ValueHolder) build();
-		e.merge(new Variable(lineID, type, name), (Expression) value);
+		e.merge(Variable.quickCreate(lineID, type, name, null), (Expression) value);
 		return e;
 	}
 
@@ -412,9 +409,9 @@ public abstract class ValueMerger {
 	 */
 	private static Function buildFunc() {
 		// FLAGS
-		List<Flag> flags = new ArrayList<>();
-		while (line.get(0) instanceof Flag)
-			flags.add((Flag) line.remove(0));
+		List<FlagType> flags = new ArrayList<>();
+		while (line.get(0).is(FLAG))
+			flags.add((FlagType) line.remove(0).type);
 		// FUNC
 		Function e = (Function) line.remove(0);
 		e.setFlags(flags);
@@ -423,13 +420,11 @@ public abstract class ValueMerger {
 		line.remove(0); // OpenBrack
 		// PARAMETERS
 		do {
-			if (line.get(0) instanceof ExpectedType t)
-				params.add((ExpectedType) line.remove(0));
-			if (line.get(0) instanceof Name)
-				params.add((Name) line.remove(0));
-		} while (line.remove(0) instanceof Comma); // Removes Comma / Closebrack
+			if (line.get(0) instanceof ExpectedType t) params.add((ExpectedType) line.remove(0));
+			if (line.get(0) instanceof Name) params.add((Name) line.remove(0));
+		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		// RETURN_TYPE
-		if (!line.isEmpty() && line.get(0) instanceof ExpectedReturnType) {
+		if (!line.isEmpty() && line.get(0).is(EXPECTED_RETURN_TYPE)) {
 			line.remove(0); // Pfeilsymbol
 			params.add((ExpectedType) line.remove(0));
 		} else

@@ -1,8 +1,7 @@
 package expressions.normal.operators.arithmetic;
 
-import datatypes.NumberValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 
@@ -19,8 +18,6 @@ public class ModOperator extends Operator {
 
 	@Override
 	public Value perform(ValueHolder a, ValueHolder b) {
-		Value fst = a.getValue();
-		Value sec = b.getValue();
-		return NumberValue.mod(fst.asNumber(), sec.asNumber());
+		return a.getValue().asNumber().mod(b.getValue().asNumber());
 	}
 }

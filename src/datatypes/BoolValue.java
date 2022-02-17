@@ -1,15 +1,26 @@
 package datatypes;
 
-import exceptions.runtime.CastingException;
+import datatypes.numerical.IntValue;
+import datatypes.numerical.NumberValue;
 import exceptions.runtime.UnexpectedTypeError;
-import expressions.special.DataType;
+import types.specific.DataType;
 
 public class BoolValue extends Value {
 
-	private final boolean value;
+	public final boolean value;
 
-	public BoolValue(boolean val) {
+	public static final BoolValue TRUE = new BoolValue(true);
+	public static final BoolValue FALSE = new BoolValue(false);
+
+	/** Private constructor for the two constants. */
+	private BoolValue(boolean val) {
+		super(DataType.BOOL);
 		value = val;
+	}
+
+	/** Returns the matching constant from a primitive boolean. */
+	public static BoolValue valueOf(boolean val) {
+		return val ? TRUE : FALSE;
 	}
 
 	@Override
@@ -18,18 +29,13 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public ArrayValue asBoolArray() throws CastingException {
-		throw new CastingException("A bool cannot be casted to an array.");
-	}
-
-	@Override
 	public NumberValue asNumber() {
-		return value ? NumberValue.ONE : NumberValue.ZERO;
+		return asInt();
 	}
 
 	@Override
-	public ArrayValue asNumberArray() throws CastingException {
-		throw new CastingException("A bool cannot be casted to an array.");
+	public IntValue asInt() {
+		return value ? NumberValue.ONE : NumberValue.ZERO;
 	}
 
 	@Override
@@ -38,30 +44,14 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public ArrayValue asTextArray() throws CastingException {
-		throw new CastingException("A bool cannot be casted to an array.");
-	}
-
-	@Override
-	public ArrayValue asVarArray() {
-		throw new CastingException("A bool cannot be casted to an array.");
-	}
-
-	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR -> true; // Gibt sich selbst zurück
-		case BOOL -> true; // Gibt sich selbst zurück
-		case NUMBER -> true; // Gibt 0 oder 1 zurück
-		case TEXT -> true; // Gibt text-repräsentation zurück
-		//Not Supported
-		case VAR_ARRAY, NUMBER_ARRAY, BOOL_ARRAY, TEXT_ARRAY -> false;
+		case VAR, BOOL -> true; // Returns this
+		case NUMBER, INT -> true; // Returns 0 or 1
+		case TEXT, TEXT_ARRAY -> true; // Text or CharArray-Representation.
+		// Not Supported
+		case VAR_ARRAY, NUMBER_ARRAY, INT_ARRAY, BOOL_ARRAY, OBJECT, OBJECT_ARRAY -> false;
 		};
-	}
-
-	@Override
-	public DataType getType() {
-		return DataType.BOOL;
 	}
 
 	/**
@@ -70,22 +60,13 @@ public class BoolValue extends Value {
 	 * If true, return false. If false, return true.
 	 */
 	public BoolValue not() {
-		return new BoolValue(!value);
-	}
-
-	/**
-	 * Returns the raw boolean value of this BoolValue.
-	 * 
-	 * Do not use this in an Operation!
-	 */
-	public boolean raw() {
-		return value;
+		return valueOf(!value);
 	}
 
 	@Override
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof BoolValue n)
-			return value == n.value;
+			return n == TRUE;
 		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
 	}
 }

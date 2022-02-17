@@ -1,22 +1,28 @@
 package datatypes;
 
-import static parsing.program.ExpressionType.*;
+import static datatypes.numerical.ConceptualNrValue.NAN;
+import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.ExpressionType.INFIX_OPERATOR;
+import static types.ExpressionType.KEYWORD;
+import static types.ExpressionType.OPEN_SCOPE;
+import static types.specific.BuilderType.ARRAY_END;
+import static types.specific.BuilderType.CLOSE_BRACKET;
+import static types.specific.BuilderType.COMMA;
 
 import java.util.regex.Pattern;
 
+import datatypes.numerical.IntValue;
+import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
-import expressions.abstractions.ValueHolder;
-import expressions.special.DataType;
-import parsing.program.ExpressionType;
+import expressions.abstractions.interfaces.ValueHolder;
+import types.specific.DataType;
 
 public abstract class Value extends Expression implements ValueHolder {
 
-	public Value() {
-		super(-1, ExpressionType.LITERAL);
-		setExpectedExpressions(COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, TO, STEP, ARRAY_END,
-				KEYWORD);
+	public Value(DataType dataType) {
+		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD);
 	}
 
 	/**
@@ -37,28 +43,16 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * @throws UnexpectedTypeError if the types aren't comparable.
 	 */
 	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {
-		if (a.getType() == b.getType())
-			return new BoolValue(a.valueCompare(b));
-		throw new UnexpectedTypeError("Tried to compare Values of type " + a.getType() + " and " + b.getType() + ".");
+		if (a.type == b.type)
+			return BoolValue.valueOf(a.valueCompare(b));
+		throw new UnexpectedTypeError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
 	}
 
 	// Static String-Checks
 
-	/** This should get exclusivly used when casting from text to bool. */
-	public static Boolean asBoolValue(String value) {
-		if ("1".equals(value) || "1.0".equals(value) || "true".equals(value) || "yes".equals(value)
-				|| "on".equals(value))
-			return true;
-		else if ("0".equals(value) || "0.0".equals(value) || "false".equals(value) || "no".equals(value)
-				|| "off".equals(value))
-			return false;
-		else
-			return null;
-	}
-
 	/**
-	 * This should get exclusivly used when checking if a String matches the literal
-	 * words "true" or "false".
+	 * This should get exclusivly used when checking if a String matches the literal words "true" or
+	 * "false".
 	 */
 	public static boolean isBoolean(String value) {
 		if ("true".equals(value) || "false".equals(value))
@@ -71,8 +65,7 @@ public abstract class Value extends Expression implements ValueHolder {
 	}
 
 	public static boolean isNumber(String value) {
-		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + NumberValue.State.POS_INF.toString() + ")|("
-				+ NumberValue.State.NAN.toString() + "))$", value);
+		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + POS_INF.txt + ")|(" + NAN.txt + "))$", value);
 	}
 
 	public static boolean isString(String value) {
@@ -98,50 +91,64 @@ public abstract class Value extends Expression implements ValueHolder {
 		case VAR_ARRAY -> asVarArray();
 		case TEXT_ARRAY -> asTextArray();
 		case VAR -> getValue();
-		default -> throw new UnexpectedTypeError("Unexpected type: " + t);
+		case INT -> asInt();
+		case INT_ARRAY -> asIntArray();
+		case OBJECT, OBJECT_ARRAY -> throw new UnsupportedOperationException("Usupported case: " + t);
 		};
-	}
-
-	public abstract BoolValue asBool() throws CastingException;
-
-	public abstract ArrayValue asBoolArray() throws CastingException;
-
-	public NumberValue asInt() {
-		return asNumber().asInt();
 	}
 
 	/** Everything should have a text-representation. */
 	public abstract TextValue asText();
 
 	/** Everything can be casted to a number or NaN */
-	public abstract NumberValue asNumber();
+	public NumberValue asNumber() {
+		return NAN;
+	}
 
-	public abstract ArrayValue asNumberArray() throws CastingException;
-
-	/** Returns a characterwise textrepresentation. */
+	/** Returns a characterwise textrepresentation for default. */
 	public ArrayValue asTextArray() {
 		return asText().asVarArray();
 	}
 
-	public abstract ArrayValue asVarArray() throws CastingException;
+	// Optional Casting
+
+	public BoolValue asBool() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a BoolValue.");
+	}
+
+	public IntValue asInt() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a IntValue.");
+	}
+
+	public ArrayValue asVarArray() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a VarArray.");
+	}
+
+	public ArrayValue asBoolArray() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a BoolArray.");
+	}
+
+	public ArrayValue asNumberArray() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a NumberArray.");
+	}
+
+	public ArrayValue asIntArray() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a IntArray.");
+	}
 
 	/** Tells, if this Value can always be safely casted to the suggested type. */
 	public abstract boolean canCastTo(DataType type);
-
-	public abstract DataType getType();
-
-	@Override
-	public final Value getValue() {
-		return this;
-	}
 
 	/**
 	 * Should get implemented by all Classes that inherit this class (Value).
 	 * 
 	 * @param v is the value its checked against.
-	 * @throws UnexpectedTypeError if isn't an instance of the same class this
-	 *                             method gets executed on.
+	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
 	 */
 	public abstract boolean valueCompare(Value v) throws UnexpectedTypeError;
 
+	@Override
+	public final Value getValue() {
+		return this;
+	}
 }

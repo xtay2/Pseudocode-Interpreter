@@ -1,8 +1,12 @@
 package datatypes;
 
+import static datatypes.NullValue.NULL;
+
+import datatypes.numerical.IntValue;
+import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
-import expressions.special.DataType;
+import types.specific.DataType;
 
 /**
  * @deprecated WIP: Don't use this, its only implemented here.
@@ -11,31 +15,13 @@ public class ObjectValue extends Value {
 
 	@Deprecated
 	public ObjectValue() {
+		super(DataType.OBJECT);
 		throw new AssertionError("WIP: This isn't implemented, yet.");
 	}
 
 	@Override
 	public BoolValue asBool() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayValue asBoolArray() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public NumberValue asNumber() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayValue asNumberArray() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
+		return BoolValue.valueOf(this != NULL);
 	}
 
 	@Override
@@ -45,27 +31,15 @@ public class ObjectValue extends Value {
 	}
 
 	@Override
-	public ArrayValue asTextArray() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayValue asVarArray() throws CastingException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public boolean canCastTo(DataType type) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public DataType getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return switch (type) {
+		case VAR, OBJECT -> true; // Returns this
+		case BOOL -> true; // Returns true if not null
+		case NUMBER, INT -> true; // Returns NAN
+		case TEXT, TEXT_ARRAY -> true; // Text or CharArray-Representation.
+		// Not supported
+		case VAR_ARRAY, BOOL_ARRAY, NUMBER_ARRAY, INT_ARRAY, OBJECT_ARRAY -> false;
+		};
 	}
 
 	@Override
@@ -73,5 +47,4 @@ public class ObjectValue extends Value {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 }

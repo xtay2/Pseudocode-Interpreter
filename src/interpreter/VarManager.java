@@ -5,15 +5,18 @@ import static helper.Output.print;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import datatypes.NumberValue;
+import datatypes.numerical.NumberValue;
 import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalCallException;
+import expressions.abstractions.GlobalScope;
 import expressions.abstractions.Scope;
+import expressions.main.loops.Loop;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
-import expressions.special.DataType;
 import parsing.finder.KeywordFinder;
+import types.specific.DataType;
+import types.specific.FlagType;
 
 public abstract class VarManager {
 
@@ -23,8 +26,8 @@ public abstract class VarManager {
 	private static Stack stack = new Stack();
 
 	static {
-		print("Initialising " + Scope.GLOBAL_SCOPE.getScopeName() + "-scope.");
-		stack.appendScope(Scope.GLOBAL_SCOPE.getScopeName());
+		print("Initialising " + GlobalScope.GLOBAL.getScopeName() + "-scope.");
+		stack.appendScope(GlobalScope.GLOBAL.getScopeName());
 	}
 
 	public static int countOfScopes() {
@@ -48,10 +51,16 @@ public abstract class VarManager {
 		return stack.findVar(name, calledInLine);
 	}
 
-	public static void initCounter(Scope scope, NumberValue iteration, int calledInLine) {
-		Variable cnt = new Variable(scope.getStart(), DataType.NUMBER, new Name(String.valueOf(counterName), scope.getStart()));
-		cnt.setValue(iteration);
-		registerVar(cnt);
+	/**
+	 * Initialises a counter of any {@link Loop} as a {@link Variable}.
+	 * 
+	 * @param scope     is the scope of the {@link Loop}.
+	 * @param iteration is the value of the {@link Variable}.
+	 */
+	public static void initCounter(Scope scope, NumberValue iteration) {
+		int calledInLine = scope.getStart();
+		Name varName = new Name(calledInLine, String.valueOf(counterName));
+		Variable.quickCreate(calledInLine, DataType.NUMBER, varName, iteration, FlagType.CONSTANT);
 		if (counterName > (FIRST_COUNTER_NAME + LOOP_VAR_COUNT))
 			throw new IllegalCodeFormatException(calledInLine, "Nesting more than " + (LOOP_VAR_COUNT + 1) + " loops is forbidden.");
 		counterName++;

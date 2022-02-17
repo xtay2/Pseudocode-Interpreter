@@ -1,7 +1,8 @@
-package expressions.abstractions;
+package expressions.abstractions.interfaces;
 
 import java.util.List;
 
+import expressions.abstractions.Expression;
 import parsing.program.ValueMerger;
 
 /**

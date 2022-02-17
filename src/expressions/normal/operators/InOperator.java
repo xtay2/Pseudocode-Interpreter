@@ -1,10 +1,12 @@
 package expressions.normal.operators;
 
-import static expressions.special.DataType.isArrayType;
+import static types.specific.DataType.isArrayType;
 
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
+import types.specific.DataType;
+
 public class InOperator extends Operator {
 
 	protected InOperator(int line, InfixOperator op) {
@@ -20,7 +22,7 @@ public class InOperator extends Operator {
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value element = a.getValue();
 		Value container = b.getValue();
-		if(isArrayType(container.getType()))
+		if (isArrayType((DataType) container.type))
 			return container.asVarArray().contains(element);
 		return container.asText().contains(element);
 	}

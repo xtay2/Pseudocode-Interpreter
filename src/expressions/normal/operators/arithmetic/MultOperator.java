@@ -1,13 +1,13 @@
 package expressions.normal.operators.arithmetic;
 
+import static types.specific.DataType.NUMBER;
+import static types.specific.DataType.TEXT;
+
 import datatypes.ArrayValue;
-import datatypes.NumberValue;
-import datatypes.TextValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
-import expressions.special.DataType;
 
 public class MultOperator extends Operator {
 
@@ -24,21 +24,27 @@ public class MultOperator extends Operator {
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
-		if (fst instanceof ArrayValue arr && sec.getType() == DataType.NUMBER)
-			return ArrayValue.multiply(arr, (int) sec.asInt().rawInt(), getOriginalLine());
 
-		if (fst.getType() == DataType.NUMBER && sec instanceof ArrayValue arr)
-			return ArrayValue.multiply(arr, (int) fst.asInt().rawInt(), getOriginalLine());
+		// Array-Multiplication
+		if (fst instanceof ArrayValue arr && sec.is(NUMBER))
+			return arr.multiply(sec.asInt().value.intValueExact(), getOriginalLine());
 
-		if (fst.canCastTo(DataType.NUMBER) && sec.canCastTo(DataType.NUMBER))
-			return NumberValue.mult(fst.asNumber(), sec.asNumber());
-		
-		if (fst.getType() == DataType.TEXT && sec.canCastTo(DataType.NUMBER))
-			return TextValue.multiply(fst.asText(), (int) sec.asInt().rawInt(), getOriginalLine());
+		// Array-Multiplication
+		if (fst.is(NUMBER) && sec instanceof ArrayValue arr)
+			return arr.multiply(fst.asInt().value.intValueExact(), getOriginalLine());
 
-		if (fst.canCastTo(DataType.NUMBER) && sec.getType() == DataType.TEXT)
-			return TextValue.multiply(sec.asText(), (int) fst.asInt().rawInt(), getOriginalLine());
+		// Arithmetical Addition
+		if (fst.canCastTo(NUMBER) && sec.canCastTo(NUMBER))
+			return fst.asNumber().mult(sec.asNumber());
 
-		return NumberValue.mult(fst.asNumber(), sec.asNumber());
+		// Text-Multiplication
+		if (fst.is(TEXT) && sec.canCastTo(NUMBER))
+			return fst.asText().multiply(sec.asInt().value.intValueExact(), getOriginalLine());
+
+		// Text-Multiplication
+		if (fst.canCastTo(NUMBER) && sec.is(TEXT))
+			return sec.asText().multiply(fst.asInt().value.intValueExact(), getOriginalLine());
+
+		return fst.asNumber().mult(sec.asNumber());
 	}
 }

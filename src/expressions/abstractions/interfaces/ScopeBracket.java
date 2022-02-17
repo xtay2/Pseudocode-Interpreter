@@ -1,6 +1,5 @@
-package expressions.special;
+package expressions.abstractions.interfaces;
 
-import expressions.abstractions.Scope;
 import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
 
@@ -11,11 +10,11 @@ import expressions.normal.brackets.OpenScope;
  * @see OpenScope
  * @see CloseScope
  */
-public interface Bracket {
+public interface ScopeBracket {
 
 	/** Find the matching Bracket */
-	public Bracket getMatch();
+	public ScopeBracket getMatch();
 
 	/** Set the matching Bracket. This should only get called once. */
-	public void setMyMatch(Bracket match);
+	public void setMyMatch(ScopeBracket match);
 }

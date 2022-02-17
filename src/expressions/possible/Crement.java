@@ -1,17 +1,23 @@
 package expressions.possible;
 
+import static datatypes.numerical.NumberValue.ONE;
 import static helper.Output.print;
-import static parsing.program.ExpressionType.*;
+import static types.ExpressionType.CREMENT;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_END;
+import static types.specific.BuilderType.CLOSE_BRACKET;
+import static types.specific.BuilderType.COMMA;
 
-import datatypes.NumberValue;
 import datatypes.TextValue;
 import datatypes.Value;
+import datatypes.numerical.DecimalValue;
+import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MergedExpression;
 import expressions.abstractions.PossibleMainExpression;
-import expressions.abstractions.ValueChanger;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueChanger;
+import expressions.abstractions.interfaces.ValueHolder;
 import parsing.program.ValueMerger;
 
 /**
@@ -34,8 +40,7 @@ public class Crement extends PossibleMainExpression implements ValueHolder, Merg
 	private Position pos;
 
 	public Crement(Change change, int line) {
-		super(line);
-		setExpectedExpressions(NAME, CLOSE_BRACKET, COMMA, ARRAY_END);
+		super(line, CREMENT, NAME, CLOSE_BRACKET, COMMA, ARRAY_END);
 		this.change = change;
 	}
 
@@ -55,14 +60,14 @@ public class Crement extends PossibleMainExpression implements ValueHolder, Merg
 	@Override
 	public Value getValue() {
 		Value pure = target.getValue();
-		if (pure instanceof NumberValue || (pure instanceof TextValue txt && Value.isNumber(txt.rawString()))) {
+		if (pure instanceof DecimalValue || (pure instanceof TextValue txt && Value.isNumber(txt.value))) {
 			NumberValue edited = pure.asNumber();
 			// Increment
 			if (change == Change.INC)
-				edited = NumberValue.add(edited, NumberValue.ONE);
+				edited = edited.add(ONE);
 			// Decrement
 			else
-				edited = NumberValue.sub(edited, NumberValue.ONE);
+				edited = edited.sub(ONE);
 			target.setValue(edited);
 			if (pos == Position.PRE)
 				return edited;

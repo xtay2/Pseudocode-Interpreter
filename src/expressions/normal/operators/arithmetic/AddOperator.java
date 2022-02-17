@@ -1,13 +1,13 @@
 package expressions.normal.operators.arithmetic;
 
+import static types.specific.DataType.NUMBER;
+
 import datatypes.ArrayValue;
-import datatypes.NumberValue;
-import datatypes.TextValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
-import expressions.special.DataType;
+import types.specific.DataType;
 
 public class AddOperator extends Operator {
 
@@ -24,18 +24,18 @@ public class AddOperator extends Operator {
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
-
+		// Array Concat
 		if (fst instanceof ArrayValue a1 && sec instanceof ArrayValue a2)
-			return ArrayValue.concat(a1, a2);
-
+			return a1.concat(a2);
+		// Arithmetical Addition
+		if (fst.is(NUMBER) && sec.is(NUMBER))
+			return fst.asNumber().add(sec.asNumber());
+		// Array Addition End
 		if (fst instanceof ArrayValue a1 && !(sec instanceof ArrayValue))
-			return ArrayValue.concat(a1, sec.as(a1.getType()).asVarArray());
-
-		if (fst.getType() == DataType.NUMBER && sec.getType() == DataType.NUMBER)
-			return NumberValue.add(fst.asNumber(), sec.asNumber());
-
+			return a1.concat(sec.as((DataType) a1.type).asVarArray());
+		// Array Addition Start
 		if (!(fst instanceof ArrayValue) && sec instanceof ArrayValue a2)
-			return ArrayValue.concat(fst.as(a2.getType()).asVarArray(), a2);
-		return TextValue.concat(fst.asText(), sec.asText());
+			return fst.as((DataType) a2.type).asVarArray().concat(a2);
+		return fst.asText().concat(sec.asText());
 	}
 }

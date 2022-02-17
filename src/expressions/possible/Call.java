@@ -6,11 +6,12 @@ import java.util.Arrays;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MergedExpression;
 import expressions.abstractions.PossibleMainExpression;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import interpreter.Interpreter;
+import types.ExpressionType;
 
 public class Call extends PossibleMainExpression implements ValueHolder, MergedExpression {
 
@@ -18,7 +19,7 @@ public class Call extends PossibleMainExpression implements ValueHolder, MergedE
 	private ValueHolder[] parameters = null;
 
 	public Call(int line) {
-		super(line);
+		super(line, ExpressionType.MERGED);
 	}
 
 	@Override

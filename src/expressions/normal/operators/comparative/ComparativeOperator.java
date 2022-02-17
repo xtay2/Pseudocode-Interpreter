@@ -2,7 +2,7 @@ package expressions.normal.operators.comparative;
 
 import datatypes.BoolValue;
 import datatypes.Value;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 
@@ -19,13 +19,13 @@ public final class ComparativeOperator extends Operator {
 		super(line, operator);
 		operation = switch (operator) {
 		case EQUALS -> (a, b) -> Value.eq(a, b);
-		case NOT_EQUALS -> (a, b) -> (Value.eq(a, b)).not();
+		case NOT_EQUALS -> (a, b) -> Value.eq(a, b).not();
 
-		case LESS -> (a, b) -> new BoolValue(a.asNumber().isSmallerThan(b.asNumber()));
-		case LESS_EQ -> (a, b) -> new BoolValue(a.asNumber().isSmallerEq(b.asNumber()));
+		case LESS -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerThan(b.asNumber()));
+		case LESS_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerEq(b.asNumber()));
 
-		case GREATER -> (a, b) -> new BoolValue(a.asNumber().isGreaterThan(b.asNumber()));
-		case GREATER_EQ -> (a, b) -> new BoolValue(a.asNumber().isGreaterEq(b.asNumber()));
+		case GREATER -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterThan(b.asNumber()));
+		case GREATER_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterEq(b.asNumber()));
 
 		default -> throw new IllegalArgumentException("Unexpected value: " + operator);
 		};

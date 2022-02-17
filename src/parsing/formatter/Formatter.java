@@ -9,7 +9,7 @@ import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import helper.Helper;
-import parsing.program.KeywordType;
+import types.specific.KeywordType;
 
 public class Formatter {
 

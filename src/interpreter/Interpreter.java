@@ -7,15 +7,17 @@ import static helper.Output.print;
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
+import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.Scope;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.Declaration;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
+import expressions.main.statements.ReturnStatement;
 import main.Main;
-import parsing.program.KeywordType;
 import parsing.program.Program;
+import types.specific.KeywordType;
 
 public final class Interpreter {
 
@@ -23,8 +25,8 @@ public final class Interpreter {
 	 * Calls a function and returns it return-value.
 	 *
 	 * @param name          is the name of the function.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
+	 * @param doExecuteNext if the called function should execute the one in the following line.
+	 *                      Standart: true
 	 * @param params        are the function-parameters
 	 * @return the return-value of the function.
 	 */
@@ -35,40 +37,35 @@ public final class Interpreter {
 	}
 
 	/**
-	 * 
 	 * Executes a MainExpression.
 	 *
-	 * @param name          the line of the MainExpression.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
-	 * @param params        are the passed parameters
+	 * @param i      the line of the MainExpression.
+	 * @param params are the passed parameters
 	 * 
-	 * @return false if this function shouldn't call any other functions.
-	 *         ReturnStatement#execute
-	 * 
+	 * @return false if this function shouldn't call any other functions afterwards.
+	 *         {@link ReturnStatement#execute}
 	 */
 	public static boolean execute(int i, ValueHolder... params) {
 		return Main.PROGRAM.getLine(i).getMainExpression().execute(params);
 	}
 
 	/**
-	 * Executes a MainExpression.
+	 * Executes a Function.
 	 *
-	 * @param name          the name of the MainExpression.
-	 * @param doExecuteNext if the called function should execute the one in the
-	 *                      following line. Standart: true
-	 * @param params        are the passed parameters
+	 * @param name   the name of the MainExpression.
+	 * @param params are the passed parameters
 	 * 
-	 * @return false if this function shouldn't call any other functions.
-	 *         ReturnStatement#execute
+	 * @return false if this function shouldn't call any other functions afterwards.
+	 *         {@link ReturnStatement#execute}
 	 */
+	@Deprecated
 	public static boolean execute(String name, ValueHolder... params) {
 		return execute(FuncManager.getLine(name + params.length));
 	}
 
 	/**
-	 * Registeres all variables and functions and starts the interpreting-process by
-	 * calling the main function
+	 * Registeres all variables and functions and starts the interpreting-process by calling the main
+	 * function
 	 * 
 	 * @param program is the program that gets interpreted.
 	 * 
@@ -87,20 +84,19 @@ public final class Interpreter {
 	}
 
 	/**
-	 * Register all functions in the program, so that they are accessable through
-	 * the call-Method.
+	 * Register all functions in the program, so that they are accessable through the call-Method.
 	 * 
-	 * @see Interpreter#call
+	 * @see Interpreter#call(String, ValueHolder...)
 	 */
 	private static void registerFunctions() {
 		print("Pre-Compiling:" + UNDERLINE);
 		boolean hasMain = false;
-		Scope currentScope = Scope.GLOBAL_SCOPE;
+		Scope currentScope = GlobalScope.GLOBAL;
 		for (int i = 0; i < Main.PROGRAM.size(); i++) {
 			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
 			print(e.toString());
 			// Check func in other func
-			if (e instanceof Function f && currentScope != Scope.GLOBAL_SCOPE)
+			if (e instanceof Function f && currentScope != GlobalScope.GLOBAL)
 				throw new IllegalCodeFormatException(Main.PROGRAM.getLine(i).lineIndex,
 						"A function cannot be defined in another function. \nSee: \"" + f.getName() + "\" in " + currentScope);
 			// Check doppelte Main

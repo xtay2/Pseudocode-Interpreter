@@ -1,14 +1,18 @@
 package expressions.possible;
 
-import static parsing.program.ExpressionType.*;
+import static types.ExpressionType.LITERAL;
+import static types.ExpressionType.NAME;
+import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.BuilderType.OPEN_BRACKET;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MergedExpression;
 import expressions.abstractions.PossibleMainExpression;
-import expressions.abstractions.ValueChanger;
-import expressions.abstractions.ValueHolder;
+import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueChanger;
+import expressions.abstractions.interfaces.ValueHolder;
 import interpreter.VarManager;
+import types.ExpressionType;
 
 public class Assignment extends PossibleMainExpression implements ValueHolder, MergedExpression {
 
@@ -16,8 +20,7 @@ public class Assignment extends PossibleMainExpression implements ValueHolder, M
 	private ValueHolder value;
 
 	public Assignment(int line) {
-		super(line);
-		setExpectedExpressions(LITERAL, NAME, OPEN_BRACKET, ARRAY_START);
+		super(line, ExpressionType.ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET, ARRAY_START);
 	}
 
 	/** Modifies the Value in the {@link VarManager} and returns the result. */
@@ -28,6 +31,7 @@ public class Assignment extends PossibleMainExpression implements ValueHolder, M
 		return newVal;
 	}
 
+	/** [ValueChanger] [ValueHolder] */
 	@Override
 	public void merge(Expression... e) {
 		if (e.length != 2)
