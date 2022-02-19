@@ -1,4 +1,4 @@
-package interpreter;
+package modules.interpreter;
 
 import java.util.HashMap;
 
@@ -9,7 +9,7 @@ import main.Main;
 public abstract class FuncManager {
 
 	/** Save the line indices of all functions */
-	private static HashMap<String, Integer> funcPositions = new HashMap<>();
+	private static final HashMap<String, Integer> funcPositions = new HashMap<>();
 
 	/**
 	 * Returns the line of the function with the given name.

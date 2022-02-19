@@ -1,19 +1,20 @@
 package expressions.normal.brackets;
 
-import static types.ExpressionType.CLOSE_SCOPE;
+import static types.specific.ExpressionType.CLOSE_SCOPE;
+import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ScopeBracket;
 import expressions.main.CloseScope;
-import types.ExpressionType;
+import modules.parser.program.ProgramLine;
 
 public final class OpenScope extends Expression implements ScopeBracket {
 
 	private CloseScope myMatch;
 
 	public OpenScope(int line) {
-		super(line, ExpressionType.OPEN_SCOPE, CLOSE_SCOPE);
+		super(line, OPEN_SCOPE, CLOSE_SCOPE);
 	}
 
 	@Override
@@ -23,8 +24,10 @@ public final class OpenScope extends Expression implements ScopeBracket {
 		return myMatch;
 	}
 
-	@Override
-	public void setMyMatch(ScopeBracket match) {
-		myMatch = (CloseScope) match;
+	/** Connects with the matching CloseScope in {@link ProgramLine#construct}. */
+	public void setMyMatch(CloseScope myMatch) {
+		if (this.myMatch != null)
+			throw new AssertionError("Match cannot get set twice.");
+		this.myMatch = myMatch;
 	}
 }

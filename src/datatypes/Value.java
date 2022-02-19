@@ -1,28 +1,34 @@
 package datatypes;
 
 import static datatypes.numerical.ConceptualNrValue.NAN;
+import static datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
-import static types.ExpressionType.INFIX_OPERATOR;
-import static types.ExpressionType.KEYWORD;
-import static types.ExpressionType.OPEN_SCOPE;
+import static types.SuperType.KEYWORD_TYPE;
 import static types.specific.BuilderType.ARRAY_END;
 import static types.specific.BuilderType.CLOSE_BRACKET;
 import static types.specific.BuilderType.COMMA;
+import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.specific.ExpressionType.OPEN_SCOPE;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
+import datatypes.numerical.ConceptualNrValue;
+import datatypes.numerical.DecimalValue;
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
+import modules.parser.program.ValueBuilder;
 import types.specific.DataType;
+import types.specific.ExpressionType;
 
 public abstract class Value extends Expression implements ValueHolder {
 
 	public Value(DataType dataType) {
-		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD);
+		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD_TYPE);
 	}
 
 	/**
@@ -54,26 +60,49 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * This should get exclusivly used when checking if a String matches the literal words "true" or
 	 * "false".
 	 */
-	public static boolean isBoolean(String value) {
+	private static boolean isBoolean(String value) {
 		if ("true".equals(value) || "false".equals(value))
 			return true;
 		return false;
 	}
 
-	public static boolean isInteger(String value) {
-		return Pattern.matches("\\d+", value);
-	}
-
+	/**
+	 * Checks if this String is an acceptable Number.
+	 * 
+	 * (Digits with optional minus, decimal point and period Brackets or any {@link ConceptualNrValue})
+	 */
 	public static boolean isNumber(String value) {
 		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + POS_INF.txt + ")|(" + NAN.txt + "))$", value);
 	}
 
-	public static boolean isString(String value) {
+	/** Checks if this String starts and ends with the symbol " */
+	private static boolean isString(String value) {
 		return value.startsWith("\"") && value.endsWith("\"");
 	}
 
-	public static boolean isValue(String arg) {
-		return isNumber(arg) || isBoolean(arg) || isString(arg);
+	/**
+	 * Builds a {@link Value} from a {@link String}.
+	 * 
+	 * Called in {@link ExpressionType#create(String, int)}
+	 * 
+	 * Returns null if the {@link String} is not a literal value.
+	 */
+	public static Value stringToLiteral(String arg) {
+		// Is Single Value
+		if (Value.isBoolean(arg))
+			return BoolValue.valueOf("true".equals(arg));
+		if (Value.isNumber(arg)) {
+			if (POS_INF.txt.equals(arg))
+				return POS_INF;
+			if (NEG_INF.txt.equals(arg))
+				return NEG_INF;
+			if (NAN.txt.equals(arg))
+				return NAN;
+			return DecimalValue.create(new BigDecimal(arg));
+		}
+		if (Value.isString(arg))
+			return ValueBuilder.escapeText(arg.substring(1, arg.length() - 1));
+		return null;
 	}
 
 	/**
@@ -83,17 +112,17 @@ public abstract class Value extends Expression implements ValueHolder {
 	 */
 	public final Value as(DataType t) {
 		return switch (t) {
-		case BOOL -> asBool();
-		case BOOL_ARRAY -> asBoolArray();
-		case NUMBER -> asNumber();
-		case NUMBER_ARRAY -> asNumberArray();
-		case TEXT -> asText();
-		case VAR_ARRAY -> asVarArray();
-		case TEXT_ARRAY -> asTextArray();
-		case VAR -> getValue();
-		case INT -> asInt();
-		case INT_ARRAY -> asIntArray();
-		case OBJECT, OBJECT_ARRAY -> throw new UnsupportedOperationException("Usupported case: " + t);
+			case BOOL -> asBool();
+			case BOOL_ARRAY -> asBoolArray();
+			case NUMBER -> asNumber();
+			case NUMBER_ARRAY -> asNumberArray();
+			case TEXT -> asText();
+			case VAR_ARRAY -> asVarArray();
+			case TEXT_ARRAY -> asTextArray();
+			case VAR -> getValue();
+			case INT -> asInt();
+			case INT_ARRAY -> asIntArray();
+			case OBJECT, OBJECT_ARRAY -> throw new UnsupportedOperationException("Usupported case: " + t);
 		};
 	}
 

@@ -1,8 +1,8 @@
 package expressions.main.loops;
 
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 
 import datatypes.numerical.NumberValue;
 import expressions.abstractions.Expression;

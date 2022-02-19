@@ -1,57 +1,36 @@
 package expressions.main.functions;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
-import exceptions.parsing.UnexpectedFlagException;
 import exceptions.runtime.IllegalCallException;
 import exceptions.runtime.IllegalReturnException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.ExpectedType;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
-import expressions.normal.flag.Flaggable;
 import expressions.possible.Call;
-import helper.Output;
-import interpreter.Interpreter;
-import interpreter.system.SystemFunctions;
-import parsing.program.ProgramLine;
-import types.ExpressionType;
+import modules.interpreter.Interpreter;
 import types.specific.DataType;
-import types.specific.FlagType;
-import types.specific.KeywordType;
 
 /**
  * This is the class for a Function-Declaration.
  * 
- * If a Function gets called, this happens through the {@link Call}-Class and
+ * If a {@link Function} gets called, this happens through the {@link Call}-Class and
  * {@link Interpreter#call}.
  */
-public class Function extends ScopeHolder implements Flaggable {
-
-	// Keyword flags
-	boolean isNative = false;
-
-	/** The {@link Name} of this {@link Function}. */
-	protected Name name = null;
+public class Function extends Returnable {
 
 	/** All expected parameters. */
-	private HashMap<Name, ExpectedType> paramBlueprint = new HashMap<>();
+	private final HashMap<Name, ExpectedType> paramBlueprint = new HashMap<>();
 
-	/** The expected return type. Null is equivalent to void. */
-	private DataType returnType = null;
-
-	/** This {@link Value} can be obtained after {@link #execute()}. */
-	private Value returnVal = null;
-
+	/** Extends the constructor from {@link Returnable}. */
 	public Function(int lineID) {
-		super(lineID, KeywordType.FUNC, ExpressionType.NAME);
+		super(lineID);
 	}
 
 	/** [NAME] (?[?TYPE] [NAME]) ([EXPECTED_RETURN_TYPE]) [OPEN_SCOPE] */
@@ -84,86 +63,27 @@ public class Function extends ScopeHolder implements Flaggable {
 
 	@Override
 	public boolean execute(ValueHolder... params) {
-		if (paramBlueprint.size() != params.length)
+		if (expectedParams() != params.length)
 			throw new IllegalCallException(getOriginalLine(), "This function is called with the wrong amount of params.");
-		if (isNative())
-			returnVal = SystemFunctions.callSystemFunc(SystemFunctions.getSystemFunction(getName()), params);
-		else {
-			getScope().reg();
-			// Init Params
-			int i = 0;
-			for (Entry<Name, ExpectedType> param : paramBlueprint.entrySet()) {
-				Value v = params[i++].getValue();
-				Variable.quickCreate(lineIdentifier, (DataType) v.type, param.getKey(), v);
-			}
-			callFirstLine();
-			// The return-value is now set.
-			if (returnType != null && returnVal == null) {
-				throw new IllegalReturnException(getOriginalLine(),
-						getName() + " was defined to return a value of type: " + returnType + ", but returned nothing.");
-			}
-			getScope().del();
+		getScope().reg();
+		// Init Params
+		int i = 0;
+		for (Entry<Name, ExpectedType> param : paramBlueprint.entrySet()) {
+			Value v = params[i++].getValue();
+			Variable.quickCreate(lineIdentifier, (DataType) v.type, param.getKey(), v);
 		}
+		callFirstLine();
+		// The return-value is now set.
+		if (returnType != null && returnVal == null) {
+			throw new IllegalReturnException(getOriginalLine(),
+					getName() + " was defined to return a value of type: " + returnType + ", but returned nothing.");
+		}
+		getScope().del();
 		return true;
 	}
 
-	/** Returns the amount of expected parameters. */
+	@Override
 	public int expectedParams() {
 		return paramBlueprint.size();
-	}
-
-	/** Returns the {@link Name} of this {@link Function} as a {@link String}. */
-	public String getName() {
-		return name.getName();
-	}
-
-	/**
-	 * This method gets called by the ReturnStatement. If a returntype is specified, the value gets
-	 * implicitly casted.
-	 */
-	public void setReturnVal(Value val) {
-		if (returnVal != null && val != null)
-			throw new AssertionError("Function " + name + " already has a return value.");
-		if (returnType != null && val != null && val.type != returnType)
-			returnVal = val.as(returnType);
-		else
-			returnVal = val;
-	}
-
-	/**
-	 * Returns the return-value and resets it, so the function can get called again. This Method should
-	 * only get called by {@link Interpreter#call}.
-	 */
-	public Value retrieveReturnValue() {
-		Value v = returnVal;
-		returnVal = null;
-		return v;
-	}
-
-	@Override
-	public String toString() {
-		return Output.DEBUG ? (isNative() ? "Native " : "") + getClass().getSimpleName() : name.getName();
-	}
-
-	/**
-	 * Sets the flags for this {@link Function}. Viable flags include:
-	 * 
-	 * <pre>
-	 * - {@link FlagType#NATIVE} tells, that this Function is defined in {@link SystemFunctions}.
-	 * </pre>
-	 */
-	@Override
-	public void setFlags(List<FlagType> flags) throws UnexpectedFlagException {
-		for (FlagType f : flags) {
-			switch (f) {
-			case NATIVE -> isNative = true;
-			default -> throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a function.");
-			}
-		}
-	}
-
-	/** Gets called in {@link ProgramLine#searchForScope()}. */
-	public boolean isNative() {
-		return isNative;
 	}
 }

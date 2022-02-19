@@ -1,12 +1,12 @@
 package expressions.normal.brackets;
 
-import static types.ExpressionType.INFIX_OPERATOR;
+import static types.specific.ExpressionType.INFIX_OPERATOR;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.ExpressionType;
+import types.specific.ExpressionType;
 
 public class BracketedExpression extends Expression implements ValueHolder, MergedExpression {
 

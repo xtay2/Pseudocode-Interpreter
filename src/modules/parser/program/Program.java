@@ -1,11 +1,11 @@
-package parsing.program;
+package modules.parser.program;
 
 import java.util.ArrayList;
 
 public final class Program {
 
 	/** All lines of code, strongly indexed. */
-	private ArrayList<ProgramLine> program = new ArrayList<>(20);
+	private final ArrayList<ProgramLine> program = new ArrayList<>(20);
 
 	private boolean constructed = false;
 
@@ -27,10 +27,12 @@ public final class Program {
 	/**
 	 * Constructs the whole program and locks writing access.
 	 */
-	public void construct() {
+	public void constructAndMerge() {
 		constructed = true;
 		for (ProgramLine line : program)
 			line.construct();
+		for (ProgramLine line : program)
+			line.merge();
 	}
 
 	/**
@@ -43,16 +45,7 @@ public final class Program {
 		return program.get(i);
 	}
 
-	/**
-	 * Return a specified, stripped line of code as a string.
-	 *
-	 * @param i is the line-index
-	 * @return a line of code as a string.
-	 */
-	public String readLine(int i) {
-		return program.get(i).line;
-	}
-
+	/** Number of lines in this program. */
 	public int size() {
 		return program.size();
 	}
@@ -64,5 +57,4 @@ public final class Program {
 			out += l.toString() + "\n";
 		return out;
 	}
-
 }

@@ -9,7 +9,7 @@ import exceptions.InterpretingException;
 @SuppressWarnings("serial")
 public abstract class AbstractRuntimeException extends InterpretingException {
 
-	public AbstractRuntimeException(int line, String message) {
+	AbstractRuntimeException(int line, String message) {
 		super(line, message);
 	}
 

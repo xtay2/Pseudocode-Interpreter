@@ -1,2 +1,2 @@
 #Returns a textual rational representation of this nr.
-native func asRational(nr n) -> text
+native func asRational(nr) -> text

@@ -1,13 +1,14 @@
 package expressions.normal.operators;
 
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
+import expressions.main.OperationAssignment.Type;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.arithmetic.AddOperator;
 import expressions.normal.operators.arithmetic.DivOperator;
@@ -18,7 +19,7 @@ import expressions.normal.operators.arithmetic.RootOperator;
 import expressions.normal.operators.arithmetic.SubOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
-import types.ExpressionType;
+import types.specific.ExpressionType;
 
 /**
  * Used in Operation
@@ -46,8 +47,14 @@ public abstract class Operator extends Expression {
 		return false;
 	}
 
-	/** Creates an {@link Operator} from a {@link String}. */
-	public static Operator operatorExpression(String s, int line) {
+	/**
+	 * Builds a {@link Operator} from a {@link String}.
+	 * 
+	 * Called in {@link ExpressionType#create(String, int)}
+	 * 
+	 * Returns null if the {@link String} doesn't match any {@link Type}.
+	 */
+	public static Operator stringToOperator(String s, int line) {
 		/* Arithmetic */
 		if (InfixOperator.ADD.symbol.equals(s))
 			return new AddOperator(line, InfixOperator.ADD);
@@ -91,7 +98,7 @@ public abstract class Operator extends Expression {
 			return new LogicalOperator(line, InfixOperator.XNOR);
 		if (InfixOperator.IN.symbol.equals(s))
 			return new InOperator(line, InfixOperator.IN);
-		throw new AssertionError(s + " should be known by now.");
+		return null;
 	}
 
 	public abstract Associativity getAssociativity();

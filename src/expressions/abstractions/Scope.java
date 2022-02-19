@@ -2,7 +2,7 @@ package expressions.abstractions;
 
 import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
 
 /**
  * A Scope limits the visibility of variables.

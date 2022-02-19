@@ -1,6 +1,5 @@
-package interpreter;
+package modules.interpreter;
 
-import static helper.Output.LINE_BREAK;
 import static helper.Output.UNDERLINE;
 import static helper.Output.print;
 
@@ -14,9 +13,10 @@ import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.Declaration;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
+import expressions.main.functions.Returnable;
 import expressions.main.statements.ReturnStatement;
 import main.Main;
-import parsing.program.Program;
+import modules.parser.program.Program;
 import types.specific.KeywordType;
 
 public final class Interpreter {
@@ -31,7 +31,7 @@ public final class Interpreter {
 	 * @return the return-value of the function.
 	 */
 	public static Value call(String name, ValueHolder... params) {
-		Function f = (Function) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
+		Returnable f = (Returnable) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
 		f.execute(params);
 		return f.retrieveReturnValue();
 	}
@@ -50,20 +50,6 @@ public final class Interpreter {
 	}
 
 	/**
-	 * Executes a Function.
-	 *
-	 * @param name   the name of the MainExpression.
-	 * @param params are the passed parameters
-	 * 
-	 * @return false if this function shouldn't call any other functions afterwards.
-	 *         {@link ReturnStatement#execute}
-	 */
-	@Deprecated
-	public static boolean execute(String name, ValueHolder... params) {
-		return execute(FuncManager.getLine(name + params.length));
-	}
-
-	/**
 	 * Registeres all variables and functions and starts the interpreting-process by calling the main
 	 * function
 	 * 
@@ -72,15 +58,12 @@ public final class Interpreter {
 	 * @see Main#main
 	 */
 	public static void interpret(Program program) {
+		// INIT
 		registerFunctions();
-		print(LINE_BREAK);
-		print("Initialising global Vars: " + UNDERLINE);
 		registerGlobalVars();
+		// RUNTIME
 		print("\nStarting Program: " + UNDERLINE);
 		execute(FuncManager.getLine("main"));
-		// Cleanup
-		print("Program has ended.");
-		print(LINE_BREAK);
 	}
 
 	/**
@@ -94,11 +77,13 @@ public final class Interpreter {
 		Scope currentScope = GlobalScope.GLOBAL;
 		for (int i = 0; i < Main.PROGRAM.size(); i++) {
 			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
-			print(e.toString());
+			currentScope = Main.PROGRAM.getLine(i).searchForScope();
+			print(e.toString() + " in " + currentScope.getScopeName());
 			// Check func in other func
-			if (e instanceof Function f && currentScope != GlobalScope.GLOBAL)
+			if (e instanceof Returnable r && currentScope != GlobalScope.GLOBAL)
 				throw new IllegalCodeFormatException(Main.PROGRAM.getLine(i).lineIndex,
-						"A function cannot be defined in another function. \nSee: \"" + f.getName() + "\" in " + currentScope);
+						"A function cannot be defined in another function. \nSee: \"" + r.getName() + "\" in "
+								+ currentScope.getScopeName());
 			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
@@ -107,9 +92,8 @@ public final class Interpreter {
 				hasMain = true;
 			}
 			// Speichere alle Funktionsnamen (Main darf nicht gecallt werden.)
-			if (e instanceof Function && !(e instanceof MainFunction))
-				FuncManager.registerFunction(((Function) e).getName() + ((Function) e).expectedParams(), i);
-			currentScope = Main.PROGRAM.getLine(i).searchForScope();
+			if (e instanceof Returnable r)
+				FuncManager.registerFunction(r.getName() + r.expectedParams(), i);
 		}
 		if (!hasMain)
 			throw new AssertionError("Program has to include a main-function!");
@@ -122,8 +106,9 @@ public final class Interpreter {
 	 */
 	private static void registerGlobalVars() {
 		for (int i = 0; i < Main.PROGRAM.size(); i++) {
-			if (Main.PROGRAM.getLine(i).getMainExpression() instanceof Declaration d)
-				d.registerIfGlobal();
+			if (Main.PROGRAM.getLine(i).getMainExpression() instanceof Declaration d
+					&& Main.PROGRAM.getLine(i).searchForScope() == GlobalScope.GLOBAL)
+				d.initAndRegister();
 		}
 	}
 }

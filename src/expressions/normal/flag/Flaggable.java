@@ -1,6 +1,6 @@
 package expressions.normal.flag;
 
-import java.util.List;
+import java.util.Set;
 
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.interfaces.MergedExpression;
@@ -21,6 +21,6 @@ public interface Flaggable extends MergedExpression {
 	 * 
 	 * @param flags is a list of all passed flags in front of this.
 	 */
-	void setFlags(List<FlagType> flags) throws UnexpectedFlagException;
+	void setFlags(Set<FlagType> flags) throws UnexpectedFlagException;
 
 }

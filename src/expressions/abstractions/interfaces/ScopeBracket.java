@@ -14,7 +14,4 @@ public interface ScopeBracket {
 
 	/** Find the matching Bracket */
 	public ScopeBracket getMatch();
-
-	/** Set the matching Bracket. This should only get called once. */
-	public void setMyMatch(ScopeBracket match);
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import datatypes.TextValue;
-import datatypes.numerical.DecimalValue;
 import datatypes.numerical.NumberValue;
 
 import static datatypes.numerical.ConceptualNrValue.*;

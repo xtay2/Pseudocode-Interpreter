@@ -1,9 +1,9 @@
 package expressions.possible;
 
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
@@ -11,8 +11,8 @@ import expressions.abstractions.PossibleMainExpression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueChanger;
 import expressions.abstractions.interfaces.ValueHolder;
-import interpreter.VarManager;
-import types.ExpressionType;
+import modules.interpreter.VarManager;
+import types.specific.ExpressionType;
 
 public class Assignment extends PossibleMainExpression implements ValueHolder, MergedExpression {
 

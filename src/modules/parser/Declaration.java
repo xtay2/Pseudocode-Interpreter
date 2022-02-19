@@ -1,4 +1,4 @@
-package parsing.parser;
+package modules.parser;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class Declaration {
 
 	final int start, end, arguments;
 
-	public Declaration(String name, int start, int end, int arguments, List<Call> calls) {
+	Declaration(String name, int start, int end, int arguments, List<Call> calls) {
 		this.name = name;
 		this.start = start;
 		this.end = end;

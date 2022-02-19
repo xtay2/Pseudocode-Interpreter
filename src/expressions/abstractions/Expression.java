@@ -1,19 +1,23 @@
 package expressions.abstractions;
 
+import static types.specific.DataType.INT;
+import static types.specific.DataType.NUMBER;
+
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.normal.BuilderExpression;
 import main.Main;
-import parsing.program.ProgramLine;
-import parsing.program.ValueMerger;
+import modules.parser.program.ProgramLine;
+import modules.parser.program.ValueMerger;
 import types.AbstractType;
-import types.ExpressionType;
-import types.SpecificType;
+import types.SuperType;
+import types.specific.ExpressionType;
 import types.specific.KeywordType;
 
+
 /**
- * Every little part of a program is an expression. This includes names, values,
- * brackets and keywords. Each expression has a matching {@link ExpressionType}
- * which is primarily used to describe what follows after an expression.
+ * Every little part of a program is an expression. This includes names, values, brackets and
+ * keywords. Each expression has a matching {@link ExpressionType} which is primarily used to
+ * describe what follows after an expression.
  *
  * @see MainExpression
  * @see BuilderExpression
@@ -23,10 +27,9 @@ import types.specific.KeywordType;
 public abstract class Expression {
 
 	/**
-	 * The load of possible following expressions. {@code null} corresponds to an
-	 * expected linebreak.
+	 * The load of possible following expressions. {@code null} corresponds to an expected linebreak.
 	 */
-	protected AbstractType[] expected = null;
+	protected final AbstractType[] expected;
 
 	/** The line in which this Expression is defined. */
 	public final int lineIdentifier;
@@ -38,10 +41,9 @@ public abstract class Expression {
 	 * Builds an Expression.
 	 * 
 	 * @param lineID   is the identifier of the matching {@link ProgramLine}.
-	 * @param myType   is any {@link AbstractType} that describes this expression
-	 *                 the best. Use a {@link SpecificType}, if possible.
-	 * @param expected is an array of expected types following after this
-	 *                 Expression.
+	 * @param myType   is any {@link AbstractType} that describes this expression the best. Use a
+	 *                 {@link SpecificType}, if possible.
+	 * @param expected is an array of expected types following after this Expression.
 	 */
 	public Expression(int lineID, AbstractType myType, AbstractType... expected) {
 		this.lineIdentifier = lineID;
@@ -52,8 +54,8 @@ public abstract class Expression {
 	}
 
 	/**
-	 * Returns all possible expected expression-types after this one or {@code null}
-	 * if the only expexted thing is a linebreak.
+	 * Returns all possible expected expression-types after this one or {@code null} if the only
+	 * expexted thing is a linebreak.
 	 */
 	public final AbstractType[] getExpectedExpressions() {
 		if (expected == null)
@@ -69,25 +71,22 @@ public abstract class Expression {
 	}
 
 	/**
-	 * Used mostly in the {@link ValueMerger} for any {@link BuilderExpression} to
-	 * assure, that this Expression is of a certain {@link KeywordType}, when
-	 * instanceof is no option.
+	 * Used mostly in the {@link ValueMerger} for any {@link BuilderExpression} to assure, that this
+	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
 	 */
 	public final boolean is(AbstractType type) {
-		return type == this.type || (type instanceof SpecificType s && s.getExpressionType() == this.type);
+		return type == this.type || (type instanceof SuperType s && this.type.is(s)) || (type == NUMBER && this.type == INT);
 	}
 
 	/**
-	 * Returns false for Expressions. Gets Overridden in
-	 * {@link MainExpression#isDefiniteMainExpression}
+	 * Returns false for Expressions. Gets Overridden in {@link MainExpression#isDefiniteMainExpression}
 	 */
 	public boolean isDefiniteMainExpression() {
 		return false;
 	}
 
 	/**
-	 * Always returns the classname when in debuggingmode. If not, identifiers can
-	 * be returned instead.
+	 * Always returns the classname when in debuggingmode. If not, identifiers can be returned instead.
 	 */
 	@Override
 	public String toString() {

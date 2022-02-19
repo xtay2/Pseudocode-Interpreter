@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import helper.Helper;
 import helper.Output;
-import interpreter.system.SystemFunctions;
+import modules.interpreter.system.SystemFunctions;
 import types.specific.DataType;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */

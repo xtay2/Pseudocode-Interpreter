@@ -1,15 +1,15 @@
 package expressions.main.loops;
 
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 
 import datatypes.numerical.NumberValue;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import parsing.program.ProgramLine;
+import modules.parser.program.ProgramLine;
 import types.specific.KeywordType;
 
 public class RepeatLoop extends Loop {

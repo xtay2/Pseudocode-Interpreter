@@ -1,10 +1,12 @@
 package expressions.normal;
 
-import static types.ExpressionType.NAME;
-import static types.ExpressionType.OPEN_SCOPE;
+import static types.SuperType.DATA_TYPE;
+import static types.specific.BuilderType.CLOSE_BRACKET;
+
+import static types.specific.ExpressionType.NAME;
+import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import expressions.abstractions.Expression;
-import types.ExpressionType;
 import types.specific.DataType;
 
 public class ExpectedType extends Expression implements Comparable<ExpectedType> {
@@ -12,12 +14,8 @@ public class ExpectedType extends Expression implements Comparable<ExpectedType>
 	public final DataType type;
 
 	public ExpectedType(DataType type, int line) {
-		super(line, ExpressionType.DATA_TYPE, NAME, OPEN_SCOPE);
+		super(line, DATA_TYPE, NAME, OPEN_SCOPE, CLOSE_BRACKET);
 		this.type = type;
-	}
-
-	public ExpectedType(String type, int line) {
-		this(DataType.stringToType(type), line);
 	}
 
 	@Override

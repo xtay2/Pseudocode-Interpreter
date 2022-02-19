@@ -2,7 +2,7 @@ package expressions.abstractions;
 
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
-import interpreter.Interpreter;
+import modules.interpreter.Interpreter;
 import types.AbstractType;
 
 /**

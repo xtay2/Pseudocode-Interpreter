@@ -1,4 +1,4 @@
-package parsing.formatter;
+package modules.formatter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -231,14 +231,14 @@ public class Formatter {
 	/**
 	 * Checks, if this character is a single-char operator.
 	 */
-	static boolean isOperator(char op) {
+	private static boolean isOperator(char op) {
 		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '=' || op == '^' || op == '!';
 	}
 
 	/**
 	 * Checks, if this character is a two-char operator.
 	 */
-	static boolean isOperator(char first, char next) {
+	private static boolean isOperator(char first, char next) {
 		if (next == '=')
 			return isOperator(first);
 		return false;

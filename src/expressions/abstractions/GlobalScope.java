@@ -1,6 +1,6 @@
 package expressions.abstractions;
 
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
 
 /**
  * This is the basic scope in which all other Scopes, Classes, Functions and

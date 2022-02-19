@@ -1,11 +1,11 @@
 package expressions.normal.containers;
 
 import static datatypes.NullValue.NULL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.ExpressionType.NAME;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import datatypes.NullValue;
 import datatypes.Value;
@@ -17,15 +17,15 @@ import expressions.abstractions.interfaces.ValueChanger;
 import expressions.normal.ExpectedType;
 import expressions.normal.flag.Flaggable;
 import expressions.possible.Call;
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
 import types.specific.DataType;
 import types.specific.FlagType;
 
 /**
  * Has a Name and a Value. The Name has a scope.
  *
- * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a
- * function through the {@link ExpectedType}.
+ * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a function through
+ * the {@link ExpectedType}.
  *
  * Gets saved in the {@link VarManager} and should only get accessed by it.
  */
@@ -39,29 +39,25 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	private boolean isConstant = false;
 
 	/**
-	 * Creates and registers a Variable. This gets called in
-	 * {@link VarManager#initCounter}.
+	 * Creates and registers a Variable. This gets called in {@link VarManager#initCounter}.
 	 * 
-	 * @param lineID is lineID of the {@link Expression} in which this var gets
-	 *               created.
+	 * @param lineID is lineID of the {@link Expression} in which this var gets created.
 	 * @param type   is the {@link DataType} of this {@link Variable}.
 	 * @param name   is the unique {@link Name} of this {@link Variable}.
-	 * @param val    is an optional {@link Variable}. Input null if no value is
-	 *               wanted.
+	 * @param val    is an optional {@link Variable}. Input null if no value is wanted.
 	 * @param flags  are optional {@link FlagType}s.
 	 * @return the finished/registered {@link Variable}.
 	 */
 	public static Variable quickCreate(int lineID, DataType type, Name name, Value val, FlagType... flags) {
 		Variable v = new Variable(lineID, type);
 		v.merge(name, val);
-		v.setFlags(Arrays.asList(flags));
+		v.setFlags(Set.copyOf(Arrays.asList(flags)));
 		VarManager.registerVar(v);
 		return v;
 	}
 
 	/**
-	 * Initialise a Variable with an inital Value. Used in {@link Call} and
-	 * {@link VarManager}.
+	 * Initialise a Variable with an inital Value. Used in {@link Call} and {@link VarManager}.
 	 */
 	public Variable(int lineID, DataType type) {
 		super(lineID, type, NAME, ARRAY_START);
@@ -81,8 +77,7 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	}
 
 	/**
-	 * Returns the {@link Value} of this variable or {@link NullValue#NULL} if it
-	 * isn't initialised yet.
+	 * Returns the {@link Value} of this variable or {@link NullValue#NULL} if it isn't initialised yet.
 	 */
 	@Override
 	public Value getValue() {
@@ -113,11 +108,11 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	 * </pre>
 	 */
 	@Override
-	public void setFlags(List<FlagType> flags) throws UnexpectedFlagException {
+	public void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
 		for (FlagType f : flags) {
 			switch (f) {
-			case CONSTANT -> isConstant = true;
-			default -> throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
+				case CONSTANT -> isConstant = true;
+				default -> throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
 			}
 		}
 	}

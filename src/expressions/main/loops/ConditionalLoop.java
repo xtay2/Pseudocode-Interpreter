@@ -1,8 +1,8 @@
 package expressions.main.loops;
 
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.UNTIL;
 import static types.specific.KeywordType.WHILE;
 
@@ -12,7 +12,7 @@ import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.statements.ConditionalStatement;
 import expressions.normal.brackets.OpenScope;
-import parsing.program.ProgramLine;
+import modules.parser.program.ProgramLine;
 import types.specific.KeywordType;
 
 /**

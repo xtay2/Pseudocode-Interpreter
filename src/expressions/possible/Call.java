@@ -10,8 +10,8 @@ import expressions.abstractions.PossibleMainExpression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
-import interpreter.Interpreter;
-import types.ExpressionType;
+import modules.interpreter.Interpreter;
+import types.specific.ExpressionType;
 
 public class Call extends PossibleMainExpression implements ValueHolder, MergedExpression {
 

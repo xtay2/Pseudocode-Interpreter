@@ -1,12 +1,22 @@
-package parsing.program;
+package modules.parser.program;
 
-import static types.ExpressionType.*;
-import static types.specific.BuilderType.*;
-import static types.specific.KeywordType.*;
+import static types.SuperType.DATA_TYPE;
+import static types.SuperType.FLAG_TYPE;
+import static types.specific.BuilderType.ARRAY_END;
+import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.BuilderType.CLOSE_BRACKET;
+import static types.specific.BuilderType.COMMA;
+import static types.specific.BuilderType.EXPECTED_RETURN_TYPE;
+import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.BuilderType.STEP;
+import static types.specific.BuilderType.TO;
+import static types.specific.KeywordType.ELSE;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import datatypes.ArrayValue;
 import datatypes.Value;
@@ -19,6 +29,8 @@ import expressions.main.Declaration;
 import expressions.main.OperationAssignment;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
+import expressions.main.functions.NativeFunction;
+import expressions.main.functions.Returnable;
 import expressions.main.loops.ConditionalLoop;
 import expressions.main.loops.ForEachLoop;
 import expressions.main.loops.FromToLoop;
@@ -34,7 +46,7 @@ import expressions.normal.brackets.BracketedExpression;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.ArrayAccess;
 import expressions.normal.containers.Name;
-import expressions.normal.containers.Variable;
+import expressions.normal.flag.Flaggable;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
@@ -70,8 +82,9 @@ public abstract class ValueMerger {
 		lineIndex = myLineIndex;
 		try {
 			MainExpression main = (MainExpression) build();
-			if (main == null || !line.isEmpty()) throw new AssertionError(
-					"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
+			if (main == null || !line.isEmpty())
+				throw new AssertionError(
+						"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
 			return main;
 		} catch (ClassCastException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -106,73 +119,78 @@ public abstract class ValueMerger {
 		Expression sec = line.size() > 1 ? line.get(1) : null;
 		// Build the right MainExpression through recursive pattern matching.
 		Expression result = (Expression) switch (fst) {
-		case Name name:
-			if (sec.is(OPEN_BRACKET))
-				yield buildCall();
-			else if (sec.is(ARRAY_START))
-				yield buildArrayAccess();
-			else
+			case Name name:
+				if (sec.is(OPEN_BRACKET))
+					yield buildCall();
+				else if (sec.is(ARRAY_START))
+					yield buildArrayAccess();
+				else
+					yield switch (sec) {
+						case Crement crement -> buildPostCrement();
+						case Assignment assignment -> buildAssignment();
+						case OperationAssignment opAssign -> buildOperationAssignment();
+						case IsStatement is -> buildIsStatement();
+						case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+						case null -> line.remove(0);
+						default -> line.remove(0);
+					};
+			case Value value:
 				yield switch (sec) {
-				case Crement crement -> buildPostCrement();
-				case Assignment assignment -> buildAssignment();
-				case OperationAssignment opAssign -> buildOperationAssignment();
-				case IsStatement is -> buildIsStatement();
-				case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
-				case null -> line.remove(0);
-				default -> line.remove(0);
+					case IsStatement is -> buildIsStatement();
+					case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+					case null -> line.remove(0);
+					default -> line.remove(0);
 				};
-		case Value value:
-			yield switch (sec) {
-			case IsStatement is -> buildIsStatement();
-			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
-			case null -> line.remove(0);
-			default -> line.remove(0);
-			};
-		case ArrayAccess access:
-			yield switch (sec) {
-			case IsStatement is -> buildIsStatement();
-			case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
-			case null -> line.remove(0);
-			default -> line.remove(0);
-			};
-		case Loop loop:
-			yield switch (loop) {
-			case ForEachLoop forEach -> buildForEach();
-			case RepeatLoop repeat -> buildRepeat();
-			case FromToLoop fromTo -> buildFromTo();
-			case ConditionalLoop whileUntil -> buildWhileUntil();
-			default -> throw new AssertionError("Undefined Loop: " + loop);
-			};
-		case Statement statement:
-			yield switch (statement) {
-			case ConditionalStatement elif -> buildElif();
-			case ReturnStatement returnStmt -> buildReturn();
-			default -> throw new AssertionError("Undefined Statement: " + statement);
-			};
-		case CloseScope closeScope:
-			yield (CloseScope) line.remove(0);
-		case ExpectedType type:
-			yield buildDeclaration();
-		case Crement crement:
-			yield buildPreCrement();
-		case MainFunction main:
-			yield buildMain();
-		case Function func:
-			yield buildFunc();
-		case BuilderExpression build: {
-			if (build.is(ARRAY_START)) yield buildArrayLiteral();
-			if (build.is(OPEN_BRACKET)) yield buildBracketedExpression();
-			if (build.is(FLAG)) {
-				for (Expression e : line) {
-					if (e instanceof Function) yield buildFunc();
-					// TODO Implement Flags in declaration.
-					if (e instanceof ExpectedType) yield buildDeclaration();
+			case ArrayAccess access:
+				yield switch (sec) {
+					case IsStatement is -> buildIsStatement();
+					case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+					case null -> line.remove(0);
+					default -> line.remove(0);
+				};
+			case Loop loop:
+				yield switch (loop) {
+					case ForEachLoop forEach -> buildForEach();
+					case RepeatLoop repeat -> buildRepeat();
+					case FromToLoop fromTo -> buildFromTo();
+					case ConditionalLoop whileUntil -> buildWhileUntil();
+					default -> throw new AssertionError("Undefined Loop: " + loop);
+				};
+			case Statement statement:
+				yield switch (statement) {
+					case ConditionalStatement elif -> buildElif();
+					case ReturnStatement returnStmt -> buildReturn();
+					default -> throw new AssertionError("Undefined Statement: " + statement);
+				};
+			case CloseScope closeScope:
+				yield (CloseScope) line.remove(0);
+			case ExpectedType type:
+				yield buildDeclaration();
+			case Crement crement:
+				yield buildPreCrement();
+			case MainFunction main:
+				yield buildMain();
+			case Function func:
+				yield buildFunc();
+			case BuilderExpression build: {
+				if (build.is(ARRAY_START))
+					yield buildArrayLiteral();
+				if (build.is(OPEN_BRACKET))
+					yield buildBracketedExpression();
+				if (build.is(FLAG_TYPE)) {
+					Set<FlagType> flags = new HashSet<>();
+					while (line.get(0).is(FLAG_TYPE)) {
+						if (!flags.add((FlagType) line.remove(0).type))
+							throw new IllegalCodeFormatException(lineIndex, "Duplicate flag. Line: " + orgLine);
+					}
+					if (line.get(0) instanceof Flaggable)
+						yield buildFlaggable(flags);
+					else
+						throw new AssertionError("Flag " + build + " has to be followed by function or var-declaration.");
 				}
-				throw new AssertionError("Flag " + build + " has to be followed by function or var-declaration.");
 			}
-		}
-		default:
-			throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
+			default:
+				throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
 		};
 		// Wenn gebauter ValueHolder muss nach Operatorenverknüpfung getestet werden.
 		if (!line.isEmpty() && !isInOperation && line.get(0) instanceof Operator) {
@@ -251,7 +269,8 @@ public abstract class ValueMerger {
 		parts.add(line.remove(0)); // Name
 		line.remove(0); // Remove OpenBracket
 		do {
-			if (!(line.get(0).is(CLOSE_BRACKET))) parts.add(build());
+			if (!(line.get(0).is(CLOSE_BRACKET)))
+				parts.add(build());
 		} while (line.remove(0).is(COMMA));
 		c.merge(parts);
 		return c;
@@ -269,7 +288,8 @@ public abstract class ValueMerger {
 		List<Expression> parts = new ArrayList<>();
 		line.remove(0); // Remove OpenBrack
 		do {
-			if (!(line.get(0).is(ARRAY_END))) parts.add(build());
+			if (!(line.get(0).is(ARRAY_END)))
+				parts.add(build());
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		// Filter out Commas
 		e.merge(parts);
@@ -384,17 +404,6 @@ public abstract class ValueMerger {
 		return e;
 	}
 
-	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
-	private static Declaration buildDeclaration() {
-		DataType type = ((ExpectedType) line.remove(0)).type;
-		Name name = (Name) line.remove(0);
-		line.remove(0); // Remove Assignment
-		Declaration e = new Declaration(lineID);
-		ValueHolder value = (ValueHolder) build();
-		e.merge(Variable.quickCreate(lineID, type, name, null), (Expression) value);
-		return e;
-	}
-
 	/** [NAME] [OP_ASSIGN] [VALUE_HOLDER] */
 	private static OperationAssignment buildOperationAssignment() {
 		OperationAssignment e = (OperationAssignment) line.remove(1);
@@ -403,25 +412,49 @@ public abstract class ValueMerger {
 	}
 
 	/**
-	 * <pre>
-	 *  [FUNC] [NAME] [(] (?[?TYPE] [PARAM] [,]) [)] [EXPECTED_RETURN] [EXPECTED_TYPE] [?OPEN_SCOPE]
-	 * </pre>
+	 * Super-Routine for all Flaggables.
+	 * 
+	 * @param flags are the flags. They get set by this Method.
 	 */
+	private static Flaggable buildFlaggable(Set<FlagType> flags) {
+		Flaggable f = switch (line.get(0)) {
+			case ExpectedType v:
+				yield buildDeclaration();
+			case Returnable r:
+				if (flags.remove(FlagType.NATIVE))
+					yield buildNativeFunc();
+				else
+					yield buildFunc();
+			default:
+				throw new IllegalArgumentException("Unknown Flaggable." + line.get(0));
+		};
+		f.setFlags(flags);
+		return f;
+	}
+
+	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
+	private static Declaration buildDeclaration() {
+		DataType type = ((ExpectedType) line.remove(0)).type; // Remove Type
+		Name name = (Name) line.remove(0); // Remove Name
+		line.remove(0); // Remove Assignment
+		Declaration e = new Declaration(lineID, type);
+		e.merge(name, build()); // Remove Value
+		return e;
+	}
+
+	/** [FUNC] [NAME] [(] (?[?TYPE] [PARAM] [,]) [)] [EXPECTED_RETURN] [EXPECTED_TYPE] [OPEN_SCOPE] */
 	private static Function buildFunc() {
-		// FLAGS
-		List<FlagType> flags = new ArrayList<>();
-		while (line.get(0).is(FLAG))
-			flags.add((FlagType) line.remove(0).type);
 		// FUNC
 		Function e = (Function) line.remove(0);
-		e.setFlags(flags);
-		List<Expression> params = new ArrayList<Expression>();
+		List<Expression> params = new ArrayList<>();
 		params.add((Name) line.remove(0)); // Save Name
 		line.remove(0); // OpenBrack
 		// PARAMETERS
 		do {
-			if (line.get(0) instanceof ExpectedType t) params.add((ExpectedType) line.remove(0));
-			if (line.get(0) instanceof Name) params.add((Name) line.remove(0));
+			if (line.get(0) instanceof ExpectedType t)
+				params.add((ExpectedType) line.remove(0));
+			if (line.get(0) instanceof Name)
+				params.add((Name) line.remove(0));
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		// RETURN_TYPE
 		if (!line.isEmpty() && line.get(0).is(EXPECTED_RETURN_TYPE)) {
@@ -430,10 +463,24 @@ public abstract class ValueMerger {
 		} else
 			params.add(null);
 		// OPEN_SCOPE
-		if (!line.isEmpty() && line.get(0) instanceof OpenScope openScope)
+		if (line.get(0) instanceof OpenScope openScope)
 			params.add((OpenScope) line.remove(0));
-		else
-			params.add(null);
+		e.merge(params);
+		return e;
+	}
+
+	/** [FUNC] [NAME] [(] (?[?TYPE] [PARAM] [,]) [)] [EXPECTED_RETURN] [EXPECTED_TYPE] */
+	private static NativeFunction buildNativeFunc() {
+		line.remove(0); // FUNC
+		NativeFunction e = new NativeFunction(lineID);
+		List<Expression> params = new ArrayList<>();
+		params.add((Name) line.remove(0));
+		line.remove(0); // OpenBrack
+		while (line.get(0).is(DATA_TYPE) || line.get(0).is(COMMA)) {
+			if (line.remove(0) instanceof ExpectedType t)
+				params.add(t);
+		}
+		line.remove(0); // CloseBrack
 		e.merge(params);
 		return e;
 	}

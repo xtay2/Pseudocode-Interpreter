@@ -1,7 +1,7 @@
 package expressions.main.statements;
 
 import expressions.abstractions.interfaces.MergedExpression;
-import parsing.program.ValueMerger;
+import modules.parser.program.ValueMerger;
 
 /**
  * Currently a marker-interface, used in the {@link ValueMerger}.

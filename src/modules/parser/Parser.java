@@ -1,4 +1,4 @@
-package parsing.parser;
+package modules.parser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,8 +8,8 @@ import java.util.List;
 
 import helper.FileManager;
 import main.Main;
-import parsing.formatter.Formatter;
-import parsing.importer.Importer;
+import modules.formatter.Formatter;
+import modules.importer.Importer;
 
 public final class Parser {
 
@@ -53,6 +53,6 @@ public final class Parser {
 
 		for (LineInfo line : indexedLines)
 			Main.PROGRAM.appendLine(line.line(), line.index());
-		Main.PROGRAM.construct();
+		Main.PROGRAM.constructAndMerge();
 	}
 }

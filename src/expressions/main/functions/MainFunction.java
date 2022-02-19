@@ -1,16 +1,13 @@
 package expressions.main.functions;
 
 import expressions.abstractions.Expression;
-import expressions.abstractions.Scope;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import types.ExpressionType;
+import types.specific.ExpressionType;
 import types.specific.KeywordType;
 
 public class MainFunction extends ScopeHolder {
-
-	private Scope scope = null;
 
 	public MainFunction(int lineID) {
 		super(lineID, KeywordType.MAIN, ExpressionType.OPEN_SCOPE);
@@ -18,9 +15,9 @@ public class MainFunction extends ScopeHolder {
 
 	@Override
 	public boolean execute(ValueHolder... params) {
-		scope.reg();
+		getScope().reg();
 		callFirstLine();
-		scope.del();
+		getScope().del();
 		return false;
 	}
 

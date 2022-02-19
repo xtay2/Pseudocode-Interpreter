@@ -3,7 +3,7 @@ package expressions.abstractions.interfaces;
 import java.util.List;
 
 import expressions.abstractions.Expression;
-import parsing.program.ValueMerger;
+import modules.parser.program.ValueMerger;
 
 /**
  * Interface for all Expressions that aren't directly build from the text, but

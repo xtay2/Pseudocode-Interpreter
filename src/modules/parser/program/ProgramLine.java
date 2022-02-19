@@ -1,16 +1,19 @@
-package parsing.program;
+package modules.parser.program;
 
-import static types.ExpressionType.CLOSE_SCOPE;
-import static types.ExpressionType.CREMENT;
-import static types.ExpressionType.DATA_TYPE;
-import static types.ExpressionType.KEYWORD;
-import static types.ExpressionType.NAME;
+import static types.SuperType.DATA_TYPE;
+import static types.SuperType.FLAG_TYPE;
+import static types.SuperType.KEYWORD_TYPE;
+import static types.specific.ExpressionType.CLOSE_SCOPE;
+import static types.specific.ExpressionType.DECREMENT;
+import static types.specific.ExpressionType.INCREMENT;
+import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.ELIF;
 import static types.specific.KeywordType.ELSE;
 import static types.specific.KeywordType.IF;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
@@ -20,22 +23,24 @@ import expressions.abstractions.Scope;
 import expressions.abstractions.ScopeHolder;
 import expressions.main.CloseScope;
 import expressions.main.functions.Function;
+import expressions.main.functions.NativeFunction;
+import expressions.main.functions.Returnable;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.operators.Operator;
-import interpreter.Interpreter;
 import main.Main;
-import parsing.finder.ExpressionFinder;
-import parsing.parser.Parser;
+import modules.finder.ExpressionFinder;
+import modules.interpreter.Interpreter;
+import modules.parser.Parser;
 import types.AbstractType;
 import types.specific.DataType;
 
 public class ProgramLine {
 
 	private final ArrayList<Expression> expressions = new ArrayList<>();
-	public final String line;
-	public final int lineIdentifier;
+	final String line;
+	private final int lineIdentifier;
 	public final int lineIndex;
 	private MainExpression main;
 
@@ -53,10 +58,10 @@ public class ProgramLine {
 	/**
 	 * Reads the line and constructs an object-expression-notation from the information.
 	 */
-	public void construct() {
+	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedExpressionTypes[] = { KEYWORD, DATA_TYPE, NAME, CLOSE_SCOPE, CREMENT };
+		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, DATA_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, INCREMENT, DECREMENT };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -90,7 +95,25 @@ public class ProgramLine {
 			constructExpression(current.strip(), expectedExpressionTypes);
 		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
-		initMainExpression();
+	}
+
+	/**
+	 * Tells if the current word is a closed expression. The next char is taken to confirm this choice.
+	 *
+	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
+	 */
+	private boolean isNewExpression(String current, char next) {
+		if (Operator.isOperator(String.valueOf(next)))
+			return !Operator.isOperator(current);
+		if (current.equals("++") || current.equals("--"))
+			return true;
+		if ((DataType.isType(current) && next == '[') || (DataType.isType(current.replace("[", "")) && next == ']'))
+			return false;
+		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', ';' };
+		for (char c : oneCharExpressions)
+			if (current.charAt(0) == c || next == c)
+				return true;
+		return next == ' ';
 	}
 
 	/**
@@ -118,36 +141,8 @@ public class ProgramLine {
 		return Main.PROGRAM.getLine(lineIdentifier - 1).findLastIf();
 	}
 
-	/**
-	 * Returns the main-expression of this line.
-	 */
-	public MainExpression getMainExpression() {
-		if (main != null)
-			return main;
-		throw new AssertionError("MainExpression of line " + lineIndex + " is null at this point.");
-	}
-
-	/**
-	 * Tells if the current word is a closed expression. The next char is taken to confirm this choice.
-	 *
-	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
-	 */
-	private boolean isNewExpression(String current, char next) {
-		if (Operator.isOperator(String.valueOf(next)))
-			return !Operator.isOperator(current);
-		if (current.equals("++") || current.equals("--"))
-			return true;
-		if ((DataType.isType(current) && next == '[') || (DataType.isType(current.replace("[", "")) && next == ']'))
-			return false;
-		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', ';' };
-		for (char c : oneCharExpressions)
-			if (current.charAt(0) == c || next == c)
-				return true;
-		return next == ' ';
-	}
-
-	/** Initialises certain types of main expressions, like Scopes. */
-	private void initMainExpression() {
+	/** Merges the {@link MainExpression} from the constructed {@link #expressions}. */
+	void merge() {
 		main = ValueMerger.buildLine(expressions, lineIdentifier, lineIndex);
 		expressions.clear();
 		// Wenn es ein Returnstatement ist, suche die Funktion
@@ -178,7 +173,7 @@ public class ProgramLine {
 	 * @see ProgramLine#initScopesAndMain()
 	 */
 	public Scope searchForScope() {
-		if (main instanceof Function f && f.isNative())
+		if (main instanceof Returnable)
 			return GlobalScope.GLOBAL;
 		if (main instanceof ScopeHolder s)
 			return s.getScope();
@@ -194,8 +189,23 @@ public class ProgramLine {
 		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForScope();
 	}
 
+	/** Returns the constructed but unmerged {@link #expressions}. */
+	public List<Expression> getExpressions() {
+		if (expressions.isEmpty())
+			throw new AssertionError("The expressions are either already merged or not even constructed at this point. Line: " + line);
+		return new ArrayList<>(expressions);
+	}
+
+	/** Returns the {@link MainExpression} of this line. */
+	public MainExpression getMainExpression() {
+		if (main != null)
+			return main;
+		throw new AssertionError("MainExpression of line " + lineIndex + " is null at this point.");
+	}
+
 	@Override
 	public String toString() {
 		return lineIdentifier + "\t" + line;
 	}
+
 }

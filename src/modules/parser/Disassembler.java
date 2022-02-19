@@ -1,4 +1,4 @@
-package parsing.parser;
+package modules.parser;
 
 import static helper.Output.LINE_BREAK;
 import static helper.Output.print;
@@ -13,7 +13,7 @@ import exceptions.parsing.IllegalCodeFormatException;
 import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
 import helper.Helper;
-import parsing.parser.Parser.LineInfo;
+import modules.parser.Parser.LineInfo;
 
 public class Disassembler {
 
@@ -21,7 +21,7 @@ public class Disassembler {
 
 	static List<LineInfo> program;
 
-	public static List<LineInfo> disassemble(List<LineInfo> file) {
+	static List<LineInfo> disassemble(List<LineInfo> file) {
 		program = file;
 		// Remove whitespaces
 		program = new ArrayList<>(program.stream().map(e -> new LineInfo(e.line().strip(), e.index())).toList());

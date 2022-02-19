@@ -1,4 +1,4 @@
-package parsing.importer;
+package modules.importer;
 
 import static helper.Output.print;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.parsing.ImportingException;
-import parsing.parser.Parser.LineInfo;
+import modules.parser.Parser.LineInfo;
 import types.specific.KeywordType;
 
 public abstract class Importer {

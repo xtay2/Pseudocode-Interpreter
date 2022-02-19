@@ -1,17 +1,18 @@
 package expressions.normal.containers;
 
-import static types.ExpressionType.ASSIGNMENT;
-import static types.ExpressionType.CREMENT;
-import static types.ExpressionType.INFIX_OPERATOR;
-import static types.ExpressionType.KEYWORD;
-import static types.ExpressionType.NAME;
-import static types.ExpressionType.OPEN_SCOPE;
-import static types.ExpressionType.OPERATION_ASSIGNMENT;
 import static types.specific.BuilderType.ARRAY_END;
 import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.BuilderType.CLOSE_BRACKET;
 import static types.specific.BuilderType.COMMA;
 import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.ExpressionType.ASSIGNMENT;
+import static types.specific.ExpressionType.DECREMENT;
+import static types.specific.ExpressionType.INCREMENT;
+import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.SuperType.*;
+import static types.specific.ExpressionType.NAME;
+import static types.specific.ExpressionType.OPEN_SCOPE;
+import static types.specific.ExpressionType.OPERATION_ASSIGNMENT;
 
 import datatypes.Value;
 import exceptions.runtime.DeclarationException;
@@ -19,7 +20,10 @@ import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueChanger;
 import helper.Output;
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
+import types.specific.DataType;
+import types.specific.FlagType;
+import types.specific.KeywordType;
 
 /**
  * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
@@ -33,8 +37,8 @@ public class Name extends Expression implements ValueChanger {
 
 	/** Creates a {@link Name} from a {@link String}. */
 	public Name(int line, String name) {
-		super(line, NAME, ASSIGNMENT, OPERATION_ASSIGNMENT, OPEN_BRACKET, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, KEYWORD,
-				ARRAY_START, ARRAY_END, CREMENT, KEYWORD);
+		super(line, NAME, ASSIGNMENT, OPERATION_ASSIGNMENT, OPEN_BRACKET, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_START,
+				ARRAY_END, INCREMENT, DECREMENT, KEYWORD_TYPE);
 		if (!isName(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
 		this.name = name;
@@ -59,7 +63,7 @@ public class Name extends Expression implements ValueChanger {
 
 	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
 	public static boolean isName(String arg) {
-		return arg.matches("\\w*([a-z]|[A-Z])+\\w*");
+		return arg.matches("\\w*([a-z]|[A-Z])+\\w*") && !KeywordType.isKeyword(arg) && !DataType.isType(arg) && !FlagType.isFlag(arg);
 	}
 
 	@Override

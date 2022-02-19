@@ -1,11 +1,14 @@
 package expressions.main;
 
+import java.util.List;
+
+import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.interfaces.ScopeBracket;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
 import main.Main;
-import types.ExpressionType;
+import types.specific.ExpressionType;
 
 public final class CloseScope extends MainExpression implements ScopeBracket {
 
@@ -16,28 +19,23 @@ public final class CloseScope extends MainExpression implements ScopeBracket {
 	 */
 	public CloseScope(int line) {
 		super(line, ExpressionType.CLOSE_SCOPE);
-		findMatchingOpenScope();
-	}
-
-	/**
-	 * Should only get called by the constructor of this.
-	 */
-	@Deprecated
-	private final void findMatchingOpenScope() {
-		int brack = -1;
-		for (int i = lineIdentifier - 1; i >= 0; i--) {
-			MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
-			if (m instanceof CloseScope)
-				brack--;
-			if (m instanceof ScopeBracket b) {
-				brack++;
-				if (brack == 0) {
-					b.setMyMatch(this);
-					return;
+		long brack = -1;
+		for (int i = line - 1; i >= 0; i--) {
+			List<Expression> exp = Main.PROGRAM.getLine(i).getExpressions();
+			for (Expression e : exp) {
+				if (e instanceof CloseScope)
+					brack--;
+				if (e instanceof OpenScope o) {
+					brack++;
+					if (brack == 0) {
+						myMatch = o;
+						o.setMyMatch(this);
+						return;
+					}
 				}
 			}
 		}
-		throw new AssertionError("No-Scope-Exception, höhö. Der Formatter ist kaputt.");
+		throw new AssertionError("Found no matching OpenScope.");
 	}
 
 	@Override
@@ -48,10 +46,5 @@ public final class CloseScope extends MainExpression implements ScopeBracket {
 	@Override
 	public ScopeBracket getMatch() {
 		return myMatch;
-	}
-
-	@Override
-	public void setMyMatch(ScopeBracket match) {
-		myMatch = (OpenScope) match;
 	}
 }

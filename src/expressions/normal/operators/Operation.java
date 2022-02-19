@@ -11,8 +11,8 @@ import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.OperatorTypes.InfixOperator;
 import expressions.normal.operators.comparative.ComparativeOperator;
 import expressions.normal.operators.logic.LogicalOperator;
-import parsing.program.ValueMerger;
-import types.ExpressionType;
+import modules.parser.program.ValueMerger;
+import types.specific.ExpressionType;
 
 /**
  * Consist of n Operators and n + 1 ValueHolders.

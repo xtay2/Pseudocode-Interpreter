@@ -1,4 +1,4 @@
-package parsing.parser;
+package modules.parser;
 
 /** Identifies a call. Used exclusivly in the {@link Disassembler}. */
 public class Call {
@@ -7,7 +7,7 @@ public class Call {
 
 	final String name;
 
-	public Call(String name, int arguments) {
+	Call(String name, int arguments) {
 		this.name = name;
 		this.arguments = arguments;
 	}

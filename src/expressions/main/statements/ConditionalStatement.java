@@ -1,8 +1,8 @@
 package expressions.main.statements;
 
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.ELIF;
 import static types.specific.KeywordType.ELSE;
 import static types.specific.KeywordType.IF;
@@ -12,8 +12,8 @@ import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.loops.ConditionalLoop;
 import expressions.normal.brackets.OpenScope;
-import interpreter.Interpreter;
-import parsing.program.ProgramLine;
+import modules.interpreter.Interpreter;
+import modules.parser.program.ProgramLine;
 import types.specific.KeywordType;
 
 /**

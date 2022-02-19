@@ -1,7 +1,7 @@
 package expressions.possible.multicall;
 
-import static types.ExpressionType.INFIX_OPERATOR;
-import static types.ExpressionType.NAME;
+import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.specific.ExpressionType.NAME;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;

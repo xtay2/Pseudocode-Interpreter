@@ -8,7 +8,7 @@ import datatypes.numerical.NumberValue;
 import expressions.abstractions.Expression;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
 import types.AbstractType;
 
 /**

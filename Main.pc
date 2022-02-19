@@ -1,5 +1,5 @@
 import stdlib.lang.System
 
 main {
-	print("Hi")
+	print(4 + 5)
 }

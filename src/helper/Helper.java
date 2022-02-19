@@ -2,7 +2,7 @@ package helper;
 
 import java.math.BigInteger;
 
-import parsing.parser.Parser;
+import modules.parser.Parser;
 
 /**
  * Abstract Helperclass that contains all functions that get used all over the
@@ -63,7 +63,6 @@ public abstract class Helper {
 	private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
 	public static BigInteger gcd(BigInteger a, BigInteger b) {
-		System.out.println("Calling gcd with " + a + ", " + b);
 		if (a.compareTo(LONG_MAX) < 0 && b.compareTo(LONG_MAX) < 0)
 			return BigInteger.valueOf(gcdLongInt(a.longValueExact(), b.longValueExact()));
 		return gcdBigInt(a, b);
@@ -77,13 +76,11 @@ public abstract class Helper {
 	private static long gcdLongInt(long a, long b) {
 		a = Math.abs(a);
 		b = Math.abs(b);
-		System.out.println("long) a: " + a + ", b: " + b);
 		while (b != 0) {
 	        long t = a;
 	        a = b;
 	        b = t % b;
 	    }
-		System.out.println("long) res: " + a + "\n");
 		return a;
 	}
 

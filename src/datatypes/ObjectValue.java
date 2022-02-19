@@ -2,8 +2,6 @@ package datatypes;
 
 import static datatypes.NullValue.NULL;
 
-import datatypes.numerical.IntValue;
-import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import types.specific.DataType;

@@ -10,25 +10,18 @@ import expressions.main.loops.RepeatLoop;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
-import types.SpecificType;
+import types.AbstractType;
+import types.SuperType;
 
 /**
- * Specifies all Keywords and their text-representations. This includes
- * non-functional keywords like include and flags like native.
+ * Specifies all Keywords and their text-representations. This includes non-functional keywords like
+ * include and flags like native.
  *
  */
-public enum KeywordType implements SpecificType {
+public enum KeywordType implements AbstractType {
 
-	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"),
-	REPEAT("repeat"), RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
-
-	public static KeywordType getKeywordTypeFromString(String val) {
-		for (KeywordType k : KeywordType.values()) {
-			if (k.keyword.equals(val))
-				return k;
-		}
-		return null;
-	}
+	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"), REPEAT("repeat"),
+	RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
 
 	final String keyword;
 
@@ -41,25 +34,36 @@ public enum KeywordType implements SpecificType {
 		return keyword;
 	}
 
-	/**
-	 * Builds an expression from a string or returns null if the string didn't match
-	 * any keyword.
-	 */
-	public static Expression buildKeywordExpressionFromString(String arg, int lineID) {
-		KeywordType type = getKeywordTypeFromString(arg);
-		if (type == null)
+	@Override
+	public Expression create(String arg, int lineID) {
+		if (!keyword.equals(arg.strip()))
 			return null;
-		return switch (type) {
-		case FOR -> new ForEachLoop(lineID);
-		case FROM -> new FromToLoop(lineID);
-		case FUNC -> new Function(lineID);
-		case IS -> new IsStatement(lineID);
-		case MAIN -> new MainFunction(lineID);
-		case REPEAT -> new RepeatLoop(lineID);
-		case RETURN -> new ReturnStatement(lineID);
-		case IF, ELIF, ELSE -> new ConditionalStatement(lineID, type);
-		case WHILE, UNTIL -> new ConditionalLoop(lineID, type);
-		case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
+		return switch (this) {
+			case FOR -> new ForEachLoop(lineID);
+			case FROM -> new FromToLoop(lineID);
+			case FUNC -> new Function(lineID);
+			case IS -> new IsStatement(lineID);
+			case MAIN -> new MainFunction(lineID);
+			case REPEAT -> new RepeatLoop(lineID);
+			case RETURN -> new ReturnStatement(lineID);
+			case IF, ELIF, ELSE -> new ConditionalStatement(lineID, this);
+			case WHILE, UNTIL -> new ConditionalLoop(lineID, this);
+			case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
+			case null -> null;
 		};
+	}
+
+	@Override
+	public boolean is(SuperType superType) {
+		return superType == SuperType.KEYWORD_TYPE;
+	}
+
+	/** Checks, if the passed {@link String} is a {@link KeywordType}. */
+	public static boolean isKeyword(String arg) {
+		for (KeywordType t : KeywordType.values()) {
+			if (t.keyword.equals(arg))
+				return true;
+		}
+		return false;
 	}
 }

@@ -1,12 +1,13 @@
 import stdlib.lang.Casting
 
-native func print(text msg)
+native func print(text)
 
 
-native func type(var val)
+native func type(var)
 
 
-native func exit(text msg)
+native func exit(text)
+
 func exit(): exit("Exit");
 
 

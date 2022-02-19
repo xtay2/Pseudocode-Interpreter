@@ -1,9 +1,11 @@
 package expressions.main;
 
 import static helper.Output.print;
-import static types.ExpressionType.LITERAL;
-import static types.ExpressionType.NAME;
 import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.ExpressionType.LITERAL;
+import static types.specific.ExpressionType.NAME;
+import static types.specific.ExpressionType.OPERATION_ASSIGNMENT;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,41 +18,32 @@ import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.Operator;
-import interpreter.VarManager;
-import types.ExpressionType;
+import modules.interpreter.VarManager;
+import types.specific.ExpressionType;
 
 /**
- * Similar to the {@link Declaration}, but this one modifies the value before it
- * gets declared.
+ * Similar to the {@link Declaration}, but this one modifies the value before it gets declared.
  */
 public class OperationAssignment extends MainExpression implements MergedExpression {
 
 	public static enum Type {
 		ADDI("+="), SUBI("-="), MULTI("*="), DIVI("/="), POWI("^="), MODI("%=");
 
-		public static Type getType(String arg) {
-			for (Type t : values()) {
-				if (t.label.equals(arg))
-					return t;
-			}
-			return null;
-		}
-
 		public final String label;
 
-		Type(String label) {
+		private Type(String label) {
 			this.label = label;
 		}
 	}
 
-	private Operator op;
+	private final Operator op;
 
 	private Name target;
 	private ValueHolder val;
 
-	public OperationAssignment(int line, Type type) {
-		super(line, ExpressionType.OPERATION_ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET);
-		op = Operator.operatorExpression(type.label.substring(0, 1), line);
+	private OperationAssignment(int line, Type type) {
+		super(line, OPERATION_ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET);
+		op = Operator.stringToOperator(type.label.substring(0, 1), line);
 	}
 
 	/** [NAME] [VALUE_HOLDER] */
@@ -79,5 +72,22 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 			throw new IllegalReturnException(getOriginalLine(), "Function has to return a value!");
 		}
 		return callNextLine();
+	}
+
+	// Static Methods
+
+	/**
+	 * Builds a {@link OperationAssignment} from a {@link String}.
+	 * 
+	 * Called in {@link ExpressionType#create(String, int)}
+	 * 
+	 * Returns null if the {@link String} doesn't match any {@link Type}.
+	 */
+	public static OperationAssignment stringToOpAssign(String arg, int lineID) {
+		for (Type t : Type.values()) {
+			if (t.label.equals(arg))
+				return new OperationAssignment(lineID, t);
+		}
+		return null;
 	}
 }

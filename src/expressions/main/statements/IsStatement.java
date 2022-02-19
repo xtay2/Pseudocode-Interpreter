@@ -1,6 +1,6 @@
 package expressions.main.statements;
 
-import static types.ExpressionType.DATA_TYPE;
+import static types.SuperType.DATA_TYPE;
 
 import datatypes.BoolValue;
 import datatypes.Value;

@@ -1,7 +1,7 @@
 package expressions.main.loops;
 
 import static datatypes.numerical.NumberValue.ZERO;
-import static types.ExpressionType.NAME;
+import static types.specific.ExpressionType.NAME;
 
 import java.math.BigInteger;
 
@@ -13,7 +13,7 @@ import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
-import interpreter.VarManager;
+import modules.interpreter.VarManager;
 import types.specific.DataType;
 import types.specific.KeywordType;
 
@@ -38,7 +38,6 @@ public class ForEachLoop extends Loop {
 		if (e.length != 3)
 			throw new AssertionError("Merge on a for-each-loop has to contain three elements: element, container and opened scope.");
 		elementName = (Name) e[0];
-		VarManager.nameCheck(elementName.getName(), getOriginalLine());
 		array = (ValueHolder) e[1];
 		initScope((OpenScope) e[2]);
 	}

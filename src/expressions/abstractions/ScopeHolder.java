@@ -3,7 +3,7 @@ package expressions.abstractions;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
-import interpreter.Interpreter;
+import modules.interpreter.Interpreter;
 import types.AbstractType;
 
 /**
@@ -43,6 +43,8 @@ public abstract class ScopeHolder extends MainExpression implements MergedExpres
 	 * @param os has to know its match at this point.
 	 */
 	public final void initScope(OpenScope os) {
+		if (os == null)
+			throw new AssertionError("Open Scope cannot be null.");
 		if (scope != null)
 			throw new AssertionError("This Scope is already initialised with " + scope);
 		scope = new Scope(type.toString(), os, (CloseScope) os.getMatch());
