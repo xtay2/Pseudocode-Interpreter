@@ -1,5 +1,6 @@
 package types.specific;
 
+import static types.SuperType.BUILDER_TYPE;
 import static types.SuperType.DATA_TYPE;
 import static types.SuperType.KEYWORD_TYPE;
 import static types.specific.ExpressionType.ASSIGNMENT;
@@ -9,6 +10,9 @@ import static types.specific.ExpressionType.INFIX_OPERATOR;
 import static types.specific.ExpressionType.LITERAL;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.ExpressionType.OPEN_SCOPE;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import expressions.abstractions.Expression;
 import expressions.main.functions.Function;
@@ -70,7 +74,8 @@ public enum BuilderType implements AbstractType {
 	 */
 	private BuilderType(String id, AbstractType... expected) {
 		this.id = id;
-		this.expected = expected;
+		this.expected = Stream.concat(Arrays.stream(expected), Arrays.stream(new AbstractType[] { BUILDER_TYPE }))
+				.toArray(AbstractType[]::new);
 	}
 
 	@Override

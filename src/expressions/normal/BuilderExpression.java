@@ -36,4 +36,9 @@ public class BuilderExpression extends Expression {
 	public final boolean isDefiniteMainExpression() {
 		return false;
 	}
+
+	@Override
+	public final String toString() {
+		return type.toString();
+	}
 }

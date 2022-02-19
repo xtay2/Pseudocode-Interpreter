@@ -23,7 +23,6 @@ import expressions.abstractions.Scope;
 import expressions.abstractions.ScopeHolder;
 import expressions.main.CloseScope;
 import expressions.main.functions.Function;
-import expressions.main.functions.NativeFunction;
 import expressions.main.functions.Returnable;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;

@@ -7,6 +7,7 @@ import expressions.abstractions.Expression;
 import expressions.normal.BuilderExpression;
 import types.AbstractType;
 import types.SuperType;
+import static types.specific.ExpressionType.*;
 
 /**
  * Modifiers that change the behaviour of certain objects/variables.
@@ -24,7 +25,7 @@ public enum FlagType implements AbstractType {
 	/**
 	 * Tells, that the following variable is completely unchangeable/immutable.
 	 */
-	CONSTANT("const", DATA_TYPE);
+	CONSTANT("const", DATA_TYPE, NAME);
 
 	final String flag;
 
@@ -60,5 +61,5 @@ public enum FlagType implements AbstractType {
 		}
 		return false;
 	}
-	
+
 }

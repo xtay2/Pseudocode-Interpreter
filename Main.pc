@@ -1,5 +1,8 @@
 import stdlib.lang.System
 
 main {
-	print(4 + 5)
+	const a = 10
+	print(a)
 }
+
+func f(a, nr b): return a + b;

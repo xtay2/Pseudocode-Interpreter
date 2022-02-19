@@ -1,17 +1,11 @@
 package modules.parser.program;
 
-import static types.SuperType.DATA_TYPE;
-import static types.SuperType.FLAG_TYPE;
-import static types.specific.BuilderType.ARRAY_END;
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.BuilderType.CLOSE_BRACKET;
-import static types.specific.BuilderType.COMMA;
-import static types.specific.BuilderType.EXPECTED_RETURN_TYPE;
-import static types.specific.BuilderType.OPEN_BRACKET;
-import static types.specific.BuilderType.STEP;
-import static types.specific.BuilderType.TO;
-import static types.specific.KeywordType.ELSE;
-
+import static types.SuperType.*;
+import static types.specific.BuilderType.*;
+import static types.specific.FlagType.*;
+import static types.specific.KeywordType.*;
+import static types.specific.ExpressionType.*;
+import static types.specific.DataType.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,6 +48,7 @@ import expressions.possible.Assignment;
 import expressions.possible.Call;
 import expressions.possible.Crement;
 import types.specific.DataType;
+import types.specific.ExpressionType;
 import types.specific.FlagType;
 
 /**
@@ -120,7 +115,9 @@ public abstract class ValueMerger {
 		// Build the right MainExpression through recursive pattern matching.
 		Expression result = (Expression) switch (fst) {
 			case Name name:
-				if (sec.is(OPEN_BRACKET))
+				if (sec == null)
+					yield line.remove(0);
+				else if (sec.is(OPEN_BRACKET))
 					yield buildCall();
 				else if (sec.is(ARRAY_START))
 					yield buildArrayAccess();
@@ -131,7 +128,6 @@ public abstract class ValueMerger {
 						case OperationAssignment opAssign -> buildOperationAssignment();
 						case IsStatement is -> buildIsStatement();
 						case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
-						case null -> line.remove(0);
 						default -> line.remove(0);
 					};
 			case Value value:
@@ -183,11 +179,10 @@ public abstract class ValueMerger {
 						if (!flags.add((FlagType) line.remove(0).type))
 							throw new IllegalCodeFormatException(lineIndex, "Duplicate flag. Line: " + orgLine);
 					}
-					if (line.get(0) instanceof Flaggable)
-						yield buildFlaggable(flags);
-					else
-						throw new AssertionError("Flag " + build + " has to be followed by function or var-declaration.");
+
+					yield buildFlaggable(flags);
 				}
+
 			}
 			default:
 				throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
@@ -417,17 +412,23 @@ public abstract class ValueMerger {
 	 * @param flags are the flags. They get set by this Method.
 	 */
 	private static Flaggable buildFlaggable(Set<FlagType> flags) {
-		Flaggable f = switch (line.get(0)) {
-			case ExpectedType v:
-				yield buildDeclaration();
-			case Returnable r:
-				if (flags.remove(FlagType.NATIVE))
-					yield buildNativeFunc();
-				else
-					yield buildFunc();
-			default:
-				throw new IllegalArgumentException("Unknown Flaggable." + line.get(0));
-		};
+		Flaggable f = null;
+		// Declaration with optional flags
+		if (line.get(0) instanceof ExpectedType)
+			f = buildDeclaration();
+		// Declaration of a constant without type and optional flags
+		else if (flags.contains(CONSTANT) && line.get(0).is(NAME)) {
+			line.add(0, new ExpectedType(VAR, lineID));
+			f = buildDeclaration();
+		}
+		// Returnable-Declaration with optional flags
+		else if (line.get(0) instanceof Returnable) {
+			if (flags.remove(FlagType.NATIVE))
+				f = buildNativeFunc();
+			else
+				f = buildFunc();
+		} else
+			throw new IllegalArgumentException("Unknown Flaggable." + line.get(0));
 		f.setFlags(flags);
 		return f;
 	}

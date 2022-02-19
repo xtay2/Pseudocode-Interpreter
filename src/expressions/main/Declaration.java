@@ -1,5 +1,6 @@
 package expressions.main;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import exceptions.parsing.UnexpectedFlagException;
@@ -19,7 +20,7 @@ public class Declaration extends MainExpression implements MergedExpression, Fla
 
 	private Name name;
 	private ValueHolder val;
-	private Set<FlagType> flags;
+	private final Set<FlagType> flags = new HashSet<>();
 
 	public Declaration(int line, DataType type) {
 		super(line, type);
@@ -52,6 +53,6 @@ public class Declaration extends MainExpression implements MergedExpression, Fla
 
 	@Override
 	public void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
-		this.flags = flags;
+		this.flags.addAll(flags);
 	}
 }

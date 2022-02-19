@@ -4,6 +4,7 @@ import java.util.Set;
 
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.interfaces.MergedExpression;
+import expressions.main.Declaration;
 import expressions.main.functions.Function;
 import expressions.normal.containers.Variable;
 import types.specific.FlagType;
@@ -13,6 +14,7 @@ import types.specific.FlagType;
  * 
  * @see Function
  * @see Variable
+ * @see Declaration
  */
 public interface Flaggable extends MergedExpression {
 
