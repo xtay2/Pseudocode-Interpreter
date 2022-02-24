@@ -45,8 +45,10 @@ public class ForEachLoop extends Loop {
 	@Override
 	protected boolean doContinue(NumberValue iteration) {
 		// Init
-		if (iteration.equals(ZERO))
+		if (iteration.equals(ZERO)) {
 			temp = (ArrayValue) array.getValue();
+			Variable.quickCreate(lineIdentifier, DataType.VAR, elementName, null);
+		}
 		// Continuation
 		if (iteration.isGreaterEq(NumberValue.create(BigInteger.valueOf(temp.length()))))
 			return false;

@@ -3,11 +3,12 @@ package datatypes;
 import static datatypes.numerical.ConceptualNrValue.NAN;
 import static datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.SuperType.INFIX_OPERATOR;
 import static types.SuperType.KEYWORD_TYPE;
 import static types.specific.BuilderType.ARRAY_END;
 import static types.specific.BuilderType.CLOSE_BRACKET;
 import static types.specific.BuilderType.COMMA;
-import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ import types.specific.ExpressionType;
 public abstract class Value extends Expression implements ValueHolder {
 
 	public Value(DataType dataType) {
-		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD_TYPE);
+		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD_TYPE, MULTI_CALL_LINE);
 	}
 
 	/**

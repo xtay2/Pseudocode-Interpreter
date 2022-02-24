@@ -1,19 +1,19 @@
 package expressions.normal.brackets;
 
-import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.SuperType.INFIX_OPERATOR;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.specific.ExpressionType;
+import types.SuperType;
 
 public class BracketedExpression extends Expression implements ValueHolder, MergedExpression {
 
 	private ValueHolder value;
 
 	public BracketedExpression(int line) {
-		super(line, ExpressionType.MERGED, INFIX_OPERATOR);
+		super(line, SuperType.MERGED, INFIX_OPERATOR);
 	}
 
 	@Override

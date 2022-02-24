@@ -2,11 +2,10 @@ package types.specific;
 
 import static types.SuperType.BUILDER_TYPE;
 import static types.SuperType.DATA_TYPE;
+import static types.SuperType.INFIX_OPERATOR;
 import static types.SuperType.KEYWORD_TYPE;
+import static types.SuperType.POSTFIX_OPERATOR;
 import static types.specific.ExpressionType.ASSIGNMENT;
-import static types.specific.ExpressionType.DECREMENT;
-import static types.specific.ExpressionType.INCREMENT;
-import static types.specific.ExpressionType.INFIX_OPERATOR;
 import static types.specific.ExpressionType.LITERAL;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.ExpressionType.OPEN_SCOPE;
@@ -22,7 +21,7 @@ import expressions.normal.brackets.BracketedExpression;
 import expressions.possible.Call;
 import types.AbstractType;
 import types.SuperType;
-
+import static types.specific.ExpressionType.OPERATION_ASSIGNMENT;
 /**
  * Because no {@link BuilderExpression} has its own class, they, and all their expected followers
  * are defined here.
@@ -30,15 +29,15 @@ import types.SuperType;
 public enum BuilderType implements AbstractType {
 
 	/** Opened Array-Bracket [ */
-	ARRAY_START("[", LITERAL, NAME, INCREMENT, DECREMENT),
+	ARRAY_START("[", LITERAL, NAME, POSTFIX_OPERATOR),
 
 	/** Closed Array-Bracket ] */
-	ARRAY_END("]", KEYWORD_TYPE, ASSIGNMENT, NAME, INFIX_OPERATOR, OPEN_SCOPE, INCREMENT, DECREMENT),
+	ARRAY_END("]", KEYWORD_TYPE, ASSIGNMENT, NAME, INFIX_OPERATOR, OPEN_SCOPE, POSTFIX_OPERATOR, OPERATION_ASSIGNMENT),
 
 	/**
 	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
 	 */
-	OPEN_BRACKET("(", LITERAL, DATA_TYPE, NAME, ARRAY_START, INCREMENT, DECREMENT),
+	OPEN_BRACKET("(", LITERAL, DATA_TYPE, NAME, ARRAY_START, POSTFIX_OPERATOR),
 
 	/**
 	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
@@ -54,7 +53,7 @@ public enum BuilderType implements AbstractType {
 	COMMA(",", DATA_TYPE, LITERAL, NAME),
 
 	/** Open and Closing Vertical Separator | */
-	MULTI_CALL_LINE("|", NAME),
+	MULTI_CALL_LINE("|", NAME, POSTFIX_OPERATOR, LITERAL),
 
 	/** Part of the {@link FromToLoop}. */
 	TO("to", LITERAL, NAME),

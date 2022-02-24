@@ -20,7 +20,7 @@ import modules.interpreter.system.SystemFunctions;
  */
 public class NativeFunction extends Returnable {
 
-	private List<ExpectedType> expectedTypes = new ArrayList<>();
+	private final List<ExpectedType> expectedTypes = new ArrayList<>();
 
 	/** Extends the constructor from {@link Returnable}. */
 	public NativeFunction(int lineID) {

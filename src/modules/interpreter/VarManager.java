@@ -5,6 +5,8 @@ import static helper.Output.print;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import datatypes.numerical.NumberValue;
 import exceptions.parsing.IllegalCodeFormatException;
@@ -71,7 +73,12 @@ public abstract class VarManager {
 	public static void initCounter(Scope scope, NumberValue iteration) {
 		int calledInLine = scope.getStart();
 		Name varName = new Name(calledInLine, String.valueOf(counterName));
-		Variable.quickCreate(calledInLine, DataType.NUMBER, varName, iteration, FlagType.CONSTANT);
+		//// Cannot use quickCreate because of the Name-Check ////
+		Variable counter = new Variable(calledInLine, DataType.NUMBER);
+		counter.merge(varName, iteration);
+		counter.setFlags(Set.copyOf(List.of(FlagType.CONSTANT)));
+		Stack.registerVar(counter);
+		////////////////////////////////////////////////////////
 		if (counterName > (FIRST_COUNTER_NAME + LOOP_VAR_COUNT))
 			throw new IllegalCodeFormatException(calledInLine, "Nesting more than " + (LOOP_VAR_COUNT + 1) + " loops is forbidden.");
 		counterName++;

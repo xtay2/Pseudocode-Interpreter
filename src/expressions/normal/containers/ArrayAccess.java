@@ -9,7 +9,7 @@ import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueChanger;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.specific.ExpressionType;
+import types.SuperType;
 
 /** Access at a specific index for example a[19] */
 public class ArrayAccess extends Expression implements ValueChanger, MergedExpression {
@@ -18,7 +18,7 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 	private Name name;
 
 	public ArrayAccess(int line) {
-		super(line, ExpressionType.MERGED);
+		super(line, SuperType.MERGED);
 	}
 
 	/** [Name] [INDEX] (INDEX), (INDEX)... */

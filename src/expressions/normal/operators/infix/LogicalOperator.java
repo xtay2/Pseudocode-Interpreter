@@ -1,21 +1,20 @@
-package expressions.normal.operators.logic;
+package expressions.normal.operators.infix;
 
 import datatypes.BoolValue;
 import datatypes.Value;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.operators.Operator;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
+import types.specific.operators.InfixOpType;
 
 @FunctionalInterface
 interface LogicalOperation {
 	BoolValue execute(BoolValue a, BoolValue b);
 }
 
-public final class LogicalOperator extends Operator {
+public final class LogicalOperator extends InfixOperator {
 
 	private final LogicalOperation operation;
 
-	public LogicalOperator(int line, InfixOperator operator) {
+	public LogicalOperator(int line, InfixOpType operator) {
 		super(line, operator);
 		operation = switch (operator) {
 		case AND -> (b1, b2) -> BoolValue.valueOf(b1.value && b2.value);
@@ -29,11 +28,6 @@ public final class LogicalOperator extends Operator {
 
 		default -> throw new IllegalArgumentException("Unexpected value: " + operator);
 		};
-	}
-
-	@Override
-	public final Associativity getAssociativity() {
-		return Associativity.NONE;
 	}
 
 	@Override

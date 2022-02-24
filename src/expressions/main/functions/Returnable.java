@@ -31,7 +31,12 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	/** This {@link Value} can be obtained after {@link #execute()}. */
 	protected Value returnVal = null;
 
-	/** Flags for this {@link Returnable}. */
+	/**
+	 * Flags for this {@link Returnable}.
+	 * 
+	 * @deprecated WIP currently not used.
+	 */
+	@Deprecated
 	protected Set<FlagType> flags = null;
 
 	protected Returnable(int lineID) {
@@ -73,7 +78,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	public final void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
 		this.flags = flags;
 	}
-	
+
 	@Override
 	public final String toString() {
 		return Output.DEBUG ? getClass().getSimpleName() : name.getName();

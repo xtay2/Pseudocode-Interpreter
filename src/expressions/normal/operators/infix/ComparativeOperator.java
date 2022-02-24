@@ -1,21 +1,20 @@
-package expressions.normal.operators.comparative;
+package expressions.normal.operators.infix;
 
 import datatypes.BoolValue;
 import datatypes.Value;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.operators.Operator;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
+import types.specific.operators.InfixOpType;
 
 @FunctionalInterface
 interface ComparativeOperation {
 	BoolValue execute(Value a, Value b);
 }
 
-public final class ComparativeOperator extends Operator {
+public final class ComparativeOperator extends InfixOperator {
 
 	private final ComparativeOperation operation;
 
-	public ComparativeOperator(int line, InfixOperator operator) {
+	public ComparativeOperator(int line, InfixOpType operator) {
 		super(line, operator);
 		operation = switch (operator) {
 		case EQUALS -> (a, b) -> Value.eq(a, b);
@@ -29,11 +28,6 @@ public final class ComparativeOperator extends Operator {
 
 		default -> throw new IllegalArgumentException("Unexpected value: " + operator);
 		};
-	}
-
-	@Override
-	public final Associativity getAssociativity() {
-		return Associativity.NONE;
 	}
 
 	@Override

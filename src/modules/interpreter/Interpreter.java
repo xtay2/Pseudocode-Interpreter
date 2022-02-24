@@ -11,7 +11,6 @@ import expressions.abstractions.MainExpression;
 import expressions.abstractions.Scope;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.Declaration;
-import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
 import expressions.main.functions.Returnable;
 import expressions.main.statements.ReturnStatement;

@@ -86,8 +86,8 @@ public class Disassembler {
 	}
 
 	/**
-	 * Takes every region in a line, that matches a "call" pattern and is not in a
-	 * text, transforms them into {@link Call}, puts them in a list, and returns it.
+	 * Takes every region in a line, that matches a "call" pattern and is not in a text, transforms them
+	 * into {@link Call}, puts them in a list, and returns it.
 	 */
 	private static List<Call> findCalls(String line) {
 		Matcher m = Pattern.compile("\\w+\\(").matcher(line);
@@ -96,22 +96,27 @@ public class Disassembler {
 		m.results().filter(r -> Helper.isNotInString(r.start(), line)).forEach((e) -> textCalls.add(e.group()));
 		textCalls.forEach((e) -> {
 			int brack = 1, args = 0, arr = 0;
+			boolean inMultiline = false;
 			for (int i = line.indexOf(e) + e.length(); i < line.length(); i++) {
 				if (Helper.isRunnableCode(i, line)) {
-					if (line.charAt(i) == '[')
-						arr++;
-					if (line.charAt(i) == ']')
-						arr--;
-					if (brack == 1 && arr == 0 && line.charAt(i) == ',')
-						args++;
-					if (line.charAt(i) == '(')
-						brack++;
-					if (line.charAt(i) == ')')
-						brack--;
-					if (brack == 0) {
-						if (line.charAt(line.indexOf(e) + e.length()) != ')')
+					if (line.charAt(i) == '|')
+						inMultiline = !inMultiline;
+					else if (!inMultiline) {
+						if (line.charAt(i) == '[')
+							arr++;
+						if (line.charAt(i) == ']')
+							arr--;
+						if (brack == 1 && arr == 0 && line.charAt(i) == ',')
 							args++;
-						break;
+						if (line.charAt(i) == '(')
+							brack++;
+						if (line.charAt(i) == ')')
+							brack--;
+						if (brack == 0) {
+							if (line.charAt(line.indexOf(e) + e.length()) != ')')
+								args++;
+							break;
+						}
 					}
 				}
 			}
@@ -121,8 +126,8 @@ public class Disassembler {
 	}
 
 	/**
-	 * Find all calls between two lines ie {@link OpenScope} and {@link CloseScope}
-	 * of a {@link Declaration} and returns them as a List of {@link Call}.
+	 * Find all calls between two lines ie {@link OpenScope} and {@link CloseScope} of a
+	 * {@link Declaration} and returns them as a List of {@link Call}.
 	 */
 	private static List<Call> findCallsBetween(int start, int end) {
 		List<Call> calls = new ArrayList<>();
@@ -178,7 +183,8 @@ public class Disassembler {
 					recursive(d);
 				}
 			} catch (NoSuchElementException e) {
-				throw new AssertionError("Trying to call a function \"" + call.name + "\" that doesn't get defined or imported.");
+				throw new AssertionError("Trying to call a function \"" + call.name + "\" with " + call.arguments
+						+ " arguments that doesn't get defined or imported.");
 			}
 		}
 	}

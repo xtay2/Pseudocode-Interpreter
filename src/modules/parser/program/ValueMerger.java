@@ -1,11 +1,21 @@
 package modules.parser.program;
 
-import static types.SuperType.*;
-import static types.specific.BuilderType.*;
-import static types.specific.FlagType.*;
-import static types.specific.KeywordType.*;
-import static types.specific.ExpressionType.*;
-import static types.specific.DataType.*;
+import static types.SuperType.DATA_TYPE;
+import static types.SuperType.FLAG_TYPE;
+import static types.specific.BuilderType.ARRAY_END;
+import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.BuilderType.CLOSE_BRACKET;
+import static types.specific.BuilderType.COMMA;
+import static types.specific.BuilderType.EXPECTED_RETURN_TYPE;
+import static types.specific.BuilderType.MULTI_CALL_LINE;
+import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.BuilderType.STEP;
+import static types.specific.BuilderType.TO;
+import static types.specific.DataType.VAR;
+import static types.specific.ExpressionType.NAME;
+import static types.specific.FlagType.CONSTANT;
+import static types.specific.KeywordType.ELSE;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,14 +52,14 @@ import expressions.normal.containers.ArrayAccess;
 import expressions.normal.containers.Name;
 import expressions.normal.flag.Flaggable;
 import expressions.normal.operators.Operation;
-import expressions.normal.operators.Operator;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
+import expressions.normal.operators.infix.InfixOperator;
 import expressions.possible.Assignment;
 import expressions.possible.Call;
-import expressions.possible.Crement;
+import expressions.possible.multicall.MultiCall;
+import expressions.possible.multicall.MultiCallable;
 import types.specific.DataType;
-import types.specific.ExpressionType;
 import types.specific.FlagType;
+import types.specific.operators.InfixOpType;
 
 /**
  * The new and better ValueBuilder.
@@ -98,7 +108,7 @@ public abstract class ValueMerger {
 	 * (Default-Implementation)
 	 */
 	private static Expression build() {
-		return build(false);
+		return build(false, null);
 	}
 
 	/**
@@ -109,7 +119,7 @@ public abstract class ValueMerger {
 	 *                      buildOperation are allowed. If this should be false, call {@link #build()}
 	 *                      instead.
 	 */
-	private static Expression build(boolean isInOperation) {
+	private static Expression build(boolean isInOperation, MultiCallable outer) {
 		Expression fst = line.get(0);
 		Expression sec = line.size() > 1 ? line.get(1) : null;
 		// Build the right MainExpression through recursive pattern matching.
@@ -123,24 +133,24 @@ public abstract class ValueMerger {
 					yield buildArrayAccess();
 				else
 					yield switch (sec) {
-						case Crement crement -> buildPostCrement();
 						case Assignment assignment -> buildAssignment();
 						case OperationAssignment opAssign -> buildOperationAssignment();
 						case IsStatement is -> buildIsStatement();
-						case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+						case InfixOperator operation -> isInOperation ? line.remove(0) : buildOperation();
 						default -> line.remove(0);
 					};
 			case Value value:
 				yield switch (sec) {
 					case IsStatement is -> buildIsStatement();
-					case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+					case InfixOperator operation -> isInOperation ? line.remove(0) : buildOperation();
 					case null -> line.remove(0);
 					default -> line.remove(0);
 				};
 			case ArrayAccess access:
 				yield switch (sec) {
 					case IsStatement is -> buildIsStatement();
-					case Operator operation -> isInOperation ? line.remove(0) : buildOperation();
+					case InfixOperator operation -> isInOperation ? line.remove(0) : buildOperation();
+					case OperationAssignment opAssign -> buildOperationAssignment();
 					case null -> line.remove(0);
 					default -> line.remove(0);
 				};
@@ -162,8 +172,6 @@ public abstract class ValueMerger {
 				yield (CloseScope) line.remove(0);
 			case ExpectedType type:
 				yield buildDeclaration();
-			case Crement crement:
-				yield buildPreCrement();
 			case MainFunction main:
 				yield buildMain();
 			case Function func:
@@ -173,55 +181,57 @@ public abstract class ValueMerger {
 					yield buildArrayLiteral();
 				if (build.is(OPEN_BRACKET))
 					yield buildBracketedExpression();
+				if (build.is(MULTI_CALL_LINE))
+					yield buildMultiCall(outer);
 				if (build.is(FLAG_TYPE)) {
 					Set<FlagType> flags = new HashSet<>();
 					while (line.get(0).is(FLAG_TYPE)) {
 						if (!flags.add((FlagType) line.remove(0).type))
 							throw new IllegalCodeFormatException(lineIndex, "Duplicate flag. Line: " + orgLine);
 					}
-
 					yield buildFlaggable(flags);
 				}
-
 			}
 			default:
 				throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
 		};
-		// Wenn gebauter ValueHolder muss nach Operatorenverknüpfung getestet werden.
-		if (!line.isEmpty() && !isInOperation && line.get(0) instanceof Operator) {
-			line.add(0, result);
-			return buildOperation();
+		// Nach gebautem ValueHolder muss nach Operatorenverknüpfung getestet werden.
+		if (!line.isEmpty() && !isInOperation) {
+			if (line.get(0) instanceof InfixOperator) {
+				line.add(0, result);
+				return buildOperation();
+			} else if (line.get(0) instanceof Assignment) {
+				line.add(0, result);
+				return buildAssignment();
+
+			} else if (line.get(0) instanceof OperationAssignment) {
+				line.add(0, result);
+				return buildOperationAssignment();
+			}
 		}
-		if (!line.isEmpty() && line.get(0) instanceof Assignment) {
-			line.add(0, result);
-			return buildAssignment();
-		}
+
 		return result;
 	}
 
+	/** [|] [Parts] [|] */
+	private static MultiCall buildMultiCall(MultiCallable outer) {
+		MultiCall e = new MultiCall(outer, lineID);
+		e.merge(buildParts());
+		return e;
+	}
+
+	/** [OPEN] [ValueHolder] ((,) [ValueHolder])[CLOSE] */
+	private static List<Expression> buildParts() {
+		List<Expression> parts = new ArrayList<>();
+		line.remove(0); // Remove Open: [ or |
+		do {
+			if (!(line.get(0).is(MULTI_CALL_LINE)) && !(line.get(0).is(ARRAY_END)))
+				parts.add(build());
+		} while (line.remove(0).is(COMMA)); // Removes Comma / Close ] or |
+		return parts;
+	}
+
 	// BUILD-SUB-ROUTINES ----------------------------------------------------------
-
-	/**
-	 * Builds a PreCrement from the first two Expressions in pure.
-	 * 
-	 * [CREMENT] [NAME]
-	 */
-	private static Crement buildPreCrement() {
-		Crement c = (Crement) line.remove(0);
-		c.merge(c, build());
-		return c;
-	}
-
-	/**
-	 * Builds a PostCrement from the first two Expressions in pure.
-	 * 
-	 * [NAME] [CREMENT]
-	 */
-	private static Crement buildPostCrement() {
-		Crement c = (Crement) line.remove(1);
-		c.merge(build(), c);
-		return c;
-	}
 
 	/**
 	 * Builds an Assignment from three Expressions.
@@ -235,7 +245,7 @@ public abstract class ValueMerger {
 	}
 
 	/**
-	 * Builds an Operation as long as every other Expression is an {@link Operator}.
+	 * Builds an Operation as long as every other Expression is an {@link InfixOperator}.
 	 * 
 	 * [ValueHolder] ([Operator] [ValueHolder])...
 	 */
@@ -243,9 +253,9 @@ public abstract class ValueMerger {
 		Operation op = new Operation(lineID);
 		List<Expression> parts = new ArrayList<>();
 		parts.add(line.remove(0));
-		while (!line.isEmpty() && line.get(0) instanceof Operator) {
+		while (!line.isEmpty() && line.get(0) instanceof InfixOperator) {
 			parts.add(line.remove(0));
-			parts.add(build(true));
+			parts.add(build(true, null));
 		}
 		op.merge(parts);
 		return op;
@@ -265,7 +275,7 @@ public abstract class ValueMerger {
 		line.remove(0); // Remove OpenBracket
 		do {
 			if (!(line.get(0).is(CLOSE_BRACKET)))
-				parts.add(build());
+				parts.add(build(false, c));
 		} while (line.remove(0).is(COMMA));
 		c.merge(parts);
 		return c;
@@ -280,14 +290,7 @@ public abstract class ValueMerger {
 	 */
 	private static ArrayValue buildArrayLiteral() {
 		ArrayValue e = new ArrayValue(DataType.VAR_ARRAY);
-		List<Expression> parts = new ArrayList<>();
-		line.remove(0); // Remove OpenBrack
-		do {
-			if (!(line.get(0).is(ARRAY_END)))
-				parts.add(build());
-		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
-		// Filter out Commas
-		e.merge(parts);
+		e.merge(buildParts());
 		return e;
 	}
 
@@ -349,7 +352,7 @@ public abstract class ValueMerger {
 	private static ForEachLoop buildForEach() {
 		ForEachLoop e = new ForEachLoop(lineID);
 		line.remove(0); // For-Keyword
-		if (!(line.remove(1) instanceof Operator o && o.op == InfixOperator.IN))
+		if (!(line.remove(1) instanceof InfixOperator o && o.op == InfixOpType.IN))
 			throw new IllegalCodeFormatException(lineIndex, "The For-Each-Loop has to contain the \"in\"-Keyword.");
 		e.merge(line.remove(0), build(), line.remove(0)); // Name, Container, OpenScope
 		return e;
@@ -402,7 +405,7 @@ public abstract class ValueMerger {
 	/** [NAME] [OP_ASSIGN] [VALUE_HOLDER] */
 	private static OperationAssignment buildOperationAssignment() {
 		OperationAssignment e = (OperationAssignment) line.remove(1);
-		e.merge(line.remove(0), line.remove(0));
+		e.merge(line.remove(0), build());
 		return e;
 	}
 

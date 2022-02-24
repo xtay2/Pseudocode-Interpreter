@@ -12,7 +12,7 @@ import types.specific.ExpressionType;
 
 public final class CloseScope extends MainExpression implements ScopeBracket {
 
-	private OpenScope myMatch;
+	private final OpenScope myMatch;
 
 	/**
 	 * Finds the matching {@link OpenScope} after getting constructed.

@@ -1,7 +1,9 @@
 package expressions.possible.multicall;
 
-import static types.specific.ExpressionType.INFIX_OPERATOR;
+import static types.SuperType.INFIX_OPERATOR;
 import static types.specific.ExpressionType.NAME;
+
+import java.util.Arrays;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
@@ -10,12 +12,11 @@ import expressions.abstractions.PossibleMainExpression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.statements.IsStatement;
-import expressions.normal.operators.InOperator;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
-import expressions.normal.operators.logic.LogicalOperator;
+import expressions.normal.operators.infix.InOperator;
+import expressions.normal.operators.infix.LogicalOperator;
 import expressions.possible.Call;
-import expressions.possible.Crement;
-import types.specific.BuilderType;
+import types.SuperType;
+import types.specific.operators.InfixOpType;
 
 /**
  * Performs the outer Expression for each {@link MultiCallable} in it.
@@ -29,7 +30,7 @@ import types.specific.BuilderType;
  *  - Any {@link Call} that takes just one parameter:
  * 	print(|a, b|) -> print(a), print(b)
  * 
- *  - Any {@link LogicalOperator} that is an {@link InfixOperator}, on one of both side:
+ *  - Any {@link LogicalOperator} that is an {@link InfixOpType}, on one of both side:
  * 	a and |b, c| -> (a and b) or (a and c)
  * 	|a, b| or c -> (a or c) or (b or c)
  *  
@@ -54,15 +55,15 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 	private final MultiCallable outer;
 
 	public MultiCall(MultiCallable outer, int line) {
-		super(line, BuilderType.MULTI_CALL_LINE, INFIX_OPERATOR, NAME);
+		super(line, SuperType.MERGED, INFIX_OPERATOR, NAME);
 		this.outer = outer;
 	}
 
 	@Override
 	public void merge(Expression... e) {
 		if (e.length < 2)
-			throw new IllegalCodeFormatException("A Iteration has to contain atleast two elements.");
-		content = (ValueHolder[]) e;
+			throw new IllegalCodeFormatException("A MultiCall has to contain atleast two elements.");
+		content = Arrays.copyOf(e, e.length, ValueHolder[].class);
 	}
 
 	@Override

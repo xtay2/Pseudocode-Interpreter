@@ -2,7 +2,6 @@ package expressions.abstractions;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.possible.Call;
-import expressions.possible.Crement;
 import types.AbstractType;
 
 /**
@@ -16,7 +15,7 @@ import types.AbstractType;
  * multiple PossibleMainExpressions in a line.
  * 
  * Some PossibleMainExpressions include:
- * {@link Crement}, {@link Call} and {@link MultiCall}.
+ * {@link Call} and {@link MultiCall}.
  * 
  * @see Expression
  * @see MainExpression

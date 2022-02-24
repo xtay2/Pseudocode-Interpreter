@@ -1,11 +1,10 @@
 package modules.parser.program;
 
 import static types.SuperType.DATA_TYPE;
-import static types.SuperType.FLAG_TYPE;
+import static types.SuperType.*;
 import static types.SuperType.KEYWORD_TYPE;
+import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.ExpressionType.CLOSE_SCOPE;
-import static types.specific.ExpressionType.DECREMENT;
-import static types.specific.ExpressionType.INCREMENT;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.ELIF;
 import static types.specific.KeywordType.ELSE;
@@ -27,7 +26,7 @@ import expressions.main.functions.Returnable;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.brackets.OpenScope;
-import expressions.normal.operators.Operator;
+import expressions.normal.operators.infix.InfixOperator;
 import main.Main;
 import modules.finder.ExpressionFinder;
 import modules.interpreter.Interpreter;
@@ -60,7 +59,7 @@ public class ProgramLine {
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, DATA_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, INCREMENT, DECREMENT };
+		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, DATA_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR, MULTI_CALL_LINE };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -102,13 +101,13 @@ public class ProgramLine {
 	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
 	 */
 	private boolean isNewExpression(String current, char next) {
-		if (Operator.isOperator(String.valueOf(next)))
-			return !Operator.isOperator(current);
+		if (InfixOperator.isOperator(String.valueOf(next)))
+			return !InfixOperator.isOperator(current);
 		if (current.equals("++") || current.equals("--"))
 			return true;
 		if ((DataType.isType(current) && next == '[') || (DataType.isType(current.replace("[", "")) && next == ']'))
 			return false;
-		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', ';' };
+		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', ';', '|' };
 		for (char c : oneCharExpressions)
 			if (current.charAt(0) == c || next == c)
 				return true;
@@ -119,7 +118,7 @@ public class ProgramLine {
 	 * Construct and lists an Expression, based on which ExpressionType(s) are expected.
 	 */
 	private AbstractType[] constructExpression(String current, AbstractType[] expectedExpressionTypes) {
-		Expression exp = ExpressionFinder.find(current, expectedExpressionTypes, lineIdentifier);
+		Expression exp = ExpressionFinder.find(current, lineIdentifier, expectedExpressionTypes);
 		if (exp == null)
 			throw new IllegalCodeFormatException(lineIndex, "No matching Expression was found for: " //
 					+ current + "\n" //

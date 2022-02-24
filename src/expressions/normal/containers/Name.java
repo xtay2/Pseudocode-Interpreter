@@ -1,15 +1,14 @@
 package expressions.normal.containers;
 
+import static types.SuperType.*;
 import static types.specific.BuilderType.ARRAY_END;
 import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.BuilderType.CLOSE_BRACKET;
 import static types.specific.BuilderType.COMMA;
+import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.BuilderType.OPEN_BRACKET;
 import static types.specific.ExpressionType.ASSIGNMENT;
-import static types.specific.ExpressionType.DECREMENT;
-import static types.specific.ExpressionType.INCREMENT;
-import static types.specific.ExpressionType.INFIX_OPERATOR;
-import static types.SuperType.*;
+import static types.SuperType.INFIX_OPERATOR;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.ExpressionType.OPEN_SCOPE;
 import static types.specific.ExpressionType.OPERATION_ASSIGNMENT;
@@ -38,7 +37,7 @@ public class Name extends Expression implements ValueChanger {
 	/** Creates a {@link Name} from a {@link String}. */
 	public Name(int line, String name) {
 		super(line, NAME, ASSIGNMENT, OPERATION_ASSIGNMENT, OPEN_BRACKET, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_START,
-				ARRAY_END, INCREMENT, DECREMENT, KEYWORD_TYPE);
+				ARRAY_END, POSTFIX_OPERATOR, KEYWORD_TYPE, MULTI_CALL_LINE);
 		if (!isName(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
 		this.name = name;

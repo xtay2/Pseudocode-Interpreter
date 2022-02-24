@@ -8,11 +8,12 @@ import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
-import expressions.normal.operators.comparative.ComparativeOperator;
-import expressions.normal.operators.logic.LogicalOperator;
+import expressions.normal.operators.infix.ComparativeOperator;
+import expressions.normal.operators.infix.InfixOperator;
+import expressions.normal.operators.infix.LogicalOperator;
 import modules.parser.program.ValueMerger;
-import types.specific.ExpressionType;
+import types.SuperType;
+import types.specific.operators.InfixOpType;
 
 /**
  * Consist of n Operators and n + 1 ValueHolders.
@@ -23,7 +24,7 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 
 	/** Gets called when an Operation is constructed in the {@link ValueMerger}. */
 	public Operation(int line) {
-		super(line, ExpressionType.MERGED);
+		super(line, SuperType.MERGED);
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 		for (int i = 1; i < operation.size(); i += 2) {
 			if (operation.get(i) instanceof ComparativeOperator && i + 2 < operation.size()
 					&& operation.get(i + 2) instanceof ComparativeOperator) {
-				operation.add(i + 2, new LogicalOperator(lineIdentifier, InfixOperator.AND));
+				operation.add(i + 2, new LogicalOperator(lineIdentifier, InfixOpType.AND));
 				operation.add(i + 3, operation.get(i + 1));
 				i += 2;
 			}
@@ -56,13 +57,13 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 
 	@Override
 	public Value getValue() {
-		return recValue((ValueHolder) operation.get(0), (Operator) operation.get(1), (ValueHolder) operation.get(2), 0);
+		return recValue((ValueHolder) operation.get(0), (InfixOperator) operation.get(1), (ValueHolder) operation.get(2), 0);
 	}
 
 	/** Execute the operation in the correct order. */
-	private Value recValue(ValueHolder a, Operator o, ValueHolder b, int indexOfA) {
+	private Value recValue(ValueHolder a, InfixOperator o, ValueHolder b, int indexOfA) {
 		if (indexOfA + 3 < operation.size()) { // Associativity-Check
-			Operator next = (Operator) operation.get(indexOfA + 3);
+			InfixOperator next = (InfixOperator) operation.get(indexOfA + 3);
 			ValueHolder c = (ValueHolder) operation.get(indexOfA + 4);
 			if (next.op.rank > o.op.rank || o.isRightAssociative())
 				return o.perform(a, recValue(b, next, c, indexOfA + 2));

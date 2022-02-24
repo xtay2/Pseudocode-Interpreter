@@ -117,16 +117,16 @@ public final class ArrayValue extends Value implements MergedExpression {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, VAR_ARRAY -> true; // Gibt sich selbst zurück
-		case BOOL -> true; // IsEmpty
-		case NUMBER, INT -> true; // Gibt Länge zurück
-		case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
-		case TEXT -> true; // Gibt text-repräsentation zurück
-		case BOOL_ARRAY -> type == BOOL_ARRAY; // Nur wenn es ein boolarray ist.
-		case INT_ARRAY -> type == INT_ARRAY; // Nur wenn es ein intarray ist.
-		case NUMBER_ARRAY -> type == NUMBER_ARRAY; // Nur wenn es ein numberarray ist.
-		// Not supported
-		case OBJECT, OBJECT_ARRAY -> false;
+			case VAR, VAR_ARRAY -> true; // Gibt sich selbst zurück
+			case BOOL -> true; // IsEmpty
+			case NUMBER, INT -> true; // Gibt Länge zurück
+			case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
+			case TEXT -> true; // Gibt text-repräsentation zurück
+			case BOOL_ARRAY -> type == BOOL_ARRAY; // Nur wenn es ein boolarray ist.
+			case INT_ARRAY -> type == INT_ARRAY; // Nur wenn es ein intarray ist.
+			case NUMBER_ARRAY -> type == NUMBER_ARRAY; // Nur wenn es ein numberarray ist.
+			// Not supported
+			case OBJECT, OBJECT_ARRAY -> false;
 		};
 	}
 
@@ -137,12 +137,12 @@ public final class ArrayValue extends Value implements MergedExpression {
 	 */
 	public Value get(int i) {
 		return switch ((DataType) type) {
-		case VAR_ARRAY -> container[i].getValue();
-		case BOOL_ARRAY -> container[i].getValue().asBool();
-		case NUMBER_ARRAY -> container[i].getValue().asNumber();
-		case INT_ARRAY -> container[i].getValue().asInt();
-		case TEXT_ARRAY -> container[i].getValue().asText();
-		case VAR, BOOL, NUMBER, INT, TEXT, OBJECT, OBJECT_ARRAY -> throw new AssertionError("Unsupported Operation.");
+			case VAR_ARRAY -> container[i].getValue();
+			case BOOL_ARRAY -> container[i].getValue().asBool();
+			case NUMBER_ARRAY -> container[i].getValue().asNumber();
+			case INT_ARRAY -> container[i].getValue().asInt();
+			case TEXT_ARRAY -> container[i].getValue().asText();
+			case VAR, BOOL, NUMBER, INT, TEXT, OBJECT, OBJECT_ARRAY -> throw new AssertionError("Unsupported Operation.");
 		};
 	}
 
@@ -215,7 +215,7 @@ public final class ArrayValue extends Value implements MergedExpression {
 		System.arraycopy(raw(true), 0, content, 0, length());
 		System.arraycopy(a.raw(true), 0, content, length(), a.length());
 		ArrayValue arr = new ArrayValue((DataType) type);
-		arr.merge((Expression[]) content);
+		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
 		return arr;
 	}
 

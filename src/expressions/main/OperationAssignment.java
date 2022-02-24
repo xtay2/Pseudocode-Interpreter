@@ -1,6 +1,7 @@
 package expressions.main;
 
 import static helper.Output.print;
+import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.BuilderType.OPEN_BRACKET;
 import static types.specific.ExpressionType.LITERAL;
 import static types.specific.ExpressionType.NAME;
@@ -14,11 +15,12 @@ import exceptions.runtime.IllegalReturnException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.ValueChanger;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.containers.Name;
 import expressions.normal.operators.Operation;
-import expressions.normal.operators.Operator;
-import modules.interpreter.VarManager;
+import expressions.normal.operators.infix.InfixOperator;
+import modules.finder.ExpressionFinder;
+import types.SuperType;
 import types.specific.ExpressionType;
 
 /**
@@ -36,14 +38,14 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 		}
 	}
 
-	private final Operator op;
+	private final InfixOperator op;
 
-	private Name target;
+	private ValueChanger target;
 	private ValueHolder val;
 
 	private OperationAssignment(int line, Type type) {
-		super(line, OPERATION_ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET);
-		op = Operator.stringToOperator(type.label.substring(0, 1), line);
+		super(line, OPERATION_ASSIGNMENT, LITERAL, NAME, OPEN_BRACKET, ARRAY_START);
+		op = (InfixOperator) ExpressionFinder.find(type.label.replace("=", ""), line, SuperType.INFIX_OPERATOR);
 	}
 
 	/** [NAME] [VALUE_HOLDER] */
@@ -51,7 +53,7 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 	public void merge(Expression... e) {
 		if (e.length != 2)
 			throw new AssertionError("Merge on a OperationAssignment has to contain a Name and a ValueHolder.");
-		target = (Name) e[0];
+		target = (ValueChanger) e[0];
 		val = (ValueHolder) e[1];
 	}
 
@@ -59,14 +61,14 @@ public class OperationAssignment extends MainExpression implements MergedExpress
 	public boolean execute(ValueHolder... params) {
 		try {
 			List<Expression> operation = new ArrayList<>(3);
-			operation.add(VarManager.get(target.getName(), lineIdentifier));
+			operation.add(target.getValue());
 			operation.add(op);
 			operation.add(val.getValue());
 			Operation op = new Operation(lineIdentifier);
 			op.merge(operation);
 			Value value = op.getValue();
 			print("Changing the value of " + target + " to " + value);
-			VarManager.get(target.getName(), getOriginalLine()).setValue(value);
+			target.setValue(value);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			throw new IllegalReturnException(getOriginalLine(), "Function has to return a value!");

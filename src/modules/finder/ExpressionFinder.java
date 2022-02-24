@@ -13,7 +13,7 @@ public final class ExpressionFinder {
 	 * @return the matching Expression
 	 * @throws IllegalArgumentException if no matching expression was found.
 	 */
-	public static Expression find(String current, AbstractType[] expected, int lineID) {
+	public static Expression find(String current, int lineID, AbstractType... expected) {
 		for (AbstractType expT : expected) {
 			Expression exp = expT.create(current, lineID);
 			if (exp != null)

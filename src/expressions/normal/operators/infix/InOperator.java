@@ -1,23 +1,18 @@
-package expressions.normal.operators;
+package expressions.normal.operators.infix;
 
 import static types.specific.DataType.isArrayType;
 
 import datatypes.Value;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.operators.OperatorTypes.InfixOperator;
 import types.specific.DataType;
+import types.specific.operators.InfixOpType;
 
-public class InOperator extends Operator {
+public class InOperator extends InfixOperator {
 
-	protected InOperator(int line, InfixOperator op) {
+	public InOperator(int line, InfixOpType op) {
 		super(line, op);
 	}
-
-	@Override
-	public Associativity getAssociativity() {
-		return Associativity.NONE;
-	}
-
+	
 	@Override
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value element = a.getValue();
