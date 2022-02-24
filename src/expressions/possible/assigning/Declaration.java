@@ -1,28 +1,25 @@
-package expressions.main;
+package expressions.possible.assigning;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import datatypes.Value;
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.MainExpression;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
 import expressions.normal.flag.Flaggable;
 import modules.interpreter.Interpreter;
 import modules.interpreter.VarManager;
-import types.specific.DataType;
 import types.specific.FlagType;
+import types.specific.data.ExpectedType;
 
-public class Declaration extends MainExpression implements MergedExpression, Flaggable {
+public class Declaration extends Allocating implements Flaggable {
 
-	private Name name;
-	private ValueHolder val;
 	private final Set<FlagType> flags = new HashSet<>();
 
-	public Declaration(int line, DataType type) {
+	public Declaration(int line, ExpectedType type) {
 		super(line, type);
 	}
 
@@ -31,15 +28,8 @@ public class Declaration extends MainExpression implements MergedExpression, Fla
 	public void merge(Expression... e) {
 		if (e.length != 2)
 			throw new AssertionError("Merge on a Declaration has to contain a Variable and a ValueHolder.");
-		name = (Name) e[0];
+		target = (Name) e[0];
 		val = (ValueHolder) e[1];
-	}
-
-	/** Executes this Declaration and calls the next line afterwards. */
-	@Override
-	public boolean execute(ValueHolder... params) {
-		initAndRegister();
-		return callNextLine();
 	}
 
 	/**
@@ -47,12 +37,16 @@ public class Declaration extends MainExpression implements MergedExpression, Fla
 	 * 
 	 * Gets called by {@link Interpreter#registerGlobalVars}
 	 */
-	public void initAndRegister() {
-		Variable.quickCreate(lineIdentifier, (DataType) type, name, val.getValue(), flags.toArray(new FlagType[flags.size()]));
+	@Override
+	public Value getValue() {
+		Value v = val.getValue();
+		Variable.quickCreate(lineIdentifier, (ExpectedType) type, (Name) target, v, flags.toArray(new FlagType[flags.size()]));
+		return v;
 	}
 
 	@Override
 	public void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
 		this.flags.addAll(flags);
 	}
+
 }

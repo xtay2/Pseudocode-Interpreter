@@ -1,24 +1,22 @@
 package datatypes;
 
-import static types.specific.DataType.BOOL_ARRAY;
-import static types.specific.DataType.INT_ARRAY;
-import static types.specific.DataType.NUMBER_ARRAY;
-import static types.specific.DataType.TEXT_ARRAY;
-import static types.specific.DataType.VAR_ARRAY;
-import static types.specific.DataType.isArrayType;
+import static types.specific.data.ArrayType.*;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
+import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.ArrayAccess;
-import types.specific.DataType;
+import types.specific.data.ArrayType;
+import types.specific.data.DataType;
+import types.specific.data.ExpectedType;
 
 /**
  * <pre>
@@ -30,10 +28,8 @@ public final class ArrayValue extends Value implements MergedExpression {
 
 	private ValueHolder[] container;
 
-	public ArrayValue(DataType type) {
+	public ArrayValue(ArrayType type) {
 		super(type);
-		if (!isArrayType(type))
-			throw new AssertionError("Type has to be an arraytype, was: " + type);
 	}
 
 	/** Input the container-array. */
@@ -52,17 +48,15 @@ public final class ArrayValue extends Value implements MergedExpression {
 
 	@Override
 	public TextValue asText() {
-		int iMax = length() - 1;
-		if (iMax == -1)
-			return new TextValue("[]");
 		StringBuilder b = new StringBuilder();
 		b.append('[');
-		for (int i = 0;; i++) {
+		for (int i = 0; i < length(); i++) {
 			b.append(get(i).asText().value);
-			if (i == iMax)
+			if (i == length() - 1)
 				return new TextValue(b.append(']').toString());
 			b.append(", ");
 		}
+		return new TextValue("[]");
 	}
 
 	@Override
@@ -104,9 +98,7 @@ public final class ArrayValue extends Value implements MergedExpression {
 	/**
 	 * Lazily casts every value in this Array to the specified type.
 	 */
-	private ArrayValue asTypedArray(DataType t) {
-		if (!isArrayType(t))
-			throw new UnexpectedTypeError("Type has to be an arraytype. Was " + type);
+	private ArrayValue asTypedArray(ArrayType t) {
 		ArrayValue arr = new ArrayValue(t);
 		arr.merge(Arrays.copyOf(container, container.length, Expression[].class));
 		return arr;
@@ -117,16 +109,24 @@ public final class ArrayValue extends Value implements MergedExpression {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-			case VAR, VAR_ARRAY -> true; // Gibt sich selbst zurück
+			case VAR -> true; // Gibt sich selbst zurück
 			case BOOL -> true; // IsEmpty
 			case NUMBER, INT -> true; // Gibt Länge zurück
-			case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
 			case TEXT -> true; // Gibt text-repräsentation zurück
-			case BOOL_ARRAY -> type == BOOL_ARRAY; // Nur wenn es ein boolarray ist.
-			case INT_ARRAY -> type == INT_ARRAY; // Nur wenn es ein intarray ist.
-			case NUMBER_ARRAY -> type == NUMBER_ARRAY; // Nur wenn es ein numberarray ist.
 			// Not supported
-			case OBJECT, OBJECT_ARRAY -> false;
+			case OBJECT -> false;
+		};
+	}
+
+	@Override
+	public boolean canCastTo(ArrayType type) {
+		return switch (type) {
+			case VAR_ARRAY -> true; // Gibt sich selbst zurück
+			case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
+			case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
+			case BOOL_ARRAY -> type == BOOL_ARRAY; // Nur wenn es ein boolarray ist.
+			// Not supported
+			case OBJECT_ARRAY -> false;
 		};
 	}
 
@@ -136,13 +136,13 @@ public final class ArrayValue extends Value implements MergedExpression {
 	 * @see {@link ArrayAccess#getValue()}
 	 */
 	public Value get(int i) {
-		return switch ((DataType) type) {
+		return switch ((ArrayType) type) {
 			case VAR_ARRAY -> container[i].getValue();
 			case BOOL_ARRAY -> container[i].getValue().asBool();
 			case NUMBER_ARRAY -> container[i].getValue().asNumber();
 			case INT_ARRAY -> container[i].getValue().asInt();
 			case TEXT_ARRAY -> container[i].getValue().asText();
-			case VAR, BOOL, NUMBER, INT, TEXT, OBJECT, OBJECT_ARRAY -> throw new AssertionError("Unsupported Operation.");
+			case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unimplemented case: " + type);
 		};
 	}
 
@@ -208,13 +208,14 @@ public final class ArrayValue extends Value implements MergedExpression {
 	// Operations
 
 	/** Merges this {@link ArrayValue} with another one. */
-	public ArrayValue concat(ArrayValue a) {
-		if (type != a.type)
-			throw new UnexpectedTypeError("Only two arrays of the same type can be concatenated.");
+	public ArrayValue concat(ArrayValue a, int executedInLine) {
+		if (!this.canCastTo((ArrayType) a.type) || !a.canCastTo((ArrayType) this.type))
+			throw new CastingException(executedInLine,
+					"Only two arrays of the same type can be concatenated. Tried " + type + " and " + a.type);
 		ValueHolder[] content = new ValueHolder[length() + a.length()];
 		System.arraycopy(raw(true), 0, content, 0, length());
 		System.arraycopy(a.raw(true), 0, content, length(), a.length());
-		ArrayValue arr = new ArrayValue((DataType) type);
+		ArrayValue arr = new ArrayValue((ArrayType) type);
 		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
 		return arr;
 	}
@@ -227,7 +228,7 @@ public final class ArrayValue extends Value implements MergedExpression {
 		ValueHolder[] content = new ValueHolder[orgL * n];
 		for (int i = 0; i < n; i++)
 			System.arraycopy(raw(true), 0, content, i * orgL, orgL);
-		ArrayValue arr = new ArrayValue((DataType) type);
+		ArrayValue arr = new ArrayValue((ArrayType) type);
 		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
 		return arr;
 	}
@@ -239,5 +240,41 @@ public final class ArrayValue extends Value implements MergedExpression {
 				return BoolValue.TRUE;
 		}
 		return BoolValue.FALSE;
+	}
+
+	/**
+	 * Appends a value at the end of this {@link ArrayValue}.
+	 * 
+	 * @throws CastingException if the {@link ExpectedType}s didn't match.
+	 */
+	public ArrayValue append(Value val, int executedInLine) throws CastingException {
+		if (!val.canCastTo(((ArrayType) type).dataType))
+			throw new CastingException(executedInLine, "Trying to append " + val + " to " + this + ".");
+		// Create
+		ArrayValue arr = new ArrayValue((ArrayType) type);
+		ValueHolder[] content = new ValueHolder[length() + 1];
+		// Insert
+		System.arraycopy(container, 0, content, 0, length());
+		content[length()] = val;
+		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
+		return arr;
+	}
+
+	/**
+	 * Prepend a value at the front of this {@link ArrayValue}.
+	 * 
+	 * @throws CastingException if the {@link ExpectedType}s didn't match.
+	 */
+	public ArrayValue prepend(Value val, int executedInLine) throws CastingException {
+		if (!val.canCastTo(((ArrayType) type).dataType))
+			throw new CastingException(executedInLine, "Trying to prepend " + val + " to " + this + ".");
+		// Create
+		ArrayValue arr = new ArrayValue((ArrayType) type);
+		ValueHolder[] content = new ValueHolder[length() + 1];
+		// Insert
+		System.arraycopy(container, 0, content, 1, length());
+		content[0] = val;
+		arr.merge(Arrays.copyOf(content, content.length, Expression[].class));
+		return arr;
 	}
 }

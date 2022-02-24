@@ -1,10 +1,13 @@
 package datatypes.numerical;
 
+import static datatypes.numerical.ConceptualNrValue.NAN;
+import static datatypes.numerical.ConceptualNrValue.NEG_INF;
+import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.specific.data.DataType.INT;
+
 import java.math.BigInteger;
 
-import helper.Output;
-import types.specific.DataType;
-import static datatypes.numerical.ConceptualNrValue.*;
+import types.specific.data.DataType;
 
 /**
  * An Integer-Value with up to 100 digits.
@@ -17,7 +20,7 @@ public final class IntValue extends NumberValue {
 
 	/** Produces a {@link IntValue} from a {@link BigInteger}. */
 	protected IntValue(BigInteger value) {
-		super(DataType.INT);
+		super(INT);
 		this.value = value;
 	}
 
@@ -34,7 +37,7 @@ public final class IntValue extends NumberValue {
 	/** This should only get called in debugging scenarios. */
 	@Override
 	public String toString() {
-		return Output.DEBUG ? getClass().getSimpleName() : value.toString();
+		return getClass().getSimpleName() + ":" + value.toString();
 	}
 
 	@Override

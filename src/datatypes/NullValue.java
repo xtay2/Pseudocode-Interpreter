@@ -4,7 +4,7 @@ import static datatypes.numerical.NumberValue.ZERO;
 
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
-import types.specific.DataType;
+import types.specific.data.DataType;
 
 public final class NullValue extends ObjectValue {
 
@@ -43,7 +43,6 @@ public final class NullValue extends ObjectValue {
 		case BOOL -> true; // Always returns false
 		case NUMBER, INT -> true; // Always returns ZERO
 		case TEXT -> true; // Always returns "null"
-		case VAR_ARRAY, BOOL_ARRAY, NUMBER_ARRAY, INT_ARRAY, TEXT_ARRAY, OBJECT_ARRAY -> false;
 		};
 	}
 

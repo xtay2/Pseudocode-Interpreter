@@ -1,11 +1,6 @@
 package types.specific;
 
-import static types.SuperType.BUILDER_TYPE;
-import static types.SuperType.DATA_TYPE;
-import static types.SuperType.INFIX_OPERATOR;
-import static types.SuperType.KEYWORD_TYPE;
-import static types.SuperType.POSTFIX_OPERATOR;
-import static types.specific.ExpressionType.ASSIGNMENT;
+import static types.SuperType.*;
 import static types.specific.ExpressionType.LITERAL;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.ExpressionType.OPEN_SCOPE;
@@ -21,7 +16,7 @@ import expressions.normal.brackets.BracketedExpression;
 import expressions.possible.Call;
 import types.AbstractType;
 import types.SuperType;
-import static types.specific.ExpressionType.OPERATION_ASSIGNMENT;
+
 /**
  * Because no {@link BuilderExpression} has its own class, they, and all their expected followers
  * are defined here.
@@ -32,12 +27,12 @@ public enum BuilderType implements AbstractType {
 	ARRAY_START("[", LITERAL, NAME, POSTFIX_OPERATOR),
 
 	/** Closed Array-Bracket ] */
-	ARRAY_END("]", KEYWORD_TYPE, ASSIGNMENT, NAME, INFIX_OPERATOR, OPEN_SCOPE, POSTFIX_OPERATOR, OPERATION_ASSIGNMENT),
+	ARRAY_END("]", KEYWORD_TYPE, ASSIGNMENT_TYPE, NAME, INFIX_OPERATOR, OPEN_SCOPE, POSTFIX_OPERATOR),
 
 	/**
 	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
 	 */
-	OPEN_BRACKET("(", LITERAL, DATA_TYPE, NAME, ARRAY_START, POSTFIX_OPERATOR),
+	OPEN_BRACKET("(", LITERAL, EXPECTED_TYPE, NAME, ARRAY_START, POSTFIX_OPERATOR),
 
 	/**
 	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
@@ -47,10 +42,10 @@ public enum BuilderType implements AbstractType {
 	/**
 	 * An Arrow at the end of a func-declaration, used to indicate an oncoming return type.
 	 */
-	EXPECTED_RETURN_TYPE("->", DATA_TYPE),
+	EXPECTED_RETURN_TYPE("->", EXPECTED_TYPE),
 
 	/** A comma, used in Arrays, Calls, Declarations, etc.. */
-	COMMA(",", DATA_TYPE, LITERAL, NAME),
+	COMMA(",", EXPECTED_TYPE, LITERAL, NAME),
 
 	/** Open and Closing Vertical Separator | */
 	MULTI_CALL_LINE("|", NAME, POSTFIX_OPERATOR, LITERAL),

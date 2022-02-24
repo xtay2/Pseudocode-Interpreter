@@ -6,8 +6,8 @@ import expressions.normal.brackets.BracketedExpression;
 import expressions.normal.containers.ArrayAccess;
 import expressions.normal.containers.Name;
 import expressions.normal.operators.Operation;
-import expressions.possible.Assignment;
 import expressions.possible.Call;
+import expressions.possible.assigning.Assignment;
 import expressions.possible.multicall.MultiCall;
 
 /**

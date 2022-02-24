@@ -1,19 +1,17 @@
 package datatypes.numerical;
 
-import types.specific.DataType;
+import static types.specific.data.DataType.NUMBER;
 
 /**
- * This class contains the conceptual constants
- * {@link ConceptualNrValue#POS_INF}, {@link ConceptualNrValue#NEG_INF} and
- * {@link ConceptualNrValue#NAN}.
+ * This class contains the conceptual constants {@link ConceptualNrValue#POS_INF},
+ * {@link ConceptualNrValue#NEG_INF} and {@link ConceptualNrValue#NAN}.
  * 
- * Both infinite-values can be checked with {@link NumberValue#isInfinite()}.
- * They each represent the concept of an infinitly big or small number with
- * nothing more extrem following after. This means, even when multiplied or
- * added to, infinity is always the same infinite value.
+ * Both infinite-values can be checked with {@link NumberValue#isInfinite()}. They each represent
+ * the concept of an infinitly big or small number with nothing more extrem following after. This
+ * means, even when multiplied or added to, infinity is always the same infinite value.
  * 
- * Everything that has to do with limes is not a number (NaN), because it is in
- * the finite range, but neither display- or countable.
+ * Everything that has to do with limes is not a number (NaN), because it is in the finite range,
+ * but neither display- or countable.
  * 
  * For example: 1 / INF != 0
  */
@@ -29,7 +27,7 @@ public abstract class ConceptualNrValue extends NumberValue {
 	 * @param txt is their text-representation.
 	 */
 	private ConceptualNrValue(String txt) {
-		super(DataType.NUMBER);
+		super(NUMBER);
 		this.txt = txt;
 	}
 
@@ -132,8 +130,8 @@ public abstract class ConceptualNrValue extends NumberValue {
 	};
 
 	/**
-	 * Not a Number. Every limes-value or operation that fails or gets NaN as an
-	 * input, should return this.
+	 * Not a Number. Every limes-value or operation that fails or gets NaN as an input, should return
+	 * this.
 	 * 
 	 * <pre>
 	 * x / 0 = NaN

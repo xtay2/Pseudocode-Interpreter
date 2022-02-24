@@ -10,12 +10,13 @@ import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.Scope;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.main.Declaration;
 import expressions.main.functions.MainFunction;
 import expressions.main.functions.Returnable;
 import expressions.main.statements.ReturnStatement;
+import expressions.possible.assigning.Declaration;
 import main.Main;
 import modules.parser.program.Program;
+import modules.parser.program.ProgramLine;
 import types.specific.KeywordType;
 
 public final class Interpreter {
@@ -74,25 +75,26 @@ public final class Interpreter {
 		print("Pre-Compiling:" + UNDERLINE);
 		boolean hasMain = false;
 		Scope currentScope = GlobalScope.GLOBAL;
-		for (int i = 0; i < Main.PROGRAM.size(); i++) {
-			MainExpression e = Main.PROGRAM.getLine(i).getMainExpression();
-			currentScope = Main.PROGRAM.getLine(i).searchForScope();
+		for (ProgramLine l : Main.PROGRAM) {
+			int lineID = l.lineID, orgLine = l.orgLine;
+			MainExpression e = l.getMainExpression();
+			currentScope = l.searchForScope();
 			print(e.toString() + " in " + currentScope.getScopeName());
+
 			// Check func in other func
 			if (e instanceof Returnable r && currentScope != GlobalScope.GLOBAL)
-				throw new IllegalCodeFormatException(Main.PROGRAM.getLine(i).lineIndex,
-						"A function cannot be defined in another function. \nSee: \"" + r.getName() + "\" in "
-								+ currentScope.getScopeName());
+				throw new IllegalCodeFormatException(orgLine, "A function cannot be defined in another function. \nSee: \"" + r.getName()
+						+ "\" in " + currentScope.getScopeName());
 			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
-					throw new DeclarationException(Main.PROGRAM.getLine(i).lineIndex, "The main-function should be defined only once!");
-				FuncManager.registerFunction(KeywordType.MAIN.toString(), i);
+					throw new DeclarationException(orgLine, "The main-function should be defined only once!");
+				FuncManager.registerFunction(KeywordType.MAIN.toString(), lineID);
 				hasMain = true;
 			}
 			// Speichere alle Funktionsnamen (Main darf nicht gecallt werden.)
 			if (e instanceof Returnable r)
-				FuncManager.registerFunction(r.getName() + r.expectedParams(), i);
+				FuncManager.registerFunction(r.getName() + r.expectedParams(), lineID);
 		}
 		if (!hasMain)
 			throw new AssertionError("Program has to include a main-function!");
@@ -104,10 +106,9 @@ public final class Interpreter {
 	 * (Outside of functions).
 	 */
 	private static void registerGlobalVars() {
-		for (int i = 0; i < Main.PROGRAM.size(); i++) {
-			if (Main.PROGRAM.getLine(i).getMainExpression() instanceof Declaration d
-					&& Main.PROGRAM.getLine(i).searchForScope() == GlobalScope.GLOBAL)
-				d.initAndRegister();
+		for (ProgramLine l : Main.PROGRAM) {
+			if (l.getMainExpression() instanceof Declaration d && l.searchForScope() == GlobalScope.GLOBAL)
+				d.getValue();
 		}
 	}
 }

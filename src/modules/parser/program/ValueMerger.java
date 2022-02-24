@@ -1,20 +1,13 @@
 package modules.parser.program;
 
-import static types.SuperType.DATA_TYPE;
+import static types.SuperType.EXPECTED_TYPE;
 import static types.SuperType.FLAG_TYPE;
-import static types.specific.BuilderType.ARRAY_END;
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.BuilderType.CLOSE_BRACKET;
-import static types.specific.BuilderType.COMMA;
-import static types.specific.BuilderType.EXPECTED_RETURN_TYPE;
-import static types.specific.BuilderType.MULTI_CALL_LINE;
-import static types.specific.BuilderType.OPEN_BRACKET;
-import static types.specific.BuilderType.STEP;
-import static types.specific.BuilderType.TO;
-import static types.specific.DataType.VAR;
+import static types.specific.BuilderType.*;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.FlagType.CONSTANT;
 import static types.specific.KeywordType.ELSE;
+import static types.specific.data.ArrayType.VAR_ARRAY;
+import static types.specific.data.DataType.VAR;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +22,6 @@ import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.CloseScope;
-import expressions.main.Declaration;
-import expressions.main.OperationAssignment;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
 import expressions.main.functions.NativeFunction;
@@ -45,7 +36,6 @@ import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.main.statements.Statement;
 import expressions.normal.BuilderExpression;
-import expressions.normal.ExpectedType;
 import expressions.normal.brackets.BracketedExpression;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.ArrayAccess;
@@ -53,12 +43,13 @@ import expressions.normal.containers.Name;
 import expressions.normal.flag.Flaggable;
 import expressions.normal.operators.Operation;
 import expressions.normal.operators.infix.InfixOperator;
-import expressions.possible.Assignment;
 import expressions.possible.Call;
+import expressions.possible.assigning.Assignment;
+import expressions.possible.assigning.Declaration;
 import expressions.possible.multicall.MultiCall;
 import expressions.possible.multicall.MultiCallable;
-import types.specific.DataType;
 import types.specific.FlagType;
+import types.specific.data.ExpectedType;
 import types.specific.operators.InfixOpType;
 
 /**
@@ -134,7 +125,6 @@ public abstract class ValueMerger {
 				else
 					yield switch (sec) {
 						case Assignment assignment -> buildAssignment();
-						case OperationAssignment opAssign -> buildOperationAssignment();
 						case IsStatement is -> buildIsStatement();
 						case InfixOperator operation -> isInOperation ? line.remove(0) : buildOperation();
 						default -> line.remove(0);
@@ -150,7 +140,6 @@ public abstract class ValueMerger {
 				yield switch (sec) {
 					case IsStatement is -> buildIsStatement();
 					case InfixOperator operation -> isInOperation ? line.remove(0) : buildOperation();
-					case OperationAssignment opAssign -> buildOperationAssignment();
 					case null -> line.remove(0);
 					default -> line.remove(0);
 				};
@@ -170,13 +159,13 @@ public abstract class ValueMerger {
 				};
 			case CloseScope closeScope:
 				yield (CloseScope) line.remove(0);
-			case ExpectedType type:
-				yield buildDeclaration();
 			case MainFunction main:
 				yield buildMain();
 			case Function func:
 				yield buildFunc();
 			case BuilderExpression build: {
+				if (build.is(EXPECTED_TYPE))
+					yield buildDeclaration();
 				if (build.is(ARRAY_START))
 					yield buildArrayLiteral();
 				if (build.is(OPEN_BRACKET))
@@ -193,7 +182,7 @@ public abstract class ValueMerger {
 				}
 			}
 			default:
-				throw new AssertionError("Unexpected token \"" + fst + "\" in line " + lineIndex + ".");
+				throw new AssertionError("Unexpected " + fst.getClass().getSimpleName() + " \"" + fst + "\" in line " + lineIndex + ".");
 		};
 		// Nach gebautem ValueHolder muss nach Operatorenverknüpfung getestet werden.
 		if (!line.isEmpty() && !isInOperation) {
@@ -204,30 +193,32 @@ public abstract class ValueMerger {
 				line.add(0, result);
 				return buildAssignment();
 
-			} else if (line.get(0) instanceof OperationAssignment) {
-				line.add(0, result);
-				return buildOperationAssignment();
 			}
 		}
-
 		return result;
 	}
 
 	/** [|] [Parts] [|] */
 	private static MultiCall buildMultiCall(MultiCallable outer) {
 		MultiCall e = new MultiCall(outer, lineID);
-		e.merge(buildParts());
+		e.merge(buildParts(null));
 		return e;
 	}
 
-	/** [OPEN] [ValueHolder] ((,) [ValueHolder])[CLOSE] */
-	private static List<Expression> buildParts() {
+	/** [Start] [ValueHolder] ((,) [ValueHolder])] [End] */
+	private static List<Expression> buildParts(MultiCallable outer) {
 		List<Expression> parts = new ArrayList<>();
-		line.remove(0); // Remove Open: [ or |
-		do {
-			if (!(line.get(0).is(MULTI_CALL_LINE)) && !(line.get(0).is(ARRAY_END)))
-				parts.add(build());
-		} while (line.remove(0).is(COMMA)); // Removes Comma / Close ] or |
+		line.remove(0); // Start
+		if (line.get(0).is(MULTI_CALL_LINE)) {
+			parts.add(build(false, outer));
+			line.remove(0);
+		} else {
+			do {
+				Expression fst = line.get(0);
+				if (!fst.is(MULTI_CALL_LINE) && !fst.is(CLOSE_BRACKET) && !fst.is(ARRAY_END))
+					parts.add(build());
+			} while (line.remove(0).is(COMMA));
+		}
 		return parts;
 	}
 
@@ -270,13 +261,9 @@ public abstract class ValueMerger {
 	 */
 	private static Call buildCall() {
 		Call c = new Call(lineID);
-		List<Expression> parts = new ArrayList<>();
-		parts.add(line.remove(0)); // Name
-		line.remove(0); // Remove OpenBracket
-		do {
-			if (!(line.get(0).is(CLOSE_BRACKET)))
-				parts.add(build(false, c));
-		} while (line.remove(0).is(COMMA));
+		Name n = (Name) line.remove(0);
+		List<Expression> parts = buildParts(c);
+		parts.add(0, n);
 		c.merge(parts);
 		return c;
 	}
@@ -289,8 +276,8 @@ public abstract class ValueMerger {
 	 * </pre>
 	 */
 	private static ArrayValue buildArrayLiteral() {
-		ArrayValue e = new ArrayValue(DataType.VAR_ARRAY);
-		e.merge(buildParts());
+		ArrayValue e = new ArrayValue(VAR_ARRAY);
+		e.merge(buildParts(null));
 		return e;
 	}
 
@@ -402,13 +389,6 @@ public abstract class ValueMerger {
 		return e;
 	}
 
-	/** [NAME] [OP_ASSIGN] [VALUE_HOLDER] */
-	private static OperationAssignment buildOperationAssignment() {
-		OperationAssignment e = (OperationAssignment) line.remove(1);
-		e.merge(line.remove(0), build());
-		return e;
-	}
-
 	/**
 	 * Super-Routine for all Flaggables.
 	 * 
@@ -417,11 +397,11 @@ public abstract class ValueMerger {
 	private static Flaggable buildFlaggable(Set<FlagType> flags) {
 		Flaggable f = null;
 		// Declaration with optional flags
-		if (line.get(0) instanceof ExpectedType)
+		if (line.get(0).type instanceof ExpectedType)
 			f = buildDeclaration();
 		// Declaration of a constant without type and optional flags
 		else if (flags.contains(CONSTANT) && line.get(0).is(NAME)) {
-			line.add(0, new ExpectedType(VAR, lineID));
+			line.add(0, new BuilderExpression(VAR));
 			f = buildDeclaration();
 		}
 		// Returnable-Declaration with optional flags
@@ -438,7 +418,7 @@ public abstract class ValueMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	private static Declaration buildDeclaration() {
-		DataType type = ((ExpectedType) line.remove(0)).type; // Remove Type
+		ExpectedType type = (ExpectedType) line.remove(0).type; // Remove Type
 		Name name = (Name) line.remove(0); // Remove Name
 		line.remove(0); // Remove Assignment
 		Declaration e = new Declaration(lineID, type);
@@ -451,24 +431,23 @@ public abstract class ValueMerger {
 		// FUNC
 		Function e = (Function) line.remove(0);
 		List<Expression> params = new ArrayList<>();
-		params.add((Name) line.remove(0)); // Save Name
+		params.add(line.remove(0)); // Save Name
 		line.remove(0); // OpenBrack
 		// PARAMETERS
 		do {
-			if (line.get(0) instanceof ExpectedType t)
-				params.add((ExpectedType) line.remove(0));
+			if (line.get(0).is(EXPECTED_TYPE))
+				params.add(line.remove(0));
 			if (line.get(0) instanceof Name)
-				params.add((Name) line.remove(0));
+				params.add(line.remove(0));
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		// RETURN_TYPE
 		if (!line.isEmpty() && line.get(0).is(EXPECTED_RETURN_TYPE)) {
 			line.remove(0); // Pfeilsymbol
-			params.add((ExpectedType) line.remove(0));
+			params.add(line.remove(0));
 		} else
 			params.add(null);
 		// OPEN_SCOPE
-		if (line.get(0) instanceof OpenScope openScope)
-			params.add((OpenScope) line.remove(0));
+		params.add(line.remove(0));
 		e.merge(params);
 		return e;
 	}
@@ -478,11 +457,11 @@ public abstract class ValueMerger {
 		line.remove(0); // FUNC
 		NativeFunction e = new NativeFunction(lineID);
 		List<Expression> params = new ArrayList<>();
-		params.add((Name) line.remove(0));
+		params.add(line.remove(0));
 		line.remove(0); // OpenBrack
-		while (line.get(0).is(DATA_TYPE) || line.get(0).is(COMMA)) {
-			if (line.remove(0) instanceof ExpectedType t)
-				params.add(t);
+		while (line.get(0).type instanceof ExpectedType || line.get(0).is(COMMA)) {
+			if (line.get(0).type instanceof ExpectedType)
+				params.add(line.remove(0));
 		}
 		line.remove(0); // CloseBrack
 		e.merge(params);

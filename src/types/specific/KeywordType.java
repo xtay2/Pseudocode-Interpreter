@@ -60,7 +60,7 @@ public enum KeywordType implements AbstractType {
 
 	/** Checks, if the passed {@link String} is a {@link KeywordType}. */
 	public static boolean isKeyword(String arg) {
-		for (KeywordType t : KeywordType.values()) {
+		for (KeywordType t : values()) {
 			if (t.keyword.equals(arg))
 				return true;
 		}

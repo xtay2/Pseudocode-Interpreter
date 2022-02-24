@@ -9,13 +9,12 @@ import exceptions.runtime.IllegalCallException;
 import exceptions.runtime.IllegalReturnException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.ExpectedType;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
 import expressions.possible.Call;
 import modules.interpreter.Interpreter;
-import types.specific.DataType;
+import types.specific.data.ExpectedType;
 
 /**
  * This is the class for a Function-Declaration.
@@ -39,9 +38,9 @@ public class Function extends Returnable {
 		name = (Name) e[0];
 		// Names and Types of parameters.
 		for (int i = 1; i < e.length - 2; i++) {
-			if (e[i] instanceof ExpectedType) {
+			if (e[i].type instanceof ExpectedType t) {
 				if (e[i + 1] instanceof Name) {
-					paramBlueprint.put((Name) e[i + 1], ((ExpectedType) e[i]));
+					paramBlueprint.put((Name) e[i + 1], t);
 					i += 2;
 					continue;
 				}
@@ -55,9 +54,8 @@ public class Function extends Returnable {
 			}
 			throw new AssertionError("Unexpected token: " + e[i]);
 		}
-		// Optional Expected ReturnValue
-		if (e[e.length - 2] instanceof ExpectedType t)
-			returnType = t.type;
+		// Expected ReturnValue
+		returnType = (ExpectedType) e[e.length - 2];
 		initScope((OpenScope) e[e.length - 1]);
 	}
 
@@ -70,7 +68,7 @@ public class Function extends Returnable {
 		int i = 0;
 		for (Entry<Name, ExpectedType> param : paramBlueprint.entrySet()) {
 			Value v = params[i++].getValue();
-			Variable.quickCreate(lineIdentifier, (DataType) v.type, param.getKey(), v);
+			Variable.quickCreate(lineIdentifier, (ExpectedType) v.type, param.getKey(), v);
 		}
 		callFirstLine();
 		// The return-value is now set.

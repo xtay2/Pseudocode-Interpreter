@@ -1,13 +1,13 @@
 package types.specific;
 
-import static types.SuperType.*;
+import static types.SuperType.EXPECTED_TYPE;
+import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.FUNC;
 
 import expressions.abstractions.Expression;
 import expressions.normal.BuilderExpression;
 import types.AbstractType;
 import types.SuperType;
-import static types.specific.ExpressionType.*;
 
 /**
  * Modifiers that change the behaviour of certain objects/variables.
@@ -25,7 +25,7 @@ public enum FlagType implements AbstractType {
 	/**
 	 * Tells, that the following variable is completely unchangeable/immutable.
 	 */
-	CONSTANT("const", DATA_TYPE, NAME);
+	CONSTANT("const", EXPECTED_TYPE, NAME);
 
 	final String flag;
 
@@ -55,7 +55,7 @@ public enum FlagType implements AbstractType {
 
 	/** Checks, if the passed {@link String} is a {@link FlagType}. */
 	public static boolean isFlag(String arg) {
-		for (FlagType t : FlagType.values()) {
+		for (FlagType t : values()) {
 			if (t.flag.equals(arg))
 				return true;
 		}

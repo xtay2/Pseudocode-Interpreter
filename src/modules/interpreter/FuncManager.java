@@ -25,7 +25,9 @@ public abstract class FuncManager {
 
 	public static void registerFunction(String name, int line) {
 		if (funcPositions.containsKey(name))
-			throw new DeclarationException(Main.PROGRAM.getLine(line).lineIndex, "Duplicate function declaration. func " + name);
+			throw new DeclarationException(Main.PROGRAM.getLine(line).orgLine, "Duplicate function declaration. func " + name);
+		if (line < 0)
+			throw new AssertionError("LineID cannot be negative, was: " + line + " for function " + name + ".");
 		funcPositions.put(name, line);
 	}
 }

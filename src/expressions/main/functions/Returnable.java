@@ -12,8 +12,8 @@ import expressions.normal.containers.Name;
 import expressions.normal.flag.Flaggable;
 import helper.Output;
 import modules.interpreter.Interpreter;
-import types.specific.DataType;
 import types.specific.FlagType;
+import types.specific.data.ExpectedType;
 
 /**
  * This is the Superclass for {@link Function} and {@link NativeFunction}.
@@ -26,7 +26,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	protected Name name = null;
 
 	/** The expected return type. Null is equivalent to void. */
-	protected DataType returnType = null;
+	protected ExpectedType returnType = null;
 
 	/** This {@link Value} can be obtained after {@link #execute()}. */
 	protected Value returnVal = null;

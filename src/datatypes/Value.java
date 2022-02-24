@@ -23,12 +23,15 @@ import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
 import modules.parser.program.ValueBuilder;
-import types.specific.DataType;
 import types.specific.ExpressionType;
+import types.specific.data.ArrayType;
+import types.specific.data.DataType;
+import types.specific.data.ExpectedType;
 
 public abstract class Value extends Expression implements ValueHolder {
 
-	public Value(DataType dataType) {
+	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
+	public Value(ExpectedType dataType) {
 		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD_TYPE, MULTI_CALL_LINE);
 	}
 
@@ -111,19 +114,28 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * 
 	 * If the type is allways the same, use the corresponding variant.
 	 */
-	public final Value as(DataType t) {
+	public final Value as(ExpectedType t) {
 		return switch (t) {
-			case BOOL -> asBool();
-			case BOOL_ARRAY -> asBoolArray();
-			case NUMBER -> asNumber();
-			case NUMBER_ARRAY -> asNumberArray();
-			case TEXT -> asText();
-			case VAR_ARRAY -> asVarArray();
-			case TEXT_ARRAY -> asTextArray();
-			case VAR -> getValue();
-			case INT -> asInt();
-			case INT_ARRAY -> asIntArray();
-			case OBJECT, OBJECT_ARRAY -> throw new UnsupportedOperationException("Usupported case: " + t);
+			case DataType d:
+				yield switch (d) {
+					case VAR -> getValue();
+					case BOOL -> asBool();
+					case NUMBER -> asNumber();
+					case INT -> asInt();
+					case TEXT -> asText();
+					case OBJECT -> throw new UnsupportedOperationException("Unsupported case: " + d);
+				};
+			case ArrayType a:
+				yield switch (a) {
+					case VAR_ARRAY -> asVarArray();
+					case BOOL_ARRAY -> asBoolArray();
+					case INT_ARRAY -> asIntArray();
+					case NUMBER_ARRAY -> asNumberArray();
+					case TEXT_ARRAY -> asTextArray();
+					case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unsupported case: " + a);
+				};
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + t);
 		};
 	}
 
@@ -136,8 +148,13 @@ public abstract class Value extends Expression implements ValueHolder {
 	}
 
 	/** Returns a characterwise textrepresentation for default. */
-	public ArrayValue asTextArray() {
+	public ArrayValue asVarArray() {
 		return asText().asVarArray();
+	}
+
+	/** Returns a characterwise textrepresentation for default. */
+	public ArrayValue asTextArray() {
+		return asText().asTextArray();
 	}
 
 	// Optional Casting
@@ -148,10 +165,6 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	public IntValue asInt() throws CastingException {
 		throw new CastingException("A " + type + " cannot be casted to a IntValue.");
-	}
-
-	public ArrayValue asVarArray() throws CastingException {
-		throw new CastingException("A " + type + " cannot be casted to a VarArray.");
 	}
 
 	public ArrayValue asBoolArray() throws CastingException {
@@ -166,8 +179,17 @@ public abstract class Value extends Expression implements ValueHolder {
 		throw new CastingException("A " + type + " cannot be casted to a IntArray.");
 	}
 
-	/** Tells, if this Value can always be safely casted to the suggested type. */
+	/** Tells, if this Value can always be safely casted to the suggested {@link DataType}. */
 	public abstract boolean canCastTo(DataType type);
+
+	/**
+	 * Tells, if this Value can always be safely casted to the suggested {@link ArrayType}.
+	 * 
+	 * Default: Only true for charwise-text-representation, ie {@link ArrayType#TEXT_ARRAY}.
+	 */
+	public boolean canCastTo(ArrayType type) {
+		return type == ArrayType.TEXT_ARRAY;
+	}
 
 	/**
 	 * Should get implemented by all Classes that inherit this class (Value).
@@ -181,4 +203,5 @@ public abstract class Value extends Expression implements ValueHolder {
 	public final Value getValue() {
 		return this;
 	}
+
 }

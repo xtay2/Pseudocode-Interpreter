@@ -5,6 +5,7 @@ import expressions.abstractions.interfaces.MergedExpression;
 import types.AbstractType;
 import types.specific.BuilderType;
 import types.specific.FlagType;
+import types.specific.data.ExpectedType;
 
 /**
  * An {@link Expression} that later gets destructed and hasn't any persistency in the code. This
@@ -15,7 +16,7 @@ import types.specific.FlagType;
  */
 public class BuilderExpression extends Expression {
 
-	/** Private constructor. The lineID gets set to -1, because it is irrelevant at runtime. */
+	/** The lineID gets set to -1, because it is irrelevant at runtime. */
 	private BuilderExpression(AbstractType type, AbstractType... expected) {
 		super(-1, type, expected);
 		if (type == null)
@@ -23,13 +24,18 @@ public class BuilderExpression extends Expression {
 	}
 
 	/** Creates a {@link BuilderExpression} from a {@link BuilderType}. */
-	public BuilderExpression(BuilderType type) {
-		this(type, type.expected);
+	public BuilderExpression(BuilderType t) {
+		this(t, t.expected);
 	}
 
 	/** Creates a {@link BuilderExpression} from a {@link FlagType}. */
-	public BuilderExpression(FlagType type) {
-		this(type, type.expected);
+	public BuilderExpression(FlagType t) {
+		this(t, t.expected);
+	}
+
+	/** Creates a {@link BuilderExpression} from an {@link ExpectedType}. */
+	public BuilderExpression(ExpectedType t) {
+		this(t, ExpectedType.getExpected());
 	}
 
 	@Override

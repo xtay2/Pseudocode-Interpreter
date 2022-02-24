@@ -1,7 +1,8 @@
 package expressions.abstractions;
 
-import static types.specific.DataType.INT;
-import static types.specific.DataType.NUMBER;
+import static types.SuperType.EXPECTED_TYPE;
+import static types.specific.data.DataType.INT;
+import static types.specific.data.DataType.NUMBER;
 
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.normal.BuilderExpression;
@@ -12,7 +13,7 @@ import types.AbstractType;
 import types.SuperType;
 import types.specific.ExpressionType;
 import types.specific.KeywordType;
-
+import types.specific.data.ExpectedType;
 
 /**
  * Every little part of a program is an expression. This includes names, values, brackets and
@@ -67,7 +68,7 @@ public abstract class Expression {
 	 * Returns the corresponding line, shown in the text-editor of the user.
 	 */
 	public final int getOriginalLine() {
-		return Main.PROGRAM.getLine(lineIdentifier).lineIndex;
+		return Main.PROGRAM.getLine(lineIdentifier).orgLine;
 	}
 
 	/**
@@ -75,7 +76,12 @@ public abstract class Expression {
 	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
 	 */
 	public final boolean is(AbstractType type) {
-		return type == this.type || (type instanceof SuperType s && this.type.is(s)) || (type == NUMBER && this.type == INT);
+		// @formatter:off
+		return type == this.type 
+				|| (type instanceof SuperType s && this.type.is(s)) 
+				|| (type == NUMBER && this.type == INT)
+				|| (type == EXPECTED_TYPE && this.type instanceof ExpectedType);
+		// @formatter:on
 	}
 
 	/**

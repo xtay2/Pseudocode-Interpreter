@@ -18,9 +18,6 @@ func add(var a) {
 
 func remove(int index) {
 	var[] new = []
-	for e in list {
-		print(new)
-		if i != index: new[i] += e;
-	}
+	for e in list: if i != index: new += e;
 	list = new
 }

@@ -1,6 +1,7 @@
 package datatypes.numerical;
 
 import static datatypes.numerical.ConceptualNrValue.NAN;
+import static types.specific.data.DataType.NUMBER;
 
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import helper.Helper;
 import helper.Output;
 import modules.interpreter.system.SystemFunctions;
-import types.specific.DataType;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */
 public final class DecimalValue extends NumberValue {
@@ -46,7 +46,7 @@ public final class DecimalValue extends NumberValue {
 
 	/** Produces a rational Number. This fraction has to be already reduced. */
 	protected DecimalValue(BigInteger numerator, BigInteger denominator) {
-		super(DataType.NUMBER);
+		super(NUMBER);
 		// Assertions
 		if (denominator.equals(BigInteger.ZERO))
 			throw new AssertionError("Denominator cannot be zero, use NaN instead.");

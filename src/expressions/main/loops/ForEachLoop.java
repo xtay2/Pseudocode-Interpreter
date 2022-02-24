@@ -2,6 +2,7 @@ package expressions.main.loops;
 
 import static datatypes.numerical.NumberValue.ZERO;
 import static types.specific.ExpressionType.NAME;
+import static types.specific.data.DataType.VAR;
 
 import java.math.BigInteger;
 
@@ -14,7 +15,6 @@ import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
 import modules.interpreter.VarManager;
-import types.specific.DataType;
 import types.specific.KeywordType;
 
 public class ForEachLoop extends Loop {
@@ -47,16 +47,16 @@ public class ForEachLoop extends Loop {
 		// Init
 		if (iteration.equals(ZERO)) {
 			temp = (ArrayValue) array.getValue();
-			Variable.quickCreate(lineIdentifier, DataType.VAR, elementName, null);
+			Variable.quickCreate(lineIdentifier, VAR, elementName, null);
 		}
 		// Continuation
-		if (iteration.isGreaterEq(NumberValue.create(BigInteger.valueOf(temp.length()))))
+		if (iteration.isGreaterThan(NumberValue.create(BigInteger.valueOf(temp.length()))))
 			return false;
 		// Variable
 		Value e = temp.get(iteration.asInt().value.intValueExact());
 		Variable var = VarManager.get(elementName.getName(), getOriginalLine());
 		if (var == null)
-			var = Variable.quickCreate(lineIdentifier, DataType.VAR, elementName, null);
+			var = Variable.quickCreate(lineIdentifier, VAR, elementName, null);
 		var.setValue(e);
 		return true;
 	}

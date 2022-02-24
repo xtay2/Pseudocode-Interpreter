@@ -3,20 +3,9 @@ package types;
 import expressions.abstractions.Expression;
 import modules.finder.ExpressionFinder;
 import modules.parser.program.ProgramLine;
-import types.specific.BuilderType;
-import types.specific.DataType;
-import types.specific.ExpressionType;
-import types.specific.FlagType;
-import types.specific.KeywordType;
 
 /**
- * This is a marker Interface for all Types. It gets used in every {@link Expression}.
- * 
- * @see BuilderType
- * @see DataType
- * @see KeywordType
- * @see ExpressionType
- * @see FlagType
+ * This is the Super-Interface for all Types. It gets used in every {@link Expression}.
  */
 public interface AbstractType {
 

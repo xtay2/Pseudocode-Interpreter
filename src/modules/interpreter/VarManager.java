@@ -2,6 +2,7 @@ package modules.interpreter;
 
 import static expressions.abstractions.GlobalScope.GLOBAL;
 import static helper.Output.print;
+import static types.specific.data.DataType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +17,7 @@ import expressions.abstractions.Scope;
 import expressions.main.loops.Loop;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
-import types.specific.DataType;
 import types.specific.FlagType;
-import types.specific.KeywordType;
 
 public abstract class VarManager {
 
@@ -74,7 +73,7 @@ public abstract class VarManager {
 		int calledInLine = scope.getStart();
 		Name varName = new Name(calledInLine, String.valueOf(counterName));
 		//// Cannot use quickCreate because of the Name-Check ////
-		Variable counter = new Variable(calledInLine, DataType.NUMBER);
+		Variable counter = new Variable(calledInLine, NUMBER);
 		counter.merge(varName, iteration);
 		counter.setFlags(Set.copyOf(List.of(FlagType.CONSTANT)));
 		Stack.registerVar(counter);
@@ -97,8 +96,8 @@ public abstract class VarManager {
 			if (String.valueOf((char) (FIRST_COUNTER_NAME + b)).equals(name))
 				throw new DeclarationException(calledInLine, "Variable cannot be manually declared with a counter-name. ("
 						+ FIRST_COUNTER_NAME + "-" + (char) (FIRST_COUNTER_NAME + LOOP_VAR_COUNT) + ") was " + name);
-		if (KeywordType.isKeyword(name) || DataType.isType(name))
-			throw new IllegalArgumentException("A Variable cannot be named after a keyword or a type.");
+		if (!Name.isName(name))
+			throw new IllegalArgumentException("A Variable has to be alphanumerical and cannot be named after a keyword or a type.");
 	}
 
 }

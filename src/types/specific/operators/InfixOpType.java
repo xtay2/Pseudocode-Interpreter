@@ -2,7 +2,6 @@ package types.specific.operators;
 
 import static expressions.normal.operators.infix.InfixOperator.Associativity.LEFT;
 
-import expressions.main.OperationAssignment.Type;
 import expressions.normal.operators.infix.ArithmeticOperator;
 import expressions.normal.operators.infix.ComparativeOperator;
 import expressions.normal.operators.infix.InOperator;

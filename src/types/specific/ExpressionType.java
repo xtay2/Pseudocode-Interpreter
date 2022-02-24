@@ -3,23 +3,12 @@ package types.specific;
 import datatypes.Value;
 import expressions.abstractions.Expression;
 import expressions.main.CloseScope;
-import expressions.main.Declaration;
-import expressions.main.OperationAssignment;
 import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
-import expressions.possible.Assignment;
 import types.AbstractType;
 import types.SuperType;
 
 public enum ExpressionType implements AbstractType {
-
-	/**
-	 * = Zeichen
-	 *
-	 * @see Declaration
-	 * @see Assignment
-	 */
-	ASSIGNMENT("="),
 
 	/**
 	 * Ausgeschriebener Wert.
@@ -47,14 +36,7 @@ public enum ExpressionType implements AbstractType {
 	 *
 	 * @see CloseBlock
 	 */
-	CLOSE_SCOPE("}"),
-
-	/**
-	 * +=, -=, *=, /=, %=, ^=
-	 * 
-	 * @see OperationDeclaration
-	 */
-	OPERATION_ASSIGNMENT("Operation-Declaration");
+	CLOSE_SCOPE("}");
 
 	private final String expression;
 
@@ -71,12 +53,10 @@ public enum ExpressionType implements AbstractType {
 	public Expression create(String arg, int lineID) {
 		return switch (this) {
 			// Direct build
-			case ASSIGNMENT -> "=".equals(arg) ? new Assignment(lineID) : null;
 			case OPEN_SCOPE -> "{".equals(arg) ? new OpenScope(lineID) : null;
 			case CLOSE_SCOPE -> "}".equals(arg) ? new CloseScope(lineID) : null;
 			case NAME -> Name.isName(arg) ? new Name(lineID, arg) : null;
 			// External build
-			case OPERATION_ASSIGNMENT -> OperationAssignment.stringToOpAssign(arg, lineID);
 			case LITERAL -> Value.stringToLiteral(arg);
 		};
 	}

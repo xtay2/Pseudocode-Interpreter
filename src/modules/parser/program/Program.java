@@ -1,8 +1,11 @@
 package modules.parser.program;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public final class Program {
+import modules.interpreter.Interpreter;
+
+public final class Program implements Iterable<ProgramLine> {
 
 	/** All lines of code, strongly indexed. */
 	private final ArrayList<ProgramLine> program = new ArrayList<>(20);
@@ -42,12 +45,11 @@ public final class Program {
 	 * @return the ProgramLine at that index.
 	 */
 	public ProgramLine getLine(int i) {
-		return program.get(i);
-	}
-
-	/** Number of lines in this program. */
-	public int size() {
-		return program.size();
+		try {
+			return program.get(i);
+		} catch (IndexOutOfBoundsException e) {
+			throw new AssertionError("Tried to read line " + i + " from PROGRAM in Main.");
+		}
 	}
 
 	@Override
@@ -56,5 +58,11 @@ public final class Program {
 		for (ProgramLine l : program)
 			out += l.toString() + "\n";
 		return out;
+	}
+
+	/** Gets used in the {@link Interpreter}. */
+	@Override
+	public Iterator<ProgramLine> iterator() {
+		return program.iterator();
 	}
 }

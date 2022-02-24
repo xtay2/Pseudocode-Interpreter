@@ -34,6 +34,7 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 	@Override
 	public Value getValue() {
 		ArrayValue arr = name.getValue().asVarArray();
+		System.out.println(arr);
 		for (ValueHolder index : indices)
 			return arr.get(index.getValue().asInt().value.intValueExact());
 		throw new ArrayAccessException(getOriginalLine(),

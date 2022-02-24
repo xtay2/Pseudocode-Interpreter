@@ -1,9 +1,11 @@
 package datatypes;
 
+import static types.specific.data.DataType.BOOL;
+
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import exceptions.runtime.UnexpectedTypeError;
-import types.specific.DataType;
+import types.specific.data.DataType;
 
 public class BoolValue extends Value {
 
@@ -14,7 +16,7 @@ public class BoolValue extends Value {
 
 	/** Private constructor for the two constants. */
 	private BoolValue(boolean val) {
-		super(DataType.BOOL);
+		super(BOOL);
 		value = val;
 	}
 
@@ -46,11 +48,11 @@ public class BoolValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, BOOL -> true; // Returns this
-		case NUMBER, INT -> true; // Returns 0 or 1
-		case TEXT, TEXT_ARRAY -> true; // Text or CharArray-Representation.
-		// Not Supported
-		case VAR_ARRAY, NUMBER_ARRAY, INT_ARRAY, BOOL_ARRAY, OBJECT, OBJECT_ARRAY -> false;
+			case VAR, BOOL -> true; // Returns this
+			case NUMBER, INT -> true; // Returns 0 or 1
+			case TEXT -> true; // Text-Representation.
+			// Not supported
+			case OBJECT -> false;
 		};
 	}
 

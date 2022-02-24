@@ -57,6 +57,8 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 	public MultiCall(MultiCallable outer, int line) {
 		super(line, SuperType.MERGED, INFIX_OPERATOR, NAME);
 		this.outer = outer;
+		if (outer == null)
+			throw new AssertionError("Outer cannot be null.");
 	}
 
 	@Override

@@ -1,13 +1,12 @@
 package expressions.normal.operators.infix;
 
-import static types.specific.DataType.NUMBER;
-import static types.specific.DataType.TEXT;
+import static types.specific.data.DataType.NUMBER;
+import static types.specific.data.DataType.TEXT;
 
 import datatypes.ArrayValue;
 import datatypes.Value;
 import datatypes.numerical.NumberValue;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.specific.DataType;
 import types.specific.operators.InfixOpType;
 
 public class ArithmeticOperator extends InfixOperator {
@@ -33,22 +32,22 @@ public class ArithmeticOperator extends InfixOperator {
 	}
 
 	/**
-	 * {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or append/prepend element to
-	 * arrays.
+	 * {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
+	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
 	 */
 	private Value add(Value a, Value b) {
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
-			return a1.concat(a2);
+			return a1.concat(a2, getOriginalLine());
 		// Arithmetical Addition
 		if (a.is(NUMBER) && b.is(NUMBER))
 			return a.asNumber().add(b.asNumber());
 		// Array Addition End
-		if (a instanceof ArrayValue a1 && !(b instanceof ArrayValue))
-			return a1.concat(b.as((DataType) a1.type).asVarArray());
+		if (a instanceof ArrayValue arr && !(b instanceof ArrayValue))
+			return arr.append(b, getOriginalLine());
 		// Array Addition Start
-		if (!(a instanceof ArrayValue) && b instanceof ArrayValue a2)
-			return a.as((DataType) a2.type).asVarArray().concat(a2);
+		if (!(a instanceof ArrayValue) && b instanceof ArrayValue arr)
+			return arr.prepend(a, getOriginalLine());
 		return a.asText().concat(b.asText());
 	}
 

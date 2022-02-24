@@ -4,9 +4,9 @@ import java.util.Set;
 
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.interfaces.MergedExpression;
-import expressions.main.Declaration;
 import expressions.main.functions.Function;
 import expressions.normal.containers.Variable;
+import expressions.possible.assigning.Declaration;
 import types.specific.FlagType;
 
 /**

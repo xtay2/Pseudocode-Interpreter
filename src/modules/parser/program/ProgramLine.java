@@ -1,8 +1,9 @@
 package modules.parser.program;
 
-import static types.SuperType.DATA_TYPE;
-import static types.SuperType.*;
+import static types.SuperType.EXPECTED_TYPE;
+import static types.SuperType.FLAG_TYPE;
 import static types.SuperType.KEYWORD_TYPE;
+import static types.SuperType.PREFIX_OPERATOR;
 import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.ExpressionType.CLOSE_SCOPE;
 import static types.specific.ExpressionType.NAME;
@@ -32,25 +33,32 @@ import modules.finder.ExpressionFinder;
 import modules.interpreter.Interpreter;
 import modules.parser.Parser;
 import types.AbstractType;
-import types.specific.DataType;
+import types.specific.data.DataType;
 
 public class ProgramLine {
 
 	private final ArrayList<Expression> expressions = new ArrayList<>();
 	final String line;
-	private final int lineIdentifier;
-	public final int lineIndex;
+
+	/** The original line from the users editor. */
+	public final int orgLine;
+
+	/** The unique lineID that this program generated. */
+	public final int lineID;
+
 	private MainExpression main;
 
 	/**
 	 * Save a line of code and build its object-expression-representation.
 	 *
-	 * @param line is the content of this line of code.
+	 * @param line    is the content of this line of code.
+	 * @param lineID  is the unique identifier.
+	 * @param orgLine is the line from the users editor.
 	 */
-	public ProgramLine(String line, int lineIdentifier, int lineIndex) {
+	public ProgramLine(String line, int lineID, int orgLine) {
 		this.line = line;
-		this.lineIdentifier = lineIdentifier;
-		this.lineIndex = lineIndex;
+		this.lineID = lineID;
+		this.orgLine = orgLine;
 	}
 
 	/**
@@ -59,7 +67,8 @@ public class ProgramLine {
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, DATA_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR, MULTI_CALL_LINE };
+		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR,
+				MULTI_CALL_LINE };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -88,7 +97,7 @@ public class ProgramLine {
 			current += c;
 		}
 		if (inString)
-			throw new IllegalCodeFormatException(lineIndex, "String has to be closed.");
+			throw new IllegalCodeFormatException(orgLine, "String has to be closed.");
 		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			constructExpression(current.strip(), expectedExpressionTypes);
 		if (expressions.isEmpty())
@@ -118,9 +127,9 @@ public class ProgramLine {
 	 * Construct and lists an Expression, based on which ExpressionType(s) are expected.
 	 */
 	private AbstractType[] constructExpression(String current, AbstractType[] expectedExpressionTypes) {
-		Expression exp = ExpressionFinder.find(current, lineIdentifier, expectedExpressionTypes);
+		Expression exp = ExpressionFinder.find(current, lineID, expectedExpressionTypes);
 		if (exp == null)
-			throw new IllegalCodeFormatException(lineIndex, "No matching Expression was found for: " //
+			throw new IllegalCodeFormatException(orgLine, "No matching Expression was found for: " //
 					+ current + "\n" //
 					+ "Expected " + (expectedExpressionTypes.length == 0 ? "a linebreak" : Arrays.toString(expectedExpressionTypes))
 					+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
@@ -131,21 +140,21 @@ public class ProgramLine {
 
 	/** Returns the last IfStatement or ElifStatement. */
 	private ConditionalStatement findLastIf() {
-		if (lineIdentifier == 0)
-			throw new IllegalCodeFormatException(lineIndex, "An elif/else Statement needs a predecessing IfStatement.");
-		MainExpression previous = Main.PROGRAM.getLine(lineIdentifier - 1).getMainExpression();
+		if (lineID == 0)
+			throw new IllegalCodeFormatException(orgLine, "An elif/else Statement needs a predecessing IfStatement.");
+		MainExpression previous = Main.PROGRAM.getLine(lineID - 1).getMainExpression();
 		if (previous.is(IF) || previous.is(ELIF))
 			return (ConditionalStatement) previous;
-		return Main.PROGRAM.getLine(lineIdentifier - 1).findLastIf();
+		return Main.PROGRAM.getLine(lineID - 1).findLastIf();
 	}
 
 	/** Merges the {@link MainExpression} from the constructed {@link #expressions}. */
 	void merge() {
-		main = ValueMerger.buildLine(expressions, lineIdentifier, lineIndex);
+		main = ValueMerger.buildLine(expressions, lineID, orgLine);
 		expressions.clear();
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		if (main instanceof ReturnStatement)
-			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc());
+			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineID - 1).searchForFunc());
 		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
 		else if (main.is(ELIF) || main.is(ELSE))
 			findLastIf().setNextElse((ConditionalStatement) main);
@@ -157,9 +166,9 @@ public class ProgramLine {
 	private Function searchForFunc() {
 		if (main instanceof Function)
 			return (Function) main;
-		if (lineIdentifier == 0)
-			throw new IllegalCodeFormatException(lineIndex, "Return-Statement has to be declared inside a function.");
-		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForFunc();
+		if (lineID == 0)
+			throw new IllegalCodeFormatException(orgLine, "Return-Statement has to be declared inside a function.");
+		return Main.PROGRAM.getLine(lineID - 1).searchForFunc();
 	}
 
 	/**
@@ -175,7 +184,7 @@ public class ProgramLine {
 			return GlobalScope.GLOBAL;
 		if (main instanceof ScopeHolder s)
 			return s.getScope();
-		if (lineIdentifier == 0)
+		if (lineID == 0)
 			return GlobalScope.GLOBAL;
 		if (main instanceof CloseScope) {
 			ProgramLine match = Main.PROGRAM.getLine(((OpenScope) ((CloseScope) main).getMatch()).lineIdentifier);
@@ -184,7 +193,7 @@ public class ProgramLine {
 			if (match.getMainExpression() instanceof Function)
 				return GlobalScope.GLOBAL;
 		}
-		return Main.PROGRAM.getLine(lineIdentifier - 1).searchForScope();
+		return Main.PROGRAM.getLine(lineID - 1).searchForScope();
 	}
 
 	/** Returns the constructed but unmerged {@link #expressions}. */
@@ -198,12 +207,12 @@ public class ProgramLine {
 	public MainExpression getMainExpression() {
 		if (main != null)
 			return main;
-		throw new AssertionError("MainExpression of line " + lineIndex + " is null at this point.");
+		throw new AssertionError("MainExpression of line " + orgLine + " is null at this point.");
 	}
 
 	@Override
 	public String toString() {
-		return lineIdentifier + "\t" + line;
+		return lineID + "\t" + line;
 	}
 
 }

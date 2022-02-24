@@ -3,6 +3,8 @@ package datatypes.numerical;
 import static datatypes.numerical.ConceptualNrValue.NAN;
 import static datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.specific.data.DataType.INT;
+import static types.specific.data.DataType.NUMBER;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -13,7 +15,7 @@ import datatypes.TextValue;
 import datatypes.Value;
 import exceptions.runtime.UnexpectedTypeError;
 import helper.Helper;
-import types.specific.DataType;
+import types.specific.data.DataType;
 
 public abstract class NumberValue extends Value {
 
@@ -60,7 +62,7 @@ public abstract class NumberValue extends Value {
 	 */
 	protected NumberValue(DataType dataType) {
 		super(dataType);
-		if (dataType != DataType.INT && dataType != DataType.NUMBER)
+		if (dataType != INT && dataType != NUMBER)
 			throw new AssertionError("DataType has to be INT or NUMBER.");
 	}
 
@@ -169,11 +171,11 @@ public abstract class NumberValue extends Value {
 	@Override
 	public final boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, NUMBER, INT -> true; // Returns this
-		case BOOL -> true; // Returns false for NaN and true for everything else
-		case TEXT, TEXT_ARRAY -> true; // Text or CharArray-Representation
-		// Not supported
-		case VAR_ARRAY, NUMBER_ARRAY, INT_ARRAY, BOOL_ARRAY, OBJECT, OBJECT_ARRAY -> false;
+			case VAR, NUMBER, INT -> true; // Returns this
+			case BOOL -> true; // Returns false for NaN and true for everything else
+			case TEXT -> true; // Text or CharArray-Representation
+			// Not supported
+			case OBJECT -> false;
 		};
 	}
 

@@ -3,6 +3,8 @@ package datatypes;
 import static datatypes.numerical.ConceptualNrValue.NAN;
 import static datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.specific.data.ArrayType.TEXT_ARRAY;
+import static types.specific.data.DataType.TEXT;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -14,7 +16,7 @@ import exceptions.runtime.ShouldBeNaturalNrException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.specific.DataType;
+import types.specific.data.DataType;
 
 public final class TextValue extends Value {
 
@@ -27,7 +29,7 @@ public final class TextValue extends Value {
 
 	/** Creates a {@link TextValue} from a {@link String}. */
 	public TextValue(String val) {
-		super(DataType.TEXT);
+		super(TEXT);
 		value = val;
 	}
 
@@ -89,7 +91,7 @@ public final class TextValue extends Value {
 		ValueHolder[] chars = new ValueHolder[value.length()];
 		for (int i = 0; i < value.length(); i++)
 			chars[i] = (new TextValue(value.charAt(i)));
-		ArrayValue arr = new ArrayValue(DataType.TEXT_ARRAY);
+		ArrayValue arr = new ArrayValue(TEXT_ARRAY);
 		arr.merge((Expression[]) chars);
 		return arr;
 	}
@@ -102,15 +104,14 @@ public final class TextValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, TEXT -> true; // Returns this
-		case VAR_ARRAY, TEXT_ARRAY -> true; // CharArray-Representation.
-		case NUMBER, INT -> true; // The number or NAN if its just text.
-		case BOOL -> value.equals("true") || value.equals("false"); // Nur wenn es tatsächlich ein Boolean literal ist.
-		// Not Supported
-		case NUMBER_ARRAY, INT_ARRAY, BOOL_ARRAY, OBJECT, OBJECT_ARRAY -> false;
+			case VAR, TEXT -> true; // Returns this
+			case NUMBER, INT -> true; // The number or NAN if its just text.
+			case BOOL -> value.equals("true") || value.equals("false"); // Nur wenn es tatsächlich ein Boolean literal ist.
+			// Not Supported
+			case OBJECT -> false;
 		};
 	}
-	
+
 	@Override
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof TextValue n)

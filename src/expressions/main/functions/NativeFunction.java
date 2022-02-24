@@ -6,11 +6,11 @@ import java.util.List;
 import exceptions.runtime.IllegalCallException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.ExpectedType;
 import expressions.normal.containers.Name;
 import expressions.possible.Call;
 import modules.interpreter.Interpreter;
 import modules.interpreter.system.SystemFunctions;
+import types.specific.data.ExpectedType;
 
 /**
  * This is the class for a native Function-Declaration.
@@ -27,12 +27,16 @@ public class NativeFunction extends Returnable {
 		super(lineID);
 	}
 
-	/** [NAME] */
+	/** [NAME] (TYPE) (TYPE)... */
 	@Override
 	public void merge(Expression... e) {
 		name = (Name) e[0];
-		for (int i = 1; i < e.length; i++)
-			expectedTypes.add((ExpectedType) e[i]);
+		for (int i = 1; i < e.length; i++) {
+			if (e[i].type instanceof ExpectedType t)
+				expectedTypes.add(t);
+			else
+				throw new AssertionError("This Method takes only one Name and BuilderExpressions with ExpectedTypes. Got: " + e[i]);
+		}
 	}
 
 	@Override
