@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import expressions.abstractions.Expression;
 import expressions.main.functions.Function;
-import expressions.main.loops.FromToLoop;
+import expressions.main.loops.IntervalLoop;
 import expressions.normal.BuilderExpression;
 import expressions.normal.brackets.BracketedExpression;
 import expressions.possible.Call;
@@ -50,10 +50,10 @@ public enum BuilderType implements AbstractType {
 	/** Open and Closing Vertical Separator | */
 	MULTI_CALL_LINE("|", NAME, POSTFIX_OPERATOR, LITERAL),
 
-	/** Part of the {@link FromToLoop}. */
+	/** Part of the {@link IntervalLoop}. */
 	TO("to", LITERAL, NAME),
 
-	/** Part of the {@link FromToLoop}. */
+	/** Part of the {@link IntervalLoop}. */
 	STEP("step", LITERAL, NAME);
 
 	public final String id;

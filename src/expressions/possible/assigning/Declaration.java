@@ -6,12 +6,12 @@ import java.util.Set;
 import datatypes.Value;
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
 import expressions.normal.flag.Flaggable;
 import modules.interpreter.Interpreter;
-import modules.interpreter.VarManager;
 import types.specific.FlagType;
 import types.specific.data.ExpectedType;
 
@@ -19,8 +19,8 @@ public class Declaration extends Allocating implements Flaggable {
 
 	private final Set<FlagType> flags = new HashSet<>();
 
-	public Declaration(int line, ExpectedType type) {
-		super(line, type);
+	public Declaration(int lineID, ExpectedType type) {
+		super(lineID, type);
 	}
 
 	/** [Name] [VALUEHOLDER] */
@@ -33,14 +33,14 @@ public class Declaration extends Allocating implements Flaggable {
 	}
 
 	/**
-	 * Initialises the {@link Variable} with its value and registers it at the {@link VarManager}.
+	 * Initialises the {@link Variable} with its value and registers it in its {@link Scope}.
 	 * 
 	 * Gets called by {@link Interpreter#registerGlobalVars}
 	 */
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		Variable.quickCreate(lineIdentifier, (ExpectedType) type, (Name) target, v, flags.toArray(new FlagType[flags.size()]));
+		Variable.quickCreate(lineIdentifier, getScope(), (ExpectedType) type, (Name) target, v, flags.toArray(new FlagType[flags.size()]));
 		return v;
 	}
 

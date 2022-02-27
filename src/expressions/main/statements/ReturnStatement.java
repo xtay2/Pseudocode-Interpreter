@@ -15,8 +15,8 @@ public class ReturnStatement extends MainExpression implements Statement {
 	private Function myFunc = null;
 	private ValueHolder val = null;
 
-	public ReturnStatement(int line) {
-		super(line, KeywordType.RETURN, LITERAL, NAME, ARRAY_START);
+	public ReturnStatement(int lineID) {
+		super(lineID, KeywordType.RETURN, LITERAL, NAME, ARRAY_START);
 	}
 
 	/** (VALUE) */
@@ -33,7 +33,7 @@ public class ReturnStatement extends MainExpression implements Statement {
 		if (myFunc == null)
 			throw new AssertionError("This return-value has to be connected to a function.");
 		if (val != null)
-			myFunc.setReturnVal(val.getValue());
+			myFunc.setValue(val.getValue());
 		return false;
 	}
 

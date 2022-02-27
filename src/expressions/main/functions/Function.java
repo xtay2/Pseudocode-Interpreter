@@ -1,6 +1,6 @@
 package expressions.main.functions;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import datatypes.Value;
@@ -14,6 +14,7 @@ import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
 import expressions.possible.Call;
 import modules.interpreter.Interpreter;
+import types.specific.data.DataType;
 import types.specific.data.ExpectedType;
 
 /**
@@ -25,7 +26,7 @@ import types.specific.data.ExpectedType;
 public class Function extends Returnable {
 
 	/** All expected parameters. */
-	private final HashMap<Name, ExpectedType> paramBlueprint = new HashMap<>();
+	private final LinkedHashMap<Name, ExpectedType> paramBlueprint = new LinkedHashMap<>();
 
 	/** Extends the constructor from {@link Returnable}. */
 	public Function(int lineID) {
@@ -48,14 +49,14 @@ public class Function extends Returnable {
 						"Expected a name after the type " + e[i] + ". Got " + e[i + 1] + " instead.");
 			}
 			if (e[i] instanceof Name) {
-				paramBlueprint.put((Name) e[i], null);
+				paramBlueprint.put((Name) e[i], DataType.VAR);
 				i++;
 				continue;
 			}
 			throw new AssertionError("Unexpected token: " + e[i]);
 		}
 		// Expected ReturnValue
-		returnType = (ExpectedType) e[e.length - 2];
+		returnType = e[e.length - 2] == null ? null : (ExpectedType) e[e.length - 2].type;
 		initScope((OpenScope) e[e.length - 1]);
 	}
 
@@ -63,20 +64,19 @@ public class Function extends Returnable {
 	public boolean execute(ValueHolder... params) {
 		if (expectedParams() != params.length)
 			throw new IllegalCallException(getOriginalLine(), "This function is called with the wrong amount of params.");
-		getScope().reg();
 		// Init Params
 		int i = 0;
 		for (Entry<Name, ExpectedType> param : paramBlueprint.entrySet()) {
 			Value v = params[i++].getValue();
-			Variable.quickCreate(lineIdentifier, (ExpectedType) v.type, param.getKey(), v);
+			Variable.quickCreate(lineIdentifier, getScope(), param.getValue(), param.getKey(), v);
 		}
 		callFirstLine();
 		// The return-value is now set.
 		if (returnType != null && returnVal == null) {
 			throw new IllegalReturnException(getOriginalLine(),
-					getName() + " was defined to return a value of type: " + returnType + ", but returned nothing.");
+					getNameString() + " was defined to return a value of type: " + returnType + ", but returned nothing.");
 		}
-		getScope().del();
+		getScope().clear();
 		return true;
 	}
 

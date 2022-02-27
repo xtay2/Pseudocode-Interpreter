@@ -3,6 +3,7 @@ package datatypes.numerical;
 import static datatypes.numerical.ConceptualNrValue.NAN;
 import static types.specific.data.DataType.NUMBER;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.HashMap;
@@ -92,8 +93,6 @@ public final class DecimalValue extends NumberValue {
 		BigInteger n = num.abs(), d = denom.abs();
 		BigInteger rem = n.remainder(d);
 		sb.append(n.divide(d));
-		if (rem.equals(BigInteger.ZERO))
-			return sb.toString();
 		sb.append('.');
 		final HashMap<BigInteger, Integer> map = new HashMap<>();
 		while (!rem.equals(BigInteger.ZERO)) {
@@ -180,5 +179,10 @@ public final class DecimalValue extends NumberValue {
 	public NumberValue root(NumberValue v) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public BigDecimal raw() {
+		return new BigDecimal(num).divide(new BigDecimal(denom), PRECISION);
 	}
 }

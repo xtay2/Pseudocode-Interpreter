@@ -183,7 +183,7 @@ public class Disassembler {
 					recursive(d);
 				}
 			} catch (NoSuchElementException e) {
-				throw new AssertionError("Trying to call a function \"" + call.name + "\" with " + call.arguments
+				throw new IllegalCodeFormatException("Trying to call a function \"" + call.name + "\" with " + call.arguments
 						+ " arguments that doesn't get defined or imported.");
 			}
 		}

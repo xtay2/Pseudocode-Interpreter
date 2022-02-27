@@ -15,9 +15,8 @@ public class MainFunction extends ScopeHolder {
 
 	@Override
 	public boolean execute(ValueHolder... params) {
-		getScope().reg();
 		callFirstLine();
-		getScope().del();
+		getScope().clear();
 		return false;
 	}
 

@@ -14,8 +14,10 @@ public interface AbstractType {
 	 * 
 	 * This gets called in the {@link ExpressionFinder}.
 	 * 
-	 * @param arg    is the String.
-	 * @param lineID is the line-identifier of the calling {@link ProgramLine}.
+	 * @param arg     is the String.
+	 * @param lineID  is the line-identifier of the calling {@link ProgramLine}.
+	 * @param myScope is the scope, the resulting Expression lies in.
+	 * 
 	 * @return null if the {@link String} didn't match this type.
 	 * @return the {@link Expression} or {@code null} if the {@link String} doesn't match.
 	 */

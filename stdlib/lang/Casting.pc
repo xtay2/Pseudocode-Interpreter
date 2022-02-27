@@ -1,6 +1,4 @@
-import stdlib.lang.Math
-
-func int(val) -> nr: return floor(val);
+func integer(val) -> int: return val;
 
 func number(val) -> nr: return val;
 

@@ -8,12 +8,12 @@ import static types.specific.data.DataType.TEXT;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
-import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
 import types.specific.data.DataType;
@@ -92,7 +92,7 @@ public final class TextValue extends Value {
 		for (int i = 0; i < value.length(); i++)
 			chars[i] = (new TextValue(value.charAt(i)));
 		ArrayValue arr = new ArrayValue(TEXT_ARRAY);
-		arr.merge((Expression[]) chars);
+		arr.merge(Arrays.copyOf(chars, chars.length, Expression[].class));
 		return arr;
 	}
 
@@ -113,10 +113,10 @@ public final class TextValue extends Value {
 	}
 
 	@Override
-	public boolean valueCompare(Value v) throws UnexpectedTypeError {
+	public boolean valueCompare(Value v) {
 		if (v instanceof TextValue n)
 			return value.equals(n.value);
-		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
+		throw new AssertionError("Tried to compare " + this + " to " + v + ".");
 	}
 
 	// OPERATIONS
@@ -136,5 +136,10 @@ public final class TextValue extends Value {
 		if (times < 0)
 			throw new ShouldBeNaturalNrException(executedInLine, "Text cannot be multiplied with negative numbers.");
 		return new TextValue(value.repeat(times));
+	}
+
+	@Override
+	public String raw() {
+		return new String(value);
 	}
 }

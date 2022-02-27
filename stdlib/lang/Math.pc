@@ -1,17 +1,13 @@
-func rnd(nr a) -> nr: return a - a % 1;
+func rnd(nr a) -> int: return a - a % 1;
 
-func rnd(nr a, nr comma) -> nr: return rnd(a * 10^comma) / 10^comma;
+func rnd(nr a, int comma) -> nr: return rnd(a * 10^comma) / 10^comma;
 
-func floor(nr a) -> nr {
-	if a > 0 and rnd(a) > a: return rnd(a - 1);
-	elif a < 0 and rnd(a) < a: return rnd(a + 1);
-	return rnd(a)
-}
+func floor(nr a) -> int: return a;
 
-func ceil(nr a) -> nr {
-	if a > 0 and rnd(a) < a: return rnd(a + 1);
-	elif a < 0 and rnd(a) > a: return rnd(a - 1);
-	return rnd(a)
+func ceil(nr a) -> int {
+	if a % 1 == 0: return a;
+	elif a >= 0: return a + 1;
+	return a - 1;
 }
 
 func abs(nr a) -> nr {
@@ -19,6 +15,10 @@ func abs(nr a) -> nr {
 	return a
 }
 
-func intDiv(nr a, nr b) -> nr: return floor(rnd(a) / rnd(b));
+func intDiv(int a, int b) -> int: return a / b;
 
 func sqrt(nr a) -> nr: return 2 root a;
+
+func isPositive(nr a) -> bool: return a >= 0;
+
+func isNegative(nr a) -> bool: return a < 0;

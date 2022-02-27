@@ -54,8 +54,8 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 	private ValueHolder[] content;
 	private final MultiCallable outer;
 
-	public MultiCall(MultiCallable outer, int line) {
-		super(line, SuperType.MERGED, INFIX_OPERATOR, NAME);
+	public MultiCall(int lineID, MultiCallable outer) {
+		super(lineID, SuperType.MERGED, INFIX_OPERATOR, NAME);
 		this.outer = outer;
 		if (outer == null)
 			throw new AssertionError("Outer cannot be null.");

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalCallException;
+import expressions.main.functions.Function;
 import main.Main;
 
 public abstract class FuncManager {
@@ -23,6 +24,11 @@ public abstract class FuncManager {
 		return line;
 	}
 
+	/**
+	 * Registers a {@link Function} with an unique name.
+	 * 
+	 * Gets called in {@link Interpreter#registerFunctions()}.
+	 */
 	public static void registerFunction(String name, int line) {
 		if (funcPositions.containsKey(name))
 			throw new DeclarationException(Main.PROGRAM.getLine(line).orgLine, "Duplicate function declaration. func " + name);

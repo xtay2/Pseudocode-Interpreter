@@ -6,8 +6,10 @@ import static types.specific.KeywordType.FUNC;
 import java.util.Set;
 
 import datatypes.Value;
+import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.parsing.UnexpectedFlagException;
 import expressions.abstractions.ScopeHolder;
+import expressions.abstractions.interfaces.ValueChanger;
 import expressions.normal.containers.Name;
 import expressions.normal.flag.Flaggable;
 import helper.Output;
@@ -20,7 +22,7 @@ import types.specific.data.ExpectedType;
  * 
  * It provides the ability to set and give return-values.
  */
-public abstract class Returnable extends ScopeHolder implements Flaggable {
+public abstract class Returnable extends ScopeHolder implements Flaggable, ValueChanger {
 
 	/** The {@link Name} of the underlying {@link Returnable}. */
 	protected Name name = null;
@@ -47,7 +49,8 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	 * This method gets called by the ReturnStatement. If a returntype is specified, the value gets
 	 * implicitly casted.
 	 */
-	public final void setReturnVal(Value val) {
+	@Override
+	public final void setValue(Value val) {
 		if (returnVal != null && val != null)
 			throw new AssertionError("Function " + name + " already has a return value.");
 		if (returnType != null && val != null && val.type != returnType)
@@ -60,8 +63,11 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	 * Returns the return-value and resets it, so the function can get called again. This Method should
 	 * only get called by {@link Interpreter#call}.
 	 */
-	public final Value retrieveReturnValue() {
+	@Override
+	public final Value getValue() {
 		Value v = returnVal;
+		if (returnType == null && returnVal != null)
+			throw new IllegalCodeFormatException(getOriginalLine(), getName() + " shouldn't return anything.");
 		returnVal = null;
 		return v;
 	}
@@ -69,9 +75,9 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 	/** Returns the amount of expected parameters. */
 	public abstract int expectedParams();
 
-	/** Returns the {@link Name} of this {@link Function} as a {@link String}. */
-	public final String getName() {
-		return name.getName();
+	@Override
+	public final Name getName() {
+		return name;
 	}
 
 	@Override
@@ -81,6 +87,6 @@ public abstract class Returnable extends ScopeHolder implements Flaggable {
 
 	@Override
 	public final String toString() {
-		return Output.DEBUG ? getClass().getSimpleName() : name.getName();
+		return Output.DEBUG ? getClass().getSimpleName() : getNameString();
 	}
 }

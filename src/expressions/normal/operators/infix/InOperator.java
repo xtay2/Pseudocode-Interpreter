@@ -7,8 +7,8 @@ import types.specific.operators.InfixOpType;
 
 public class InOperator extends InfixOperator {
 
-	public InOperator(int line, InfixOpType op) {
-		super(line, op);
+	public InOperator(int lineID, InfixOpType op) {
+		super(lineID, op);
 	}
 
 	@Override

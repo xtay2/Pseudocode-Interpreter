@@ -1,22 +1,23 @@
 package expressions.normal.containers;
 
-import static datatypes.NullValue.NULL;
+import static datatypes.object.NullValue.NULL;
+import static helper.Output.print;
 import static types.specific.BuilderType.ARRAY_START;
 import static types.specific.ExpressionType.NAME;
 
 import java.util.Arrays;
 import java.util.Set;
 
-import datatypes.NullValue;
 import datatypes.Value;
+import datatypes.object.NullValue;
 import exceptions.parsing.UnexpectedFlagException;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.DeclarationException;
 import expressions.abstractions.Expression;
+import expressions.abstractions.Scope;
 import expressions.abstractions.interfaces.ValueChanger;
 import expressions.normal.flag.Flaggable;
 import expressions.possible.Call;
-import modules.interpreter.VarManager;
 import types.specific.FlagType;
 import types.specific.data.ExpectedType;
 
@@ -26,7 +27,7 @@ import types.specific.data.ExpectedType;
  * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a function through
  * the {@link ExpectedType}.
  *
- * Gets saved in the {@link VarManager} and should only get accessed by it.
+ * Gets saved in its {@link Scope} and should only get accessed by it.
  */
 public class Variable extends Expression implements ValueChanger, Flaggable {
 
@@ -38,8 +39,7 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	private boolean isConstant = false;
 
 	/**
-	 * Creates and registers a Variable. The registration concludes a namecheck, so this should not be
-	 * used for counter-names. This gets called in {@link VarManager#initCounter}.
+	 * Creates and registers a Variable.
 	 * 
 	 * @param lineID is lineID of the {@link Expression} in which this var gets created.
 	 * @param type   is the {@link ExpectedType} of this {@link Variable}.
@@ -48,18 +48,20 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	 * @param flags  are optional {@link FlagType}s.
 	 * @return the finished/registered {@link Variable}.
 	 */
-	public static Variable quickCreate(int lineID, ExpectedType type, Name name, Value val, FlagType... flags) {
+	public static Variable quickCreate(int lineID, Scope scope, ExpectedType type, Name name, Value val, FlagType... flags) {
 		Variable v = new Variable(lineID, type);
 		v.merge(name, val);
 		v.setFlags(Set.copyOf(Arrays.asList(flags)));
-		VarManager.registerVar(v);
+		v.setScope(scope);
+		scope.register(v);
+		print("Created the " + type + " \"" + name.getNameString() + "\" in the scope " + scope.getScopeName());
 		return v;
 	}
 
 	/**
-	 * Initialise a Variable with an inital Value. Used in {@link Call} and {@link VarManager}.
+	 * Initialise a Variable with an inital Value. Used in {@link Call} and {@link #quickCreate()}.
 	 */
-	public Variable(int lineID, ExpectedType type) {
+	private Variable(int lineID, ExpectedType type) {
 		super(lineID, type, NAME, ARRAY_START);
 		if (type == null)
 			throw new AssertionError("The type cannot be null.");
@@ -69,11 +71,7 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	@Override
 	public void merge(Expression... e) {
 		name = (Name) e[0];
-		value = (Value) e[1];
-	}
-
-	public String getName() {
-		return name.getName();
+		setValue((Value) e[1]); // Checks and Typecasting
 	}
 
 	/**
@@ -87,7 +85,7 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	}
 
 	/**
-	 * Should get identified through by {@link VarManager}.
+	 * Should get identified through {@link Scope#get()}.
 	 * 
 	 * @throws CastingException if this is a TypedVar and the types don't match.
 	 */
@@ -98,6 +96,11 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 		if (isConstant && value != null)
 			throw new DeclarationException(getOriginalLine(), "Trying to modify the constant variable " + getName());
 		value = val.as((ExpectedType) type);
+	}
+
+	@Override
+	public Name getName() {
+		return name;
 	}
 
 	/**

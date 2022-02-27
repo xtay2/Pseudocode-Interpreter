@@ -182,6 +182,11 @@ public final class ArrayValue extends Value implements MergedExpression {
 		return content;
 	}
 
+	@Override
+	public ValueHolder[] raw() {
+		return raw(true);
+	}
+
 	/**
 	 * Recursivly compares all values of this array and the specified one.
 	 * 
@@ -202,7 +207,7 @@ public final class ArrayValue extends Value implements MergedExpression {
 			}
 			return true;
 		}
-		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
+		throw new AssertionError("Tried to compare " + this + " to " + v + ".");
 	}
 
 	// Operations

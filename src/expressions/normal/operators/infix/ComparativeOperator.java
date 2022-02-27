@@ -14,19 +14,19 @@ public final class ComparativeOperator extends InfixOperator {
 
 	private final ComparativeOperation operation;
 
-	public ComparativeOperator(int line, InfixOpType operator) {
-		super(line, operator);
+	public ComparativeOperator(int lineID, InfixOpType operator) {
+		super(lineID, operator);
 		operation = switch (operator) {
-		case EQUALS -> (a, b) -> Value.eq(a, b);
-		case NOT_EQUALS -> (a, b) -> Value.eq(a, b).not();
+			case EQUALS -> (a, b) -> Value.eq(a, b);
+			case NOT_EQUALS -> (a, b) -> Value.eq(a, b).not();
 
-		case LESS -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerThan(b.asNumber()));
-		case LESS_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerEq(b.asNumber()));
+			case LESS -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerThan(b.asNumber()));
+			case LESS_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerEq(b.asNumber()));
 
-		case GREATER -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterThan(b.asNumber()));
-		case GREATER_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterEq(b.asNumber()));
+			case GREATER -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterThan(b.asNumber()));
+			case GREATER_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterEq(b.asNumber()));
 
-		default -> throw new IllegalArgumentException("Unexpected value: " + operator);
+			default -> throw new IllegalArgumentException("Unexpected value: " + operator);
 		};
 	}
 

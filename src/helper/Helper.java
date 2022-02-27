@@ -5,14 +5,13 @@ import java.math.BigInteger;
 import modules.parser.Parser;
 
 /**
- * Abstract Helperclass that contains all functions that get used all over the
- * project.
+ * Abstract Helperclass that contains all functions that get used all over the project.
  */
 public abstract class Helper {
 
 	/**
-	 * Tells, if a char at a specified index is in an executable area (outside of
-	 * string literals or comments).
+	 * Tells, if a char at a specified index is in an executable area (outside of string literals or
+	 * comments).
 	 * 
 	 * @return true if the index is runnable
 	 */
@@ -58,38 +57,5 @@ public abstract class Helper {
 		if (BigInteger.TEN.pow(digitCount - 1).compareTo(number) > 0)
 			return digitCount - 1;
 		return digitCount;
-	}
-
-	private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
-
-	public static BigInteger gcd(BigInteger a, BigInteger b) {
-		if (a.compareTo(LONG_MAX) < 0 && b.compareTo(LONG_MAX) < 0)
-			return BigInteger.valueOf(gcdLongInt(a.longValueExact(), b.longValueExact()));
-		return gcdBigInt(a, b);
-	}
-
-	/**
-	 * Calculates the greatest common devisor between two longs. (Euclid)
-	 * 
-	 * used in {@link Helper#gcd()}
-	 */
-	private static long gcdLongInt(long a, long b) {
-		a = Math.abs(a);
-		b = Math.abs(b);
-		while (b != 0) {
-	        long t = a;
-	        a = b;
-	        b = t % b;
-	    }
-		return a;
-	}
-
-	/**
-	 * Calculates the greatest common devisor for two {@link BigInteger}. (Euclid)
-	 * 
-	 * used in {@link Helper#gcd()}
-	 */
-	private static BigInteger gcdBigInt(BigInteger a, BigInteger b) {
-		return a.gcd(a);
 	}
 }

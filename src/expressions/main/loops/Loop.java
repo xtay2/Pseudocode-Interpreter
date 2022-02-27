@@ -5,10 +5,8 @@ import static datatypes.numerical.NumberValue.ZERO;
 
 import datatypes.numerical.DecimalValue;
 import datatypes.numerical.NumberValue;
-import expressions.abstractions.Expression;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
-import modules.interpreter.VarManager;
 import types.AbstractType;
 
 /**
@@ -22,12 +20,18 @@ import types.AbstractType;
  */
 public abstract class Loop extends ScopeHolder {
 
-	protected ValueHolder start = ZERO;
-	protected ValueHolder inc = ONE;
+	// These should get initialised at merge
+	protected ValueHolder startHolder = ZERO;
+	protected ValueHolder incHolder = ONE;
+
+	// These should get initialised at init
+	protected NumberValue start;
+	protected NumberValue inc;
 
 	/**
 	 * Copies the following Constructor:
-	 * {@link Expression#Expression(int, AbstractType, AbstractType...)}.
+	 * 
+	 * {@link Expression#Expression(int, Scope, AbstractType, AbstractType...))}.
 	 */
 	public Loop(int lineID, AbstractType myType, AbstractType... expected) {
 		super(lineID, myType, expected);
@@ -40,18 +44,30 @@ public abstract class Loop extends ScopeHolder {
 	 */
 	@Override
 	public final boolean execute(ValueHolder... params) {
-		NumberValue i = start.getValue().asNumber();
+		initLoop();
+		if (start == null || inc == null)
+			throw new AssertionError("Start and end have to be initialised. See: initLoop()");
+		NumberValue i = start;
 		while (doContinue(i)) {
-			getScope().reg();
-			VarManager.initCounter(getScope(), i);
+			getScope().initCounter(i, getScope(), getOriginalLine());
 			if (!callFirstLine()) {
-				getScope().del();
+				getScope().clear();
 				return false;
 			}
-			getScope().del();
-			i = i.add(inc.getValue().asNumber());
+			getScope().clear();
+			i = i.add(inc);
 		}
 		return callNextLine();
+	}
+
+	/**
+	 * Only gets called by {@link Loop#execute()} before a loop gets executed.
+	 * 
+	 * Set {@link #start} and {@link #inc} here.
+	 */
+	protected void initLoop() {
+		start = startHolder.getValue().asNumber();
+		inc = incHolder.getValue().asNumber();
 	}
 
 	/**

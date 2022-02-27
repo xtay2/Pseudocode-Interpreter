@@ -1,11 +1,15 @@
 package modules.parser.program;
 
+import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static datatypes.numerical.NumberValue.ONE;
+import static datatypes.numerical.NumberValue.ZERO;
+import static helper.Output.print;
 import static types.SuperType.EXPECTED_TYPE;
 import static types.SuperType.FLAG_TYPE;
 import static types.specific.BuilderType.*;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.FlagType.CONSTANT;
-import static types.specific.KeywordType.ELSE;
+import static types.specific.KeywordType.IF;
 import static types.specific.data.ArrayType.VAR_ARRAY;
 import static types.specific.data.DataType.VAR;
 
@@ -19,8 +23,9 @@ import datatypes.ArrayValue;
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
+import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.interfaces.ValueHolder;
+import expressions.abstractions.Scope;
 import expressions.main.CloseScope;
 import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
@@ -28,9 +33,8 @@ import expressions.main.functions.NativeFunction;
 import expressions.main.functions.Returnable;
 import expressions.main.loops.ConditionalLoop;
 import expressions.main.loops.ForEachLoop;
-import expressions.main.loops.FromToLoop;
+import expressions.main.loops.IntervalLoop;
 import expressions.main.loops.Loop;
-import expressions.main.loops.RepeatLoop;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
@@ -48,7 +52,9 @@ import expressions.possible.assigning.Assignment;
 import expressions.possible.assigning.Declaration;
 import expressions.possible.multicall.MultiCall;
 import expressions.possible.multicall.MultiCallable;
+import main.Main;
 import types.specific.FlagType;
+import types.specific.KeywordType;
 import types.specific.data.ExpectedType;
 import types.specific.operators.InfixOpType;
 
@@ -65,6 +71,8 @@ public abstract class ValueMerger {
 	static int lineID;
 	static int lineIndex;
 
+	static Scope scope;
+
 	/**
 	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
 	 * {@link MainExpression}.
@@ -76,8 +84,16 @@ public abstract class ValueMerger {
 		orgLine = Collections.unmodifiableList(new ArrayList<>(line));
 		lineID = myLineID;
 		lineIndex = myLineIndex;
+		scope = findScope();
+		print("Merging " + myLineIndex + ": " + orgLine);
 		try {
+			// Set the Scope for every Expression.
+			line.forEach(e -> e.setScope(scope));
+			// Build
 			MainExpression main = (MainExpression) build();
+			// Set the Scope for a fully merged Expression.
+			main.setScope(scope);
+			// Check if line was correctly build
 			if (main == null || !line.isEmpty())
 				throw new AssertionError(
 						"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
@@ -85,13 +101,23 @@ public abstract class ValueMerger {
 		} catch (ClassCastException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 			System.err.print("\nCaused: ");
-			throw new IllegalCodeFormatException(myLineIndex,
+			throw new IllegalCodeFormatException(lineIndex,
 					"Unknown unpropper format." + "\nOriginal state of line " + orgLine + "\nCurrent state of line: " + line);
 		} catch (NullPointerException e) {
 			System.out.println(orgLine + "\n" + line);
 			e.printStackTrace();
 			throw new AssertionError("That shouldn't happen.");
 		}
+	}
+
+	/** Finds the Scope of this line. */
+	private static Scope findScope() {
+		if (lineID == 0)
+			return GlobalScope.GLOBAL;
+		MainExpression m = Main.PROGRAM.getLine(lineID - 1).getMainExpression();
+		if (m instanceof CloseScope c)
+			return c.getMatch().getScope();
+		return m.getScope();
 	}
 
 	/**
@@ -144,11 +170,11 @@ public abstract class ValueMerger {
 					default -> line.remove(0);
 				};
 			case Loop loop:
-				yield switch (loop) {
-					case ForEachLoop forEach -> buildForEach();
-					case RepeatLoop repeat -> buildRepeat();
-					case FromToLoop fromTo -> buildFromTo();
-					case ConditionalLoop whileUntil -> buildWhileUntil();
+				yield switch ((KeywordType) loop.type) {
+					case FOR -> buildForEach();
+					case REPEAT -> buildRepeat();
+					case FROM -> buildFromTo();
+					case WHILE, UNTIL -> buildWhileUntil();
 					default -> throw new AssertionError("Undefined Loop: " + loop);
 				};
 			case Statement statement:
@@ -200,7 +226,7 @@ public abstract class ValueMerger {
 
 	/** [|] [Parts] [|] */
 	private static MultiCall buildMultiCall(MultiCallable outer) {
-		MultiCall e = new MultiCall(outer, lineID);
+		MultiCall e = new MultiCall(lineID, outer);
 		e.merge(buildParts(null));
 		return e;
 	}
@@ -328,10 +354,23 @@ public abstract class ValueMerger {
 	/** [IF/ELIF/ELSE] [?BOOL] [OPEN_SCOPE] */
 	private static ConditionalStatement buildElif() {
 		ConditionalStatement e = (ConditionalStatement) line.remove(0);
-		if (e.is(ELSE))
-			e.merge(line.remove(0)); // OpenScope
-		else // e is instance of If or Elif
-			e.merge(build(), line.remove(0)); // BoolExp, OpenScope
+		switch ((KeywordType) e.type) {
+			case IF, ELIF:
+				e.merge(build(), line.remove(0));
+				break;
+			case ANY:
+				Expression next = line.remove(0);
+				if (next.is(IF)) { // Any-If with condition
+					e.merge(build(), line.remove(0));
+				} else // Any without condition
+					e.merge(next);
+				break;
+			case ELSE:
+				e.merge(line.remove(0));
+				break;
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + e.type);
+		}
 		return e;
 	}
 
@@ -345,14 +384,6 @@ public abstract class ValueMerger {
 		return e;
 	}
 
-	/** [REPEAT] [REPETITIONS] [OPEN_SCOPE] */
-	private static RepeatLoop buildRepeat() {
-		RepeatLoop e = new RepeatLoop(lineID);
-		line.remove(0); // Repeat-Keyword
-		e.merge(line.get(0) instanceof OpenScope ? null : build(), line.remove(0)); // Repetitions, OpenScope
-		return e;
-	}
-
 	/** [WHILE/UNTIL] [CONDITION] [OPEN_SCOPE] */
 	private static ConditionalLoop buildWhileUntil() {
 		ConditionalLoop e = (ConditionalLoop) line.remove(0);
@@ -360,18 +391,26 @@ public abstract class ValueMerger {
 		return e;
 	}
 
-	/** [FROM] [NUMBER] [TO] [NUMBER] (?[|] [INTERVALL]) */
-	private static FromToLoop buildFromTo() {
-		FromToLoop e = (FromToLoop) line.remove(0);
-		ValueHolder from = (ValueHolder) build();
+	/** [REPEAT] [REPETITIONS] [OPEN_SCOPE] */
+	private static IntervalLoop buildRepeat() {
+		IntervalLoop e = (IntervalLoop) line.remove(0); // Repeat-Keyword
+		Expression end = line.get(0) instanceof OpenScope ? POS_INF : build();
+		e.merge(ZERO, end, ONE, line.remove(0)); // OpenScope
+		return e;
+	}
+
+	/** [FROM] [NUMBER] [TO] [NUMBER] (?[STEP] [INTERVALL]) */
+	private static IntervalLoop buildFromTo() {
+		IntervalLoop e = (IntervalLoop) line.remove(0);
+		Expression start = build();
 		if (!line.remove(0).is(TO))// To-Keyword
 			throw new IllegalCodeFormatException(lineIndex, "Missing \"to\"-Keyword in from-to-loop.");
-		ValueHolder to = (ValueHolder) build();
+		Expression end = build();
 		if (line.get(0).is(STEP)) {
 			line.remove(0); // LoopConnector
-			e.merge((Expression) from, (Expression) to, build(), line.remove(0));
+			e.merge(start, end, build(), line.remove(0));
 		} else
-			e.merge((Expression) from, (Expression) to, null, line.remove(0));
+			e.merge(start, end, ONE, line.remove(0));
 		return e;
 	}
 
@@ -457,13 +496,21 @@ public abstract class ValueMerger {
 		line.remove(0); // FUNC
 		NativeFunction e = new NativeFunction(lineID);
 		List<Expression> params = new ArrayList<>();
-		params.add(line.remove(0));
+		params.add(line.remove(0)); // Name
 		line.remove(0); // OpenBrack
 		while (line.get(0).type instanceof ExpectedType || line.get(0).is(COMMA)) {
 			if (line.get(0).type instanceof ExpectedType)
 				params.add(line.remove(0));
+			else
+				line.remove(0);
 		}
 		line.remove(0); // CloseBrack
+		// RETURN_TYPE
+		if (!line.isEmpty() && line.get(0).is(EXPECTED_RETURN_TYPE)) {
+			line.remove(0); // Pfeilsymbol
+			params.add(line.remove(0));
+		} else
+			params.add(null);
 		e.merge(params);
 		return e;
 	}

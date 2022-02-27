@@ -8,18 +8,34 @@ import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.runtime.DeclarationException;
 import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.Scope;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.functions.MainFunction;
 import expressions.main.functions.Returnable;
 import expressions.main.statements.ReturnStatement;
+import expressions.normal.containers.Variable;
 import expressions.possible.assigning.Declaration;
 import main.Main;
-import modules.parser.program.Program;
 import modules.parser.program.ProgramLine;
 import types.specific.KeywordType;
 
 public final class Interpreter {
+	/**
+	 *
+	 * Registeres every {@link Variable} and {@link Returnable} and starts the interpreting-process by
+	 * calling the {@link MainFunction}.
+	 * 
+	 * @param program is the program that gets interpreted.
+	 * 
+	 * @see Main#main
+	 */
+	public static void interpret() {
+		// INIT
+		registerFunctions();
+		registerGlobalVars();
+		// RUNTIME
+		print("\nStarting Program: " + UNDERLINE);
+		execute(FuncManager.getLine("main"));
+	}
 
 	/**
 	 * Calls a function and returns it return-value.
@@ -33,7 +49,7 @@ public final class Interpreter {
 	public static Value call(String name, ValueHolder... params) {
 		Returnable f = (Returnable) Main.PROGRAM.getLine(FuncManager.getLine(name + params.length)).getMainExpression();
 		f.execute(params);
-		return f.retrieveReturnValue();
+		return f.getValue();
 	}
 
 	/**
@@ -50,23 +66,6 @@ public final class Interpreter {
 	}
 
 	/**
-	 * Registeres all variables and functions and starts the interpreting-process by calling the main
-	 * function
-	 * 
-	 * @param program is the program that gets interpreted.
-	 * 
-	 * @see Main#main
-	 */
-	public static void interpret(Program program) {
-		// INIT
-		registerFunctions();
-		registerGlobalVars();
-		// RUNTIME
-		print("\nStarting Program: " + UNDERLINE);
-		execute(FuncManager.getLine("main"));
-	}
-
-	/**
 	 * Register all functions in the program, so that they are accessable through the call-Method.
 	 * 
 	 * @see Interpreter#call(String, ValueHolder...)
@@ -74,17 +73,13 @@ public final class Interpreter {
 	private static void registerFunctions() {
 		print("Pre-Compiling:" + UNDERLINE);
 		boolean hasMain = false;
-		Scope currentScope = GlobalScope.GLOBAL;
 		for (ProgramLine l : Main.PROGRAM) {
 			int lineID = l.lineID, orgLine = l.orgLine;
 			MainExpression e = l.getMainExpression();
-			currentScope = l.searchForScope();
-			print(e.toString() + " in " + currentScope.getScopeName());
-
 			// Check func in other func
-			if (e instanceof Returnable r && currentScope != GlobalScope.GLOBAL)
-				throw new IllegalCodeFormatException(orgLine, "A function cannot be defined in another function. \nSee: \"" + r.getName()
-						+ "\" in " + currentScope.getScopeName());
+			if (e instanceof Returnable r && r.getOuterScope() != GlobalScope.GLOBAL)
+				throw new IllegalCodeFormatException(orgLine, "A function cannot be defined in another function. \nSee: \""
+						+ r.getNameString() + "\" in " + r.getOuterScope().getScopeName());
 			// Check doppelte Main
 			if (e instanceof MainFunction) {
 				if (hasMain)
@@ -94,7 +89,7 @@ public final class Interpreter {
 			}
 			// Speichere alle Funktionsnamen (Main darf nicht gecallt werden.)
 			if (e instanceof Returnable r)
-				FuncManager.registerFunction(r.getName() + r.expectedParams(), lineID);
+				FuncManager.registerFunction(r.getNameString() + r.expectedParams(), lineID);
 		}
 		if (!hasMain)
 			throw new AssertionError("Program has to include a main-function!");
@@ -104,11 +99,16 @@ public final class Interpreter {
 	 * Registers and initialises all static Variables in the global scope.
 	 * 
 	 * (Outside of functions).
+	 * 
+	 * @see ProgramLine
+	 * @see Declaration
 	 */
 	private static void registerGlobalVars() {
 		for (ProgramLine l : Main.PROGRAM) {
-			if (l.getMainExpression() instanceof Declaration d && l.searchForScope() == GlobalScope.GLOBAL)
+			if (l.getMainExpression() instanceof Declaration d && d.getScope() == GlobalScope.GLOBAL) {
+				print("Registering global Var " + d.getNameString() + " in line: " + d.getOriginalLine());
 				d.getValue();
+			}
 		}
 	}
 }

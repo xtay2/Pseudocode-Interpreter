@@ -1,7 +1,6 @@
 package expressions.abstractions;
 
 import expressions.abstractions.interfaces.MergedExpression;
-import expressions.main.CloseScope;
 import expressions.normal.brackets.OpenScope;
 import modules.interpreter.Interpreter;
 import types.AbstractType;
@@ -24,17 +23,24 @@ public abstract class ScopeHolder extends MainExpression implements MergedExpres
 
 	/**
 	 * Copies the following Constructor:
-	 * {@link Expression#Expression(int, AbstractType, AbstractType...)}.
+	 * 
+	 * {@link Expression#Expression(int, Scope, AbstractType, AbstractType...))}.
 	 */
 	public ScopeHolder(int lineID, AbstractType myType, AbstractType... expected) {
 		super(lineID, myType, expected);
 	}
 
-	/** Returns the Scope of this {@link MainExpression}. */
+	/** Returns the Scope of this {@link ScopeHolder}. */
+	@Override
 	public final Scope getScope() {
 		if (scope == null)
 			throw new AssertionError("The scope has to be initialised.");
 		return scope;
+	}
+
+	/** Returns the Scope this {@link ScopeHolder} lies in. */
+	public final Scope getOuterScope() {
+		return super.getScope();
 	}
 
 	/**
@@ -47,7 +53,16 @@ public abstract class ScopeHolder extends MainExpression implements MergedExpres
 			throw new AssertionError("Open Scope cannot be null.");
 		if (scope != null)
 			throw new AssertionError("This Scope is already initialised with " + scope);
-		scope = new Scope(type.toString(), os, (CloseScope) os.getMatch());
+		scope = new Scope(type.toString(), os, os.getMatch(), os.getScope());
+	}
+
+	/**
+	 * Initialise this function as native. (Without Body in the {@link GlobalScope})
+	 */
+	public final void initNative() {
+		if (scope != null)
+			throw new AssertionError("This Scope is already initialised with " + scope);
+		scope = GlobalScope.GLOBAL;
 	}
 
 	/**

@@ -12,8 +12,8 @@ public class BracketedExpression extends Expression implements ValueHolder, Merg
 
 	private ValueHolder value;
 
-	public BracketedExpression(int line) {
-		super(line, SuperType.MERGED, INFIX_OPERATOR);
+	public BracketedExpression(int lineID) {
+		super(lineID, SuperType.MERGED, INFIX_OPERATOR);
 	}
 
 	@Override

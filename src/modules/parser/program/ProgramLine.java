@@ -7,6 +7,7 @@ import static types.SuperType.PREFIX_OPERATOR;
 import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.ExpressionType.CLOSE_SCOPE;
 import static types.specific.ExpressionType.NAME;
+import static types.specific.KeywordType.ANY;
 import static types.specific.KeywordType.ELIF;
 import static types.specific.KeywordType.ELSE;
 import static types.specific.KeywordType.IF;
@@ -17,20 +18,13 @@ import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.GlobalScope;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.Scope;
-import expressions.abstractions.ScopeHolder;
-import expressions.main.CloseScope;
 import expressions.main.functions.Function;
-import expressions.main.functions.Returnable;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
-import expressions.normal.brackets.OpenScope;
 import expressions.normal.operators.infix.InfixOperator;
 import main.Main;
 import modules.finder.ExpressionFinder;
-import modules.interpreter.Interpreter;
 import modules.parser.Parser;
 import types.AbstractType;
 import types.specific.data.DataType;
@@ -141,9 +135,9 @@ public class ProgramLine {
 	/** Returns the last IfStatement or ElifStatement. */
 	private ConditionalStatement findLastIf() {
 		if (lineID == 0)
-			throw new IllegalCodeFormatException(orgLine, "An elif/else Statement needs a predecessing IfStatement.");
+			throw new IllegalCodeFormatException(orgLine, "An elif-, any- or else-statement needs a preceding IfStatement.");
 		MainExpression previous = Main.PROGRAM.getLine(lineID - 1).getMainExpression();
-		if (previous.is(IF) || previous.is(ELIF))
+		if (previous.is(IF) || previous.is(ELIF) || previous.is(ANY))
 			return (ConditionalStatement) previous;
 		return Main.PROGRAM.getLine(lineID - 1).findLastIf();
 	}
@@ -155,9 +149,9 @@ public class ProgramLine {
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		if (main instanceof ReturnStatement)
 			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineID - 1).searchForFunc());
-		// Wenn es ein Else-Statement ist, verbinde mit darüberliegendem if.
-		else if (main.is(ELIF) || main.is(ELSE))
-			findLastIf().setNextElse((ConditionalStatement) main);
+		// Connect Conditional blocks.
+		else if (main.is(ELIF) || main.is(ANY) || main.is(ELSE))
+			findLastIf().setNextBlock((ConditionalStatement) main);
 	}
 
 	/**
@@ -169,31 +163,6 @@ public class ProgramLine {
 		if (lineID == 0)
 			throw new IllegalCodeFormatException(orgLine, "Return-Statement has to be declared inside a function.");
 		return Main.PROGRAM.getLine(lineID - 1).searchForFunc();
-	}
-
-	/**
-	 * Recursivly searches for the scope of this line.
-	 * 
-	 * If this line contains a function declaration, the returned scope is the scope of that function.
-	 * 
-	 * @see Interpreter#registerFunctions()
-	 * @see ProgramLine#initScopesAndMain()
-	 */
-	public Scope searchForScope() {
-		if (main instanceof Returnable)
-			return GlobalScope.GLOBAL;
-		if (main instanceof ScopeHolder s)
-			return s.getScope();
-		if (lineID == 0)
-			return GlobalScope.GLOBAL;
-		if (main instanceof CloseScope) {
-			ProgramLine match = Main.PROGRAM.getLine(((OpenScope) ((CloseScope) main).getMatch()).lineIdentifier);
-			// Da alle Zeilen über dieser bereits ausgewertet wurden, existiert eine
-			// MainExpression, die man auswerten kann.
-			if (match.getMainExpression() instanceof Function)
-				return GlobalScope.GLOBAL;
-		}
-		return Main.PROGRAM.getLine(lineID - 1).searchForScope();
 	}
 
 	/** Returns the constructed but unmerged {@link #expressions}. */

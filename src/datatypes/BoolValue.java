@@ -4,7 +4,6 @@ import static types.specific.data.DataType.BOOL;
 
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
-import exceptions.runtime.UnexpectedTypeError;
 import types.specific.data.DataType;
 
 public class BoolValue extends Value {
@@ -66,9 +65,14 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public boolean valueCompare(Value v) throws UnexpectedTypeError {
+	public boolean valueCompare(Value v) {
 		if (v instanceof BoolValue n)
 			return n == TRUE;
-		throw new UnexpectedTypeError("Tried to compare " + this + " to " + v + ".");
+		throw new AssertionError("Tried to compare " + this + " to " + v + ".");
+	}
+
+	@Override
+	public Boolean raw() {
+		return value;
 	}
 }

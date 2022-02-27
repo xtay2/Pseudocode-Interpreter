@@ -1,0 +1,17 @@
+import stdlib.lang.type.Arrays
+
+#Returns a random number in the given interval. (Inclusive)
+native func randNr(nr, nr) -> nr
+
+#Returns a random integer in the given interval. (Inclusive)
+native func randInt(int, int) -> int
+
+#Returns a random bool in the given interval. (true or false)
+func randBool() -> bool: return randInt(0, 1) == 0;
+
+#Returns a random combination of the given characters with the quested length.
+func randText(text chars, int length) -> text {
+	text res = ""
+	repeat length: res += chars[randInt(0, len(chars) - 1)];
+	return res
+}

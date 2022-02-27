@@ -17,10 +17,10 @@ public final class CloseScope extends MainExpression implements ScopeBracket {
 	/**
 	 * Finds the matching {@link OpenScope} after getting constructed.
 	 */
-	public CloseScope(int line) {
-		super(line, ExpressionType.CLOSE_SCOPE);
+	public CloseScope(int lineID) {
+		super(lineID, ExpressionType.CLOSE_SCOPE);
 		long brack = -1;
-		for (int i = line - 1; i >= 0; i--) {
+		for (int i = lineIdentifier - 1; i >= 0; i--) {
 			List<Expression> exp = Main.PROGRAM.getLine(i).getExpressions();
 			for (Expression e : exp) {
 				if (e instanceof CloseScope)
@@ -44,7 +44,7 @@ public final class CloseScope extends MainExpression implements ScopeBracket {
 	}
 
 	@Override
-	public ScopeBracket getMatch() {
+	public OpenScope getMatch() {
 		return myMatch;
 	}
 }

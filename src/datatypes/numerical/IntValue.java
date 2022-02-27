@@ -120,4 +120,9 @@ public final class IntValue extends NumberValue {
 //			TODO
 		throw new AssertionError("Unimplemented Case.");
 	}
+
+	@Override
+	public BigInteger raw() {
+		return value;
+	}
 }

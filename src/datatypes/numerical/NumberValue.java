@@ -13,8 +13,8 @@ import datatypes.ArrayValue;
 import datatypes.BoolValue;
 import datatypes.TextValue;
 import datatypes.Value;
+import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
-import helper.Helper;
 import types.specific.data.DataType;
 
 public abstract class NumberValue extends Value {
@@ -44,7 +44,7 @@ public abstract class NumberValue extends Value {
 	 */
 	public static NumberValue create(BigInteger num, BigInteger denom) {
 		// Reduction
-		BigInteger gcd = Helper.gcd(num, denom);
+		BigInteger gcd = num.gcd(denom);
 		num = num.divide(gcd);
 		denom = denom.divide(gcd);
 		// Int-Checks
@@ -80,9 +80,9 @@ public abstract class NumberValue extends Value {
 		return this;
 	}
 
-	/** Checks if the value is positive. x > 0 */
+	/** Checks if the value is positive. x >= 0 */
 	public final boolean isPositive() {
-		return isGreaterThan(ZERO) || this == POS_INF;
+		return isGreaterEq(ZERO) || this == POS_INF;
 	}
 
 	/** Checks if the value is negative. x < 0 */
@@ -109,7 +109,11 @@ public abstract class NumberValue extends Value {
 			return x.value.compareTo(y.value) < 0;
 		if (this instanceof DecimalValue x && v instanceof DecimalValue y)
 			return x.num.multiply(y.denom).compareTo(y.num.multiply(x.denom)) < 0;
-		return asInt().value.compareTo(v.asInt().value) < 0;
+		if (this instanceof DecimalValue && v instanceof IntValue i)
+			return asInt().value.compareTo(i.value) < 0;
+		if (this instanceof IntValue x && v instanceof DecimalValue y)
+			return x.value.compareTo(y.asInt().value) <= 0;
+		throw new AssertionError("Undefined Case for Number-Value Comparison");
 	}
 
 	/** a1 <= a2 */
@@ -119,12 +123,12 @@ public abstract class NumberValue extends Value {
 
 	/** a1 > a2 */
 	public final boolean isGreaterThan(NumberValue v) {
-		return v.isSmallerEq(this);
+		return v.isSmallerThan(this);
 	}
 
 	/** a1 >= a2 */
 	public final boolean isGreaterEq(NumberValue v) {
-		return v.isSmallerThan(this);
+		return v.isSmallerEq(this);
 	}
 
 	// Casting
@@ -160,7 +164,11 @@ public abstract class NumberValue extends Value {
 	/** Returns an {@link IntValue}-Representation. Floors, if necessary. */
 	@Override
 	public final IntValue asInt() {
-		return this instanceof DecimalValue dec ? NumberValue.create(dec.num.divide(dec.denom)) : (IntValue) this;
+		if (this instanceof IntValue i)
+			return i;
+		if (this instanceof DecimalValue dec)
+			return create(dec.num.divide(dec.denom));
+		throw new CastingException("Cannot cast " + raw().toString() + " to an IntValue.");
 	}
 
 	@Override
@@ -171,7 +179,8 @@ public abstract class NumberValue extends Value {
 	@Override
 	public final boolean canCastTo(DataType type) {
 		return switch (type) {
-			case VAR, NUMBER, INT -> true; // Returns this
+			case VAR, NUMBER -> true; // Returns this
+			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
 			case BOOL -> true; // Returns false for NaN and true for everything else
 			case TEXT -> true; // Text or CharArray-Representation
 			// Not supported
@@ -181,9 +190,9 @@ public abstract class NumberValue extends Value {
 
 	/** Value-comparison between this {@link NumberValue} and a {@link Value}. */
 	@Override
-	public final boolean valueCompare(Value v) throws UnexpectedTypeError {
+	public final boolean valueCompare(Value v) {
 		if (!(v instanceof NumberValue))
-			throw new UnexpectedTypeError("Tried to compare a " + v.type + " to this " + type + ".");
+			throw new UnexpectedTypeError(v.type);
 		return equals(v);
 	}
 

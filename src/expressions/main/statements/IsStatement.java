@@ -20,8 +20,8 @@ public class IsStatement extends Expression implements ValueHolder, MergedExpres
 	private ExpectedType type;
 	private ValueHolder val;
 
-	public IsStatement(int line) {
-		super(line, KeywordType.IS, EXPECTED_TYPE);
+	public IsStatement(int lineID) {
+		super(lineID, KeywordType.IS, EXPECTED_TYPE);
 	}
 
 	@Override

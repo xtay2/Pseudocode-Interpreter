@@ -1,6 +1,7 @@
 package expressions.normal.containers;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import datatypes.ArrayValue;
 import datatypes.Value;
@@ -17,8 +18,8 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 	private final ArrayList<ValueHolder> indices = new ArrayList<>();
 	private Name name;
 
-	public ArrayAccess(int line) {
-		super(line, SuperType.MERGED);
+	public ArrayAccess(int lineID) {
+		super(lineID, SuperType.MERGED);
 	}
 
 	/** [Name] [INDEX] (INDEX), (INDEX)... */
@@ -33,12 +34,16 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 
 	@Override
 	public Value getValue() {
-		ArrayValue arr = name.getValue().asVarArray();
-		System.out.println(arr);
-		for (ValueHolder index : indices)
-			return arr.get(index.getValue().asInt().value.intValueExact());
-		throw new ArrayAccessException(getOriginalLine(),
-				"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
+		Value v = name.getValue().asVarArray();
+		try {
+			for (ValueHolder index : indices)
+				v = v.asVarArray().get(index.getValue().asInt().value.intValueExact());
+			return v;
+		} catch (ArrayIndexOutOfBoundsException iobe) {
+			throw new ArrayAccessException(getOriginalLine(),
+					"Index " + indices.stream().map(e -> e.getValue().toString()).collect(Collectors.joining(", "))
+							+ " is out of bounds for length " + v.asVarArray().length());
+		}
 	}
 
 	@Override
@@ -51,6 +56,11 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 			throw new ArrayAccessException(getOriginalLine(),
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 		}
-		arr.set((int) indices.get(indices.size() - 1).getValue().asInt().value.intValueExact(), val);
+		arr.set(indices.get(indices.size() - 1).getValue().asInt().value.intValueExact(), val);
+	}
+
+	@Override
+	public Name getName() {
+		return name;
 	}
 }

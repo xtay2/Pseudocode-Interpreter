@@ -3,21 +3,20 @@ package datatypes;
 import static datatypes.numerical.ConceptualNrValue.NAN;
 import static datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static datatypes.numerical.ConceptualNrValue.POS_INF;
+import static types.SuperType.BUILDER_TYPE;
 import static types.SuperType.INFIX_OPERATOR;
 import static types.SuperType.KEYWORD_TYPE;
-import static types.specific.BuilderType.ARRAY_END;
-import static types.specific.BuilderType.CLOSE_BRACKET;
-import static types.specific.BuilderType.COMMA;
-import static types.specific.BuilderType.MULTI_CALL_LINE;
 import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 
 import datatypes.numerical.ConceptualNrValue;
 import datatypes.numerical.DecimalValue;
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
+import datatypes.object.NullValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
@@ -32,7 +31,7 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
 	public Value(ExpectedType dataType) {
-		super(-1, dataType, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_END, KEYWORD_TYPE, MULTI_CALL_LINE);
+		super(dataType, OPEN_SCOPE, INFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE);
 	}
 
 	/**
@@ -52,10 +51,10 @@ public abstract class Value extends Expression implements ValueHolder {
 	 * 
 	 * @throws UnexpectedTypeError if the types aren't comparable.
 	 */
-	public static final BoolValue eq(Value a, Value b) throws UnexpectedTypeError {
+	public static final BoolValue eq(Value a, Value b) {
 		if (a.type == b.type)
 			return BoolValue.valueOf(a.valueCompare(b));
-		throw new UnexpectedTypeError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
+		throw new AssertionError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
 	}
 
 	// Static String-Checks
@@ -204,4 +203,21 @@ public abstract class Value extends Expression implements ValueHolder {
 		return this;
 	}
 
+	/**
+	 * Returns the Java-Object that holds this value.
+	 * 
+	 * <pre>
+	 * The return-type is: 
+	 * -{@link BigInteger} for {@link IntValue}.
+	 * -{@link Double} for {@link ConceptualNrValue}.
+	 * -{@link BigDecimal} for {@link DecimalValue}.
+	 * 
+	 * -{@link String} for {@link TextValue}.
+	 * -{@link Boolean} for {@link BoolValue}.
+	 * -{@link Object} (null) for {@link NullValue}.
+	 * 
+	 * -{@link Value[]} for {@link ArrayValue}.
+	 * </pre>
+	 */
+	public abstract Object raw();
 }

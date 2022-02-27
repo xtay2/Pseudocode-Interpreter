@@ -1,23 +1,5 @@
 import stdlib.lang.System
-import stdlib.lang.type.Arrays
-
-var[] list = []
 
 main {
-	print(list)
-	add(|1, 2, 3, 4|)
-	print(list)
-	remove(0)
-	print(list)
-}
-
-
-func add(var a) {
-	list += [a]
-}
-
-func remove(int index) {
-	var[] new = []
-	for e in list: if i != index: new += e;
-	list = new
+	for e in [1, 2, 3]: print(e);
 }

@@ -1,6 +1,7 @@
 package types.specific.data;
 
 import static types.specific.BuilderType.CLOSE_BRACKET;
+import static types.specific.BuilderType.COMMA;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.ExpressionType.OPEN_SCOPE;
 
@@ -15,7 +16,7 @@ public interface ExpectedType extends AbstractType {
 
 	/** Returns an array of following expected expressions. */
 	static AbstractType[] getExpected() {
-		return new AbstractType[] { NAME, OPEN_SCOPE, CLOSE_BRACKET };
+		return new AbstractType[] { NAME, OPEN_SCOPE, CLOSE_BRACKET, COMMA };
 	}
 
 	/** Returns an array of all {@link DataType}s and {@link ArrayType}s. */

@@ -1,8 +1,11 @@
-package datatypes;
+package datatypes.object;
 
-import static datatypes.NullValue.NULL;
+import static datatypes.object.NullValue.NULL;
 import static types.specific.data.DataType.OBJECT;
 
+import datatypes.BoolValue;
+import datatypes.TextValue;
+import datatypes.Value;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import types.specific.data.DataType;
@@ -44,5 +47,11 @@ public class ObjectValue extends Value {
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public Object raw() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

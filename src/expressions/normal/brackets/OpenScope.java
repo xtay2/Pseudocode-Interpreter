@@ -13,12 +13,12 @@ public final class OpenScope extends Expression implements ScopeBracket {
 
 	private CloseScope myMatch;
 
-	public OpenScope(int line) {
-		super(line, OPEN_SCOPE, CLOSE_SCOPE);
+	public OpenScope(int lineID) {
+		super(lineID, OPEN_SCOPE, CLOSE_SCOPE);
 	}
 
 	@Override
-	public ScopeBracket getMatch() {
+	public CloseScope getMatch() {
 		if (myMatch == null)
 			throw new IllegalCodeFormatException(getOriginalLine(), "Block has no matching end. Use a ; or a }.");
 		return myMatch;

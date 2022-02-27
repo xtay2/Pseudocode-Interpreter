@@ -18,7 +18,7 @@ public class BuilderExpression extends Expression {
 
 	/** The lineID gets set to -1, because it is irrelevant at runtime. */
 	private BuilderExpression(AbstractType type, AbstractType... expected) {
-		super(-1, type, expected);
+		super(type, expected);
 		if (type == null)
 			throw new AssertionError("Type cannot be null");
 	}

@@ -44,8 +44,8 @@ public class Formatter {
 	}
 
 	/**
-	 * Adds a semicolon behind each one-line-statement or native declaration, thats
-	 * missing one and remove the unnecessary ones.
+	 * Adds a semicolon behind each one-line-statement or native declaration, thats missing one and
+	 * remove the unnecessary ones.
 	 */
 	private static void doSemicolons() {
 		for (int i = 0; i < rawProgram.size(); i++) {
@@ -124,13 +124,13 @@ public class Formatter {
 					line = removeCharAt(line, j - 1);
 			}
 
-			// Fï¿½ge ein space hinter jedem komma/doppelpunkt ein
+			// Füge ein space hinter jedem komma/doppelpunkt ein
 			for (int j = 0; j < line.length() - 1; j++) {
 				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j + 1) != ' ')
 					line = insertCharAt(' ', line, j + 1);
 			}
 
-			// Padding fï¿½r single-char Operators
+			// Padding für single-char Operators
 			for (int j = 1; j < line.length() - 1; j++) {
 				if (Helper.isRunnableCode(j, line)) {
 					// Arithmetische Operatoren
@@ -232,7 +232,8 @@ public class Formatter {
 	 * Checks, if this character is a single-char operator.
 	 */
 	private static boolean isOperator(char op) {
-		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '=' || op == '^' || op == '!';
+		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '=' || op == '^' || op == '!' || op == '<'
+				|| op == '>';
 	}
 
 	/**
@@ -317,8 +318,8 @@ public class Formatter {
 }
 
 /**
- * Methods that are tagged with this annotation can potentially interfere with
- * strings. They should use the function Formatter#isRunnableCode
+ * Methods that are tagged with this annotation can potentially interfere with strings. They should
+ * use the function Formatter#isRunnableCode
  */
 @Retention(RetentionPolicy.SOURCE)
 @interface InterferesWithStrings {

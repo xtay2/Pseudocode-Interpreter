@@ -23,8 +23,8 @@ public final class Operation extends Expression implements ValueHolder, MergedEx
 	private List<Expression> operation;
 
 	/** Gets called when an Operation is constructed in the {@link ValueMerger}. */
-	public Operation(int line) {
-		super(line, SuperType.MERGED);
+	public Operation(int lineID) {
+		super(lineID, SuperType.MERGED);
 	}
 
 	@Override

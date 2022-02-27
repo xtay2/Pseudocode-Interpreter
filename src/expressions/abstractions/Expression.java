@@ -33,15 +33,26 @@ public abstract class Expression {
 	protected final AbstractType[] expected;
 
 	/** The line in which this Expression is defined. */
-	public final int lineIdentifier;
+	public final Integer lineIdentifier;
+
+	/** The scope in which this Expression is defined. */
+	private Scope myScope = null;
 
 	/** The Type of this Expression. */
 	public final AbstractType type;
+
+	/** Constructor for all Expressions that don't necessarily have a scope. */
+	public Expression(AbstractType myType, AbstractType... expected) {
+		this.type = myType;
+		this.expected = expected;
+		this.lineIdentifier = null;
+	}
 
 	/**
 	 * Builds an Expression.
 	 * 
 	 * @param lineID   is the identifier of the matching {@link ProgramLine}.
+	 * @param scope    is the scope in which this Variable is defined.
 	 * @param myType   is any {@link AbstractType} that describes this expression the best. Use a
 	 *                 {@link SpecificType}, if possible.
 	 * @param expected is an array of expected types following after this Expression.
@@ -52,6 +63,36 @@ public abstract class Expression {
 		this.expected = expected;
 		if (myType == null)
 			throw new AssertionError("Type cannot be null.");
+	}
+
+	/**
+	 * Sets the {@link Scope} this {@link Expression} lies in. (Can only get called once)
+	 * 
+	 * Gets called by the {@link ValueMerger}.
+	 */
+	public final void setScope(Scope s) {
+		// Only functions for Expressions that have a lineID
+		if (lineIdentifier == null)
+			return;
+		if (s == null)
+			throw new AssertionError(getOriginalLine() + ": Scope cannot be set to null.");
+		if (myScope != null && myScope != s)
+			throw new AssertionError((lineIdentifier == -1 ? "Imported" : getOriginalLine()) + ": Tried to set the Scope of " + toString()
+					+ " to " + s.getScopeName() + " but it was already set to " + myScope.getScopeName());
+		myScope = s;
+	}
+
+	/**
+	 * Returns the {@link Scope} this {@link Expression} lies in. If {@code this} is a
+	 * {@link ScopeHolder}, this Method {@link #getScope()} gets overriden and returns the held Scope
+	 * instead.
+	 * 
+	 * Gets called by the {@link ValueMerger}
+	 */
+	public Scope getScope() {
+		if (myScope == null)
+			throw new AssertionError("The Scope of " + this + " wasn't registered.");
+		return myScope;
 	}
 
 	/**

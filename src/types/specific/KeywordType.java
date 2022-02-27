@@ -5,8 +5,7 @@ import expressions.main.functions.Function;
 import expressions.main.functions.MainFunction;
 import expressions.main.loops.ConditionalLoop;
 import expressions.main.loops.ForEachLoop;
-import expressions.main.loops.FromToLoop;
-import expressions.main.loops.RepeatLoop;
+import expressions.main.loops.IntervalLoop;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.IsStatement;
 import expressions.main.statements.ReturnStatement;
@@ -20,8 +19,15 @@ import types.SuperType;
  */
 public enum KeywordType implements AbstractType {
 
-	ELIF("elif"), ELSE("else"), FOR("for"), FROM("from"), FUNC("func"), IF("if"), IMPORT("import"), MAIN("main"), REPEAT("repeat"),
-	RETURN("return"), UNTIL("until"), WHILE("while"), IS("is");
+	IF("if"), ELIF("elif"), ANY("any"), ELSE("else"),
+
+	FOR("for"), FROM("from"), REPEAT("repeat"), UNTIL("until"), WHILE("while"),
+
+	FUNC("func"), MAIN("main"), RETURN("return"),
+
+	IMPORT("import"),
+
+	IS("is");
 
 	final String keyword;
 
@@ -40,13 +46,12 @@ public enum KeywordType implements AbstractType {
 			return null;
 		return switch (this) {
 			case FOR -> new ForEachLoop(lineID);
-			case FROM -> new FromToLoop(lineID);
 			case FUNC -> new Function(lineID);
 			case IS -> new IsStatement(lineID);
 			case MAIN -> new MainFunction(lineID);
-			case REPEAT -> new RepeatLoop(lineID);
 			case RETURN -> new ReturnStatement(lineID);
-			case IF, ELIF, ELSE -> new ConditionalStatement(lineID, this);
+			case FROM, REPEAT -> new IntervalLoop(lineID, this);
+			case IF, ELIF, ANY, ELSE -> new ConditionalStatement(lineID, this);
 			case WHILE, UNTIL -> new ConditionalLoop(lineID, this);
 			case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
 			case null -> null;

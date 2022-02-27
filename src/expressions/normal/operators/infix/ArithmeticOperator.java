@@ -11,8 +11,8 @@ import types.specific.operators.InfixOpType;
 
 public class ArithmeticOperator extends InfixOperator {
 
-	public ArithmeticOperator(int line, InfixOpType op) {
-		super(line, op);
+	public ArithmeticOperator(int lineID, InfixOpType op) {
+		super(lineID, op);
 	}
 
 	@Override

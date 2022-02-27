@@ -77,6 +77,11 @@ public abstract class ConceptualNrValue extends NumberValue {
 			return NAN;
 		}
 
+		@Override
+		public Double raw() {
+			return Double.POSITIVE_INFINITY;
+		}
+
 	};
 
 	/** Negative infinity. */
@@ -127,6 +132,11 @@ public abstract class ConceptualNrValue extends NumberValue {
 			return NAN;
 		}
 
+		@Override
+		public Double raw() {
+			return Double.NEGATIVE_INFINITY;
+		}
+
 	};
 
 	/**
@@ -174,6 +184,11 @@ public abstract class ConceptualNrValue extends NumberValue {
 		@Override
 		public NumberValue root(NumberValue v) {
 			return NAN;
+		}
+
+		@Override
+		public Double raw() {
+			return Double.NaN;
 		}
 	};
 }

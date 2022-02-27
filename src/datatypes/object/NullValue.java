@@ -1,7 +1,10 @@
-package datatypes;
+package datatypes.object;
 
 import static datatypes.numerical.NumberValue.ZERO;
 
+import datatypes.BoolValue;
+import datatypes.TextValue;
+import datatypes.Value;
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import types.specific.data.DataType;
@@ -39,15 +42,20 @@ public final class NullValue extends ObjectValue {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, OBJECT -> true; // Always returns NULL
-		case BOOL -> true; // Always returns false
-		case NUMBER, INT -> true; // Always returns ZERO
-		case TEXT -> true; // Always returns "null"
+			case VAR, OBJECT -> true; // Always returns NULL
+			case BOOL -> true; // Always returns false
+			case NUMBER, INT -> true; // Always returns ZERO
+			case TEXT -> true; // Always returns "null"
 		};
 	}
 
 	@Override
 	public boolean valueCompare(Value v) {
 		return v == NULL;
+	}
+
+	@Override
+	public Object raw() {
+		return null;
 	}
 }
