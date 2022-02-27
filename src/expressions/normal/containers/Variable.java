@@ -37,6 +37,7 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 
 	// FLAGS
 	private boolean isConstant = false;
+	private boolean isFinal = false;
 
 	/**
 	 * Creates and registers a Variable.
@@ -93,8 +94,9 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	public void setValue(Value val) throws CastingException {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
-		if (isConstant && value != null)
-			throw new DeclarationException(getOriginalLine(), "Trying to modify the constant variable " + getName());
+		if (isFinal && value != null)
+			throw new DeclarationException(getOriginalLine(),
+					"Trying to modify the " + (isConstant ? "constant " : "final variable ") + getName());
 		value = val.as((ExpectedType) type);
 	}
 
@@ -114,9 +116,25 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	public void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
 		for (FlagType f : flags) {
 			switch (f) {
-				case CONSTANT -> isConstant = true;
-				default -> throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
+				case CONSTANT:
+					isConstant = true;
+					isFinal = true;
+					break;
+				case FINAL:
+					isFinal = true;
+					break;
+				default:
+					throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
 			}
 		}
+	}
+
+	@Override
+	public boolean hasFlag(FlagType f) {
+		return switch (f) {
+			case CONSTANT -> isConstant;
+			case FINAL -> isFinal;
+			default -> false;
+		};
 	}
 }

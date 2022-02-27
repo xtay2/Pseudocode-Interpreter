@@ -1,5 +1,10 @@
 import stdlib.lang.System
 
 main {
-	for e in [1, 2, 3]: print(e);
+	a()
+	a()
+}
+
+final func a() {
+	print("init")
 }

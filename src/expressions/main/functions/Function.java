@@ -64,6 +64,7 @@ public class Function extends Returnable {
 	public boolean execute(ValueHolder... params) {
 		if (expectedParams() != params.length)
 			throw new IllegalCallException(getOriginalLine(), "This function is called with the wrong amount of params.");
+		finalCheck();
 		// Init Params
 		int i = 0;
 		for (Entry<Name, ExpectedType> param : paramBlueprint.entrySet()) {

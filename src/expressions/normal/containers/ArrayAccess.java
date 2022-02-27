@@ -1,11 +1,14 @@
 package expressions.normal.containers;
 
+import static types.specific.FlagType.CONSTANT;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import datatypes.ArrayValue;
 import datatypes.Value;
 import exceptions.runtime.ArrayAccessException;
+import exceptions.runtime.DeclarationException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueChanger;
@@ -48,7 +51,11 @@ public class ArrayAccess extends Expression implements ValueChanger, MergedExpre
 
 	@Override
 	public void setValue(Value val) {
-		ArrayValue arr = (ArrayValue) name.getValue();
+		Variable v = name.getScope().get(name.getNameString(), getOriginalLine());
+		if (v.hasFlag(CONSTANT))
+			throw new DeclarationException(getOriginalLine(),
+					"The Array \"" + name.getNameString() + "\" is defined as constant and cannot be changed.");
+		ArrayValue arr = v.getValue().asVarArray();
 		try {
 			for (int i = 0; i < indices.size() - 1; i++)
 				arr = (ArrayValue) arr.get(indices.get(i).getValue().asInt().value.intValueExact());

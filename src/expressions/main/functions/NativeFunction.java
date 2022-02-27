@@ -45,6 +45,8 @@ public class NativeFunction extends Returnable {
 
 	@Override
 	public boolean execute(ValueHolder... params) {
+		finalCheck(); // Has to come first
+		// Call to System-Functions
 		if (params.length != expectedParams())
 			throw new IllegalCallException(getOriginalLine(), "Illegal amount of params. Expected " + expectedParams());
 		returnVal = SystemFunctions.callSystemFunc(SystemFunctions.getSystemFunction(getNameString()), params);

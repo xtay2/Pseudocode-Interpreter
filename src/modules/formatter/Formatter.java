@@ -3,12 +3,14 @@ package modules.formatter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
 import helper.Helper;
+import types.specific.FlagType;
 import types.specific.KeywordType;
 
 public class Formatter {
@@ -19,6 +21,7 @@ public class Formatter {
 		rawProgram = p;
 		stripTrailing();
 		lineBreakBetweenBlocks(0);
+		orderFlags();
 		indent();
 		doSemicolons();
 		improveLogical();
@@ -286,6 +289,35 @@ public class Formatter {
 		Collections.sort(imports, Comparator.reverseOrder());
 		for (String imp : imports)
 			rawProgram.add(0, imp);
+	}
+
+	/**
+	 * Sets the order of Flags.
+	 * 
+	 * Removes flags that are not positioned at the start of the line.
+	 * 
+	 * Removes unnecessary flags.
+	 */
+	private static void orderFlags() {
+		List<String> flags = new ArrayList<>();
+		for (int i = 0; i < rawProgram.size(); i++) {
+			String[] line = rawProgram.get(i).stripLeading().split(" ");
+			for (String word : line) {
+				if (FlagType.isFlag(word)) {
+					flags.add(word);
+				} else
+					break;
+			}
+			if (!flags.isEmpty()) {
+				flags = FlagType.orderFlags(flags);
+				StringBuilder sb = new StringBuilder();
+				for (String flag : flags)
+					sb.append(flag + " ");
+				String rest = Arrays.stream(line).dropWhile(e -> FlagType.isFlag(e)).reduce("", (t, e) -> t + " " + e);
+				rawProgram.set(i, sb + rest);
+				flags.clear();
+			}
+		}
 	}
 
 	private static String removeAllOccsInLine(String line, String expression) {

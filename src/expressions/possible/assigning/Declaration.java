@@ -49,4 +49,9 @@ public class Declaration extends Allocating implements Flaggable {
 		this.flags.addAll(flags);
 	}
 
+	@Override
+	public boolean hasFlag(FlagType f) {
+		return flags.contains(f);
+	}
+
 }

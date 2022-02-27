@@ -1,6 +1,7 @@
 package expressions.main.functions;
 
 import static types.specific.ExpressionType.NAME;
+import static types.specific.FlagType.FINAL;
 import static types.specific.KeywordType.FUNC;
 
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.Set;
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.parsing.UnexpectedFlagException;
+import exceptions.runtime.IllegalCallException;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueChanger;
 import expressions.normal.containers.Name;
@@ -35,11 +37,15 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 
 	/**
 	 * Flags for this {@link Returnable}.
-	 * 
-	 * @deprecated WIP currently not used.
 	 */
-	@Deprecated
 	protected Set<FlagType> flags = null;
+
+	/**
+	 * Tells if this function already got called.
+	 * 
+	 * @see {@link FlagType#FINAL}
+	 */
+	protected boolean wasCalled = false;
 
 	protected Returnable(int lineID) {
 		super(lineID, FUNC, NAME);
@@ -83,6 +89,27 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 	@Override
 	public final void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
 		this.flags = flags;
+	}
+
+	@Override
+	public boolean hasFlag(FlagType f) {
+		return flags.contains(f);
+	}
+
+	/**
+	 * Checks, if this {@link Returnable} is {@link FlagType#FINAL} and already got called.
+	 * 
+	 * If both is true, an {@link IllegalCallException} gets thrown.
+	 * 
+	 * This method gets called by all {@link #execute()}-Methods.
+	 */
+	protected void finalCheck() {
+		if (hasFlag(FINAL)) {
+			if (wasCalled)
+				throw new IllegalCallException(getOriginalLine(),
+						"Function \"" + getNameString() + "\" is declared as final and can only get called once.");
+			wasCalled = true;
+		}
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import static types.SuperType.FLAG_TYPE;
 import static types.specific.BuilderType.*;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.FlagType.CONSTANT;
+import static types.specific.FlagType.FINAL;
 import static types.specific.KeywordType.IF;
 import static types.specific.data.ArrayType.VAR_ARRAY;
 import static types.specific.data.DataType.VAR;
@@ -439,7 +440,7 @@ public abstract class ValueMerger {
 		if (line.get(0).type instanceof ExpectedType)
 			f = buildDeclaration();
 		// Declaration of a constant without type and optional flags
-		else if (flags.contains(CONSTANT) && line.get(0).is(NAME)) {
+		else if (flags.contains(CONSTANT) || flags.contains(FINAL) && line.get(0).is(NAME)) {
 			line.add(0, new BuilderExpression(VAR));
 			f = buildDeclaration();
 		}

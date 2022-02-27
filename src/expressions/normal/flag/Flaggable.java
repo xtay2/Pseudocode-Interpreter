@@ -25,4 +25,7 @@ public interface Flaggable extends MergedExpression {
 	 */
 	void setFlags(Set<FlagType> flags) throws UnexpectedFlagException;
 
+	/** Returns true if this {@link Flaggable} contains the specified {@link FlagType}. */
+	boolean hasFlag(FlagType f);
+
 }

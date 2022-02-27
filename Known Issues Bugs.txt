@@ -1,8 +1,0 @@
----Known Issues---
-
-
-GEHT, ABER SOLLTE NICHT GEHEN:
-
-Wenn man etwas importiert, hat man auch Zugriff auf alle imports der dardurch importierten Dateien.
-
-GEHT NICHT, ABER SOLLTE GEHEN:
