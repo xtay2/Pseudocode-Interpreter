@@ -8,13 +8,11 @@ import static types.specific.data.DataType.TEXT;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.ShouldBeNaturalNrException;
-import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
 import types.specific.data.DataType;
 
@@ -91,9 +89,7 @@ public final class TextValue extends Value {
 		ValueHolder[] chars = new ValueHolder[value.length()];
 		for (int i = 0; i < value.length(); i++)
 			chars[i] = (new TextValue(value.charAt(i)));
-		ArrayValue arr = new ArrayValue(TEXT_ARRAY);
-		arr.merge(Arrays.copyOf(chars, chars.length, Expression[].class));
-		return arr;
+		return new ArrayValue(TEXT_ARRAY, chars);
 	}
 
 	@Override
@@ -107,8 +103,10 @@ public final class TextValue extends Value {
 			case VAR, TEXT -> true; // Returns this
 			case NUMBER, INT -> true; // The number or NAN if its just text.
 			case BOOL -> value.equals("true") || value.equals("false"); // Nur wenn es tatsächlich ein Boolean literal ist.
-			// Not Supported
+			// Not implemented
 			case OBJECT -> false;
+			// Not supported
+			case DEF -> false;
 		};
 	}
 

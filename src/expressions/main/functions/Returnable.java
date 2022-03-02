@@ -1,21 +1,22 @@
 package expressions.main.functions;
 
-import static types.specific.ExpressionType.NAME;
 import static types.specific.FlagType.FINAL;
 import static types.specific.KeywordType.FUNC;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import datatypes.Value;
-import exceptions.parsing.IllegalCodeFormatException;
 import exceptions.parsing.UnexpectedFlagException;
 import exceptions.runtime.IllegalCallException;
 import expressions.abstractions.ScopeHolder;
-import expressions.abstractions.interfaces.ValueChanger;
+import expressions.abstractions.interfaces.Callable;
+import expressions.abstractions.interfaces.NameHolder;
+import expressions.normal.brackets.OpenScope;
 import expressions.normal.containers.Name;
 import expressions.normal.flag.Flaggable;
 import helper.Output;
-import modules.interpreter.Interpreter;
+import modules.interpreter.FuncManager;
 import types.specific.FlagType;
 import types.specific.data.ExpectedType;
 
@@ -24,10 +25,10 @@ import types.specific.data.ExpectedType;
  * 
  * It provides the ability to set and give return-values.
  */
-public abstract class Returnable extends ScopeHolder implements Flaggable, ValueChanger {
+public abstract class Returnable extends ScopeHolder implements Flaggable, Callable, NameHolder {
 
 	/** The {@link Name} of the underlying {@link Returnable}. */
-	protected Name name = null;
+	protected final Name name;
 
 	/** The expected return type. Null is equivalent to void. */
 	protected ExpectedType returnType = null;
@@ -38,7 +39,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 	/**
 	 * Flags for this {@link Returnable}.
 	 */
-	protected Set<FlagType> flags = null;
+	protected Set<FlagType> flags = new HashSet<>();
 
 	/**
 	 * Tells if this function already got called.
@@ -47,15 +48,18 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 	 */
 	protected boolean wasCalled = false;
 
-	protected Returnable(int lineID) {
-		super(lineID, FUNC, NAME);
+	protected Returnable(int lineID, Name name, OpenScope os) {
+		super(lineID, FUNC, os);
+		if (name == null)
+			throw new AssertionError("Name cannot be null.");
+		FuncManager.registerFunction(name.getNameString(), lineID);
+		this.name = name;
 	}
 
 	/**
 	 * This method gets called by the ReturnStatement. If a returntype is specified, the value gets
 	 * implicitly casted.
 	 */
-	@Override
 	public final void setValue(Value val) {
 		if (returnVal != null && val != null)
 			throw new AssertionError("Function " + name + " already has a return value.");
@@ -63,19 +67,6 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 			returnVal = val.as(returnType);
 		else
 			returnVal = val;
-	}
-
-	/**
-	 * Returns the return-value and resets it, so the function can get called again. This Method should
-	 * only get called by {@link Interpreter#call}.
-	 */
-	@Override
-	public final Value getValue() {
-		Value v = returnVal;
-		if (returnType == null && returnVal != null)
-			throw new IllegalCodeFormatException(getOriginalLine(), getName() + " shouldn't return anything.");
-		returnVal = null;
-		return v;
 	}
 
 	/** Returns the amount of expected parameters. */
@@ -88,7 +79,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 
 	@Override
 	public final void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
-		this.flags = flags;
+		this.flags.addAll(flags);
 	}
 
 	@Override
@@ -103,13 +94,18 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Value
 	 * 
 	 * This method gets called by all {@link #execute()}-Methods.
 	 */
-	protected void finalCheck() {
+	protected final void finalCheck() {
 		if (hasFlag(FINAL)) {
 			if (wasCalled)
 				throw new IllegalCallException(getOriginalLine(),
 						"Function \"" + getNameString() + "\" is declared as final and can only get called once.");
 			wasCalled = true;
 		}
+	}
+
+	@Override
+	public final boolean execute() {
+		throw new AssertionError("A func-declaration cannot be executed.");
 	}
 
 	@Override

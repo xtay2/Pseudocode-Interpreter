@@ -2,12 +2,11 @@ package types.specific;
 
 import static types.specific.operators.InfixOpType.*;
 
-import expressions.possible.assigning.Assignment;
 import types.AbstractType;
 import types.SuperType;
 import types.specific.operators.InfixOpType;
 
-public enum AssingmentType implements AbstractType {
+public enum AssignmentType implements AbstractType {
 
 	NORMAL("=", null), ADDI("+=", ADD), SUBI("-=", SUB), MULTI("*=", MULT), DIVI("/=", DIV), POWI("^=", POW), MODI("%=", MOD);
 
@@ -16,22 +15,23 @@ public enum AssingmentType implements AbstractType {
 	/** The corresponding Infix-Operator. */
 	public final InfixOpType op;
 
-	private AssingmentType(String label, InfixOpType op) {
+	private AssignmentType(String label, InfixOpType op) {
 		this.label = label;
 		this.op = op;
 	}
 
 	@Override
-	public Assignment create(String arg, int lineID) {
-		for (AssingmentType t : values()) {
-			if (t.label.equals(arg))
-				return new Assignment(lineID, t);
-		}
-		return null;
+	public boolean is(SuperType superType) {
+		return superType == SuperType.ASSIGNMENT_TYPE;
 	}
 
 	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.ASSIGNMENT_TYPE;
+	public AbstractType[] expected() {
+		return VAL_HOLDER_TYPES;
+	}
+
+	@Override
+	public String toString() {
+		return label;
 	}
 }

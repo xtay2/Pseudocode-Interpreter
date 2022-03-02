@@ -5,6 +5,7 @@ import static datatypes.numerical.NumberValue.ZERO;
 import datatypes.BoolValue;
 import datatypes.TextValue;
 import datatypes.Value;
+import datatypes.numerical.ConceptualNrValue;
 import datatypes.numerical.IntValue;
 import datatypes.numerical.NumberValue;
 import types.specific.data.DataType;
@@ -12,6 +13,9 @@ import types.specific.data.DataType;
 public final class NullValue extends ObjectValue {
 
 	public static final NullValue NULL = new NullValue();
+
+	/** Text-Representation of this {@link ConceptualNrValue}. */
+	public final String txt = "null";
 
 	/** Gets only called by {@link NullValue#NULL} once. */
 	private NullValue() {
@@ -46,6 +50,8 @@ public final class NullValue extends ObjectValue {
 			case BOOL -> true; // Always returns false
 			case NUMBER, INT -> true; // Always returns ZERO
 			case TEXT -> true; // Always returns "null"
+			// Not supported
+			case DEF -> false;
 		};
 	}
 

@@ -1,20 +1,14 @@
 package types.specific.operators;
 
-import expressions.abstractions.Expression;
 import types.AbstractType;
 import types.SuperType;
 
-/**
- * @deprecated WIP: Don't use this, its only implemented here.
- */
 public enum PrefixOpType implements AbstractType {
 	// Arithmetic
 	INC("++"), DEC("--"),
 
 	// Logic
 	NOT("not");
-
-	/** Necessary constructor and symbol. */
 
 	public final String symbol;
 
@@ -28,13 +22,12 @@ public enum PrefixOpType implements AbstractType {
 	}
 
 	@Override
-	public Expression create(String arg, int lineID) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean is(SuperType superType) {
+		return superType == SuperType.PREFIX_OPERATOR;
 	}
 
 	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.PREFIX_OPERATOR;
+	public AbstractType[] expected() {
+		return VAL_HOLDER_TYPES;
 	}
 }

@@ -2,7 +2,7 @@ package expressions.normal.containers;
 
 import static types.specific.FlagType.CONSTANT;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import datatypes.ArrayValue;
@@ -10,29 +10,22 @@ import datatypes.Value;
 import exceptions.runtime.ArrayAccessException;
 import exceptions.runtime.DeclarationException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueChanger;
 import expressions.abstractions.interfaces.ValueHolder;
 import types.SuperType;
 
 /** Access at a specific index for example a[19] */
-public class ArrayAccess extends Expression implements ValueChanger, MergedExpression {
+public class ArrayAccess extends Expression implements ValueChanger {
 
-	private final ArrayList<ValueHolder> indices = new ArrayList<>();
-	private Name name;
+	private final List<ValueHolder> indices;
+	private final Name name;
 
-	public ArrayAccess(int lineID) {
+	public ArrayAccess(int lineID, Name name, List<ValueHolder> indices) {
 		super(lineID, SuperType.MERGED);
-	}
-
-	/** [Name] [INDEX] (INDEX), (INDEX)... */
-	@Override
-	public void merge(Expression... e) {
-		if (e.length < 2)
-			throw new ArrayAccessException(getOriginalLine(), "Index has to be defined.");
-		name = (Name) e[0];
-		for (int i = 1; i < e.length; i++)
-			indices.add((ValueHolder) e[i]);
+		this.name = name;
+		this.indices = indices;
+		if (name == null || indices == null)
+			throw new AssertionError("Name and indices cannot be null.");
 	}
 
 	@Override

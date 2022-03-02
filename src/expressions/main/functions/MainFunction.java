@@ -1,30 +1,23 @@
 package expressions.main.functions;
 
-import expressions.abstractions.Expression;
+import static types.specific.KeywordType.MAIN;
+
 import expressions.abstractions.ScopeHolder;
-import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.brackets.OpenScope;
-import types.specific.ExpressionType;
+import modules.interpreter.FuncManager;
 import types.specific.KeywordType;
 
 public class MainFunction extends ScopeHolder {
 
-	public MainFunction(int lineID) {
-		super(lineID, KeywordType.MAIN, ExpressionType.OPEN_SCOPE);
+	public MainFunction(int lineID, OpenScope os) {
+		super(lineID, MAIN, os);
+		FuncManager.registerFunction(KeywordType.MAIN.keyword, lineID);
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
+	public boolean execute() {
 		callFirstLine();
 		getScope().clear();
 		return false;
-	}
-
-	/** [OPEN_SCOPE] */
-	@Override
-	public void merge(Expression... e) {
-		if (e.length != 1)
-			throw new AssertionError("Only the open-scope is needed.");
-		initScope((OpenScope) e[0]);
 	}
 }

@@ -1,16 +1,9 @@
 package datatypes;
 
 import static datatypes.numerical.ConceptualNrValue.NAN;
-import static datatypes.numerical.ConceptualNrValue.NEG_INF;
-import static datatypes.numerical.ConceptualNrValue.POS_INF;
-import static types.SuperType.BUILDER_TYPE;
-import static types.SuperType.INFIX_OPERATOR;
-import static types.SuperType.KEYWORD_TYPE;
-import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.regex.Pattern;
 
 import datatypes.numerical.ConceptualNrValue;
 import datatypes.numerical.DecimalValue;
@@ -21,8 +14,6 @@ import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
 import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ValueHolder;
-import modules.parser.program.ValueBuilder;
-import types.specific.ExpressionType;
 import types.specific.data.ArrayType;
 import types.specific.data.DataType;
 import types.specific.data.ExpectedType;
@@ -31,7 +22,7 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
 	public Value(ExpectedType dataType) {
-		super(dataType, OPEN_SCOPE, INFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE);
+		super(dataType);
 	}
 
 	/**
@@ -57,57 +48,6 @@ public abstract class Value extends Expression implements ValueHolder {
 		throw new AssertionError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
 	}
 
-	// Static String-Checks
-
-	/**
-	 * This should get exclusivly used when checking if a String matches the literal words "true" or
-	 * "false".
-	 */
-	private static boolean isBoolean(String value) {
-		if ("true".equals(value) || "false".equals(value))
-			return true;
-		return false;
-	}
-
-	/**
-	 * Checks if this String is an acceptable Number.
-	 * 
-	 * (Digits with optional minus, decimal point and period Brackets or any {@link ConceptualNrValue})
-	 */
-	public static boolean isNumber(String value) {
-		return Pattern.matches("^(-?)(((0|(\\d*))(\\.\\d+)?)|(" + POS_INF.txt + ")|(" + NAN.txt + "))$", value);
-	}
-
-	/** Checks if this String starts and ends with the symbol " */
-	private static boolean isString(String value) {
-		return value.startsWith("\"") && value.endsWith("\"");
-	}
-
-	/**
-	 * Builds a {@link Value} from a {@link String}.
-	 * 
-	 * Called in {@link ExpressionType#create(String, int)}
-	 * 
-	 * Returns null if the {@link String} is not a literal value.
-	 */
-	public static Value stringToLiteral(String arg) {
-		// Is Single Value
-		if (Value.isBoolean(arg))
-			return BoolValue.valueOf("true".equals(arg));
-		if (Value.isNumber(arg)) {
-			if (POS_INF.txt.equals(arg))
-				return POS_INF;
-			if (NEG_INF.txt.equals(arg))
-				return NEG_INF;
-			if (NAN.txt.equals(arg))
-				return NAN;
-			return DecimalValue.create(new BigDecimal(arg));
-		}
-		if (Value.isString(arg))
-			return ValueBuilder.escapeText(arg.substring(1, arg.length() - 1));
-		return null;
-	}
-
 	/**
 	 * Cast this value to the passed type.
 	 * 
@@ -122,6 +62,7 @@ public abstract class Value extends Expression implements ValueHolder {
 					case NUMBER -> asNumber();
 					case INT -> asInt();
 					case TEXT -> asText();
+					case DEF -> asDef();
 					case OBJECT -> throw new UnsupportedOperationException("Unsupported case: " + d);
 				};
 			case ArrayType a:
@@ -131,6 +72,7 @@ public abstract class Value extends Expression implements ValueHolder {
 					case INT_ARRAY -> asIntArray();
 					case NUMBER_ARRAY -> asNumberArray();
 					case TEXT_ARRAY -> asTextArray();
+					case DEF_ARRAY -> asDefArray();
 					case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unsupported case: " + a);
 				};
 			default:
@@ -166,6 +108,10 @@ public abstract class Value extends Expression implements ValueHolder {
 		throw new CastingException("A " + type + " cannot be casted to a IntValue.");
 	}
 
+	public IntValue asDef() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a DefValue.");
+	}
+
 	public ArrayValue asBoolArray() throws CastingException {
 		throw new CastingException("A " + type + " cannot be casted to a BoolArray.");
 	}
@@ -176,6 +122,19 @@ public abstract class Value extends Expression implements ValueHolder {
 
 	public ArrayValue asIntArray() throws CastingException {
 		throw new CastingException("A " + type + " cannot be casted to a IntArray.");
+	}
+
+	public ArrayValue asDefArray() throws CastingException {
+		throw new CastingException("A " + type + " cannot be casted to a DefArray.");
+	}
+
+	/** Tells, if this Value can always be safely casted to the suggested {@link ExpectedType}. */
+	public final boolean canCastTo(ExpectedType t) {
+		if (t instanceof DataType dt)
+			return canCastTo(dt);
+		if (t instanceof ArrayType at)
+			return canCastTo(at);
+		throw new AssertionError("Expected Type " + t + " is neither a data-, or array-type.");
 	}
 
 	/** Tells, if this Value can always be safely casted to the suggested {@link DataType}. */

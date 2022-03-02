@@ -231,12 +231,9 @@ public class Formatter {
 		return s.substring(0, i) + c + s.substring(i);
 	}
 
-	/**
-	 * Checks, if this character is a single-char operator.
-	 */
+	/** Checks, if this character is a single-char operator. */
 	private static boolean isOperator(char op) {
-		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '=' || op == '^' || op == '!' || op == '<'
-				|| op == '>';
+		return op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '=' || op == '^' || op == '!';
 	}
 
 	/**

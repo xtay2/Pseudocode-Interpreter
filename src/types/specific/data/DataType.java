@@ -10,6 +10,9 @@ public enum DataType implements ExpectedType {
 	VAR("var"), TEXT("text"), BOOL("bool"), NUMBER("nr"), INT("int"),
 
 	// Not implemented
+
+	DEF("def"),
+
 	@Deprecated
 	OBJECT("obj");
 
@@ -28,7 +31,7 @@ public enum DataType implements ExpectedType {
 	public BuilderExpression create(String arg, int lineID) {
 		if (!type.equals(arg.strip()))
 			return null;
-		return new BuilderExpression(this);
+		return new BuilderExpression(lineID, this);
 	}
 
 	@Override

@@ -1,21 +1,15 @@
 package expressions.possible.multicall;
 
-import static types.SuperType.INFIX_OPERATOR;
-import static types.specific.ExpressionType.NAME;
-
-import java.util.Arrays;
+import static types.SuperType.MERGED;
 
 import datatypes.Value;
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.abstractions.Expression;
 import expressions.abstractions.PossibleMainExpression;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.statements.IsStatement;
 import expressions.normal.operators.infix.InOperator;
 import expressions.normal.operators.infix.LogicalOperator;
 import expressions.possible.Call;
-import types.SuperType;
 import types.specific.operators.InfixOpType;
 
 /**
@@ -49,23 +43,25 @@ import types.specific.operators.InfixOpType;
  *	add(|a, b, c|, |d, e|)
  * </pre>
  */
-public class MultiCall extends PossibleMainExpression implements MergedExpression, ValueHolder {
+public class MultiCall extends PossibleMainExpression implements ValueHolder {
 
-	private ValueHolder[] content;
+	private final ValueHolder[] content;
 	private final MultiCallable outer;
 
-	public MultiCall(int lineID, MultiCallable outer) {
-		super(lineID, SuperType.MERGED, INFIX_OPERATOR, NAME);
+	/**
+	 * Creates a {@link MultiCall}.
+	 *
+	 * @param outer   shouldn't be null
+	 * @param content shouldn't be null
+	 */
+	public MultiCall(int lineID, MultiCallable outer, ValueHolder[] content) {
+		super(lineID, MERGED);
 		this.outer = outer;
+		this.content = content;
 		if (outer == null)
 			throw new AssertionError("Outer cannot be null.");
-	}
-
-	@Override
-	public void merge(Expression... e) {
-		if (e.length < 2)
-			throw new IllegalCodeFormatException("A MultiCall has to contain atleast two elements.");
-		content = Arrays.copyOf(e, e.length, ValueHolder[].class);
+		if (content.length < 2)
+			throw new IllegalCodeFormatException(getOriginalLine(), "This Multicall has to contain atleast two elements");
 	}
 
 	@Override
@@ -74,7 +70,7 @@ public class MultiCall extends PossibleMainExpression implements MergedExpressio
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
+	public boolean execute() {
 		getValue();
 		return callNextLine();
 	}

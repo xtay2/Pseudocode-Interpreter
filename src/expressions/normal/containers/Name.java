@@ -1,18 +1,13 @@
 package expressions.normal.containers;
 
-import static types.SuperType.*;
-import static types.specific.BuilderType.*;
 import static types.specific.ExpressionType.NAME;
-import static types.specific.ExpressionType.OPEN_SCOPE;
 
 import datatypes.Value;
 import exceptions.runtime.DeclarationException;
 import expressions.abstractions.Expression;
 import expressions.abstractions.Scope;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.NameHolder;
 import expressions.abstractions.interfaces.ValueChanger;
-import helper.Output;
 import types.specific.FlagType;
 import types.specific.KeywordType;
 import types.specific.data.ArrayType;
@@ -20,9 +15,7 @@ import types.specific.data.DataType;
 
 /**
  * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
- * 
- * This is not a {@link MergedExpression}, because the functionality can be reduced into the
- * constructor. (Wrapper-{@link Expression} for {@link String}s).
+ * (Wrapper-{@link Expression} for {@link String}s).
  */
 public class Name extends Expression implements ValueChanger {
 
@@ -30,11 +23,12 @@ public class Name extends Expression implements ValueChanger {
 
 	/** Creates a {@link Name} from a {@link String}. */
 	public Name(int lineID, String name) {
-		super(lineID, NAME, ASSIGNMENT_TYPE, OPEN_BRACKET, COMMA, CLOSE_BRACKET, OPEN_SCOPE, INFIX_OPERATOR, ARRAY_START, ARRAY_END,
-				POSTFIX_OPERATOR, KEYWORD_TYPE, MULTI_CALL_LINE, BUILDER_TYPE);
+		super(lineID, NAME);
+		this.name = name;
+		if (name == null)
+			throw new AssertionError("Name cannot be null.");
 		if (!isName(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
-		this.name = name;
 	}
 
 	/** A shortcut for getting the value over {@link Scope#get()}. */
@@ -77,6 +71,6 @@ public class Name extends Expression implements ValueChanger {
 
 	@Override
 	public String toString() {
-		return Output.DEBUG ? getClass().getSimpleName() : name;
+		return getNameString();
 	}
 }

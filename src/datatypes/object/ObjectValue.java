@@ -8,18 +8,19 @@ import datatypes.TextValue;
 import datatypes.Value;
 import exceptions.runtime.CastingException;
 import exceptions.runtime.UnexpectedTypeError;
+import expressions.abstractions.interfaces.NameHolder;
+import expressions.normal.containers.Name;
 import types.specific.data.DataType;
 
 /**
  * @deprecated WIP: Don't use this, its only implemented here.
  */
 @Deprecated
-public class ObjectValue extends Value {
+public class ObjectValue extends Value implements NameHolder {
 
 	@Deprecated
 	public ObjectValue() {
 		super(OBJECT);
-		throw new AssertionError("WIP: This isn't implemented, yet.");
 	}
 
 	@Override
@@ -40,6 +41,8 @@ public class ObjectValue extends Value {
 			case BOOL -> true; // Returns true if not null
 			case NUMBER, INT -> true; // Returns NAN
 			case TEXT -> true; // Text or CharArray-Representation.
+			// Not supported
+			case DEF -> false;
 		};
 	}
 
@@ -51,6 +54,12 @@ public class ObjectValue extends Value {
 
 	@Override
 	public Object raw() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Name getName() {
 		// TODO Auto-generated method stub
 		return null;
 	}

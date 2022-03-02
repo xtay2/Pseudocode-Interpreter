@@ -5,6 +5,7 @@ import java.util.HashMap;
 import exceptions.runtime.DeclarationException;
 import exceptions.runtime.IllegalCallException;
 import expressions.main.functions.Function;
+import expressions.main.functions.Returnable;
 import main.Main;
 
 public abstract class FuncManager {
@@ -35,5 +36,13 @@ public abstract class FuncManager {
 		if (line < 0)
 			throw new AssertionError("LineID cannot be negative, was: " + line + " for function " + name + ".");
 		funcPositions.put(name, line);
+	}
+
+	/**
+	 * Returns the quested {@link Returnable}, or throws an {@link IllegalCallException} if it wasn't
+	 * declared.
+	 */
+	public static Returnable findFunc(String name) {
+		return (Returnable) Main.PROGRAM.getLine(getLine(name)).getMainExpression();
 	}
 }

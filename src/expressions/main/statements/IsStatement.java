@@ -1,41 +1,37 @@
 package expressions.main.statements;
 
-import static types.SuperType.EXPECTED_TYPE;
-import static types.specific.data.DataType.VAR;
+import static types.specific.KeywordType.IS;
 
 import datatypes.BoolValue;
 import datatypes.Value;
-import exceptions.parsing.IllegalCodeFormatException;
 import expressions.abstractions.Expression;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.specific.KeywordType;
 import types.specific.data.ExpectedType;
 
 /**
  * Nearly identical to instanceof in Java. Checks if a value is an instance of a given type.
  */
-public class IsStatement extends Expression implements ValueHolder, MergedExpression, Statement {
+public class IsStatement extends Expression implements ValueHolder {
 
-	private ExpectedType type;
-	private ValueHolder val;
+	private final ValueHolder val;
+	private final ExpectedType type;
 
-	public IsStatement(int lineID) {
-		super(lineID, KeywordType.IS, EXPECTED_TYPE);
-	}
-
-	@Override
-	public void merge(Expression... e) {
-		if (e.length != 2)
-			throw new AssertionError("IsStatement has to be merged on two values.");
-		val = (ValueHolder) e[0];
-		type = (ExpectedType) e[1].type;
-		if (type == VAR)
-			throw new IllegalCodeFormatException(getOriginalLine(), "Var is no datatype that can be checked.");
+	/**
+	 * Creates an {@link IsStatement}.
+	 * 
+	 * @param val  shouldn't be null.
+	 * @param type shouldn't be null.
+	 */
+	public IsStatement(int lineID, ValueHolder val, ExpectedType type) {
+		super(lineID, IS);
+		this.val = val;
+		this.type = type;
+		if (val == null || type == null)
+			throw new AssertionError("Value or Type cannot be null.");
 	}
 
 	@Override
 	public Value getValue() {
-		return BoolValue.valueOf(val.getValue().type == type);
+		return BoolValue.valueOf(val.getValue().is(type));
 	}
 }

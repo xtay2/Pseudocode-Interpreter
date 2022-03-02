@@ -2,12 +2,12 @@ package types;
 
 import java.lang.reflect.Method;
 
-import expressions.abstractions.Expression;
 import expressions.abstractions.interfaces.ScopeBracket;
+import expressions.normal.BuilderExpression;
 import expressions.normal.containers.ArrayAccess;
 import expressions.normal.containers.Name;
 import modules.finder.ExpressionFinder;
-import types.specific.AssingmentType;
+import types.specific.AssignmentType;
 import types.specific.BuilderType;
 import types.specific.ExpressionType;
 import types.specific.FlagType;
@@ -45,7 +45,7 @@ public enum SuperType implements AbstractType {
 	KEYWORD_TYPE(KeywordType.class),
 
 	/** Every {@link AssingmentType}. For example: =, +=, *= */
-	ASSIGNMENT_TYPE(AssingmentType.class),
+	ASSIGNMENT_TYPE(AssignmentType.class),
 
 	//////////////////////////////////////////////////////
 	/** Every {@link InfixOpType}. For example: +, and, in */
@@ -63,14 +63,14 @@ public enum SuperType implements AbstractType {
 
 	//////////////////////////////////////////////////////
 
-	private final Class<?> classType;
+	private final Class<? extends AbstractType> classType;
 
-	SuperType(Class<?> classType) {
+	SuperType(Class<? extends AbstractType> classType) {
 		this.classType = classType;
 	}
 
 	@Override
-	public Expression create(String arg, int lineID) {
+	public BuilderExpression create(String arg, int lineID) {
 		if (classType == null)
 			throw new AssertionError("Merged Expressions should get created in the value-Merger.");
 		try {
@@ -85,6 +85,11 @@ public enum SuperType implements AbstractType {
 
 	@Override
 	public boolean is(SuperType superType) {
-		return false;
+		return this == superType;
+	}
+
+	@Override
+	public AbstractType[] expected() {
+		throw new AssertionError("This method should never get called, because SuperType is an abstract Type.");
 	}
 }

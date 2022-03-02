@@ -4,8 +4,8 @@ import static types.SuperType.EXPECTED_TYPE;
 import static types.SuperType.FLAG_TYPE;
 import static types.SuperType.KEYWORD_TYPE;
 import static types.SuperType.PREFIX_OPERATOR;
+import static types.specific.BuilderType.CLOSE_SCOPE;
 import static types.specific.BuilderType.MULTI_CALL_LINE;
-import static types.specific.ExpressionType.CLOSE_SCOPE;
 import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.ANY;
 import static types.specific.KeywordType.ELIF;
@@ -17,21 +17,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
 import expressions.main.functions.Function;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
+import expressions.normal.BuilderExpression;
 import expressions.normal.operators.infix.InfixOperator;
 import main.Main;
 import modules.finder.ExpressionFinder;
+import modules.merger.ExpressionMerger;
 import modules.parser.Parser;
 import types.AbstractType;
 import types.specific.data.DataType;
 
 public class ProgramLine {
 
-	private final ArrayList<Expression> expressions = new ArrayList<>();
+	private final List<BuilderExpression> expressions = new ArrayList<>();
 	final String line;
 
 	/** The original line from the users editor. */
@@ -61,8 +62,7 @@ public class ProgramLine {
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedExpressionTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR,
-				MULTI_CALL_LINE };
+		AbstractType expectedTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR, MULTI_CALL_LINE };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -82,7 +82,7 @@ public class ProgramLine {
 
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
 			if (!current.isBlank() && !inString && isNewExpression(current, c)) {
-				expectedExpressionTypes = constructExpression(current, expectedExpressionTypes);
+				expectedTypes = constructExpression(current, expectedTypes);
 				current = "";
 			}
 			// Teste nach Stringgrenzen
@@ -93,7 +93,7 @@ public class ProgramLine {
 		if (inString)
 			throw new IllegalCodeFormatException(orgLine, "String has to be closed.");
 		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
-			constructExpression(current.strip(), expectedExpressionTypes);
+			constructExpression(current.strip(), expectedTypes);
 		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
 	}
@@ -121,12 +121,12 @@ public class ProgramLine {
 	 * Construct and lists an Expression, based on which ExpressionType(s) are expected.
 	 */
 	private AbstractType[] constructExpression(String current, AbstractType[] expectedExpressionTypes) {
-		Expression exp = ExpressionFinder.find(current, lineID, expectedExpressionTypes);
+		BuilderExpression exp = ExpressionFinder.find(current, lineID, expectedExpressionTypes);
 		if (exp == null)
 			throw new IllegalCodeFormatException(orgLine, "No matching Expression was found for: " //
 					+ current + "\n" //
 					+ "Expected " + (expectedExpressionTypes.length == 0 ? "a linebreak" : Arrays.toString(expectedExpressionTypes))
-					+ (expressions.isEmpty() ? "." : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
+					+ (expressions.isEmpty() ? "" : " after " + expressions.get(expressions.size() - 1)) + ".\n" //
 					+ "Current state of line: \n" + line + "\n" + expressions);
 		expressions.add(exp);
 		return exp.getExpectedExpressions();
@@ -144,7 +144,7 @@ public class ProgramLine {
 
 	/** Merges the {@link MainExpression} from the constructed {@link #expressions}. */
 	void merge() {
-		main = ValueMerger.buildLine(expressions, lineID, orgLine);
+		main = ExpressionMerger.merge(this);
 		expressions.clear();
 		// Wenn es ein Returnstatement ist, suche die Funktion
 		if (main instanceof ReturnStatement)
@@ -166,9 +166,10 @@ public class ProgramLine {
 	}
 
 	/** Returns the constructed but unmerged {@link #expressions}. */
-	public List<Expression> getExpressions() {
+	public List<BuilderExpression> getExpressions() {
 		if (expressions.isEmpty())
-			throw new AssertionError("The expressions are either already merged or not even constructed at this point. Line: " + line);
+			throw new AssertionError("The expressions are either already merged or not even constructed at this point. " + "\nExpressions: "
+					+ expressions + "\nLine: " + line + "\nMainExp: " + main);
 		return new ArrayList<>(expressions);
 	}
 

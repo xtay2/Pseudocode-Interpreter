@@ -25,9 +25,9 @@ public abstract class PossibleMainExpression extends MainExpression {
 	/**
 	 * Copies the following Constructor:
 	 * 
-	 * {@link Expression#Expression(int, Scope, AbstractType, AbstractType...))}.
+	 * {@link Expression#Expression(int, Scope, AbstractType)}.
 	 */
-	public PossibleMainExpression(int lineID, AbstractType myType, AbstractType... expected) {
-		super(lineID, myType, expected);
+	public PossibleMainExpression(int lineID, AbstractType myType) {
+		super(lineID, myType);
 	}
 }

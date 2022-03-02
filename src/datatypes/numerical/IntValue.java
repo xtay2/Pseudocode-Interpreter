@@ -125,4 +125,11 @@ public final class IntValue extends NumberValue {
 	public BigInteger raw() {
 		return value;
 	}
+
+	public IntValue fac() {
+		BigInteger fac = BigInteger.ONE;
+		for (long i = value.longValueExact(); i > 0; i--)
+			fac = fac.multiply(BigInteger.valueOf(i));
+		return create(fac);
+	}
 }

@@ -1,16 +1,15 @@
 package expressions.abstractions.interfaces;
 
 import datatypes.Value;
-import expressions.main.functions.Returnable;
 import expressions.normal.containers.ArrayAccess;
 import expressions.normal.containers.Name;
+import expressions.possible.assigning.Allocating;
 
 /**
- * Everything that can change its value.
+ * Everything that gets its value changed by an {@link Allocating}-Expression.
  * 
  * @see Name
  * @see ArrayAccess
- * @see Returnable
  */
 public interface ValueChanger extends ValueHolder, NameHolder {
 

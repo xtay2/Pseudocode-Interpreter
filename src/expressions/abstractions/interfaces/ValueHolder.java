@@ -28,7 +28,7 @@ import expressions.possible.multicall.MultiCall;
  * {@link MultiCall}
  * </pre>
  */
-public interface ValueHolder {
+public interface ValueHolder extends Operatable {
 
 	public Value getValue();
 }

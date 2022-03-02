@@ -1,45 +1,31 @@
 package expressions.normal.operators;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static types.SuperType.MERGED;
+
 import java.util.List;
 
 import datatypes.Value;
 import expressions.abstractions.Expression;
-import expressions.abstractions.interfaces.MergedExpression;
+import expressions.abstractions.interfaces.Operatable;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.operators.infix.ComparativeOperator;
 import expressions.normal.operators.infix.InfixOperator;
 import expressions.normal.operators.infix.LogicalOperator;
-import modules.parser.program.ValueMerger;
-import types.SuperType;
 import types.specific.operators.InfixOpType;
 
 /**
  * Consist of n Operators and n + 1 ValueHolders.
  */
-public final class Operation extends Expression implements ValueHolder, MergedExpression {
+public final class Operation extends Expression implements ValueHolder {
 
-	private List<Expression> operation;
+	private final List<Operatable> operation;
 
-	/** Gets called when an Operation is constructed in the {@link ValueMerger}. */
-	public Operation(int lineID) {
-		super(lineID, SuperType.MERGED);
-	}
-
-	@Override
-	public void merge(List<Expression> e) {
+	/** Gets called when an Operation is constructed in the {@link SuperMerger}. */
+	public Operation(int lineID, List<Operatable> e) {
+		super(lineID, MERGED);
 		if (e.size() < 3)
 			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + e);
 		this.operation = e;
-		convertComparative();
-	}
-
-	@Override
-	public void merge(Expression... e) {
-		if (e.length < 3)
-			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + e);
-		this.operation = new ArrayList<>(Arrays.asList(e));
 		convertComparative();
 	}
 

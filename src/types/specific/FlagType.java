@@ -9,8 +9,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import expressions.abstractions.Expression;
-import expressions.normal.BuilderExpression;
 import expressions.normal.containers.Variable;
 import modules.formatter.Formatter;
 import types.AbstractType;
@@ -27,24 +25,22 @@ public enum FlagType implements AbstractType {
 	 * Tells, that the following definition doesn't exist in the code files, but rather in the
 	 * Interpreter.
 	 */
-	NATIVE("native", 2, FUNC),
+	NATIVE("native", 2),
 
 	/**
 	 * Tells, that the value of the following variable can only get defined one.
 	 * 
 	 * Assures that a function can only get called once.
 	 */
-	FINAL("final", 1, EXPECTED_TYPE, NAME, NATIVE, FUNC),
+	FINAL("final", 1),
 
 	/**
 	 * Tells, that a following {@link Variable} is completely unchangeable/immutable.
 	 * 
 	 */
-	CONSTANT("const", 1, EXPECTED_TYPE, NAME);
+	CONSTANT("const", 1);
 
-	final String flag;
-
-	public final AbstractType[] expected;
+	public final String flag;
 
 	/**
 	 * Determines the order of flags. A low number tells, that the flag is rather at the beginning of
@@ -52,22 +48,14 @@ public enum FlagType implements AbstractType {
 	 */
 	final int rank;
 
-	private FlagType(String flag, int rank, AbstractType... expected) {
+	private FlagType(String flag, int rank) {
 		this.flag = flag;
 		this.rank = rank;
-		this.expected = expected;
 	}
 
 	@Override
 	public String toString() {
 		return flag;
-	}
-
-	@Override
-	public Expression create(String arg, int lineID) {
-		if (!flag.equals(arg.strip()))
-			return null;
-		return new BuilderExpression(this);
 	}
 
 	@Override
@@ -113,4 +101,12 @@ public enum FlagType implements AbstractType {
 		return flags;
 	}
 
+	@Override
+	public AbstractType[] expected() {
+		return switch (this) {
+			case NATIVE -> new AbstractType[] { FUNC };
+			case FINAL -> new AbstractType[] { EXPECTED_TYPE, NAME, NATIVE, FUNC };
+			case CONSTANT -> new AbstractType[] { EXPECTED_TYPE, NAME };
+		};
+	}
 }

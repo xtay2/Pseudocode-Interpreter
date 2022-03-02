@@ -32,8 +32,11 @@ public final class Program implements Iterable<ProgramLine> {
 	 */
 	public void constructAndMerge() {
 		constructed = true;
+		// Construct BuilderExpressions
 		for (ProgramLine line : program)
 			line.construct();
+
+		// Merge to Expressions
 		for (ProgramLine line : program)
 			line.merge();
 	}
@@ -64,5 +67,10 @@ public final class Program implements Iterable<ProgramLine> {
 	@Override
 	public Iterator<ProgramLine> iterator() {
 		return program.iterator();
+	}
+
+	/** Returns the number of lines in this program. */
+	public int size() {
+		return program.size();
 	}
 }

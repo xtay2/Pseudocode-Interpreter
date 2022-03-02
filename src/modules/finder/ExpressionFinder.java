@@ -1,6 +1,6 @@
 package modules.finder;
 
-import expressions.abstractions.Expression;
+import expressions.normal.BuilderExpression;
 import types.AbstractType;
 
 public final class ExpressionFinder {
@@ -13,9 +13,9 @@ public final class ExpressionFinder {
 	 * @return the matching Expression
 	 * @throws IllegalArgumentException if no matching expression was found.
 	 */
-	public static Expression find(String current, int lineID, AbstractType... expected) {
+	public static BuilderExpression find(String current, int lineID, AbstractType... expected) {
 		for (AbstractType expT : expected) {
-			Expression exp = expT.create(current, lineID);
+			BuilderExpression exp = expT.create(current, lineID);
 			if (exp != null)
 				return exp;
 		}

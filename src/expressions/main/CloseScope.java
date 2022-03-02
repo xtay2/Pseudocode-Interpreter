@@ -1,37 +1,28 @@
 package expressions.main;
 
-import java.util.List;
+import static types.specific.BuilderType.CLOSE_SCOPE;
 
-import expressions.abstractions.Expression;
 import expressions.abstractions.MainExpression;
+import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ScopeBracket;
-import expressions.abstractions.interfaces.ValueHolder;
-import expressions.normal.brackets.OpenScope;
 import main.Main;
-import types.specific.ExpressionType;
 
 public final class CloseScope extends MainExpression implements ScopeBracket {
 
-	private final OpenScope myMatch;
+	private final int myMatch;
 
-	/**
-	 * Finds the matching {@link OpenScope} after getting constructed.
-	 */
 	public CloseScope(int lineID) {
-		super(lineID, ExpressionType.CLOSE_SCOPE);
+		super(lineID, CLOSE_SCOPE);
 		long brack = -1;
 		for (int i = lineIdentifier - 1; i >= 0; i--) {
-			List<Expression> exp = Main.PROGRAM.getLine(i).getExpressions();
-			for (Expression e : exp) {
-				if (e instanceof CloseScope)
-					brack--;
-				if (e instanceof OpenScope o) {
-					brack++;
-					if (brack == 0) {
-						myMatch = o;
-						o.setMyMatch(this);
-						return;
-					}
+			MainExpression exp = Main.PROGRAM.getLine(i).getMainExpression();
+			if (exp instanceof CloseScope)
+				brack--;
+			if (exp instanceof ScopeHolder) {
+				brack++;
+				if (brack == 0) {
+					myMatch = exp.lineIdentifier;
+					return;
 				}
 			}
 		}
@@ -39,12 +30,12 @@ public final class CloseScope extends MainExpression implements ScopeBracket {
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
+	public boolean execute() {
 		return true; // Just go back
 	}
 
 	@Override
-	public OpenScope getMatch() {
+	public int getMatch() {
 		return myMatch;
 	}
 }

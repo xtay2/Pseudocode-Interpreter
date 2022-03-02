@@ -1,13 +1,11 @@
 package types.specific.operators;
 
-import expressions.abstractions.Expression;
+import static types.SuperType.POSTFIX_OPERATOR;
+import static types.specific.ExpressionType.LITERAL;
+
 import types.AbstractType;
 import types.SuperType;
 
-/**
- * @deprecated WIP: Don't use this, its only implemented here.
- */
-@Deprecated
 public enum PostfixOpType implements AbstractType {
 
 	// Arithmetic
@@ -27,13 +25,12 @@ public enum PostfixOpType implements AbstractType {
 	}
 
 	@Override
-	public Expression create(String arg, int lineID) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean is(SuperType superType) {
+		return superType == POSTFIX_OPERATOR;
 	}
 
 	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.POSTFIX_OPERATOR;
+	public AbstractType[] expected() {
+		return LITERAL.expected();
 	}
 }

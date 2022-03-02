@@ -1,8 +1,8 @@
 package expressions.abstractions;
 
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.normal.brackets.OpenScope;
 import modules.interpreter.Interpreter;
+import modules.parser.program.Program;
 import types.AbstractType;
 
 /**
@@ -10,24 +10,25 @@ import types.AbstractType;
  * 
  * <pre>
  * -This {@link Scope} should be saved with {@code private Scope scope = null;}
- * -Every {@link ScopeHolder} is a {@link MergedExpression}, 
- *  because the Scope has to be build in the Method {@link MergedExpression#merge()}.
  * -Every {@link ScopeHolder} should be a {@link MainExpression}.
  * </pre>
  * 
  */
-public abstract class ScopeHolder extends MainExpression implements MergedExpression {
+public abstract class ScopeHolder extends MainExpression {
 
 	/** Has to be private. Can be accessed via {@link ScopeHolder#getScope()}. */
 	private Scope scope = null;
+	private final OpenScope os;
 
 	/**
-	 * Copies the following Constructor:
+	 * Creates a {@link ScopeHolder}.
 	 * 
-	 * {@link Expression#Expression(int, Scope, AbstractType, AbstractType...))}.
+	 * @param myType shouldn't be null.
+	 * @param os     can be null for native scopes
 	 */
-	public ScopeHolder(int lineID, AbstractType myType, AbstractType... expected) {
-		super(lineID, myType, expected);
+	public ScopeHolder(int lineID, AbstractType myType, OpenScope os) {
+		super(lineID, myType);
+		this.os = os;
 	}
 
 	/** Returns the Scope of this {@link ScopeHolder}. */
@@ -48,21 +49,33 @@ public abstract class ScopeHolder extends MainExpression implements MergedExpres
 	 * 
 	 * @param os has to know its match at this point.
 	 */
-	public final void initScope(OpenScope os) {
+	private final void initScope(OpenScope os) {
 		if (os == null)
 			throw new AssertionError("Open Scope cannot be null.");
 		if (scope != null)
 			throw new AssertionError("This Scope is already initialised with " + scope);
-		scope = new Scope(type.toString(), os, os.getMatch(), os.getScope());
+		scope = new Scope(type.toString(), os, getOuterScope());
 	}
 
 	/**
 	 * Initialise this function as native. (Without Body in the {@link GlobalScope})
 	 */
-	public final void initNative() {
+	private final void initNative() {
 		if (scope != null)
 			throw new AssertionError("This Scope is already initialised with " + scope);
 		scope = GlobalScope.GLOBAL;
+	}
+
+	/**
+	 * Gets called by {@link Program#constructAndMerge()}.
+	 * 
+	 * Calls {@link #initNative()} or {@link #initScope(OpenScope)}.
+	 */
+	public final void initScope() {
+		if (os == null)
+			initNative();
+		else
+			initScope(os);
 	}
 
 	/**

@@ -1,14 +1,12 @@
 package types.specific;
 
-import expressions.abstractions.Expression;
-import expressions.main.functions.Function;
-import expressions.main.functions.MainFunction;
-import expressions.main.loops.ConditionalLoop;
-import expressions.main.loops.ForEachLoop;
-import expressions.main.loops.IntervalLoop;
-import expressions.main.statements.ConditionalStatement;
-import expressions.main.statements.IsStatement;
-import expressions.main.statements.ReturnStatement;
+import static types.SuperType.EXPECTED_TYPE;
+import static types.SuperType.EXPRESSION_TYPE;
+import static types.specific.BuilderType.ARRAY_START;
+import static types.specific.BuilderType.OPEN_BRACKET;
+import static types.specific.BuilderType.OPEN_SCOPE;
+import static types.specific.ExpressionType.NAME;
+
 import types.AbstractType;
 import types.SuperType;
 
@@ -19,18 +17,43 @@ import types.SuperType;
  */
 public enum KeywordType implements AbstractType {
 
-	IF("if"), ELIF("elif"), ANY("any"), ELSE("else"),
+	FROM("from"),
 
-	FOR("for"), FROM("from"), REPEAT("repeat"), UNTIL("until"), WHILE("while"),
+	REPEAT("repeat"),
 
-	FUNC("func"), MAIN("main"), RETURN("return"),
+	UNTIL("until"),
+
+	WHILE("while"),
+
+	IF("if"),
+
+	ELIF("elif"),
+
+	RETURN("return"),
+
+	ANY("any"),
+
+	ELSE("else"),
+
+	MAIN("main"),
+
+	FOR("for"),
+
+	FUNC("func"),
 
 	IMPORT("import"),
 
 	IS("is");
 
-	final String keyword;
+	public final String keyword;
 
+	/**
+	 * Defines a BuilderType
+	 * 
+	 * @param id       is the unique identifying symbol from the code.
+	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
+	 *                 followups.
+	 */
 	private KeywordType(String keyword) {
 		this.keyword = keyword;
 	}
@@ -38,24 +61,6 @@ public enum KeywordType implements AbstractType {
 	@Override
 	public String toString() {
 		return keyword;
-	}
-
-	@Override
-	public Expression create(String arg, int lineID) {
-		if (!keyword.equals(arg.strip()))
-			return null;
-		return switch (this) {
-			case FOR -> new ForEachLoop(lineID);
-			case FUNC -> new Function(lineID);
-			case IS -> new IsStatement(lineID);
-			case MAIN -> new MainFunction(lineID);
-			case RETURN -> new ReturnStatement(lineID);
-			case FROM, REPEAT -> new IntervalLoop(lineID, this);
-			case IF, ELIF, ANY, ELSE -> new ConditionalStatement(lineID, this);
-			case WHILE, UNTIL -> new ConditionalLoop(lineID, this);
-			case IMPORT -> throw new AssertionError("Imports should be filtered out at this point.");
-			case null -> null;
-		};
 	}
 
 	@Override
@@ -70,5 +75,18 @@ public enum KeywordType implements AbstractType {
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public AbstractType[] expected() {
+		return switch (this) {
+			case FROM, UNTIL, WHILE, IF, ELIF, RETURN -> VAL_HOLDER_TYPES;
+			case REPEAT -> new AbstractType[] { EXPRESSION_TYPE, ARRAY_START, OPEN_BRACKET, OPEN_SCOPE };
+			case ANY -> new AbstractType[] { OPEN_SCOPE, IF };
+			case ELSE, MAIN -> new AbstractType[] { OPEN_SCOPE };
+			case FOR, FUNC -> new AbstractType[] { NAME };
+			case IS -> new AbstractType[] { EXPECTED_TYPE };
+			case IMPORT -> throw new UnsupportedOperationException("An import Statement cannot be build.");
+		};
 	}
 }

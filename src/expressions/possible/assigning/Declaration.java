@@ -5,8 +5,8 @@ import java.util.Set;
 
 import datatypes.Value;
 import exceptions.parsing.UnexpectedFlagException;
-import expressions.abstractions.Expression;
 import expressions.abstractions.Scope;
+import expressions.abstractions.interfaces.ValueChanger;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.containers.Name;
 import expressions.normal.containers.Variable;
@@ -19,17 +19,15 @@ public class Declaration extends Allocating implements Flaggable {
 
 	private final Set<FlagType> flags = new HashSet<>();
 
-	public Declaration(int lineID, ExpectedType type) {
-		super(lineID, type);
-	}
-
-	/** [Name] [VALUEHOLDER] */
-	@Override
-	public void merge(Expression... e) {
-		if (e.length != 2)
-			throw new AssertionError("Merge on a Declaration has to contain a Variable and a ValueHolder.");
-		target = (Name) e[0];
-		val = (ValueHolder) e[1];
+	/**
+	 * Creates an {@link Declaration}.
+	 * 
+	 * @param type   shouldn't be null.
+	 * @param target shouldn't be null.
+	 * @param val    shouldn't be null.
+	 */
+	public Declaration(int lineID, ExpectedType type, ValueChanger target, ValueHolder val) {
+		super(lineID, type, target, val);
 	}
 
 	/**

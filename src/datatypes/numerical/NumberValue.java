@@ -183,8 +183,10 @@ public abstract class NumberValue extends Value {
 			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
 			case BOOL -> true; // Returns false for NaN and true for everything else
 			case TEXT -> true; // Text or CharArray-Representation
-			// Not supported
+			// Not implemented
 			case OBJECT -> false;
+			// Not supported
+			case DEF -> false;
 		};
 	}
 

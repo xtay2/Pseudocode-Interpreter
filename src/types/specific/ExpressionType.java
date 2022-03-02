@@ -1,47 +1,41 @@
 package types.specific;
 
-import datatypes.Value;
-import expressions.abstractions.Expression;
-import expressions.main.CloseScope;
-import expressions.normal.brackets.OpenScope;
+import static types.SuperType.*;
+import static types.specific.BuilderType.OPEN_SCOPE;
+
+import expressions.normal.BuilderExpression;
 import expressions.normal.containers.Name;
+import modules.parser.program.ValueBuilder;
 import types.AbstractType;
 import types.SuperType;
 
 public enum ExpressionType implements AbstractType {
 
-	/**
-	 * Ausgeschriebener Wert.
-	 *
-	 * @see Literal
-	 */
-	LITERAL("Literal"),
-
-	/**
-	 * Ausgeschriebener alphanumerischer Name.
-	 *
-	 * @see Name
-	 */
 	NAME("Name"),
 
-	/**
-	 * { Zeichen
-	 *
-	 * @see OpenBlock
-	 */
-	OPEN_SCOPE("{"),
+	LITERAL("Literal");
 
-	/**
-	 * } Zeichen
-	 *
-	 * @see CloseBlock
-	 */
-	CLOSE_SCOPE("}");
+	public final String expression;
 
-	private final String expression;
-
-	ExpressionType(String expression) {
+	private ExpressionType(String expression) {
 		this.expression = expression;
+	}
+
+	@Override
+	public BuilderExpression create(String arg, int lineID) {
+		if (!switch (this) {
+			case LITERAL -> ValueBuilder.isLiteral(arg);
+			case NAME -> Name.isName(arg);
+		}) {
+			return null;
+		}
+		// Calls the specialised Constructor.
+		return new BuilderExpression(lineID, this, arg);
+	}
+
+	@Override
+	public boolean is(SuperType superType) {
+		return superType == SuperType.EXPRESSION_TYPE;
 	}
 
 	@Override
@@ -50,19 +44,10 @@ public enum ExpressionType implements AbstractType {
 	}
 
 	@Override
-	public Expression create(String arg, int lineID) {
+	public AbstractType[] expected() {
 		return switch (this) {
-			// Direct build
-			case OPEN_SCOPE -> "{".equals(arg) ? new OpenScope(lineID) : null;
-			case CLOSE_SCOPE -> "}".equals(arg) ? new CloseScope(lineID) : null;
-			case NAME -> Name.isName(arg) ? new Name(lineID, arg) : null;
-			// External build
-			case LITERAL -> Value.stringToLiteral(arg);
+			case NAME -> new AbstractType[] { ASSIGNMENT_TYPE, INFIX_OPERATOR, POSTFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE };
+			case LITERAL -> new AbstractType[] { OPEN_SCOPE, INFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE };
 		};
-	}
-
-	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.EXPRESSION_TYPE;
 	}
 }

@@ -2,10 +2,11 @@ package expressions.normal.containers;
 
 import static datatypes.object.NullValue.NULL;
 import static helper.Output.print;
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.ExpressionType.NAME;
+import static types.specific.FlagType.CONSTANT;
+import static types.specific.FlagType.FINAL;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import datatypes.Value;
@@ -32,17 +33,17 @@ import types.specific.data.ExpectedType;
 public class Variable extends Expression implements ValueChanger, Flaggable {
 
 	// DATA
-	private Name name;
+	private final Name name;
 	private Value value;
 
 	// FLAGS
-	private boolean isConstant = false;
-	private boolean isFinal = false;
+	private final Set<FlagType> flags = new HashSet<>();
 
 	/**
 	 * Creates and registers a Variable.
 	 * 
 	 * @param lineID is lineID of the {@link Expression} in which this var gets created.
+	 * @param scope  is the outer Scope in which this {@link Variable} lies.
 	 * @param type   is the {@link ExpectedType} of this {@link Variable}.
 	 * @param name   is the unique {@link Name} of this {@link Variable}.
 	 * @param val    is an optional {@link Variable}. Input null if no value is wanted.
@@ -50,10 +51,8 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	 * @return the finished/registered {@link Variable}.
 	 */
 	public static Variable quickCreate(int lineID, Scope scope, ExpectedType type, Name name, Value val, FlagType... flags) {
-		Variable v = new Variable(lineID, type);
-		v.merge(name, val);
+		Variable v = new Variable(lineID, type, name, val);
 		v.setFlags(Set.copyOf(Arrays.asList(flags)));
-		v.setScope(scope);
 		scope.register(v);
 		print("Created the " + type + " \"" + name.getNameString() + "\" in the scope " + scope.getScopeName());
 		return v;
@@ -62,17 +61,12 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	/**
 	 * Initialise a Variable with an inital Value. Used in {@link Call} and {@link #quickCreate()}.
 	 */
-	private Variable(int lineID, ExpectedType type) {
-		super(lineID, type, NAME, ARRAY_START);
+	private Variable(int lineID, ExpectedType type, Name name, Value val) {
+		super(lineID, type);
 		if (type == null)
 			throw new AssertionError("The type cannot be null.");
-	}
-
-	/** [NAME] [VALUE] */
-	@Override
-	public void merge(Expression... e) {
-		name = (Name) e[0];
-		setValue((Value) e[1]); // Checks and Typecasting
+		this.name = name;
+		setValue(val);
 	}
 
 	/**
@@ -94,9 +88,9 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 	public void setValue(Value val) throws CastingException {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
-		if (isFinal && value != null)
+		if (hasFlag(FINAL) || hasFlag(CONSTANT) && value != null)
 			throw new DeclarationException(getOriginalLine(),
-					"Trying to modify the " + (isConstant ? "constant " : "final variable ") + getName());
+					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
 		value = val.as((ExpectedType) type);
 	}
 
@@ -105,36 +99,13 @@ public class Variable extends Expression implements ValueChanger, Flaggable {
 		return name;
 	}
 
-	/**
-	 * Sets the flags for this {@link Variable}. Viable flags include:
-	 * 
-	 * <pre>
-	 * - {@link FlagType#CONSTANT} makes the value immutable.
-	 * </pre>
-	 */
 	@Override
 	public void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
-		for (FlagType f : flags) {
-			switch (f) {
-				case CONSTANT:
-					isConstant = true;
-					isFinal = true;
-					break;
-				case FINAL:
-					isFinal = true;
-					break;
-				default:
-					throw new UnexpectedFlagException(getOriginalLine(), f + " isnt a valid flag for a variable.");
-			}
-		}
+		this.flags.addAll(flags);
 	}
 
 	@Override
 	public boolean hasFlag(FlagType f) {
-		return switch (f) {
-			case CONSTANT -> isConstant;
-			case FINAL -> isFinal;
-			default -> false;
-		};
+		return flags.contains(f);
 	}
 }

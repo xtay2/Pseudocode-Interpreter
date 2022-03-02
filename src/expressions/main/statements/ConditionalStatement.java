@@ -1,16 +1,11 @@
 package expressions.main.statements;
 
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.ExpressionType.LITERAL;
-import static types.specific.ExpressionType.NAME;
-import static types.specific.ExpressionType.OPEN_SCOPE;
 import static types.specific.KeywordType.ANY;
 import static types.specific.KeywordType.ELIF;
 import static types.specific.KeywordType.ELSE;
 import static types.specific.KeywordType.IF;
 
 import exceptions.parsing.IllegalCodeFormatException;
-import expressions.abstractions.Expression;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.loops.ConditionalLoop;
@@ -25,35 +20,25 @@ import types.specific.KeywordType;
  * @see ScopeHolder
  * @see ConditionalLoop
  */
-public final class ConditionalStatement extends ScopeHolder implements Statement {
+public final class ConditionalStatement extends ScopeHolder {
 
-	private ValueHolder condition;
+	private final ValueHolder condition;
 	private ConditionalStatement nextBlock;
 
 	/**
 	 * Creates a {@link ConditionalStatement}, based on the passed {@link KeywordType}.
 	 * 
-	 * @param lineID is the identifier of the matching {@link ProgramLine}.
-	 * @param myType is the identifying Type, eiter {@link KeywordType#IF}, {@link KeywordType#ELIF}
-	 *               {@link KeywordType#ANY} or {@link KeywordType#ELSE}.
+	 * @param lineID    is the identifier of the matching {@link ProgramLine}.
+	 * @param myType    is the identifying Type, eiter {@link KeywordType#IF}, {@link KeywordType#ELIF}
+	 *                  {@link KeywordType#ANY} or {@link KeywordType#ELSE}.
+	 * @param condition can be null
+	 * @param os        shouldn't be null
 	 */
-	public ConditionalStatement(int lineID, KeywordType myType) {
-		super(lineID, myType, LITERAL, NAME, ARRAY_START, OPEN_SCOPE, IF);
+	public ConditionalStatement(int lineID, KeywordType myType, ValueHolder condition, OpenScope os) {
+		super(lineID, myType, os);
 		if (myType != IF && myType != ELIF && myType != ANY && myType != ELSE)
 			throw new AssertionError("Type has to be if, elif, any or else.");
-	}
-
-	@Override
-	/** Merges from an optional Condition and a OpenScope. */
-	public void merge(Expression... e) {
-		if (e.length > 2)
-			throw new AssertionError("This Statement only accepts one bool-Expression and one Scope.");
-		// Condition and Scope
-		if (e.length == 2 && (is(IF) || is(ELIF) || is(ANY))) { // IF / ELIF / ANY-IF
-			condition = (ValueHolder) e[0];
-			initScope((OpenScope) e[1]);
-		} else // ANY / ELSE
-			initScope((OpenScope) e[0]);
+		this.condition = condition;
 	}
 
 	/** Initialises the following elif / any / else statement. */
@@ -70,7 +55,7 @@ public final class ConditionalStatement extends ScopeHolder implements Statement
 	}
 
 	@Override
-	public boolean execute(ValueHolder... params) {
+	public boolean execute() {
 		if (is(IF) || is(ELIF)) {
 			if (condition.getValue().asBool().value) // Execute after condition is true.
 				return executeBody() ? Interpreter.execute(findAnyCase()) : false; // Find any or end if successfull.

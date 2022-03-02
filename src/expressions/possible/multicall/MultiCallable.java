@@ -2,13 +2,13 @@ package expressions.possible.multicall;
 
 import datatypes.Value;
 import expressions.abstractions.MainExpression;
-import expressions.abstractions.interfaces.MergedExpression;
 import expressions.abstractions.interfaces.ValueHolder;
+import expressions.normal.operators.infix.InfixOperator;
 
 /**
  * Target for any {@link MultiCall}.
  */
-public interface MultiCallable extends MergedExpression {
+public interface MultiCallable {
 
 	/**
 	 * Should call {@link MultiCallable#execute(Value)} once for every element in content.

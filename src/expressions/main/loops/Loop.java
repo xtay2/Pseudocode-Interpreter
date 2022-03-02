@@ -7,6 +7,7 @@ import datatypes.numerical.DecimalValue;
 import datatypes.numerical.NumberValue;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
+import expressions.normal.brackets.OpenScope;
 import types.AbstractType;
 
 /**
@@ -28,13 +29,9 @@ public abstract class Loop extends ScopeHolder {
 	protected NumberValue start;
 	protected NumberValue inc;
 
-	/**
-	 * Copies the following Constructor:
-	 * 
-	 * {@link Expression#Expression(int, Scope, AbstractType, AbstractType...))}.
-	 */
-	public Loop(int lineID, AbstractType myType, AbstractType... expected) {
-		super(lineID, myType, expected);
+	/** Copies the constructor {@link ScopeHolder#ScopeHolder(int, AbstractType, OpenScope)}. */
+	public Loop(int lineID, AbstractType myType, OpenScope os) {
+		super(lineID, myType, os);
 	}
 
 	/**
@@ -43,7 +40,7 @@ public abstract class Loop extends ScopeHolder {
 	 * This method calls {@link Loop#doContinue()} for every iteration.
 	 */
 	@Override
-	public final boolean execute(ValueHolder... params) {
+	public final boolean execute() {
 		initLoop();
 		if (start == null || inc == null)
 			throw new AssertionError("Start and end have to be initialised. See: initLoop()");

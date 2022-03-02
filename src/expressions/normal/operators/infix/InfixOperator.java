@@ -1,20 +1,16 @@
 package expressions.normal.operators.infix;
 
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.BuilderType.OPEN_BRACKET;
-import static types.specific.ExpressionType.LITERAL;
-import static types.specific.ExpressionType.NAME;
-
 import datatypes.Value;
 import expressions.abstractions.Expression;
+import expressions.abstractions.interfaces.Operatable;
 import expressions.abstractions.interfaces.ValueHolder;
-import types.SuperType;
+import expressions.normal.operators.Operation;
 import types.specific.operators.InfixOpType;
 
 /**
- * Used in Operation
+ * Used in an {@link Operation}.
  */
-public abstract class InfixOperator extends Expression {
+public abstract class InfixOperator extends Expression implements Operatable {
 
 	public enum Associativity {
 		LEFT, RIGHT;
@@ -24,7 +20,7 @@ public abstract class InfixOperator extends Expression {
 	public final InfixOpType op;
 
 	protected InfixOperator(int line, InfixOpType op) {
-		super(line, SuperType.INFIX_OPERATOR, LITERAL, NAME, ARRAY_START, OPEN_BRACKET);
+		super(line, op);
 		this.op = op;
 		if (op.rank < 0)
 			throw new AssertionError("Rank cannot be negative.");

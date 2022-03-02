@@ -50,8 +50,10 @@ public class BoolValue extends Value {
 			case VAR, BOOL -> true; // Returns this
 			case NUMBER, INT -> true; // Returns 0 or 1
 			case TEXT -> true; // Text-Representation.
-			// Not supported
+			// Not implemented
 			case OBJECT -> false;
+			// Not supported
+			case DEF -> false;
 		};
 	}
 

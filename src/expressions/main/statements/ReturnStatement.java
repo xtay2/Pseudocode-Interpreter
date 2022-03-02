@@ -1,39 +1,38 @@
 package expressions.main.statements;
 
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.ExpressionType.LITERAL;
-import static types.specific.ExpressionType.NAME;
+import static helper.Output.print;
+import static types.specific.KeywordType.RETURN;
 
-import expressions.abstractions.Expression;
+import datatypes.Value;
 import expressions.abstractions.MainExpression;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.functions.Function;
-import types.specific.KeywordType;
 
-public class ReturnStatement extends MainExpression implements Statement {
+public class ReturnStatement extends MainExpression {
 
 	private Function myFunc = null;
-	private ValueHolder val = null;
+	private final ValueHolder val;
 
-	public ReturnStatement(int lineID) {
-		super(lineID, KeywordType.RETURN, LITERAL, NAME, ARRAY_START);
-	}
-
-	/** (VALUE) */
-	@Override
-	public void merge(Expression... e) {
-		if (e.length > 1)
-			throw new AssertionError("Merge on a return can take one value at max.");
-		val = (ValueHolder) e[0];
+	/**
+	 * Creates a {@link ReturnStatement}.
+	 * 
+	 * @param val can be null.
+	 */
+	public ReturnStatement(int lineID, ValueHolder val) {
+		super(lineID, RETURN);
+		this.val = val;
 	}
 
 	/** Set the return-value of the function, and well... return. */
 	@Override
-	public boolean execute(ValueHolder... params) {
+	public boolean execute() {
 		if (myFunc == null)
 			throw new AssertionError("This return-value has to be connected to a function.");
-		if (val != null)
-			myFunc.setValue(val.getValue());
+		if (val != null) {
+			Value r = val.getValue();
+			print("Returning: " + r);
+			myFunc.setValue(r);
+		}
 		return false;
 	}
 

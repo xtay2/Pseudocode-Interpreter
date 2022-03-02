@@ -1,13 +1,9 @@
 package expressions.main.loops;
 
-import static types.specific.BuilderType.ARRAY_START;
-import static types.specific.ExpressionType.LITERAL;
-import static types.specific.ExpressionType.NAME;
 import static types.specific.KeywordType.UNTIL;
 import static types.specific.KeywordType.WHILE;
 
 import datatypes.numerical.NumberValue;
-import expressions.abstractions.Expression;
 import expressions.abstractions.ScopeHolder;
 import expressions.abstractions.interfaces.ValueHolder;
 import expressions.main.statements.ConditionalStatement;
@@ -23,7 +19,7 @@ import types.specific.KeywordType;
  */
 public final class ConditionalLoop extends Loop {
 
-	private ValueHolder condition;
+	private final ValueHolder condition;
 
 	/**
 	 * Creates a {@link ConditionalLoop}, based on the passed {@link KeywordType}.
@@ -32,19 +28,13 @@ public final class ConditionalLoop extends Loop {
 	 * @param myType is the identifying Type, eiter {@link KeywordType#WHILE} or
 	 *               {@link KeywordType#UNTIL}.
 	 */
-	public ConditionalLoop(int lineID, KeywordType myType) {
-		super(lineID, myType, NAME, LITERAL, ARRAY_START);
+	public ConditionalLoop(int lineID, KeywordType myType, ValueHolder condition, OpenScope os) {
+		super(lineID, myType, os);
 		if (myType != WHILE && myType != UNTIL)
 			throw new AssertionError("Type has to be while or until.");
-	}
-
-	/** [Condition] [OPEN_SCOPE] */
-	@Override
-	public void merge(Expression... e) {
-		if (e.length != 2)
-			throw new AssertionError("Merge on a while-/until-statement has to contain a condition and an opened scope.");
-		condition = (ValueHolder) e[0];
-		initScope((OpenScope) e[1]);
+		if (condition == null)
+			throw new AssertionError("Condition cannot be null.");
+		this.condition = condition;
 	}
 
 	/**

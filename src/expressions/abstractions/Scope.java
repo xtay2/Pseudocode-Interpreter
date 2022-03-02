@@ -46,12 +46,12 @@ public class Scope {
 	 * @param cs         is the matching {@link CloseScope}.
 	 * @param lowerScope is the scope this one is in.
 	 */
-	public Scope(String scopeName, OpenScope os, CloseScope cs, Scope lowerScope) {
+	public Scope(String scopeName, OpenScope os, Scope lowerScope) {
 		this.openScope = os.lineIdentifier;
-		this.closeScope = cs.lineIdentifier + 1;
+		this.closeScope = os.getMatch() + 1;
 		this.scopeName = scopeName + getStart() + "-" + getEnd();
 		this.lowerScope = lowerScope;
-		if (scopeName == null || os == null || cs == null)
+		if (scopeName == null || os == null)
 			throw new AssertionError("Neither the name nor Open- or Close-Scope can be null.");
 	}
 
