@@ -16,10 +16,8 @@ Download the current version of the pre-Alpha Interpreter here:
  - The project should now get build and executed.
 
 ## Syntaxhighlighter
-The language features a custom syntaxhighlighter for VSCode. Its currently split into two extensions, available on the marketplace.
-- [Language-detection](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang) (necessary for the highlighter)
-- [Highlighter](https://marketplace.visualstudio.com/items?itemName=xtay.theme-pseudocode) (Editor-theme, called "Pseudo-Dark")
-
+The language features a custom syntaxhighlighting-extension for VSCode.
+- [Highlighter](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang)
 
 ## Important Sidenotes
  - If you alter the standard-library (stdlib) in any way, the interpreter is no longer usable.
