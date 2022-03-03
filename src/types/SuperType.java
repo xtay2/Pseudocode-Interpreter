@@ -1,6 +1,7 @@
 package types;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import expressions.abstractions.interfaces.ScopeBracket;
 import expressions.normal.BuilderExpression;
@@ -71,21 +72,29 @@ public enum SuperType implements AbstractType {
 
 	@Override
 	public BuilderExpression create(String arg, int lineID) {
-		if (classType == null)
+		if (this == MERGED)
 			throw new AssertionError("Merged Expressions should get created in the value-Merger.");
-		try {
-			// Invoke static method "values" in enums.
-			Method values = classType.getMethod("values");
-			return ExpressionFinder.find(arg, lineID, (AbstractType[]) values.invoke(null));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return ExpressionFinder.find(arg, lineID, subValues());
 	}
 
 	@Override
 	public boolean is(SuperType superType) {
 		return this == superType;
+	}
+
+	@Override
+	public boolean is(String arg) {
+		return Arrays.stream(subValues()).anyMatch(e -> arg.equals(e.toString()));
+	}
+
+	private AbstractType[] subValues() {
+		try {
+			// Invoke static method "values" in enums.
+			Method values = classType.getMethod("values");
+			return (AbstractType[]) values.invoke(null);
+		} catch (Exception e) {
+			throw new AssertionError("Couldn't execute values() on " + this);
+		}
 	}
 
 	@Override

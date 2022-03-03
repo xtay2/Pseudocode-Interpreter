@@ -26,13 +26,6 @@ public abstract class InfixOperator extends Expression implements Operatable {
 			throw new AssertionError("Rank cannot be negative.");
 	}
 
-	public static boolean isOperator(String s) {
-		for (InfixOpType op : InfixOpType.values())
-			if (op.symbol.equals(s))
-				return true;
-		return false;
-	}
-
 	public final Associativity getAssociativity() {
 		return op.associativity;
 	}

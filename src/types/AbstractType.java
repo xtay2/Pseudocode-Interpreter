@@ -10,6 +10,7 @@ import expressions.abstractions.interfaces.ValueHolder;
 import expressions.normal.BuilderExpression;
 import modules.finder.ExpressionFinder;
 import modules.parser.program.ProgramLine;
+import types.specific.data.ExpectedType;
 
 /**
  * This is the Super-Interface for all Types. It gets used in every {@link Expression}.
@@ -46,4 +47,15 @@ public interface AbstractType {
 
 	/** Returns an array of expected following types. Gets called by the {@link BuilderExpression}. */
 	AbstractType[] expected();
+
+	/**
+	 * Checks, if the passed {@link String} matches this type.
+	 * 
+	 * Gets called in {@link ProgramLine}.
+	 * 
+	 * Should get overridden by all none-specific Types like {@link SuperType} and {@link ExpectedType}.
+	 */
+	default boolean is(String arg) {
+		return toString().equals(arg);
+	}
 }

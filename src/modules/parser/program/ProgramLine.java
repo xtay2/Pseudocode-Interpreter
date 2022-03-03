@@ -22,13 +22,12 @@ import expressions.main.functions.Function;
 import expressions.main.statements.ConditionalStatement;
 import expressions.main.statements.ReturnStatement;
 import expressions.normal.BuilderExpression;
-import expressions.normal.operators.infix.InfixOperator;
+import expressions.normal.containers.Name;
 import main.Main;
 import modules.finder.ExpressionFinder;
 import modules.merger.ExpressionMerger;
 import modules.parser.Parser;
 import types.AbstractType;
-import types.specific.data.DataType;
 
 public class ProgramLine {
 
@@ -81,7 +80,7 @@ public class ProgramLine {
 				current = current.strip();
 
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
-			if (!current.isBlank() && !inString && isNewExpression(current, c)) {
+			if (!current.isBlank() && !inString && isNewExpression(current, c, expectedTypes)) {
 				expectedTypes = constructExpression(current, expectedTypes);
 				current = "";
 			}
@@ -103,18 +102,22 @@ public class ProgramLine {
 	 *
 	 * @return {@code true} if current or next is one of ',', '(', ')', ':', '^'
 	 */
-	private boolean isNewExpression(String current, char next) {
-		if (InfixOperator.isOperator(String.valueOf(next)))
-			return !InfixOperator.isOperator(current);
-		if (current.equals("++") || current.equals("--"))
+	private boolean isNewExpression(String current, char next, AbstractType[] expected) {
+		char[] connectors = { ' ', ',' };
+		char[] closer = { ')', ']', '|', '>' };
+		char[] opener = { '(', '[', '|', '<' };
+
+		if ((open || closed || connect) && Name.isName(current))
 			return true;
-		if ((DataType.isType(current) && next == '[') || (DataType.isType(current.replace("[", "")) && next == ']'))
-			return false;
-		char oneCharExpressions[] = { ',', '(', ')', ':', '[', ']', ';', '|' };
-		for (char c : oneCharExpressions)
-			if (current.charAt(0) == c || next == c)
-				return true;
-		return next == ' ';
+		if ((closed || connect) && ValueBuilder.isLiteral(current))
+			return true;
+		if (current.length() == 1 && current.charAt()) {
+			for (AbstractType exp : expected) {
+				if (exp.is(current))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**
