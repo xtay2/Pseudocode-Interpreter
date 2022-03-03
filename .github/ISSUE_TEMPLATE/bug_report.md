@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to minimise annoying/unexpected behaviour.
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
