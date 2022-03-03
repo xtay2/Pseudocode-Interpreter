@@ -1,0 +1,44 @@
+{
+    "name": "pseudocode-lang",
+    "displayName": "Pseudocode Syntaxhighlighter",
+    "description": "A dark-themed syntaxhighlighter, optimised for the imperative language pseudocode.",
+    "icon": "logo.png",
+    "version": "0.4.0",
+    "publisher": "xtay",
+    "repository": {"url": "https://github.com/xtay2/Pseudocode-VSCode-Addon"},
+    "engines": {
+        "vscode": "^1.63.0"
+    },
+    "categories": [
+        "Programming Languages", "Themes"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "pseudocode",
+                "aliases": [
+                    "Pseudocode",
+                    "pseudocode"
+                ],
+                "extensions": [
+                    ".pc"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "pseudocode",
+                "scopeName": "source.pseudocode",
+                "path": "./syntaxes/pseudocode.tmLanguage.json"
+            }
+        ],
+        "themes": [
+            {
+                "label": "Pseudo-Dark",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Pseudo-Dark-color-theme.json"
+            }
+        ]
+    }
+}

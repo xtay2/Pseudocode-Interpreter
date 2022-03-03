@@ -1,0 +1,109 @@
+{
+	"name": "Pseudocode",
+	"patterns": [
+		{"include": "#comments"},
+
+		{"include": "#keywords"},
+		{"include": "#return_statements"},
+
+		{"include": "#import_statements"},
+		{"include": "#import_lines"},
+
+		{"include": "#number_literals"},
+		{"include": "#true_literal"},
+		{"include": "#false_literal"},
+		{"include": "#strings"},
+
+		{"include": "#operators"},
+
+		{"include": "#var_types"},
+		{"include": "#func_declarations"},
+		{"include": "#call_names"}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [{
+				"name": "comment.pseudocode",
+				"match": "#(.*)"
+			}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|for|in|native|final|const|is|null)\\b|\\|"
+			}]
+		},
+		"return_statements": {
+			"patterns": [{
+				"name": "keyword.return.pseudocode",
+				"match": "\\b(return)\\b|(\\-\\>)"
+			}]
+		},
+		"import_statements": {
+			"patterns": [{
+				"name": "keyword.import.pseudocode",
+				"match": "\\b(import)\\b"
+			}]
+		},
+		"import_lines": {
+			"patterns": [{
+				"name": "comment.pseudocode",
+				"match": "(?<=import).((\\w+)|(\\.))+"
+			}]
+		},
+		"number_literals": {
+			"patterns": [{
+				"name": "constant.numeric.pseudocode",
+				"match": "(\\d+)|INF|NaN"
+			}]
+		},
+		"true_literal": {
+			"patterns": [{
+				"name": "literal.true.pseudocode",
+				"match": "\\b(true)\\b"
+			}]
+		},
+		"false_literal": {
+			"patterns": [{
+				"name": "literal.false.pseudocode",
+				"match": "\\b(false)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.pseudocode",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.pseudocode",
+					"match": "\\\\."
+				}
+			]
+		},
+		"operators": {
+			"patterns": [{
+				"name": "operator.pseudocode",
+				"match": "([\\+|\\-|\\*|\\/|\\%|\\^|\\!|\\=]=?)|(\\b(and|nand|or|nor|xor|xnor|root)\\b)|(<|<=|=|>=|>)"
+			}]
+		},
+		"var_types": {
+			"patterns": [{
+				"name": "storage.type.pseudocode",
+				"match": "\\b(var|nr|int|bool|text|char|def)\\b"
+			}]
+		},
+		"func_declarations": {
+			"patterns": [{
+				"name": "entity.name.function.pseudocode",
+				"match": "\\w+((?=\\()|(?=\\<))"
+			}]
+		},
+		"call_names": {
+			"patterns": [{
+				"name": "entity.name.function.pseudocode",
+				"match": "\\s+"
+			}]
+		}
+	},
+	"scopeName": "source.pseudocode"
+}
