@@ -1,0 +1,84 @@
+package interpreting.modules.parser;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import interpreting.modules.disassembler.Disassembler;
+import interpreting.modules.formatter.Formatter;
+import misc.helper.FileManager;
+import misc.main.Main;
+
+public final class Parser {
+
+	public static final char SINGLE_LINE_COMMENT = '#';
+	public static final char MULTI_CLOSE_SCOPE = ';';
+
+	/**
+	 * An indexed line is a String with the orgLineNr attached.
+	 * 
+	 * @param line  is the text.
+	 * @param index is the lineNr from the editor.
+	 */
+	public record IdxLine(String line, int index) {
+
+		@Override
+		public String toString() {
+			return index + ": " + line;
+		}
+
+	}
+
+	public static List<IdxLine> indexLines(List<String> lines) {
+		List<IdxLine> indexedLines = new ArrayList<>();
+		for (int i = 0; i < lines.size(); i++)
+			indexedLines.add(new IdxLine(lines.get(i), i + 1));
+		return indexedLines;
+	}
+
+	/**
+	 * Formats the file and returns the result.
+	 */
+	private static List<String> format() {
+		List<String> lines;
+		try {
+			lines = Files.readAllLines(Path.of(Main.filePath));
+
+			// Format all lines.
+			lines = Formatter.format(lines);
+
+			// Write the formatted lines back into the file.
+			FileManager.writeFile(lines, Main.filePath);
+
+			return lines;
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return null;
+	}
+
+	/**
+	 * Converts the String to a Program.
+	 *
+	 * @param lineArray
+	 * @return
+	 */
+	public static void parse() {
+		List<IdxLine> lines = indexLines(format());
+
+		lines = Disassembler.dissassemble(lines);
+
+		// At this point, all lines are stripped.
+		lines.stream().forEach(e -> System.out.println(e));
+
+		System.out.println("-".repeat(70));
+
+		// Index all newly written and formatted lines correctly, as this is the code that the user sees.
+		for (IdxLine line : lines)
+			Main.PROGRAM.appendLine(line.line(), line.index());
+		Main.PROGRAM.constructAndMerge();
+	}
+}
