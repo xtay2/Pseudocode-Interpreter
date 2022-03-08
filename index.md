@@ -4,8 +4,8 @@ Pseudocode is a dynamically typed, imperative programming language that focuses 
  - The language features a custom [syntaxhighlighter](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang) for VSCode.
 
 ## Download
-Download the current version of the pre-Alpha Interpreter here:
- - <em>Currently not available.</em>
+You can find the repository for all installers [here](https://github.com/xtay2/Pseudocode-Installer/).
+ - [pseudocode-preAlpha](https://github.com/xtay2/Pseudocode-Installer/blob/main/pseudocode-win-installer.zip?raw=true) for Windows
 
 ### Execution (Windows)
  - Download the interpreter-package. (zip-Archive)
