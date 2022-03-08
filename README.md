@@ -1,4 +1,4 @@
-# Pseudocode-II
+# Pseudocode
 An imperative programming language (that will also support object-orientation in the future).
 
 ### Language Philosophy
