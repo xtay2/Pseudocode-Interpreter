@@ -1,10 +1,8 @@
 package interpreting.modules.merger;
 
-import static building.types.SuperType.ASSIGNMENT_TYPE;
-import static building.types.SuperType.FLAG_TYPE;
-import static building.types.SuperType.INFIX_OPERATOR;
-import static building.types.SuperType.POSTFIX_OPERATOR;
+import static building.types.SuperType.*;
 import static building.types.specific.BuilderType.*;
+import static building.types.specific.ExpressionType.LITERAL;
 import static building.types.specific.ExpressionType.NAME;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
@@ -12,6 +10,8 @@ import static building.types.specific.FlagType.NATIVE;
 import static building.types.specific.KeywordType.FUNC;
 import static building.types.specific.KeywordType.IS;
 import static building.types.specific.data.DataType.VAR;
+import static building.types.specific.operators.InfixOpType.GREATER;
+import static building.types.specific.operators.InfixOpType.LESS;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,14 +19,15 @@ import java.util.List;
 import java.util.Set;
 
 import building.expressions.abstractions.Expression;
+import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.CloseScope;
+import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
-import building.expressions.normal.flag.Flaggable;
 import building.types.AbstractType;
+import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
 import building.types.specific.ExpressionType;
 import building.types.specific.FlagType;
@@ -64,16 +65,26 @@ public abstract class SuperMerger extends ExpressionMerger {
 								yield ValueMerger.buildArrayAccess();
 							if (sec.is(ASSIGNMENT_TYPE))
 								yield ValueMerger.buildAssignment();
+							// Check if it is a def link, rather than a operation
+							if (line.size() >= 4 && sec.is(LESS) && line.get(2).is(LITERAL) && line.get(3).is(GREATER))
+								if (line.size() == 4 || (line.size() > 4 && !line.get(4).is(NAME) && !line.get(4).is(LITERAL)))
+									yield ValueMerger.buildDefLink();
 						}
 						yield buildName();
 				};
 			case BuilderType b:
 				yield switch (b) {
-					case ARRAY_START -> ValueMerger.buildArrayLiteral();
-					case OPEN_BRACKET -> ValueMerger.buildBracketedExpression();
-					case MULTI_CALL_LINE -> ValueMerger.buildMultiCall();
+					case ARRAY_START:
+						yield ValueMerger.buildArrayLiteral();
+					case OPEN_BRACKET:
+						if (sec != null && sec.is(EXPECTED_TYPE))
+							yield ValueMerger.buildExplicitCast();
+						yield ValueMerger.buildBracketedExpression();
+					case MULTI_CALL_LINE:
+						yield ValueMerger.buildMultiCall();
 					// Non-Value-BuilderTypes
-					default -> throw new UnexpectedTypeError(orgLine, b);
+					default:
+						throw new UnexpectedTypeError(orgLine, b);
 				};
 			case ExpectedType e:
 				yield ValueMerger.buildDeclaration();
@@ -99,8 +110,8 @@ public abstract class SuperMerger extends ExpressionMerger {
 		BuilderType type = (BuilderType) line.get(0).type;
 		return switch (type) {
 			// Simple BuilderTypes
-			case OPEN_SCOPE -> buildOpenScope();
-			case CLOSE_SCOPE -> buildCloseScope();
+			case OPEN_BLOCK -> buildOpenBlock();
+			case CLOSE_BLOCK -> buildCloseBlock();
 			// Complex BuilderTypes
 			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_LINE -> (Expression) buildVal();
 			// Decorative BuilderTypes
@@ -128,15 +139,15 @@ public abstract class SuperMerger extends ExpressionMerger {
 	}
 
 	/** [{] */
-	protected static OpenScope buildOpenScope() {
+	protected static OpenBlock buildOpenBlock() {
 		line.remove(0);
-		return new OpenScope(lineID);
+		return new OpenBlock(lineID);
 	}
 
 	/** [}] */
-	protected static CloseScope buildCloseScope() {
+	protected static CloseBlock buildCloseBlock() {
 		line.remove(0);
-		return new CloseScope(lineID);
+		return new CloseBlock(lineID);
 	}
 
 	/** [NAME] **/
@@ -177,16 +188,21 @@ public abstract class SuperMerger extends ExpressionMerger {
 		if (line.get(0).type instanceof ExpectedType)
 			f = ValueMerger.buildDeclaration();
 		// Declaration of a constant without type and optional flags
-		else if (flags.contains(CONSTANT) || flags.contains(FINAL) && line.get(0).is(NAME)) {
+		else if ((flags.contains(CONSTANT) || flags.contains(FINAL)) && line.get(0).is(NAME)) {
 			line.add(0, new BuilderExpression(lineID, VAR));
+			if (line.size() <= 2 || !line.get(2).is(AssignmentType.NORMAL))
+				throw new IllegalCodeFormatException(orgLine, "A final variable has to be defined with a value at declaration.");
 			f = ValueMerger.buildDeclaration();
 		}
-		// Returnable-Declaration with optional flags
-		else if (line.get(0).is(FUNC)) {
+		// Definition-Declaration with optional flags
+		else if (line.get(0).is(FUNC))
 			f = FuncMerger.buildFunc(flags.remove(NATIVE));
-		} else
+		// FlagSpace
+		else if (line.get(0).is(OPEN_BLOCK))
+			f = StatementMerger.buildFlagSpace();
+		else
 			throw new UnexpectedTypeError(line.get(0).type);
-		f.setFlags(flags);
+		f.addFlags(flags);
 		return f;
 	}
 }

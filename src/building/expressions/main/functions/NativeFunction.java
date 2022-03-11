@@ -5,6 +5,7 @@ import java.util.List;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.Call;
+import building.types.specific.FlagType;
 import building.types.specific.data.ExpectedType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.interpreter.Interpreter;
@@ -18,16 +19,18 @@ import runtime.natives.SystemFunctions;
  * If a {@link NativeFunction} called, this happens through the {@link Call}-Class and
  * {@link Interpreter#call}.
  */
-public class NativeFunction extends Returnable {
+public class NativeFunction extends Definition {
 
 	private final List<ExpectedType> params;
 
 	/**
-	 * Constructs a {@link NativeFunction}.
+	 * Defines and registers a {@link NativeFunction}.
 	 * 
-	 * @param name       shouldn't be null.
+	 * @param name       is the unique {@link Name} of this {@link Definition}. shouldn't be null
 	 * @param params     shouldn't be null.
-	 * @param returnType can be null.
+	 * @param returnType is the {@link ExpectedType} of the return value. Should be null if this is a
+	 *                   void.
+	 * @param flags      are optional {@link FlagType}s.
 	 */
 	public NativeFunction(int lineID, Name name, List<ExpectedType> params, ExpectedType returnType) {
 		super(lineID, name, null);

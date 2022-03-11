@@ -6,7 +6,7 @@ import static building.types.specific.KeywordType.WHILE;
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.ConditionalStatement;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.KeywordType;
 import interpreting.program.ProgramLine;
 import runtime.datatypes.numerical.NumberValue;
@@ -28,7 +28,7 @@ public final class ConditionalLoop extends Loop {
 	 * @param myType is the identifying Type, eiter {@link KeywordType#WHILE} or
 	 *               {@link KeywordType#UNTIL}.
 	 */
-	public ConditionalLoop(int lineID, KeywordType myType, ValueHolder condition, OpenScope os) {
+	public ConditionalLoop(int lineID, KeywordType myType, ValueHolder condition, OpenBlock os) {
 		super(lineID, myType, os);
 		if (myType != WHILE && myType != UNTIL)
 			throw new AssertionError("Type has to be while or until.");

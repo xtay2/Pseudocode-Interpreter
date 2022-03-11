@@ -1,7 +1,7 @@
 package building.types.specific;
 
 import static building.types.SuperType.*;
-import static building.types.specific.BuilderType.OPEN_SCOPE;
+import static building.types.specific.BuilderType.OPEN_BLOCK;
 
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.containers.Name;
@@ -47,7 +47,7 @@ public enum ExpressionType implements AbstractType {
 	public AbstractType[] expected() {
 		return switch (this) {
 			case NAME -> new AbstractType[] { ASSIGNMENT_TYPE, INFIX_OPERATOR, POSTFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE };
-			case LITERAL -> new AbstractType[] { OPEN_SCOPE, INFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE };
+			case LITERAL -> new AbstractType[] { OPEN_BLOCK, INFIX_OPERATOR, KEYWORD_TYPE, BUILDER_TYPE };
 		};
 	}
 }

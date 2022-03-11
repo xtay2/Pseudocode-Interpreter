@@ -5,7 +5,7 @@ import static runtime.datatypes.numerical.NumberValue.ZERO;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.types.AbstractType;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -29,8 +29,8 @@ public abstract class Loop extends ScopeHolder {
 	protected NumberValue start;
 	protected NumberValue inc;
 
-	/** Copies the constructor {@link ScopeHolder#ScopeHolder(int, AbstractType, OpenScope)}. */
-	public Loop(int lineID, AbstractType myType, OpenScope os) {
+	/** Copies the constructor {@link ScopeHolder#ScopeHolder(int, AbstractType, OpenBlock)}. */
+	public Loop(int lineID, AbstractType myType, OpenBlock os) {
 		super(lineID, myType, os);
 	}
 

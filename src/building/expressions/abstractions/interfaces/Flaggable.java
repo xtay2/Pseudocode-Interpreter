@@ -1,8 +1,9 @@
-package building.expressions.normal.flag;
+package building.expressions.abstractions.interfaces;
 
 import java.util.Set;
 
-import building.expressions.main.functions.Returnable;
+import building.expressions.main.functions.Definition;
+import building.expressions.main.statements.FlagSpace;
 import building.expressions.normal.containers.Variable;
 import building.expressions.possible.allocating.Declaration;
 import building.types.specific.FlagType;
@@ -10,26 +11,32 @@ import building.types.specific.FlagType;
 /**
  * Anything that can have a {@link FlagType}.
  * 
- * @see Returnable
+ * <pre>
+ * Every subclass should contain:
+ * (private) final Set<FlagType> flags = new HashSet<>();
+ * </pre>
+ * 
+ * @see Definition
  * @see Variable
  * @see Declaration
+ * @see FlagSpace
  */
 public interface Flaggable {
 
 	/**
-	 * Sets all Flags for this Expression.
+	 * Add all Flags to this {@link Flaggable}. This should never get called in any constructor!
 	 * 
 	 * <pre>
 	 *  Should look like this:
 	 *  
-	 * 	public final void setFlags(Set<FlagType> flags) throws UnexpectedFlagException {
-	 * 		flags.addAll(flags); 
+	 * 	public final void setFlags(Set<FlagType> flags) {
+	 * 		this.flags.addAll(flags); 
 	 * 	}
 	 * </pre>
 	 * 
 	 * @param flags is a list of all passed flags in front of this.
 	 */
-	void setFlags(Set<FlagType> flags);
+	void addFlags(Set<FlagType> flags);
 
 	/**
 	 * Returns true if this {@link Flaggable} contains the specified {@link FlagType}.

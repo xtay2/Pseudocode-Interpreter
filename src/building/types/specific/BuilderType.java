@@ -1,6 +1,7 @@
 package building.types.specific;
 
 import static building.types.SuperType.*;
+import static building.types.specific.ExpressionType.NAME;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.main.functions.Function;
@@ -30,10 +31,10 @@ public enum BuilderType implements AbstractType {
 	CLOSE_BRACKET(")"),
 
 	/** Found in any {@link ScopeHolder} */
-	OPEN_SCOPE("{"),
+	OPEN_BLOCK("{"),
 
 	/** Found in any {@link ScopeHolder} */
-	CLOSE_SCOPE("}"),
+	CLOSE_BLOCK("}"),
 
 	/** An Arrow at the end of a func-declaration, used to indicate an oncoming return type. */
 	EXPECTED_RETURN_TYPE("->"),
@@ -48,7 +49,10 @@ public enum BuilderType implements AbstractType {
 	TO("to"),
 
 	/** Part of the {@link IntervalLoop}. */
-	STEP("step");
+	STEP("step"),
+
+	/** Start of a {@link LambdaValue}. */
+	LAMBDA_DEF("\\");
 
 	public final String id;
 
@@ -76,15 +80,17 @@ public enum BuilderType implements AbstractType {
 	@Override
 	public AbstractType[] expected() {
 		return switch (this) {
-			case ARRAY_START -> new AbstractType[] { EXPRESSION_TYPE, PREFIX_OPERATOR };
+			case ARRAY_START -> new AbstractType[] { EXPRESSION_TYPE, PREFIX_OPERATOR, ARRAY_END };
 			case ARRAY_END -> new AbstractType[] { KEYWORD_TYPE, ASSIGNMENT_TYPE, INFIX_OPERATOR, POSTFIX_OPERATOR, BUILDER_TYPE };
 			case OPEN_BRACKET -> new AbstractType[] { EXPECTED_TYPE, EXPRESSION_TYPE, ARRAY_START, OPEN_BRACKET, CLOSE_BRACKET };
-			case CLOSE_BRACKET -> new AbstractType[] { INFIX_OPERATOR, POSTFIX_OPERATOR, OPEN_SCOPE, EXPECTED_RETURN_TYPE };
+			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, EXPECTED_TYPE, EXPRESSION_TYPE, INFIX_OPERATOR,
+					POSTFIX_OPERATOR, OPEN_BLOCK, EXPECTED_RETURN_TYPE, CLOSE_BRACKET };
 			case EXPECTED_RETURN_TYPE -> new AbstractType[] { EXPECTED_TYPE };
 			case COMMA -> new AbstractType[] { EXPECTED_TYPE, EXPRESSION_TYPE };
 			case MULTI_CALL_LINE -> new AbstractType[] { EXPRESSION_TYPE, POSTFIX_OPERATOR };
 			case TO, STEP -> new AbstractType[] { EXPRESSION_TYPE };
-			case OPEN_SCOPE, CLOSE_SCOPE -> new AbstractType[] {};
+			case OPEN_BLOCK, CLOSE_BLOCK -> new AbstractType[] {};
+			case LAMBDA_DEF -> new AbstractType[] { NAME };
 		};
 	}
 }

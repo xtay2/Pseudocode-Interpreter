@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Unnamed Language II</name>
+	<name>Pseudocode</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,9 +20,21 @@
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>Pseudocode</name>
+			<type>2</type>
+			<location>C:/Users/x-tay/Documents/Programmierung/VSCode/Pseudocode</location>
+		</link>
+		<link>
+			<name>stdlib</name>
+			<type>2</type>
+			<location>C:/Program Files/Pseudocode/lib/stdlib</location>
+		</link>
+	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1641854728730</id>
+			<id>0</id>
 			<name></name>
 			<type>30</type>
 			<matcher>

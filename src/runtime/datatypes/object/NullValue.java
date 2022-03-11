@@ -4,11 +4,11 @@ import static runtime.datatypes.numerical.NumberValue.ZERO;
 
 import building.types.specific.data.DataType;
 import runtime.datatypes.BoolValue;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.ConceptualNrValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 
 public final class NullValue extends ObjectValue {
 
@@ -50,8 +50,7 @@ public final class NullValue extends ObjectValue {
 			case BOOL -> true; // Always returns false
 			case NUMBER, INT -> true; // Always returns ZERO
 			case TEXT -> true; // Always returns "null"
-			// Not supported
-			case DEF -> false;
+			case DEF, CHAR -> false;
 		};
 	}
 

@@ -9,10 +9,7 @@ import runtime.datatypes.array.ArrayValue;
 public enum ArrayType implements ExpectedType {
 
 	// Types of arrays:
-	VAR_ARRAY(VAR), TEXT_ARRAY(TEXT), BOOL_ARRAY(BOOL), NUMBER_ARRAY(NUMBER), INT_ARRAY(INT),
-
-	// Not implemented
-	DEF_ARRAY(DEF),
+	VAR_ARRAY(VAR), TEXT_ARRAY(TEXT), CHAR_ARRAY(CHAR), BOOL_ARRAY(BOOL), NUMBER_ARRAY(NUMBER), INT_ARRAY(INT), DEF_ARRAY(DEF),
 
 	@Deprecated
 	OBJECT_ARRAY(OBJECT);

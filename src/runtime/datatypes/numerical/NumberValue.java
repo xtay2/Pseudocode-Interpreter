@@ -11,9 +11,9 @@ import java.math.BigInteger;
 
 import building.types.specific.data.DataType;
 import runtime.datatypes.BoolValue;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
+import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.UnexpectedTypeError;
 
@@ -183,10 +183,9 @@ public abstract class NumberValue extends Value {
 			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
 			case BOOL -> true; // Returns false for NaN and true for everything else
 			case TEXT -> true; // Text or CharArray-Representation
+			case DEF, CHAR -> false;
 			// Not implemented
 			case OBJECT -> false;
-			// Not supported
-			case DEF -> false;
 		};
 	}
 

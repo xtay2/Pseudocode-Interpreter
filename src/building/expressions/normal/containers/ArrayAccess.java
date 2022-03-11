@@ -44,7 +44,7 @@ public class ArrayAccess extends Expression implements ValueChanger {
 
 	@Override
 	public void setValue(Value val) {
-		Variable v = name.getScope().get(name.getNameString(), getOriginalLine());
+		Variable v = name.getScope().getVar(name.getNameString(), getOriginalLine());
 		if (v.hasFlag(CONSTANT))
 			throw new DeclarationException(getOriginalLine(),
 					"The Array \"" + name.getNameString() + "\" is defined as constant and cannot be changed.");

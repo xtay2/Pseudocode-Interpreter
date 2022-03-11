@@ -1,4 +1,4 @@
-package runtime.datatypes;
+package runtime.datatypes.textual;
 
 import static building.types.specific.data.ArrayType.TEXT_ARRAY;
 import static building.types.specific.data.DataType.TEXT;
@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import building.types.specific.data.DataType;
+import runtime.datatypes.BoolValue;
+import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -19,11 +21,6 @@ import runtime.exceptions.ShouldBeNaturalNrException;
 public final class TextValue extends Value {
 
 	public final String value;
-
-	/** Creates a {@link TextValue} from a {@link Character}. */
-	public TextValue(char val) {
-		this(String.valueOf(val));
-	}
 
 	/** Creates a {@link TextValue} from a {@link String}. */
 	public TextValue(String val) {
@@ -80,15 +77,23 @@ public final class TextValue extends Value {
 	}
 
 	@Override
-	public TextValue asText() throws CastingException {
+	public TextValue asText() {
 		return this;
 	}
 
 	@Override
-	public ArrayValue asTextArray() throws CastingException {
-		Value[] chars = new Value[value.length()];
+	public CharValue asChar() throws CastingException {
+		if (value.length() == 1)
+			return new CharValue(value.charAt(0));
+		throw new CastingException("The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
+				+ "\" consists of multiple chars, and therefore cannot be casted to one.");
+	}
+
+	@Override
+	public ArrayValue asCharArray() {
+		CharValue[] chars = new CharValue[value.length()];
 		for (int i = 0; i < value.length(); i++)
-			chars[i] = (new TextValue(value.charAt(i)));
+			chars[i] = (new CharValue(value.charAt(i)));
 		return new ArrayValue(TEXT_ARRAY, chars);
 	}
 
@@ -102,11 +107,11 @@ public final class TextValue extends Value {
 		return switch (type) {
 			case VAR, TEXT -> true; // Returns this
 			case NUMBER, INT -> true; // The number or NAN if its just text.
-			case BOOL -> value.equals("true") || value.equals("false"); // Nur wenn es tatsächlich ein Boolean literal ist.
+			case CHAR -> value.length() == 1; // Only if its just one character
+			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
+			case DEF -> false;
 			// Not implemented
 			case OBJECT -> false;
-			// Not supported
-			case DEF -> false;
 		};
 	}
 

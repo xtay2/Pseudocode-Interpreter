@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import building.expressions.abstractions.Scope;
+import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Variable;
-import building.expressions.normal.flag.Flaggable;
 import building.types.specific.FlagType;
 import building.types.specific.data.ExpectedType;
 import interpreting.modules.interpreter.Interpreter;
@@ -36,13 +36,12 @@ public class Declaration extends Allocating implements Flaggable {
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		Variable.quickCreate(lineIdentifier, getScope(), (ExpectedType) type, target.getName(), v,
-				flags.toArray(new FlagType[flags.size()]));
+		new Variable(lineIdentifier, getScope(), (ExpectedType) type, target.getName(), v).addFlags(flags);
 		return v;
 	}
 
 	@Override
-	public void setFlags(Set<FlagType> flags) {
+	public void addFlags(Set<FlagType> flags) {
 		this.flags.addAll(flags);
 	}
 

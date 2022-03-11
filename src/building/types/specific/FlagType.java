@@ -1,7 +1,7 @@
 package building.types.specific;
 
 import static building.types.SuperType.EXPECTED_TYPE;
-import static building.types.specific.ExpressionType.NAME;
+import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.KeywordType.FUNC;
 
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import building.expressions.normal.containers.Variable;
 import building.types.AbstractType;
 import building.types.SuperType;
 import interpreting.modules.formatter.Formatter;
+import static building.types.specific.ExpressionType.*;
 
 /**
  * Modifiers that change the behaviour of certain objects/variables.
@@ -105,8 +106,8 @@ public enum FlagType implements AbstractType {
 	public AbstractType[] expected() {
 		return switch (this) {
 			case NATIVE -> new AbstractType[] { FUNC };
-			case FINAL -> new AbstractType[] { EXPECTED_TYPE, NAME, NATIVE, FUNC };
-			case CONSTANT -> new AbstractType[] { EXPECTED_TYPE, NAME };
+			case FINAL -> new AbstractType[] { EXPECTED_TYPE, NATIVE, OPEN_BLOCK, FUNC, NAME };
+			case CONSTANT -> new AbstractType[] { EXPECTED_TYPE, OPEN_BLOCK, NAME };
 		};
 	}
 }

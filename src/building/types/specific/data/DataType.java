@@ -3,21 +3,20 @@ package building.types.specific.data;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.BuilderExpression;
 import building.types.SuperType;
+import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.BoolValue;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.object.NullValue;
-import runtime.exceptions.UnexpectedTypeError;
+import runtime.datatypes.textual.CharValue;
+import runtime.datatypes.textual.TextValue;
 
 /** The Type of a Variable. If Type == null, the var has no specific type. */
 public enum DataType implements ExpectedType {
 
 	// Vartypes
-	VAR("var"), TEXT("text"), BOOL("bool"), NUMBER("nr"), INT("int"),
+	VAR("var"), TEXT("text"), CHAR("char"), BOOL("bool"), NUMBER("nr"), INT("int"), DEF("def"),
 
 	// Not implemented
-
-	DEF("def"),
 
 	@Deprecated
 	OBJECT("obj");
@@ -61,7 +60,8 @@ public enum DataType implements ExpectedType {
 			case BOOL -> BoolValue.FALSE;
 			case INT, NUMBER -> NumberValue.ZERO;
 			case TEXT -> new TextValue("");
-			case DEF -> throw new UnexpectedTypeError(DEF);
+			case CHAR -> new CharValue(' ');
+			case DEF -> throw new IllegalCodeFormatException("A def has to get initialised at declaration.");
 		};
 	}
 }

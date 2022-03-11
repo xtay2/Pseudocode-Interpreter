@@ -3,7 +3,6 @@ package building.types;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import building.expressions.abstractions.interfaces.ScopeBracket;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;

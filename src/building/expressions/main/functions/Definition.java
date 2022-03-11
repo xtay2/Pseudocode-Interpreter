@@ -8,13 +8,13 @@ import java.util.Set;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.Callable;
+import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.NameHolder;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
-import building.expressions.normal.flag.Flaggable;
 import building.types.specific.FlagType;
 import building.types.specific.data.ExpectedType;
-import interpreting.modules.interpreter.FuncManager;
+import interpreting.modules.merger.ExpressionMerger;
 import misc.helper.Output;
 import runtime.datatypes.Value;
 import runtime.exceptions.IllegalCallException;
@@ -24,9 +24,9 @@ import runtime.exceptions.IllegalCallException;
  * 
  * It provides the ability to set and give return-values.
  */
-public abstract class Returnable extends ScopeHolder implements Flaggable, Callable, NameHolder {
+public abstract class Definition extends ScopeHolder implements Flaggable, Callable, NameHolder {
 
-	/** The {@link Name} of the underlying {@link Returnable}. */
+	/** The {@link Name} of the underlying {@link Definition}. */
 	protected final Name name;
 
 	/** The expected return type. Null is equivalent to void. */
@@ -35,7 +35,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Calla
 	/** This {@link Value} can be obtained after {@link #execute()}. */
 	protected Value returnVal = null;
 
-	/** Flags for this {@link Returnable}. */
+	/** Flags for this {@link Definition}. */
 	protected final Set<FlagType> flags = new HashSet<>();
 
 	/**
@@ -45,11 +45,16 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Calla
 	 */
 	protected boolean wasCalled = false;
 
-	protected Returnable(int lineID, Name name, OpenScope os) {
+	/**
+	 * Creates this {@link Definition}. It gets later registered in the {@link ExpressionMerger}.
+	 * 
+	 * @param name is the unique {@link Name} of this {@link Definition}.
+	 * @param os   is the {@link OpenBlock} of this {@link ScopeHolder} (Can be null for native funcs).
+	 */
+	protected Definition(int lineID, Name name, OpenBlock os) {
 		super(lineID, FUNC, os);
 		if (name == null)
 			throw new AssertionError("Name cannot be null.");
-		FuncManager.registerFunction(name.getNameString(), lineID);
 		this.name = name;
 	}
 
@@ -75,7 +80,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Calla
 	}
 
 	@Override
-	public final void setFlags(Set<FlagType> flags) {
+	public final void addFlags(Set<FlagType> flags) {
 		this.flags.addAll(flags);
 	}
 
@@ -85,7 +90,7 @@ public abstract class Returnable extends ScopeHolder implements Flaggable, Calla
 	}
 
 	/**
-	 * Checks, if this {@link Returnable} is {@link FlagType#FINAL} and already got called.
+	 * Checks, if this {@link Definition} is {@link FlagType#FINAL} and already got called.
 	 * 
 	 * If both is true, an {@link IllegalCallException} gets thrown.
 	 * 

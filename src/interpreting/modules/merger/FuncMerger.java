@@ -13,15 +13,15 @@ import java.util.List;
 import building.expressions.main.functions.Function;
 import building.expressions.main.functions.MainFunction;
 import building.expressions.main.functions.NativeFunction;
-import building.expressions.main.functions.Returnable;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.main.functions.Definition;
+import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.specific.data.ExpectedType;
 
 public abstract class FuncMerger extends SuperMerger {
 
 	/** [FUNC] [NAME] [(] (?[?TYPE] [PARAM] [,]) [)] [EXPECTED_RETURN] [EXPECTED_TYPE] [OPEN_SCOPE] */
-	public static Returnable buildFunc(boolean isNative) {
+	public static Definition buildFunc(boolean isNative) {
 		line.remove(0);
 		Name name = buildName();
 		line.remove(0); // OpenBrack
@@ -29,7 +29,7 @@ public abstract class FuncMerger extends SuperMerger {
 		if (isNative)
 			return new NativeFunction(lineID, name, buildNativeParams(), buildReturnType());
 		else
-			return new Function(lineID, name, buildFuncParams(), buildReturnType(), (OpenScope) build());
+			return new Function(lineID, name, buildFuncParams(), buildReturnType(), (OpenBlock) build());
 	}
 
 	private static List<ExpectedType> buildNativeParams() {
@@ -73,6 +73,6 @@ public abstract class FuncMerger extends SuperMerger {
 	/** [MAIN] [{] */
 	public static MainFunction buildMain() {
 		line.remove(0);
-		return new MainFunction(lineID, (OpenScope) build());
+		return new MainFunction(lineID, (OpenBlock) build());
 	}
 }

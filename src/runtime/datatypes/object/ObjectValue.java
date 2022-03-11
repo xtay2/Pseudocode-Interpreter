@@ -7,8 +7,8 @@ import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.normal.containers.Name;
 import building.types.specific.data.DataType;
 import runtime.datatypes.BoolValue;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.Value;
+import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.UnexpectedTypeError;
 
@@ -41,8 +41,7 @@ public class ObjectValue extends Value implements NameHolder {
 			case BOOL -> true; // Returns true if not null
 			case NUMBER, INT -> true; // Returns NAN
 			case TEXT -> true; // Text or CharArray-Representation.
-			// Not supported
-			case DEF -> false;
+			case DEF, CHAR -> false;
 		};
 	}
 

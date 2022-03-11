@@ -5,6 +5,7 @@ import static building.types.specific.data.DataType.BOOL;
 import building.types.specific.data.DataType;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 
 public class BoolValue extends Value {
 
@@ -50,10 +51,9 @@ public class BoolValue extends Value {
 			case VAR, BOOL -> true; // Returns this
 			case NUMBER, INT -> true; // Returns 0 or 1
 			case TEXT -> true; // Text-Representation.
+			case DEF, CHAR -> false;
 			// Not implemented
 			case OBJECT -> false;
-			// Not supported
-			case DEF -> false;
 		};
 	}
 

@@ -8,7 +8,7 @@ import static building.types.specific.KeywordType.IF;
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.loops.ConditionalLoop;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.KeywordType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.interpreter.Interpreter;
@@ -34,7 +34,7 @@ public final class ConditionalStatement extends ScopeHolder {
 	 * @param condition can be null
 	 * @param os        shouldn't be null
 	 */
-	public ConditionalStatement(int lineID, KeywordType myType, ValueHolder condition, OpenScope os) {
+	public ConditionalStatement(int lineID, KeywordType myType, ValueHolder condition, OpenBlock os) {
 		super(lineID, myType, os);
 		if (myType != IF && myType != ELIF && myType != ANY && myType != ELSE)
 			throw new AssertionError("Type has to be if, elif, any or else.");
@@ -65,9 +65,9 @@ public final class ConditionalStatement extends ScopeHolder {
 				if (!executeBody()) // If any-if condition is true
 					return false; // Return
 			}
-			return Interpreter.execute(endOfConstruct()); // End, if condition was false or statement is done.
+			return callNextLine(); // End, if condition was false or statement is done.
 		} else // Execute without condition. ANY / ELSE
-			return executeBody() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
+			return executeBody() ? callNextLine() : false; // Jump to end after execution
 	}
 
 	/**
@@ -92,7 +92,7 @@ public final class ConditionalStatement extends ScopeHolder {
 	private int findElseCase() {
 		if (nextBlock != null) {
 			if (nextBlock.is(ELIF) || nextBlock.is(ELSE))
-				return nextBlock.getScope().getStart();
+				return nextBlock.getStart();
 			if (nextBlock.is(ANY))
 				return nextBlock.findElseCase();
 			throw new IllegalCodeFormatException(getOriginalLine(), "Illegal Construct. " + nextBlock + " after " + type);
@@ -108,7 +108,7 @@ public final class ConditionalStatement extends ScopeHolder {
 			if (nextBlock.is(ELIF))
 				return nextBlock.findAnyCase();
 			if (nextBlock.is(ANY))
-				return nextBlock.getScope().getStart();
+				return nextBlock.getStart();
 		}
 		return endOfConstruct();
 	}
@@ -117,7 +117,6 @@ public final class ConditionalStatement extends ScopeHolder {
 	private int endOfConstruct() {
 		if (nextBlock != null)
 			return nextBlock.endOfConstruct();
-		return getScope().getEnd();
+		return getEnd() + 1;
 	}
-
 }

@@ -19,14 +19,10 @@ public abstract class Allocating extends PossibleMainExpression implements Value
 	/** Is the {@link ValueHolder}, that contains the new Value for {@link #target}. */
 	protected final ValueHolder val;
 
-	/**
-	 * Copies the following Constructor:
-	 * {@link Expression#Expression(int, AbstractType, AbstractType...)}.
-	 */
 	public Allocating(int lineID, AbstractType myType, ValueChanger target, ValueHolder val) {
 		super(lineID, myType);
 		if (target == null || val == null)
-			throw new AssertionError("Target and Value cannot be null.");
+			throw new AssertionError("Target or value cannot be null.");
 		this.target = target;
 		this.val = val;
 	}

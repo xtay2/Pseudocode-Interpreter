@@ -31,7 +31,7 @@ public abstract class Expression {
 	/** The Type of this Expression. */
 	public final AbstractType type;
 
-	/** Constructor for all Expressions that don't necessarily have a scope. */
+	/** Constructor for all Expressions that don't necessarily have a {@link Scope}. */
 	public Expression(AbstractType myType) {
 		this.type = myType;
 		this.lineIdentifier = null;
@@ -41,7 +41,7 @@ public abstract class Expression {
 	 * Builds an Expression.
 	 * 
 	 * @param lineID   is the identifier of the matching {@link ProgramLine}.
-	 * @param scope    is the scope in which this Variable is defined.
+	 * @param scope    is the {@link Scope} in which this Variable is defined.
 	 * @param myType   is any {@link AbstractType} that describes this expression the best. Use a
 	 *                 {@link SpecificType}, if possible.
 	 * @param expected is an array of expected types following after this Expression.

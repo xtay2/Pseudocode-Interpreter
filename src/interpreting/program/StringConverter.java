@@ -10,7 +10,9 @@ import building.expressions.abstractions.Expression;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.containers.Name;
 import building.types.AbstractType;
+import building.types.specific.BuilderType;
 import building.types.specific.data.DataType;
+import building.types.specific.operators.InfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import misc.main.Main;
 
@@ -30,8 +32,7 @@ public abstract class StringConverter {
 		// String-Literal-Check
 		if (ValueBuilder.isString(current))
 			return true;
-		// ArrayType-Check
-		if (DataType.isType(current) && next == '[')
+		if (containsAnomaly(current, next))
 			return false;
 		if (isSingleCharOp(next) ^ (current.length() == 1 && isSingleCharOp(current.charAt(0))))
 			return matchesExp(current, next, expectedTypes) || Name.isName(current) || ValueBuilder.isLiteral(current);
@@ -44,7 +45,7 @@ public abstract class StringConverter {
 				// Names and Literals get confirmed, when the next char is a singleche-op
 				if (t == NAME || t == LITERAL)
 					continue;
-				if (t.is(current) && !t.is(current + next))
+				if (t.is(current))
 					return true;
 			}
 		} catch (NullPointerException npe) {
@@ -57,6 +58,30 @@ public abstract class StringConverter {
 							+ "\nTrigger expects: " + Arrays.toString(trigger.expected()));
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if the combination of the current string and the next char could be another
+	 * {@link Expression}. (Returns false)
+	 * 
+	 * <pre>
+	 * For example: 
+	 * current: in, next: t = false
+	 * current: -, next: > = false
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	private static boolean containsAnomaly(String current, char next) {
+		String mrg = current + next;
+		//@formatter:off
+		boolean containsAnomaly =
+		   mrg.equals(DataType.INT.toString()) // "in" in "int"
+		|| mrg.equals(BuilderType.EXPECTED_RETURN_TYPE.toString()) // "-" in "->"
+		|| (Arrays.stream(InfixOpType.values()).anyMatch(inf -> inf.toString().equals(current)) && next == '=') //Any AssignmentType
+		|| (Arrays.stream(DataType.values()).anyMatch(dt -> dt.toString().equals(current)) && next == '['); //Any ArrayType
+		//@formatter:n
+		return containsAnomaly;
 	}
 
 	private static boolean isSingleCharOp(char c) {

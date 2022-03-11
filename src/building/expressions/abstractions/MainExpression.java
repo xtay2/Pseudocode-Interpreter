@@ -28,7 +28,7 @@ public abstract class MainExpression extends Expression {
 	}
 
 	/**
-	 * Sets the {@link Scope} this {@link Expression} lies in. (Can only get called once)
+	 * Sets the {@link Scope} this {@link MainExpression} lies in. (Can only get called once)
 	 * 
 	 * Gets called by the {@link ExpressionMerger#merge(ProgramLine)}.
 	 */

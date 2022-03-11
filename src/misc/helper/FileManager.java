@@ -1,10 +1,11 @@
 package misc.helper;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
-
 
 public final class FileManager {
 
@@ -65,7 +66,7 @@ public final class FileManager {
 	 * @param content is the string.
 	 * @param path    is the relative path, where the file is stored.
 	 */
-	public static void writeFile(List<String> content, String path) {
+	public static void writeFile(List<String> content, Path path) {
 		String res = "";
 		for (String line : content)
 			res += line + "\n";
@@ -78,15 +79,37 @@ public final class FileManager {
 	 * @param content is the string.
 	 * @param path    is the relative path, where the file is stored.
 	 */
-	public static void writeFile(String content, String path) {
+	public static void writeFile(String content, Path path) {
 		BufferedWriter writer;
 		try {
-			writer = new BufferedWriter(new FileWriter(path));
+			writer = new BufferedWriter(new FileWriter(path.toString()));
 			writer.write(content);
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Finds a {@link File} in a specified directory.
+	 * 
+	 * @param dir    has to be the parent directory.
+	 * @param target is the name of the quested {@link File}.
+	 * @return the quested {@link File} or null if nothing was found.
+	 */
+	public static File findFileDir(File dir, String target) {
+		File[] content = dir.listFiles();
+		if (content == null)
+			return null;
+		for (File f : content) {
+			if (f.isDirectory()) {
+				File targetPath = findFileDir(f, target);
+				if (targetPath != null)
+					return targetPath;
+			} else if (f.isFile() && f.getName().equals(target))
+				return f;
+		}
+		return null;
 	}
 
 	/**

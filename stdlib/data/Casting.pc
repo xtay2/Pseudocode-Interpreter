@@ -1,7 +1,0 @@
-func integer(val) -> int: return val;
-
-func number(val) -> nr: return val;
-
-func string(val) -> text: return val;
-
-func boolean(val) -> bool: return val;

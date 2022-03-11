@@ -1,5 +1,7 @@
 package interpreting.modules.formatter;
 
+import static building.types.specific.FlagType.isFlag;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -8,8 +10,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import building.expressions.main.CloseScope;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.main.CloseBlock;
+import building.expressions.main.statements.FlagSpace;
+import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
@@ -22,19 +25,24 @@ public class Formatter {
 	private static List<String> rawProgram;
 
 	//@formatter:off
-	static final String
+	public static final String
 
-			/** The symbol of a close-scope. */
-			OS = BuilderType.OPEN_SCOPE.toString(),
+			/** The symbol of a OpenBlock. { */
+			OB = BuilderType.OPEN_BLOCK.toString(),
 	
-			/** The symbol of a close-scope. */
-			CS = BuilderType.CLOSE_SCOPE.toString(),
+			/** The symbol of a CloseBlock. } */
+			CB = BuilderType.CLOSE_BLOCK.toString(),
 			
-			/** The symbol of a multi-close-scope */
+			/** The symbol of a multi-close-scope ; */
 			MCS = String.valueOf(Parser.MULTI_CLOSE_SCOPE),
 			
-			/** The symbol of a single-line-comment */
+			/** The symbol of a single-line-comment # */
 			SLC = String.valueOf(Parser.SINGLE_LINE_COMMENT);
+			
+	public static final char
+	
+			/** The symbol of a one-line-start : */
+			OLS = ':';
 	
 	//@formatter:on
 
@@ -62,9 +70,9 @@ public class Formatter {
 			if (line.stripIndent().startsWith(MAIN))
 				return;
 		}
-		rawProgram.add(0, MAIN + " " + OS);
+		rawProgram.add(0, MAIN + " " + OB);
 		rawProgram.add(1, "\t" + SLC + "Implement me!");
-		rawProgram.add(2, CS);
+		rawProgram.add(2, CB);
 		rawProgram.add(3, "");
 	}
 
@@ -76,7 +84,8 @@ public class Formatter {
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
 			if (!line.isEmpty()) {
-				if (line.contains(":") && Helper.isRunnableCode(line.indexOf(':'), line)) {
+				final int idxOfOls = line.indexOf(OLS);
+				if (idxOfOls != -1 && Helper.isRunnableCode(idxOfOls, line)) {
 					if (!line.endsWith(MCS))
 						rawProgram.set(i, line + MCS);
 				} else {
@@ -145,13 +154,13 @@ public class Formatter {
 
 			// Entferne alle spaces vor kommatas und doppelpunkten.
 			for (int j = 1; j < line.length(); j++) {
-				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j - 1) == ' ')
+				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == OLS) && line.charAt(j - 1) == ' ')
 					line = removeCharAt(line, j - 1);
 			}
 
 			// Füge ein space hinter jedem komma/doppelpunkt ein
 			for (int j = 0; j < line.length() - 1; j++) {
-				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == ':') && line.charAt(j + 1) != ' ')
+				if (Helper.isRunnableCode(j, line) && (line.charAt(j) == ',' || line.charAt(j) == OLS) && line.charAt(j + 1) != ' ')
 					line = insertCharAt(' ', line, j + 1);
 			}
 
@@ -205,12 +214,12 @@ public class Formatter {
 		int brack = 0;
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String s = rawProgram.get(i);
-			if (s.indexOf(CS) != -1)
+			if (s.indexOf(CB) != -1)
 				brack--;
 			if (brack < 0)
 				throw new IllegalCodeFormatException(i, "There are more closed than open brackets.");
 			rawProgram.set(i, "\t".repeat(brack) + s.stripIndent());
-			if (s.indexOf(OS) != -1)
+			if (s.indexOf(OB) != -1)
 				brack++;
 		}
 	}
@@ -244,9 +253,9 @@ public class Formatter {
 	}
 
 	/**
-	 * Formats Open-Scope Brackets.
+	 * Formats {@link OpenBlock} Brackets.
 	 * 
-	 * Move everything behind a {@link OpenScope}-Bracket into the next line and connects the bracket to
+	 * Move everything behind a {@link OpenBlock}-Bracket into the next line and connects the bracket to
 	 * the statement.
 	 * 
 	 * <pre>
@@ -264,21 +273,21 @@ public class Formatter {
 	private static void formatOpenScope() {
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
-			int idxOfOs = line.indexOf(OS);
+			int idxOfOs = line.indexOf(OB);
 			if (idxOfOs != -1 && Helper.isRunnableCode(idxOfOs, line)) {
-				// If something is behind the open scope, move it down
+				// If something is behind the open block, move it down.
 				if (idxOfOs != line.length() - 1) {
 					rawProgram.add(i + 1, rawProgram.get(i).substring(idxOfOs + 1, line.length()));
 					rawProgram.set(i, rawProgram.get(i).substring(0, idxOfOs + 1));
 				}
-				// If a line starts with an open scope
-				if (line.stripIndent().startsWith(OS)) {
+				// If a line starts with an open block...
+				if (line.stripIndent().startsWith(OB)) {
 					rawProgram.remove(i);
 					// Go back and reconnect it to the statement
 					for (int j = i - 1; j >= 0; j--) {
 						line = rawProgram.get(j);
 						if (!line.isBlank() && Helper.isRunnableCode(0, line)) {
-							rawProgram.set(j, line + " " + OS);
+							rawProgram.set(j, line + " " + OB);
 							break;
 						}
 					}
@@ -288,8 +297,8 @@ public class Formatter {
 	}
 
 	/**
-	 * If multiple {@link CloseScope}-Symbols follow each other, they get seperated and if something
-	 * stands in front of a {@link CloseScope}, that also gets split. This doesn't appl
+	 * If multiple {@link CloseBlock}-Symbols follow each other, they get seperated and if something
+	 * stands in front of a {@link CloseBlock}, that also gets split. This doesn't appl
 	 * 
 	 * <pre>
 	 * 
@@ -308,16 +317,16 @@ public class Formatter {
 	private static void formatClosedScope() {
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String line = rawProgram.get(i);
-			int idxOfCs = line.indexOf(CS);
+			int idxOfCs = line.indexOf(CB);
 			if (idxOfCs != -1 && Helper.isRunnableCode(idxOfCs, line)) {
 				final String lineWthtFstCS = line.substring(1).stripLeading();
-				if (!line.startsWith(CS)) {
+				if (!line.startsWith(CB)) {
 					rawProgram.add(i, line.substring(0, idxOfCs));
 					rawProgram.set(i + 1, line.substring(idxOfCs));
 				}
 				// If line starts with multiple OS, possibly seperated by blanks.
-				else if (lineWthtFstCS.startsWith(CS)) {
-					rawProgram.set(i, CS);
+				else if (lineWthtFstCS.startsWith(CB)) {
+					rawProgram.set(i, CB);
 					rawProgram.add(i + 1, lineWthtFstCS);
 				}
 			}
@@ -344,23 +353,31 @@ public class Formatter {
 	 * Removes flags that are not positioned at the start of the line.
 	 * 
 	 * Removes unnecessary flags.
+	 * 
+	 * Removes unnecessary {@value #OLS} in a one-line {@link FlagSpace}.
 	 */
 	private static void orderFlags() {
 		List<String> flags = new ArrayList<>();
 		for (int i = 0; i < rawProgram.size(); i++) {
 			String[] line = rawProgram.get(i).stripLeading().split(" ");
-			for (String word : line) {
-				if (FlagType.isFlag(word)) {
-					flags.add(word);
-				} else
+			// Removes unnecessary {@value #OLS} in a one-line {@link FlagSpace}.
+			for (int j = 0; j < line.length; j++) {
+				String word = line[j];
+				String wordWthtOls = word.replaceAll(String.valueOf(OLS), "");
+				if (!isFlag(wordWthtOls))
 					break;
+				int idxOfOls = word.indexOf(OLS);
+				if (idxOfOls != 1 && Helper.isRunnableCode(idxOfOls, rawProgram.get(i)) && isFlag(wordWthtOls))
+					line[j] = wordWthtOls;
 			}
+			// Save flags in List
+			flags.addAll(Arrays.stream(line).takeWhile(word -> isFlag(word)).toList());
 			if (!flags.isEmpty()) {
 				flags = FlagType.orderFlags(flags);
 				StringBuilder sb = new StringBuilder();
 				for (String flag : flags)
 					sb.append(flag + " ");
-				String rest = Arrays.stream(line).dropWhile(e -> FlagType.isFlag(e)).reduce("", (t, e) -> t + " " + e);
+				String rest = Arrays.stream(line).dropWhile(e -> isFlag(e)).reduce("", (t, e) -> t + " " + e);
 				rawProgram.set(i, sb + rest);
 				flags.clear();
 			}

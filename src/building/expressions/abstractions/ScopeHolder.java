@@ -1,8 +1,9 @@
 package building.expressions.abstractions;
 
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.main.functions.Definition;
+import building.expressions.main.loops.Loop;
+import building.expressions.normal.brackets.OpenBlock;
 import building.types.AbstractType;
-import interpreting.modules.interpreter.Interpreter;
 import interpreting.program.Program;
 
 /**
@@ -13,22 +14,23 @@ import interpreting.program.Program;
  * -Every {@link ScopeHolder} should be a {@link MainExpression}.
  * </pre>
  * 
+ * @see Definition
+ * @see Loop
+ * 
  */
-public abstract class ScopeHolder extends MainExpression {
+public abstract class ScopeHolder extends BlockHolder {
 
 	/** Has to be private. Can be accessed via {@link ScopeHolder#getScope()}. */
 	private Scope scope = null;
-	private final OpenScope os;
 
 	/**
 	 * Creates a {@link ScopeHolder}.
 	 * 
 	 * @param myType shouldn't be null.
-	 * @param os     can be null for native scopes
+	 * @param ob     can be null for native scopes
 	 */
-	public ScopeHolder(int lineID, AbstractType myType, OpenScope os) {
-		super(lineID, myType);
-		this.os = os;
+	public ScopeHolder(int lineID, AbstractType myType, OpenBlock ob) {
+		super(lineID, myType, ob);
 	}
 
 	/** Returns the Scope of this {@link ScopeHolder}. */
@@ -49,12 +51,12 @@ public abstract class ScopeHolder extends MainExpression {
 	 * 
 	 * @param os has to know its match at this point.
 	 */
-	private final void initScope(OpenScope os) {
-		if (os == null)
+	private final void initScope(OpenBlock ob) {
+		if (ob == null)
 			throw new AssertionError("Open Scope cannot be null.");
 		if (scope != null)
 			throw new AssertionError("This Scope is already initialised with " + scope);
-		scope = new Scope(type.toString(), os, getOuterScope());
+		scope = new Scope(ob.lineIdentifier, type.toString(), getOuterScope());
 	}
 
 	/**
@@ -69,27 +71,12 @@ public abstract class ScopeHolder extends MainExpression {
 	/**
 	 * Gets called by {@link Program#constructAndMerge()}.
 	 * 
-	 * Calls {@link #initNative()} or {@link #initScope(OpenScope)}.
+	 * Calls {@link #initNative()} or {@link #initScope(OpenBlock)}.
 	 */
 	public final void initScope() {
-		if (os == null)
+		if (ob == null)
 			initNative();
 		else
-			initScope(os);
-	}
-
-	/**
-	 * Calls the first line in the scope.
-	 */
-	public final boolean callFirstLine() {
-		return Interpreter.execute(scope.getStart() + 1);
-	}
-
-	/**
-	 * Calls the next line after the closing scope bracket.
-	 */
-	@Override
-	public final boolean callNextLine() {
-		return Interpreter.execute(scope.getEnd());
+			initScope(ob);
 	}
 }

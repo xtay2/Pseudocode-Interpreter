@@ -3,19 +3,20 @@ package building.expressions.possible;
 import building.expressions.abstractions.PossibleMainExpression;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.functions.Returnable;
+import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallable;
 import building.types.SuperType;
 import building.types.specific.data.ArrayType;
-import runtime.datatypes.DefValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
+import runtime.datatypes.functional.DefLink;
+import runtime.defmanager.DefManager;
 
 public class Call extends PossibleMainExpression implements ValueHolder, MultiCallable, NameHolder {
 
-	private final DefValue calledFunc;
+	private final Name calledFunc;
 	private final ValueHolder[] parameters;
 
 	/**
@@ -24,7 +25,7 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	 * @param calledFunc shouldn't be null.
 	 * @param parameters shouldn't be null.
 	 */
-	public Call(int lineID, DefValue calledFunc, ValueHolder... parameters) {
+	public Call(int lineID, Name calledFunc, ValueHolder... parameters) {
 		super(lineID, SuperType.MERGED);
 		this.calledFunc = calledFunc;
 		this.parameters = parameters;
@@ -42,14 +43,14 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	public Value getValue() {
 		if (parameters.length == 1 && parameters[0] instanceof MultiCall m)
 			return m.getValue();
-		return calledFunc.call(parameters);
+		return findTarget().call(parameters);
 	}
 
 	@Override
 	public Value executeFor(ValueHolder[] content) {
 		Value[] returnArr = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
-			returnArr[i] = calledFunc.call(content[i]);
+			returnArr[i] = findTarget().call(content[i]);
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
 			return new ArrayValue(ArrayType.VAR_ARRAY, returnArr);
@@ -57,7 +58,13 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 		return null;
 	}
 
-	/** Returns the name of the called {@link Returnable}. */
+	private Definition findTarget() {
+		if (getScope().contains(calledFunc.getNameString()))
+			return ((DefLink) getScope().getVar(calledFunc.getNameString(), getOriginalLine()).getValue()).raw();
+		return DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
+	}
+
+	/** Returns the name of the called {@link Definition}. */
 	@Override
 	public Name getName() {
 		return calledFunc.getName();

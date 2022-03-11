@@ -1,5 +1,7 @@
 package interpreting.modules.parser;
 
+import static misc.helper.Output.print;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,16 +43,16 @@ public final class Parser {
 	/**
 	 * Formats the file and returns the result.
 	 */
-	private static List<String> format() {
+	private static List<String> format(Path mainFilePath) {
 		List<String> lines;
 		try {
-			lines = Files.readAllLines(Path.of(Main.filePath));
+			lines = Files.readAllLines(mainFilePath);
 
 			// Format all lines.
 			lines = Formatter.format(lines);
 
 			// Write the formatted lines back into the file.
-			FileManager.writeFile(lines, Main.filePath);
+			FileManager.writeFile(lines, mainFilePath);
 
 			return lines;
 		} catch (IOException e) {
@@ -66,15 +68,15 @@ public final class Parser {
 	 * @param lineArray
 	 * @return
 	 */
-	public static void parse() {
-		List<IdxLine> lines = indexLines(format());
+	public static void parse(Path libPath, Path mainFilePath) {
+		List<IdxLine> lines = indexLines(format(mainFilePath));
 
 		lines = Disassembler.dissassemble(lines);
 
 		// At this point, all lines are stripped.
-		lines.stream().forEach(e -> System.out.println(e));
+		lines.stream().forEach(e -> print(e));
 
-		System.out.println("-".repeat(70));
+		print("-".repeat(70));
 
 		// Index all newly written and formatted lines correctly, as this is the code that the user sees.
 		for (IdxLine line : lines)

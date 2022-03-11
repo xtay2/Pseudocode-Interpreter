@@ -10,6 +10,7 @@ import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.IsStatement;
 import building.expressions.normal.brackets.BracketedExpression;
+import building.expressions.normal.casting.ExplicitCast;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.Call;
@@ -19,8 +20,10 @@ import building.expressions.possible.multicall.MultiCall;
 import building.types.SuperType;
 import building.types.specific.AssignmentType;
 import building.types.specific.data.ExpectedType;
-import runtime.datatypes.DefValue;
 import runtime.datatypes.array.UnitialisedArrayValue;
+import runtime.datatypes.functional.DefLink;
+import runtime.datatypes.numerical.IntValue;
+import runtime.exceptions.ShouldBeNaturalNrException;
 import runtime.exceptions.UnexpectedTypeError;
 
 /**
@@ -35,8 +38,18 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [(] **/
 	public static Call buildCall() {
-		DefValue func = new DefValue(buildName().getNameString());
-		return new Call(lineID, func, buildParts());
+		return new Call(lineID, buildName(), buildParts());
+	}
+
+	/** [Name] [<] [INT_VALUE] [>] */
+	public static DefLink buildDefLink() {
+		Name target = buildName();
+		line.remove(0); // <
+		line.remove(1); // >
+		if (buildVal() instanceof IntValue i && i.isPositive()) {
+			return new DefLink(target, i.raw().intValueExact());
+		}
+		throw new ShouldBeNaturalNrException(orgLine, "The paramcount in a def has to be a literal integer.");
 	}
 
 	/* [OPEN_SQUARE] [?PARAM] [?COMMA] [?PARAM] [CLOSE_SQUARE] */
@@ -94,5 +107,13 @@ public abstract class ValueMerger extends SuperMerger {
 			return new Declaration(lineID, type, target, buildVal());
 		}
 		return new Declaration(lineID, type, target, type.stdVal());
+	}
+
+	/** [(] [TYPE] [)] [VALUE_HOLDER] */
+	public static ExplicitCast buildExplicitCast() {
+		line.remove(0);
+		ExpectedType t = buildExpType();
+		line.remove(0);
+		return new ExplicitCast(lineID, t, buildVal());
 	}
 }

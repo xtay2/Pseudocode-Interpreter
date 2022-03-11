@@ -1,14 +1,13 @@
 package building.expressions.abstractions.interfaces;
 
-import building.expressions.main.functions.Returnable;
-import runtime.datatypes.DefValue;
+import building.expressions.main.functions.Definition;
 import runtime.datatypes.Value;
 
 /**
  * Everything that can be called and provides a return-value.
  * 
- * @see Returnable
- * @see DefValue
+ * @see Definition
+ * @see Name
  */
 public interface Callable {
 

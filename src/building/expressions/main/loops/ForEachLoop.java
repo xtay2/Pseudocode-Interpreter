@@ -4,8 +4,9 @@ import static building.types.specific.data.DataType.VAR;
 
 import java.math.BigInteger;
 
+import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.brackets.OpenScope;
+import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.specific.KeywordType;
@@ -23,7 +24,15 @@ public class ForEachLoop extends Loop {
 	/** The name of the running element. */
 	private final Name elementName;
 
-	public ForEachLoop(int lineID, Name elementName, ValueHolder arrayH, OpenScope os) {
+	/**
+	 * Creates a {@link ForEachLoop}.
+	 * 
+	 * @param elementName is the {@link Name} of the running element. Shouldn't be null.
+	 * @param arrayH      is the Wrapper for the {@link ArrayValue} that later gets iterated over.
+	 *                    Shouldn't be null.
+	 * @param os          is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
+	 */
+	public ForEachLoop(int lineID, Name elementName, ValueHolder arrayH, OpenBlock os) {
 		super(lineID, KeywordType.FOR, os);
 		this.elementName = elementName;
 		this.arrayHolder = arrayH;
@@ -42,7 +51,7 @@ public class ForEachLoop extends Loop {
 		if (iteration.isGreaterEq(NumberValue.create(BigInteger.valueOf(array.length()))))
 			return false;
 		// Variable
-		Variable.quickCreate(lineIdentifier, getScope(), VAR, elementName, array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), VAR, elementName, array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

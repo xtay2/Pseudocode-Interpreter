@@ -2,7 +2,7 @@ package building.types.specific.data;
 
 import static building.types.specific.BuilderType.CLOSE_BRACKET;
 import static building.types.specific.BuilderType.COMMA;
-import static building.types.specific.BuilderType.OPEN_SCOPE;
+import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.ExpressionType.NAME;
 
 import java.util.stream.Stream;
@@ -22,7 +22,7 @@ public interface ExpectedType extends AbstractType {
 
 	@Override
 	public default AbstractType[] expected() {
-		return new AbstractType[] { NAME, OPEN_SCOPE, CLOSE_BRACKET, COMMA };
+		return new AbstractType[] { NAME, OPEN_BLOCK, CLOSE_BRACKET, COMMA };
 	}
 
 	/**

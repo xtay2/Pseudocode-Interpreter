@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import runtime.datatypes.TextValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 
 public class Number {
 

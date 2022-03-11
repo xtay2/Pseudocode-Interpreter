@@ -1,12 +1,16 @@
 package interpreting.modules.assembler;
 
+import static interpreting.modules.formatter.Formatter.CB;
+import static interpreting.modules.formatter.Formatter.MCS;
+import static interpreting.modules.formatter.Formatter.OB;
+import static interpreting.modules.formatter.Formatter.SLC;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import building.types.specific.BuilderType;
+import building.expressions.main.CloseBlock;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.formatter.Formatter;
-import interpreting.modules.parser.Parser;
 import interpreting.modules.parser.Parser.IdxLine;
 import misc.helper.Helper;
 
@@ -17,28 +21,11 @@ public class Assembler {
 
 	private static List<IdxLine> lines;
 
-	//@formatter:off
-	static final String
-
-			/** The symbol of a close-scope. */
-			OS = BuilderType.OPEN_SCOPE.toString(),
-	
-			/** The symbol of a close-scope. */
-			CS = BuilderType.CLOSE_SCOPE.toString(),
-			
-			/** The symbol of a multi-close-scope */
-			MCS = String.valueOf(Parser.MULTI_CLOSE_SCOPE),
-			
-			/** The symbol of a single-line-comment */
-			SLC = String.valueOf(Parser.SINGLE_LINE_COMMENT);
-	
-	//@formatter:on
-
 	public static List<IdxLine> assemble(List<IdxLine> program) {
 		// Strip all
 		lines = new ArrayList<>(program.stream().map(e -> new IdxLine(e.line().strip(), e.index())).toList());
 		removeEmptyAndComments();
-		splitCloseScopes();
+		splitCloseBlocks();
 		splitOneLiners();
 		return lines;
 	}
@@ -58,7 +45,7 @@ public class Assembler {
 	}
 
 	/**
-	 * If a line contains something except a CloseScope, it gets split into two lines.
+	 * If a line contains something except a {@link CloseBlock}, it gets split into two lines.
 	 * 
 	 * <pre>
 	 * if ... {
@@ -75,15 +62,15 @@ public class Assembler {
 	 * else {
 	 * </pre>
 	 */
-	private static void splitCloseScopes() {
+	private static void splitCloseBlocks() {
 		for (int i = 0; i < lines.size(); i++) {
 			final String l = lines.get(i).line();
 			final int index = lines.get(i).index();
-			if (l.contains(CS) && l.length() > 1) {
+			if (l.contains(CB) && l.length() > 1) {
 				// Remove original
 				lines.remove(i);
 				// Split the line, but keep the } symbols.
-				final String[] line = l.split("((?<=" + CS + ")|(?=" + CS + "))");
+				final String[] line = l.split("((?<=" + CB + ")|(?=" + CB + "))");
 				// Write the segments back
 				for (int seg = 0; seg < line.length; seg++)
 					lines.add(i + seg, new IdxLine(line[seg].strip(), index));
@@ -111,16 +98,16 @@ public class Assembler {
 			String l = lines.get(i).line();
 			final int index = lines.get(i).index();
 
-			int lineBreak = l.indexOf(":");
+			int lineBreak = l.indexOf(Formatter.OLS);
 			if (lineBreak != -1 && Helper.isRunnableCode(lineBreak, l)) {
 				if (lineBreak == l.length() - 1)
 					throw new IllegalCodeFormatException(lines.get(i).index(), "This one-line statement has to end with a semicolon.");
-				// Replace Semikolon with ScopeBrackets
+				// Replace Semikolon with BlockBrackets
 				if (l.endsWith(MCS)) // For Nested Loops/Statements
 					l = l.substring(0, l.length() - 1);
-				lines.add(i + 1, new IdxLine(CS, index));
+				lines.add(i + 1, new IdxLine(CB, index));
 				lines.add(i + 1, new IdxLine(l.substring(lineBreak + 2), index)); // Teil nach :
-				lines.set(i, new IdxLine(l.substring(0, lineBreak) + " " + OS, index));
+				lines.set(i, new IdxLine(l.substring(0, lineBreak) + " " + OB, index));
 			}
 		}
 	}

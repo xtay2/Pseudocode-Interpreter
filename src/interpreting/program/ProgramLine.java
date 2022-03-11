@@ -4,7 +4,7 @@ import static building.types.SuperType.EXPECTED_TYPE;
 import static building.types.SuperType.FLAG_TYPE;
 import static building.types.SuperType.KEYWORD_TYPE;
 import static building.types.SuperType.PREFIX_OPERATOR;
-import static building.types.specific.BuilderType.CLOSE_SCOPE;
+import static building.types.specific.BuilderType.CLOSE_BLOCK;
 import static building.types.specific.BuilderType.MULTI_CALL_LINE;
 import static building.types.specific.ExpressionType.NAME;
 import static building.types.specific.KeywordType.ANY;
@@ -60,7 +60,7 @@ public class ProgramLine {
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_SCOPE, PREFIX_OPERATOR, MULTI_CALL_LINE };
+		AbstractType expectedTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_BLOCK, PREFIX_OPERATOR, MULTI_CALL_LINE };
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);

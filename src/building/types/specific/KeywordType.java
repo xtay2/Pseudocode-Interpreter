@@ -4,7 +4,7 @@ import static building.types.SuperType.EXPECTED_TYPE;
 import static building.types.SuperType.EXPRESSION_TYPE;
 import static building.types.specific.BuilderType.ARRAY_START;
 import static building.types.specific.BuilderType.OPEN_BRACKET;
-import static building.types.specific.BuilderType.OPEN_SCOPE;
+import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.ExpressionType.NAME;
 
 import building.types.AbstractType;
@@ -81,9 +81,9 @@ public enum KeywordType implements AbstractType {
 	public AbstractType[] expected() {
 		return switch (this) {
 			case FROM, UNTIL, WHILE, IF, ELIF, RETURN -> AbstractType.valHolderTypes();
-			case REPEAT -> new AbstractType[] { EXPRESSION_TYPE, ARRAY_START, OPEN_BRACKET, OPEN_SCOPE };
-			case ANY -> new AbstractType[] { OPEN_SCOPE, IF };
-			case ELSE, MAIN -> new AbstractType[] { OPEN_SCOPE };
+			case REPEAT -> new AbstractType[] { EXPRESSION_TYPE, ARRAY_START, OPEN_BRACKET, OPEN_BLOCK };
+			case ANY -> new AbstractType[] { OPEN_BLOCK, IF };
+			case ELSE, MAIN -> new AbstractType[] { OPEN_BLOCK };
 			case FOR, FUNC -> new AbstractType[] { NAME };
 			case IS -> new AbstractType[] { EXPECTED_TYPE };
 			case IMPORT -> throw new UnsupportedOperationException("An import Statement cannot be build.");

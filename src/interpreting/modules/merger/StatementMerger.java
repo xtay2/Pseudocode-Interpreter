@@ -4,6 +4,7 @@ import static building.types.specific.KeywordType.IF;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.ConditionalStatement;
+import building.expressions.main.statements.FlagSpace;
 import building.expressions.main.statements.ReturnStatement;
 import building.types.specific.KeywordType;
 import runtime.exceptions.UnexpectedTypeError;
@@ -18,15 +19,15 @@ public abstract class StatementMerger extends SuperMerger {
 		line.remove(0);
 		switch (type) {
 			case IF, ELIF:
-				return new ConditionalStatement(lineID, type, buildVal(), buildOpenScope());
+				return new ConditionalStatement(lineID, type, buildVal(), buildOpenBlock());
 			case ANY:
 				if (line.get(0).is(IF)) { // Any-If with condition
 					line.remove(0); // IF
-					return new ConditionalStatement(lineID, type, buildVal(), buildOpenScope());
+					return new ConditionalStatement(lineID, type, buildVal(), buildOpenBlock());
 				} else // Any without condition
-					return new ConditionalStatement(lineID, type, null, buildOpenScope());
+					return new ConditionalStatement(lineID, type, null, buildOpenBlock());
 			case ELSE:
-				return new ConditionalStatement(lineID, type, null, buildOpenScope());
+				return new ConditionalStatement(lineID, type, null, buildOpenBlock());
 			default:
 				throw new UnexpectedTypeError(orgLine, type);
 		}
@@ -35,5 +36,10 @@ public abstract class StatementMerger extends SuperMerger {
 	public static ReturnStatement buildReturn() {
 		line.remove(0);
 		return new ReturnStatement(lineID, (ValueHolder) build());
+	}
+
+	/** [Name] [OpenBlock] */
+	public static FlagSpace buildFlagSpace() {
+		return new FlagSpace(lineID, buildOpenBlock());
 	}
 }

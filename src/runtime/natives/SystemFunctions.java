@@ -8,11 +8,11 @@ import java.util.Random;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import misc.helper.Output;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 
 public final class SystemFunctions {
 

@@ -12,10 +12,10 @@ import building.types.specific.data.ArrayType;
 import building.types.specific.data.DataType;
 import building.types.specific.data.ExpectedType;
 import runtime.datatypes.BoolValue;
-import runtime.datatypes.TextValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.ShouldBeNaturalNrException;
 import runtime.exceptions.UnexpectedTypeError;
@@ -108,10 +108,9 @@ public final class ArrayValue extends Value {
 			case BOOL -> true; // IsEmpty
 			case NUMBER, INT -> true; // Gibt Länge zurück
 			case TEXT -> true; // Gibt text-repräsentation zurück
+			case DEF, CHAR -> false;
 			// Not implemented
 			case OBJECT -> false;
-			// Not supported
-			case DEF -> false;
 		};
 	}
 
@@ -121,6 +120,7 @@ public final class ArrayValue extends Value {
 			case VAR_ARRAY -> true; // Gibt sich selbst zurück
 			case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
 			case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
+			case CHAR_ARRAY -> everyElementIs(CHAR_ARRAY);// Only if every element can be casted to a char.
 			case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
 			case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
 			// Not implemented
@@ -145,15 +145,7 @@ public final class ArrayValue extends Value {
 	 * @see {@link ArrayAccess#getValue()}
 	 */
 	public Value get(int i) {
-		return switch ((ArrayType) type) {
-			case VAR_ARRAY -> container[i];
-			case BOOL_ARRAY -> container[i].asBool();
-			case NUMBER_ARRAY -> container[i].asNumber();
-			case INT_ARRAY -> container[i].asInt();
-			case TEXT_ARRAY -> container[i].asText();
-			case DEF_ARRAY -> container[i].asDef();
-			case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unimplemented case: " + type);
-		};
+		return container[i].as(((ArrayType) type).dataType);
 	}
 
 	/**
@@ -165,6 +157,8 @@ public final class ArrayValue extends Value {
 	public void set(int idx, Value val) {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
+		if (!val.canCastTo(((ArrayType) type).dataType))
+			throw new CastingException("Tried to insert a " + val.type + " into a " + type + ".");
 		container[idx] = val;
 	}
 

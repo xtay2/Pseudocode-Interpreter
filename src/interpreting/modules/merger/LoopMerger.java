@@ -1,6 +1,6 @@
 package interpreting.modules.merger;
 
-import static building.types.specific.BuilderType.OPEN_SCOPE;
+import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.BuilderType.STEP;
 import static building.types.specific.BuilderType.TO;
 import static building.types.specific.KeywordType.FROM;
@@ -21,7 +21,7 @@ public abstract class LoopMerger extends SuperMerger {
 
 	public static ConditionalLoop buildConditional(KeywordType type) {
 		line.remove(0);
-		return new ConditionalLoop(lineID, type, buildVal(), buildOpenScope());
+		return new ConditionalLoop(lineID, type, buildVal(), buildOpenBlock());
 	}
 
 	/** [FOR] [NAME] [IN] [CONTAINER] [OPEN_SCOPE] */
@@ -29,14 +29,14 @@ public abstract class LoopMerger extends SuperMerger {
 		line.remove(0);
 		if (!line.remove(1).is(IN))
 			throw new IllegalCodeFormatException(orgLine, "The For-Each-Loop has to contain the \"in\"-Keyword.");
-		return new ForEachLoop(lineID, buildName(), buildVal(), buildOpenScope());
+		return new ForEachLoop(lineID, buildName(), buildVal(), buildOpenBlock());
 	}
 
 	/** [REPEAT] [REPETITIONS] [OPEN_SCOPE] */
 	public static IntervalLoop buildRepeat() {
 		line.remove(0);
-		ValueHolder end = line.get(0).is(OPEN_SCOPE) ? POS_INF : buildVal();
-		return new IntervalLoop(lineID, REPEAT, ZERO, end, ONE, buildOpenScope());
+		ValueHolder end = line.get(0).is(OPEN_BLOCK) ? POS_INF : buildVal();
+		return new IntervalLoop(lineID, REPEAT, ZERO, end, ONE, buildOpenBlock());
 	}
 
 	/** [FROM] [NUMBER] [TO] [NUMBER] (?[STEP] [INTERVALL]) */
@@ -48,8 +48,8 @@ public abstract class LoopMerger extends SuperMerger {
 		ValueHolder end = buildVal();
 		if (line.get(0).is(STEP)) {
 			line.remove(0); // LoopConnector
-			return new IntervalLoop(lineID, FROM, start, end, buildVal(), buildOpenScope());
+			return new IntervalLoop(lineID, FROM, start, end, buildVal(), buildOpenBlock());
 		} else
-			return new IntervalLoop(lineID, FROM, start, end, ONE, buildOpenScope());
+			return new IntervalLoop(lineID, FROM, start, end, ONE, buildOpenBlock());
 	}
 }

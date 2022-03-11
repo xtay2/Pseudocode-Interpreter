@@ -27,20 +27,20 @@ public class Name extends Expression implements ValueChanger {
 		this.name = name;
 		if (name == null)
 			throw new AssertionError("Name cannot be null.");
-		if (!isName(name))
+		if (!isName(name) && !KeywordType.MAIN.keyword.equals(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
 	}
 
-	/** A shortcut for getting the value over {@link Scope#get()}. */
+	/** A shortcut for getting the value over {@link Scope}. */
 	@Override
 	public Value getValue() {
-		return getScope().get(name, getOriginalLine()).getValue();
+		return getScope().getVar(name, getOriginalLine()).getValue();
 	}
 
 	/** A shortcut for setting the value over the {@link Scope}. */
 	@Override
 	public void setValue(Value val) {
-		getScope().get(name, getOriginalLine()).setValue(val);
+		getScope().getVar(name, getOriginalLine()).setValue(val);
 	}
 
 	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
@@ -67,6 +67,11 @@ public class Name extends Expression implements ValueChanger {
 	@Override
 	public Name getName() {
 		return this;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof Name n ? name.equals(n.name) : false;
 	}
 
 	@Override
