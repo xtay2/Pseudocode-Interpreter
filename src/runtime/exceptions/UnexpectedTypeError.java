@@ -1,6 +1,6 @@
 package runtime.exceptions;
 
-import building.types.AbstractType;
+import building.types.abstractions.AbstractType;
 
 /**
  * Gets thrown when trying to operate on a castable with an unexpected type.

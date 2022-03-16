@@ -1,7 +1,7 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.data.DataType.INT;
-import static building.types.specific.data.DataType.NUMBER;
+import static building.types.specific.DataType.INT;
+import static building.types.specific.DataType.NUMBER;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
@@ -9,7 +9,7 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -52,6 +52,8 @@ public abstract class NumberValue extends Value {
 			return ZERO;
 		if (denom.equals(BigInteger.ONE))
 			return create(num);
+		if (denom.equals(BigInteger.ZERO))
+			return NAN;
 		// Fractional result
 		return new DecimalValue(num, denom);
 	}
@@ -183,9 +185,7 @@ public abstract class NumberValue extends Value {
 			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
 			case BOOL -> true; // Returns false for NaN and true for everything else
 			case TEXT -> true; // Text or CharArray-Representation
-			case DEF, CHAR -> false;
-			// Not implemented
-			case OBJECT -> false;
+			default -> false;
 		};
 	}
 

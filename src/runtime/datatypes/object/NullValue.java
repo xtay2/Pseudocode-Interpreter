@@ -2,7 +2,7 @@ package runtime.datatypes.object;
 
 import static runtime.datatypes.numerical.NumberValue.ZERO;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.ConceptualNrValue;
@@ -50,7 +50,7 @@ public final class NullValue extends ObjectValue {
 			case BOOL -> true; // Always returns false
 			case NUMBER, INT -> true; // Always returns ZERO
 			case TEXT -> true; // Always returns "null"
-			case DEF, CHAR -> false;
+			default -> false;
 		};
 	}
 

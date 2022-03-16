@@ -6,7 +6,7 @@ import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Name;
-import building.types.AbstractType;
+import building.types.abstractions.SpecificType;
 
 /**
  * The superclass for the {@link Assignment} and the {@link Declaration}.
@@ -19,7 +19,7 @@ public abstract class Allocating extends PossibleMainExpression implements Value
 	/** Is the {@link ValueHolder}, that contains the new Value for {@link #target}. */
 	protected final ValueHolder val;
 
-	public Allocating(int lineID, AbstractType myType, ValueChanger target, ValueHolder val) {
+	public Allocating(int lineID, SpecificType myType, ValueChanger target, ValueHolder val) {
 		super(lineID, myType);
 		if (target == null || val == null)
 			throw new AssertionError("Target or value cannot be null.");

@@ -1,11 +1,11 @@
 package runtime.datatypes.object;
 
-import static building.types.specific.data.DataType.OBJECT;
+import static building.types.specific.DataType.*;
 import static runtime.datatypes.object.NullValue.NULL;
 
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.normal.containers.Name;
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
@@ -41,7 +41,7 @@ public class ObjectValue extends Value implements NameHolder {
 			case BOOL -> true; // Returns true if not null
 			case NUMBER, INT -> true; // Returns NAN
 			case TEXT -> true; // Text or CharArray-Representation.
-			case DEF, CHAR -> false;
+			default -> false;
 		};
 	}
 

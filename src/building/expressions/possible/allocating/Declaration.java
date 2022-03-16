@@ -8,8 +8,8 @@ import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Variable;
+import building.types.specific.DataType;
 import building.types.specific.FlagType;
-import building.types.specific.data.ExpectedType;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
 
@@ -24,7 +24,7 @@ public class Declaration extends Allocating implements Flaggable {
 	 * @param target shouldn't be null.
 	 * @param val    shouldn't be null.
 	 */
-	public Declaration(int lineID, ExpectedType type, ValueChanger target, ValueHolder val) {
+	public Declaration(int lineID, DataType type, ValueChanger target, ValueHolder val) {
 		super(lineID, type, target, val);
 	}
 
@@ -36,7 +36,7 @@ public class Declaration extends Allocating implements Flaggable {
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		new Variable(lineIdentifier, getScope(), (ExpectedType) type, target.getName(), v).addFlags(flags);
+		new Variable(lineIdentifier, getScope(), (DataType) type, target.getName(), v).addFlags(flags);
 		return v;
 	}
 

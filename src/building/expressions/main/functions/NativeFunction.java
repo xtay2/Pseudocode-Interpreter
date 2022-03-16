@@ -5,8 +5,8 @@ import java.util.List;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.Call;
+import building.types.specific.DataType;
 import building.types.specific.FlagType;
-import building.types.specific.data.ExpectedType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
@@ -21,18 +21,18 @@ import runtime.natives.SystemFunctions;
  */
 public class NativeFunction extends Definition {
 
-	private final List<ExpectedType> params;
+	private final List<DataType> params;
 
 	/**
 	 * Defines and registers a {@link NativeFunction}.
 	 * 
 	 * @param name       is the unique {@link Name} of this {@link Definition}. shouldn't be null
 	 * @param params     shouldn't be null.
-	 * @param returnType is the {@link ExpectedType} of the return value. Should be null if this is a
+	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a
 	 *                   void.
 	 * @param flags      are optional {@link FlagType}s.
 	 */
-	public NativeFunction(int lineID, Name name, List<ExpectedType> params, ExpectedType returnType) {
+	public NativeFunction(int lineID, Name name, List<DataType> params, DataType returnType) {
 		super(lineID, name, null);
 		if (params == null)
 			throw new AssertionError("Params cannot be null.");

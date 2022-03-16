@@ -17,7 +17,7 @@ import building.expressions.main.functions.MainFunction;
 import building.expressions.main.functions.Definition;
 import building.expressions.main.statements.FlagSpace;
 import building.expressions.normal.BuilderExpression;
-import building.types.AbstractType;
+import building.types.abstractions.AbstractType;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;

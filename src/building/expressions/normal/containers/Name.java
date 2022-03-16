@@ -1,15 +1,15 @@
 package building.expressions.normal.containers;
 
-import static building.types.specific.ExpressionType.NAME;
+import static building.types.specific.DynamicType.NAME;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueChanger;
+import building.types.abstractions.SpecificType;
+import building.types.specific.DataType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
-import building.types.specific.data.ArrayType;
-import building.types.specific.data.DataType;
 import runtime.datatypes.Value;
 import runtime.exceptions.DeclarationException;
 
@@ -27,7 +27,7 @@ public class Name extends Expression implements ValueChanger {
 		this.name = name;
 		if (name == null)
 			throw new AssertionError("Name cannot be null.");
-		if (!isName(name) && !KeywordType.MAIN.keyword.equals(name))
+		if (!isName(name) && !KeywordType.MAIN.toString().equals(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
 	}
 
@@ -47,10 +47,9 @@ public class Name extends Expression implements ValueChanger {
 	public static boolean isName(String arg) {
 		// @formatter:off
 		return arg.matches("\\w*([a-z]|[A-Z])+\\w*") 
-				&& !KeywordType.isKeyword(arg) 
-				&& !DataType.isType(arg) 
-				&& !ArrayType.isType(arg)
-				&& !FlagType.isFlag(arg);
+				&& !SpecificType.equalsString(arg, KeywordType.class)
+				&& !SpecificType.equalsString(arg, DataType.class)
+				&& !SpecificType.equalsString(arg, FlagType.class);
 		// @formatter:on
 	}
 

@@ -1,6 +1,6 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.data.DataType.NUMBER;
+import static building.types.specific.DataType.NUMBER;
 
 /**
  * This class contains the conceptual constants {@link ConceptualNrValue#POS_INF},
@@ -190,5 +190,11 @@ public abstract class ConceptualNrValue extends NumberValue {
 		public Double raw() {
 			return Double.NaN;
 		}
+
 	};
+
+	@Override
+	public final String toString() {
+		return txt;
+	}
 }

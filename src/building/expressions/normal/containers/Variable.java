@@ -12,8 +12,8 @@ import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.abstractions.interfaces.ValueChanger;
+import building.types.specific.DataType;
 import building.types.specific.FlagType;
-import building.types.specific.data.ExpectedType;
 import runtime.datatypes.Value;
 import runtime.datatypes.object.NullValue;
 import runtime.exceptions.CastingException;
@@ -23,7 +23,7 @@ import runtime.exceptions.DeclarationException;
  * Has a Name and a Value. The Name has a scope.
  *
  * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a function through
- * the {@link ExpectedType}.
+ * the {@link DataType}.
  *
  * Gets saved in its {@link Scope} and should only get accessed by it.
  */
@@ -40,12 +40,12 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 	 * Creates and registers a {@link Variable}.
 	 * 
 	 * @param outer is the outer Scope in which this {@link Registerable} lies.
-	 * @param type  is the {@link ExpectedType} of this {@link Variable}.
+	 * @param type  is the {@link DataType} of this {@link Variable}.
 	 * @param name  is the unique {@link Name} of this {@link Variable}.
 	 * @param val   is an optional {@link Variable}. Input null if no value is wanted.
 	 * @param flags are optional {@link FlagType}s.
 	 */
-	public Variable(int lineID, Scope outer, ExpectedType type, Name name, Value val) {
+	public Variable(int lineID, Scope outer, DataType type, Name name, Value val) {
 		super(lineID, type);
 		if (type == null)
 			throw new AssertionError("The type cannot be null.");
@@ -76,7 +76,7 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 		if (hasFlag(FINAL) || hasFlag(CONSTANT) && value != null)
 			throw new DeclarationException(getOriginalLine(),
 					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
-		value = val.as((ExpectedType) type);
+		value = val.as((DataType) type);
 	}
 
 	@Override

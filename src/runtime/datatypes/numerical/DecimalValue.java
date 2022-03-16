@@ -1,6 +1,6 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.data.DataType.NUMBER;
+import static building.types.specific.DataType.NUMBER;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 
 import java.math.BigDecimal;

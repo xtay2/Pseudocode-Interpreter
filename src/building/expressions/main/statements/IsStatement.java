@@ -4,7 +4,7 @@ import static building.types.specific.KeywordType.IS;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.data.ExpectedType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 
@@ -14,7 +14,7 @@ import runtime.datatypes.Value;
 public class IsStatement extends Expression implements ValueHolder {
 
 	private final ValueHolder val;
-	private final ExpectedType type;
+	private final DataType type;
 
 	/**
 	 * Creates an {@link IsStatement}.
@@ -22,7 +22,7 @@ public class IsStatement extends Expression implements ValueHolder {
 	 * @param val  shouldn't be null.
 	 * @param type shouldn't be null.
 	 */
-	public IsStatement(int lineID, ValueHolder val, ExpectedType type) {
+	public IsStatement(int lineID, ValueHolder val, DataType type) {
 		super(lineID, IS);
 		this.val = val;
 		this.type = type;

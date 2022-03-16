@@ -1,5 +1,6 @@
 package building.expressions.normal.containers;
 
+import static building.types.abstractions.SpecificType.MERGED;
 import static building.types.specific.FlagType.CONSTANT;
 
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.stream.Collectors;
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.SuperType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.exceptions.ArrayAccessException;
@@ -21,7 +21,7 @@ public class ArrayAccess extends Expression implements ValueChanger {
 	private final Name name;
 
 	public ArrayAccess(int lineID, Name name, List<ValueHolder> indices) {
-		super(lineID, SuperType.MERGED);
+		super(lineID, MERGED);
 		this.name = name;
 		this.indices = indices;
 		if (name == null || indices == null)

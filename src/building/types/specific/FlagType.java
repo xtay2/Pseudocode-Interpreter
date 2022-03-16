@@ -1,7 +1,9 @@
 package building.types.specific;
 
-import static building.types.SuperType.EXPECTED_TYPE;
+import static building.types.abstractions.SpecificType.fromString;
+import static building.types.abstractions.SuperType.DATA_TYPE;
 import static building.types.specific.BuilderType.OPEN_BLOCK;
+import static building.types.specific.DynamicType.NAME;
 import static building.types.specific.KeywordType.FUNC;
 
 import java.util.ArrayList;
@@ -10,17 +12,15 @@ import java.util.HashSet;
 import java.util.List;
 
 import building.expressions.normal.containers.Variable;
-import building.types.AbstractType;
-import building.types.SuperType;
-import interpreting.modules.formatter.Formatter;
-import static building.types.specific.ExpressionType.*;
+import building.types.abstractions.AbstractType;
+import building.types.abstractions.SpecificType;
 
 /**
  * Modifiers that change the behaviour of certain objects/variables.
  * 
  * Flags are no Keywords.
  */
-public enum FlagType implements AbstractType {
+public enum FlagType implements SpecificType {
 
 	/**
 	 * Tells, that the following definition doesn't exist in the code files, but rather in the
@@ -41,7 +41,7 @@ public enum FlagType implements AbstractType {
 	 */
 	CONSTANT("const", 1);
 
-	public final String flag;
+	final String symbol;
 
 	/**
 	 * Determines the order of flags. A low number tells, that the flag is rather at the beginning of
@@ -50,33 +50,25 @@ public enum FlagType implements AbstractType {
 	final int rank;
 
 	private FlagType(String flag, int rank) {
-		this.flag = flag;
+		symbol = flag;
 		this.rank = rank;
 	}
 
 	@Override
-	public String toString() {
-		return flag;
+	public AbstractType[] abstractExpected() {
+		return switch (this) {
+			case NATIVE -> new AbstractType[] { FUNC };
+			case FINAL -> new AbstractType[] { DATA_TYPE, NATIVE, OPEN_BLOCK, FUNC, NAME };
+			case CONSTANT -> new AbstractType[] { DATA_TYPE, OPEN_BLOCK, NAME };
+		};
 	}
 
 	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.FLAG_TYPE;
+	public String toString() {
+		return symbol;
 	}
 
-	/** Checks, if the passed {@link String} is a {@link FlagType}. */
-	public static boolean isFlag(String arg) {
-		return flagFromString(arg) != null;
-	}
-
-	/** Returns a FlagType, if the passed String matches any. */
-	private static FlagType flagFromString(String arg) {
-		for (FlagType t : values()) {
-			if (t.flag.equals(arg))
-				return t;
-		}
-		return null;
-	}
+	// STATIC METHODS
 
 	/**
 	 * Orders a list of flags, removes the duplicates and unnecessary ones.
@@ -87,27 +79,18 @@ public enum FlagType implements AbstractType {
 		// Remove duplicates
 		flags = new ArrayList<String>(new HashSet<String>(flags));
 		// Remove unnecessary.
-		if (flags.contains(FINAL.flag) && flags.contains(CONSTANT.flag))
-			flags.remove(flags.indexOf(FINAL.flag));
+		if (flags.contains(FINAL.symbol) && flags.contains(CONSTANT.symbol))
+			flags.remove(flags.indexOf(FINAL.symbol));
 
 		// Order
 		flags.sort(new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
-				FlagType f1 = flagFromString(o1);
-				FlagType f2 = flagFromString(o2);
+				FlagType f1 = fromString(o1, FlagType.class);
+				FlagType f2 = fromString(o2, FlagType.class);
 				return Integer.compare(f1.rank, f2.rank);
 			}
 		});
 		return flags;
-	}
-
-	@Override
-	public AbstractType[] expected() {
-		return switch (this) {
-			case NATIVE -> new AbstractType[] { FUNC };
-			case FINAL -> new AbstractType[] { EXPECTED_TYPE, NATIVE, OPEN_BLOCK, FUNC, NAME };
-			case CONSTANT -> new AbstractType[] { EXPECTED_TYPE, OPEN_BLOCK, NAME };
-		};
 	}
 }

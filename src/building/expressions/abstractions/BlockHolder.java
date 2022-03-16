@@ -4,7 +4,7 @@ import building.expressions.abstractions.interfaces.BlockBracket;
 import building.expressions.main.functions.NativeFunction;
 import building.expressions.main.statements.FlagSpace;
 import building.expressions.normal.brackets.OpenBlock;
-import building.types.AbstractType;
+import building.types.abstractions.SpecificType;
 import interpreting.modules.interpreter.Interpreter;
 
 /**
@@ -23,7 +23,7 @@ public abstract class BlockHolder extends MainExpression {
 	 * @param myType shouldn't be null.
 	 * @param ob     can be null for {@link NativeFunction}s.
 	 */
-	public BlockHolder(int lineID, AbstractType myType, OpenBlock ob) {
+	public BlockHolder(int lineID, SpecificType myType, OpenBlock ob) {
 		super(lineID, myType);
 		this.ob = ob;
 	}

@@ -3,7 +3,7 @@ package building.expressions.abstractions;
 import building.expressions.main.functions.Definition;
 import building.expressions.main.loops.Loop;
 import building.expressions.normal.brackets.OpenBlock;
-import building.types.AbstractType;
+import building.types.abstractions.SpecificType;
 import interpreting.program.Program;
 
 /**
@@ -29,7 +29,7 @@ public abstract class ScopeHolder extends BlockHolder {
 	 * @param myType shouldn't be null.
 	 * @param ob     can be null for native scopes
 	 */
-	public ScopeHolder(int lineID, AbstractType myType, OpenBlock ob) {
+	public ScopeHolder(int lineID, SpecificType myType, OpenBlock ob) {
 		super(lineID, myType, ob);
 	}
 

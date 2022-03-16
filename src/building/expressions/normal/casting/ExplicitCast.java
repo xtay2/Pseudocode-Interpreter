@@ -1,19 +1,19 @@
 package building.expressions.normal.casting;
 
-import static building.types.SuperType.MERGED;
+import static building.types.abstractions.SpecificType.MERGED;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.data.ExpectedType;
+import building.types.specific.DataType;
 import runtime.datatypes.Value;
 import runtime.exceptions.CastingException;
 
 /**
- * Changes the type of a value by calling {@link Value#as(ExpectedType)}.
+ * Changes the type of a value by calling {@link Value#as(DataType)}.
  */
 public class ExplicitCast extends Expression implements ValueHolder {
 
-	private final ExpectedType targetType;
+	private final DataType targetType;
 	private final ValueHolder target;
 
 	/**
@@ -22,7 +22,7 @@ public class ExplicitCast extends Expression implements ValueHolder {
 	 * @param targetType is the type that the target should be casted to.
 	 * @param target     is the {@link Value} that gets casted.
 	 */
-	public ExplicitCast(int lineID, ExpectedType targetType, ValueHolder target) {
+	public ExplicitCast(int lineID, DataType targetType, ValueHolder target) {
 		super(lineID, MERGED);
 		this.targetType = targetType;
 		this.target = target;

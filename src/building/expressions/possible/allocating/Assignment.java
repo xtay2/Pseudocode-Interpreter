@@ -6,6 +6,7 @@ import java.util.List;
 
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
+import building.expressions.normal.containers.Variable;
 import building.expressions.normal.operators.Operation;
 import building.expressions.normal.operators.infix.ArithmeticOperator;
 import building.expressions.normal.operators.infix.ComparativeOperator;
@@ -16,7 +17,8 @@ import building.types.specific.AssignmentType;
 import runtime.datatypes.Value;
 
 /**
- * Similar to the {@link Declaration}, but this one modifies the value before it gets declared.
+ * Assigns a value to a {@link Variable} thats already initialised, and returns the {@link Value}
+ * afterwards.
  */
 public class Assignment extends Allocating {
 
@@ -49,11 +51,9 @@ public class Assignment extends Allocating {
 
 	@Override
 	public Value getValue() {
-		Value value;
+		Value value = val.getValue();
 		if (op != null)
 			value = new Operation(lineIdentifier, List.of(target.getValue(), op, val.getValue())).getValue();
-		else
-			value = val.getValue();
 		print("Changing the value of " + target + " to " + value);
 		target.setValue(value);
 		return value;

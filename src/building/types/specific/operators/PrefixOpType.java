@@ -1,9 +1,11 @@
 package building.types.specific.operators;
 
-import building.types.AbstractType;
-import building.types.SuperType;
+import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
 
-public enum PrefixOpType implements AbstractType {
+import building.types.abstractions.AbstractType;
+import building.types.abstractions.SpecificType;
+
+public enum PrefixOpType implements SpecificType {
 
 	// Arithmetic
 	INC("++"), DEC("--"),
@@ -11,24 +13,19 @@ public enum PrefixOpType implements AbstractType {
 	// Logic
 	NOT("not");
 
-	public final String symbol;
+	final String symbol;
 
-	private PrefixOpType(String s) {
+	PrefixOpType(String s) {
 		symbol = s;
+	}
+
+	@Override
+	public AbstractType[] abstractExpected() {
+		return new AbstractType[] { VAL_HOLDER_TYPE };
 	}
 
 	@Override
 	public String toString() {
 		return symbol;
-	}
-
-	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.PREFIX_OPERATOR;
-	}
-
-	@Override
-	public AbstractType[] expected() {
-		return AbstractType.valHolderTypes();
 	}
 }

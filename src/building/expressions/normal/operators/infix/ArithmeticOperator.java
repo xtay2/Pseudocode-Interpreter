@@ -1,13 +1,14 @@
 package building.expressions.normal.operators.infix;
 
-import static building.types.specific.data.DataType.NUMBER;
-import static building.types.specific.data.DataType.TEXT;
+import static building.types.specific.DataType.NUMBER;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
+import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
+import runtime.datatypes.textual.TextValue;
 
 public class ArithmeticOperator extends InfixOperator {
 
@@ -62,24 +63,24 @@ public class ArithmeticOperator extends InfixOperator {
 
 	private Value mult(Value a, Value b) {
 		// Array-Multiplication
-		if (a instanceof ArrayValue arr && b.is(NUMBER))
-			return arr.multiply(b.asInt().value.intValueExact(), getOriginalLine());
+		if (a instanceof ArrayValue arr && b instanceof IntValue i)
+			return arr.multiply(i.raw().intValueExact(), getOriginalLine());
 
 		// Array-Multiplication
-		if (a.is(NUMBER) && b instanceof ArrayValue arr)
-			return arr.multiply(a.asInt().value.intValueExact(), getOriginalLine());
+		if (a instanceof IntValue i && b instanceof ArrayValue arr)
+			return arr.multiply(i.value.intValueExact(), getOriginalLine());
+
+		// Text-Multiplication
+		if (a instanceof TextValue txt && b instanceof IntValue i)
+			return txt.multiply(i.value.intValueExact(), getOriginalLine());
+
+		// Text-Multiplication
+		if (a instanceof IntValue i && b instanceof TextValue txt)
+			return txt.multiply(i.value.intValueExact(), getOriginalLine());
 
 		// Arithmetical Addition
 		if (a.canCastTo(NUMBER) && b.canCastTo(NUMBER))
 			return a.asNumber().mult(b.asNumber());
-
-		// Text-Multiplication
-		if (a.is(TEXT) && b.canCastTo(NUMBER))
-			return a.asText().multiply(b.asInt().value.intValueExact(), getOriginalLine());
-
-		// Text-Multiplication
-		if (a.canCastTo(NUMBER) && b.is(TEXT))
-			return b.asText().multiply(a.asInt().value.intValueExact(), getOriginalLine());
 
 		return a.asNumber().mult(b.asNumber());
 	}

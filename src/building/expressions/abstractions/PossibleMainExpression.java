@@ -2,7 +2,7 @@ package building.expressions.abstractions;
 
 import building.expressions.possible.Call;
 import building.expressions.possible.multicall.MultiCall;
-import building.types.AbstractType;
+import building.types.abstractions.SpecificType;
 import interpreting.exceptions.IllegalCodeFormatException;
 
 /**
@@ -25,9 +25,9 @@ public abstract class PossibleMainExpression extends MainExpression {
 	/**
 	 * Copies the following Constructor:
 	 * 
-	 * {@link Expression#Expression(int, Scope, AbstractType)}.
+	 * {@link Expression#Expression(int, Scope, SpecificType)}.
 	 */
-	public PossibleMainExpression(int lineID, AbstractType myType) {
+	public PossibleMainExpression(int lineID, SpecificType myType) {
 		super(lineID, myType);
 	}
 }

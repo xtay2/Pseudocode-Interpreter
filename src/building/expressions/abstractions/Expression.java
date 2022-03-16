@@ -1,15 +1,9 @@
 package building.expressions.abstractions;
 
-import static building.types.SuperType.EXPECTED_TYPE;
-import static building.types.specific.data.DataType.INT;
-import static building.types.specific.data.DataType.NUMBER;
-
 import building.expressions.normal.BuilderExpression;
-import building.types.AbstractType;
-import building.types.SuperType;
-import building.types.specific.ExpressionType;
+import building.types.abstractions.AbstractType;
+import building.types.abstractions.SpecificType;
 import building.types.specific.KeywordType;
-import building.types.specific.data.ExpectedType;
 import interpreting.modules.merger.SuperMerger;
 import interpreting.program.ProgramLine;
 import misc.main.Main;
@@ -29,10 +23,10 @@ public abstract class Expression {
 	public final Integer lineIdentifier;
 
 	/** The Type of this Expression. */
-	public final AbstractType type;
+	public final SpecificType type;
 
 	/** Constructor for all Expressions that don't necessarily have a {@link Scope}. */
-	public Expression(AbstractType myType) {
+	public Expression(SpecificType myType) {
 		this.type = myType;
 		this.lineIdentifier = null;
 	}
@@ -46,7 +40,7 @@ public abstract class Expression {
 	 *                 {@link SpecificType}, if possible.
 	 * @param expected is an array of expected types following after this Expression.
 	 */
-	public Expression(int lineID, AbstractType myType) {
+	public Expression(int lineID, SpecificType myType) {
 		this.lineIdentifier = lineID;
 		this.type = myType;
 		if (myType == null)
@@ -65,12 +59,7 @@ public abstract class Expression {
 	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
 	 */
 	public final boolean is(AbstractType type) {
-		// @formatter:off
-		return type == this.type 
-				|| (type instanceof SuperType s && this.type.is(s)) 
-				|| (type == NUMBER && this.type == INT)
-				|| (type == EXPECTED_TYPE && this.type instanceof ExpectedType);
-		// @formatter:on
+		return this.type.is(type);
 	}
 
 	/**

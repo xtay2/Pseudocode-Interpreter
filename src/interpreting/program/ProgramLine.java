@@ -1,18 +1,10 @@
 package interpreting.program;
 
-import static building.types.SuperType.EXPECTED_TYPE;
-import static building.types.SuperType.FLAG_TYPE;
-import static building.types.SuperType.KEYWORD_TYPE;
-import static building.types.SuperType.PREFIX_OPERATOR;
-import static building.types.specific.BuilderType.CLOSE_BLOCK;
-import static building.types.specific.BuilderType.MULTI_CALL_LINE;
-import static building.types.specific.ExpressionType.NAME;
+import static building.types.abstractions.SuperType.START_OF_LINE_TYPE;
 import static building.types.specific.KeywordType.ANY;
 import static building.types.specific.KeywordType.ELIF;
 import static building.types.specific.KeywordType.ELSE;
 import static building.types.specific.KeywordType.IF;
-import static interpreting.program.StringConverter.constructExpression;
-import static interpreting.program.StringConverter.isNewExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +14,9 @@ import building.expressions.main.functions.Function;
 import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.BuilderExpression;
-import building.types.AbstractType;
+import building.types.abstractions.SpecificType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.merger.ExpressionMerger;
-import interpreting.modules.parser.Parser;
 import misc.main.Main;
 
 public class ProgramLine {
@@ -60,7 +51,7 @@ public class ProgramLine {
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
-		AbstractType expectedTypes[] = { KEYWORD_TYPE, EXPECTED_TYPE, FLAG_TYPE, NAME, CLOSE_BLOCK, PREFIX_OPERATOR, MULTI_CALL_LINE };
+		SpecificType expectedTypes[] = START_OF_LINE_TYPE.subValues();
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -71,17 +62,17 @@ public class ProgramLine {
 				continue;
 			}
 
-			// Checke nach single line comments
-			if (!inString && c == Parser.SINGLE_LINE_COMMENT)
-				break;
-
 			if (!inString)
 				current = current.strip();
 
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
-			if (!current.isBlank() && !inString && isNewExpression(current, c, expectedTypes)) {
-				expectedTypes = constructExpression(current.strip(), expectedTypes, this);
-				current = "";
+			if (!current.isBlank() && !inString) {
+				BuilderExpression be = StringConverter.find(current, c, expectedTypes, this);
+				if (be != null) {
+					expressions.add(be);
+					expectedTypes = be.getExpectedExpressions();
+					current = "";
+				}
 			}
 			// Teste nach Stringgrenzen
 			if (c == '"')
@@ -90,10 +81,13 @@ public class ProgramLine {
 		}
 		if (inString)
 			throw new IllegalCodeFormatException(orgLine, "String has to be closed.");
-		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
-			constructExpression(current.strip(), expectedTypes, this);
+		if (!current.strip().isEmpty())// Wenn noch ein einzelnes Zeichen am Zeilenende steht.
+			expressions.add(StringConverter.create(current.strip(), expectedTypes, this));
 		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
+		if (expressions.contains(null)) {
+			throw new IllegalCodeFormatException(orgLine, "State of line: \"" + line + "\".\n" + expressions);
+		}
 	}
 
 	/** Returns the last IfStatement or ElifStatement. */

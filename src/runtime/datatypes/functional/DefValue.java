@@ -1,8 +1,8 @@
 package runtime.datatypes.functional;
 
-import static building.types.specific.data.DataType.DEF;
+import static building.types.specific.DataType.DEF;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.Value;
 
 /**
@@ -21,7 +21,7 @@ public abstract class DefValue extends Value {
 			case VAR, DEF -> true; // Returns itself
 			case TEXT -> true; // Returns Text-Representation
 			case NUMBER -> true; // Allways returns NaN
-			case INT, BOOL, CHAR, OBJECT -> false;
+			default -> false;
 		};
 	}
 

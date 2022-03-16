@@ -6,9 +6,7 @@ import java.math.BigInteger;
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.Castable;
 import building.expressions.main.functions.Definition;
-import building.types.specific.data.ArrayType;
-import building.types.specific.data.DataType;
-import building.types.specific.data.ExpectedType;
+import building.types.specific.DataType;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.functional.DefValue;
 import runtime.datatypes.numerical.ConceptualNrValue;
@@ -22,7 +20,7 @@ import runtime.exceptions.UnexpectedTypeError;
 public abstract class Value extends Expression implements Castable {
 
 	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
-	public Value(ExpectedType dataType) {
+	public Value(DataType dataType) {
 		super(dataType);
 	}
 
@@ -49,26 +47,14 @@ public abstract class Value extends Expression implements Castable {
 		throw new AssertionError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
 	}
 
-	/** Tells, if this Value can always be safely casted to the suggested {@link ExpectedType}. */
-	@Override
-	public final boolean canCastTo(ExpectedType t) {
-		if (t instanceof DataType dt)
-			return canCastTo(dt);
-		if (t instanceof ArrayType at)
-			return canCastTo(at);
-		throw new AssertionError("Expected Type " + t + " is neither a data-, or array-type.");
-	}
-
-	/** Tells, if this Value can always be safely casted to the suggested {@link DataType}. */
-	public abstract boolean canCastTo(DataType type);
-
 	/**
-	 * Tells, if this Value can always be safely casted to the suggested {@link ArrayType}.
+	 * Tells, if this Value can always be safely casted to the suggested {@link DataType}.
 	 * 
-	 * Default: Only true for charwise-text-representation, ie {@link ArrayType#CHAR_ARRAY}
+	 * Default: True for charwise-, text-, numeric-, representation.
 	 */
-	public boolean canCastTo(ArrayType type) {
-		return type == ArrayType.CHAR_ARRAY;
+	@Override
+	public boolean canCastTo(DataType type) {
+		return type == DataType.TEXT || type == DataType.NUMBER || type == DataType.CHAR_ARRAY;
 	}
 
 	/**
@@ -85,8 +71,8 @@ public abstract class Value extends Expression implements Castable {
 	}
 
 	@Override
-	public ExpectedType getType() {
-		return (ExpectedType) type;
+	public DataType getType() {
+		return (DataType) type;
 	}
 
 	/**

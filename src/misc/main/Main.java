@@ -33,11 +33,18 @@ public class Main {
 						+ (args.length == 1 ? "Was " : "Were ") + Arrays.toString(args));
 				//@formatter:on
 			}
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
 
+	/**
+	 * Finds the Main.pc file in the specified path.
+	 * 
+	 * @param srcPath is a top-directory of Main.pc
+	 * @return the direct path of the Main.pc
+	 * @throws FileNotFoundException if no main was found.
+	 */
 	private static Path findMainFile(String srcPath) throws FileNotFoundException {
 		File f = FileManager.findFileDir(new File(srcPath), "Main.pc");
 		if (f == null)

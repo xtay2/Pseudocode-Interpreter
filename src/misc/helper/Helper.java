@@ -1,6 +1,8 @@
 package misc.helper;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import interpreting.modules.parser.Parser;
 
@@ -57,5 +59,11 @@ public abstract class Helper {
 		if (BigInteger.TEN.pow(digitCount - 1).compareTo(number) > 0)
 			return digitCount - 1;
 		return digitCount;
+	}
+
+	/** Merges two arrays of the same type.*/
+	@SuppressWarnings("unchecked")
+	public static <T> T[] merge(T[] arr1, T[] arr2) {
+		return (T[]) Stream.concat(Arrays.stream(arr1), Arrays.stream(arr2)).toArray(Object[]::new);
 	}
 }

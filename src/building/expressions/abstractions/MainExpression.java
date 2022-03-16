@@ -1,7 +1,8 @@
 package building.expressions.abstractions;
 
 import building.expressions.abstractions.interfaces.NameHolder;
-import building.types.AbstractType;
+import building.types.abstractions.AbstractType;
+import building.types.abstractions.SpecificType;
 import interpreting.modules.interpreter.Interpreter;
 import interpreting.modules.merger.ExpressionMerger;
 import interpreting.modules.merger.SuperMerger;
@@ -23,7 +24,7 @@ public abstract class MainExpression extends Expression {
 	 * 
 	 * {@link Expression#Expression(int, Scope, AbstractType)}.
 	 */
-	public MainExpression(int lineID, AbstractType myType) {
+	public MainExpression(int lineID, SpecificType myType) {
 		super(lineID, myType);
 	}
 

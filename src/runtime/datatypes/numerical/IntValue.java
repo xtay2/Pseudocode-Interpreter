@@ -1,13 +1,13 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.data.DataType.INT;
+import static building.types.specific.DataType.INT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
 import java.math.BigInteger;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 
 /**
  * An Integer-Value with up to 100 digits.
@@ -73,7 +73,9 @@ public final class IntValue extends NumberValue {
 
 	@Override
 	public NumberValue div(NumberValue v) {
-		if (equals(ZERO) || v == NAN || v.isInfinite())
+		if (equals(ZERO))
+			return this;
+		if (v == NAN || v.isInfinite())
 			return NAN;
 		if (v instanceof DecimalValue d)
 			return mult(create(d.denom, d.num));

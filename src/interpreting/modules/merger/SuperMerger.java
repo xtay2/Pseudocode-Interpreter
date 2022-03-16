@@ -1,15 +1,15 @@
 package interpreting.modules.merger;
 
-import static building.types.SuperType.*;
+import static building.types.abstractions.SuperType.*;
 import static building.types.specific.BuilderType.*;
-import static building.types.specific.ExpressionType.LITERAL;
-import static building.types.specific.ExpressionType.NAME;
+import static building.types.specific.DataType.VAR;
+import static building.types.specific.DynamicType.LITERAL;
+import static building.types.specific.DynamicType.NAME;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.FlagType.NATIVE;
 import static building.types.specific.KeywordType.FUNC;
 import static building.types.specific.KeywordType.IS;
-import static building.types.specific.data.DataType.VAR;
 import static building.types.specific.operators.InfixOpType.GREATER;
 import static building.types.specific.operators.InfixOpType.LESS;
 
@@ -26,13 +26,13 @@ import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
-import building.types.AbstractType;
+import building.types.abstractions.AbstractType;
 import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
-import building.types.specific.ExpressionType;
+import building.types.specific.DataType;
+import building.types.specific.DynamicType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
-import building.types.specific.data.ExpectedType;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
@@ -53,7 +53,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		BuilderExpression fst = line.get(0);
 		BuilderExpression sec = line.size() > 1 ? line.get(1) : null;
 		ValueHolder result = switch (fst.type) {
-			case ExpressionType e:
+			case DynamicType e:
 				yield switch (e) {
 					case LITERAL:
 						yield ValueBuilder.stringToLiteral(line.remove(0).value);
@@ -77,7 +77,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 					case ARRAY_START:
 						yield ValueMerger.buildArrayLiteral();
 					case OPEN_BRACKET:
-						if (sec != null && sec.is(EXPECTED_TYPE))
+						if (sec != null && sec.is(DATA_TYPE))
 							yield ValueMerger.buildExplicitCast();
 						yield ValueMerger.buildBracketedExpression();
 					case MULTI_CALL_LINE:
@@ -86,7 +86,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 					default:
 						throw new UnexpectedTypeError(orgLine, b);
 				};
-			case ExpectedType e:
+			case DataType e:
 				yield ValueMerger.buildDeclaration();
 			case PrefixOpType p:
 				yield OpMerger.buildPrefix();
@@ -95,9 +95,9 @@ public abstract class SuperMerger extends ExpressionMerger {
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
-			if (line.get(0).is(INFIX_OPERATOR))
+			if (line.get(0).is(INFIX_OP_TYPE))
 				result = OpMerger.buildOperation(result);
-			else if (line.get(0).is(POSTFIX_OPERATOR))
+			else if (line.get(0).is(POSTFIX_OP_TYPE))
 				result = OpMerger.buildPostfix((ValueChanger) result);
 			else if (line.get(0).is(IS))
 				result = ValueMerger.buildIsStatement(result);
@@ -168,8 +168,8 @@ public abstract class SuperMerger extends ExpressionMerger {
 	}
 
 	/** [EXPECTED_TYPE] */
-	protected static ExpectedType buildExpType() {
-		return (ExpectedType) line.remove(0).type;
+	protected static DataType buildExpType() {
+		return (DataType) line.remove(0).type;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		}
 		Flaggable f = null;
 		// Declaration with optional flags
-		if (line.get(0).type instanceof ExpectedType)
+		if (line.get(0).type instanceof DataType)
 			f = ValueMerger.buildDeclaration();
 		// Declaration of a constant without type and optional flags
 		else if ((flags.contains(CONSTANT) || flags.contains(FINAL)) && line.get(0).is(NAME)) {

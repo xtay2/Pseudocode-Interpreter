@@ -1,6 +1,6 @@
 package building.expressions.normal.brackets;
 
-import static building.types.SuperType.MERGED;
+import static building.types.abstractions.SpecificType.MERGED;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;

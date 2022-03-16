@@ -23,7 +23,7 @@ public class MainFunction extends ScopeHolder implements Registerable, Callable 
 	 */
 	public MainFunction(int lineID, OpenBlock os) {
 		super(lineID, MAIN, os);
-		this.name = new Name(lineIdentifier, KeywordType.MAIN.keyword);
+		this.name = new Name(lineIdentifier, KeywordType.MAIN.toString());
 	}
 
 	@Override

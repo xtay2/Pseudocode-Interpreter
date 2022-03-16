@@ -1,5 +1,7 @@
 package building.expressions.possible;
 
+import static building.types.abstractions.SpecificType.MERGED;
+
 import building.expressions.abstractions.PossibleMainExpression;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
@@ -7,8 +9,7 @@ import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallable;
-import building.types.SuperType;
-import building.types.specific.data.ArrayType;
+import building.types.specific.DataType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.functional.DefLink;
@@ -26,7 +27,7 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	 * @param parameters shouldn't be null.
 	 */
 	public Call(int lineID, Name calledFunc, ValueHolder... parameters) {
-		super(lineID, SuperType.MERGED);
+		super(lineID, MERGED);
 		this.calledFunc = calledFunc;
 		this.parameters = parameters;
 		if (calledFunc == null || parameters == null)
@@ -53,7 +54,7 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 			returnArr[i] = findTarget().call(content[i]);
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
-			return new ArrayValue(ArrayType.VAR_ARRAY, returnArr);
+			return new ArrayValue(DataType.VAR_ARRAY, returnArr);
 		// If not, dont return anything.
 		return null;
 	}

@@ -1,10 +1,10 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.data.DataType.CHAR;
+import static building.types.specific.DataType.CHAR;
 
 import java.math.BigInteger;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -34,9 +34,7 @@ public class CharValue extends Value {
 			case VAR, CHAR -> true; // Returns self
 			case TEXT -> true; // Returns text-representation
 			case NUMBER, INT -> true; // Returns ASCII-Representation
-			case BOOL, DEF -> false;
-			// Unimplemented
-			case OBJECT -> false;
+			default -> false;
 		};
 	}
 

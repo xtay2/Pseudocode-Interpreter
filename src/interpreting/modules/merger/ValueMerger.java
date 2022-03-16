@@ -1,7 +1,7 @@
 package interpreting.modules.merger;
 
 import static building.types.specific.BuilderType.ARRAY_START;
-import static building.types.specific.data.ArrayType.VAR_ARRAY;
+import static building.types.specific.DataType.VAR_ARRAY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +17,10 @@ import building.expressions.possible.Call;
 import building.expressions.possible.allocating.Assignment;
 import building.expressions.possible.allocating.Declaration;
 import building.expressions.possible.multicall.MultiCall;
-import building.types.SuperType;
+import building.types.abstractions.SuperType;
 import building.types.specific.AssignmentType;
-import building.types.specific.data.ExpectedType;
+import building.types.specific.DataType;
+import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.array.UnitialisedArrayValue;
 import runtime.datatypes.functional.DefLink;
 import runtime.datatypes.numerical.IntValue;
@@ -94,7 +95,7 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	public static Declaration buildDeclaration() {
-		ExpectedType type = (ExpectedType) line.remove(0).type;
+		DataType type = (DataType) line.remove(0).type;
 		ValueChanger target;
 		if (type.is(SuperType.ARRAY_TYPE))
 			target = buildArrayAccess();
@@ -102,9 +103,13 @@ public abstract class ValueMerger extends SuperMerger {
 			target = buildName();
 		else
 			throw new UnexpectedTypeError(orgLine, type);
-		if (line.size() > 0 && line.get(0).is(AssignmentType.NORMAL)) {
-			line.remove(0); // Assignment
-			return new Declaration(lineID, type, target, buildVal());
+		if (line.size() > 0) {
+			if (line.get(0).is(AssignmentType.NORMAL)) {
+				line.remove(0); // Assignment
+				return new Declaration(lineID, type, target, buildVal());
+			} else if (line.get(0).is(SuperType.ASSIGNMENT_TYPE))
+				throw new IllegalCodeFormatException(orgLine,
+						"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
 		}
 		return new Declaration(lineID, type, target, type.stdVal());
 	}
@@ -112,7 +117,7 @@ public abstract class ValueMerger extends SuperMerger {
 	/** [(] [TYPE] [)] [VALUE_HOLDER] */
 	public static ExplicitCast buildExplicitCast() {
 		line.remove(0);
-		ExpectedType t = buildExpType();
+		DataType t = buildExpType();
 		line.remove(0);
 		return new ExplicitCast(lineID, t, buildVal());
 	}

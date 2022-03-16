@@ -1,6 +1,6 @@
 package building.expressions.possible.multicall;
 
-import static building.types.SuperType.MERGED;
+import static building.types.abstractions.SpecificType.MERGED;
 
 import building.expressions.abstractions.PossibleMainExpression;
 import building.expressions.abstractions.interfaces.ValueHolder;

@@ -1,6 +1,6 @@
 package building.expressions.main.statements;
 
-import static building.types.SuperType.MERGED;
+import static building.types.abstractions.SpecificType.MERGED;
 
 import java.util.HashSet;
 import java.util.Set;

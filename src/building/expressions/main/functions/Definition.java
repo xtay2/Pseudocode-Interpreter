@@ -12,8 +12,8 @@ import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
+import building.types.specific.DataType;
 import building.types.specific.FlagType;
-import building.types.specific.data.ExpectedType;
 import interpreting.modules.merger.ExpressionMerger;
 import misc.helper.Output;
 import runtime.datatypes.Value;
@@ -30,7 +30,7 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 	protected final Name name;
 
 	/** The expected return type. Null is equivalent to void. */
-	protected ExpectedType returnType = null;
+	protected DataType returnType = null;
 
 	/** This {@link Value} can be obtained after {@link #execute()}. */
 	protected Value returnVal = null;

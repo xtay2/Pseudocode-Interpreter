@@ -2,9 +2,7 @@ package building.expressions.abstractions.interfaces;
 
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 
-import building.types.specific.data.ArrayType;
-import building.types.specific.data.DataType;
-import building.types.specific.data.ExpectedType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -14,7 +12,6 @@ import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
-import runtime.exceptions.UnexpectedTypeError;
 
 /**
  * An Interface for everything that can get casted.
@@ -23,43 +20,37 @@ import runtime.exceptions.UnexpectedTypeError;
  */
 public interface Castable extends ValueHolder {
 
-	/** Returns the {@link ExpectedType} of this {@link Castable}. */
-	public ExpectedType getType();
+	/** Returns the {@link DataType} of this {@link Castable}. */
+	public DataType getType();
 
-	/** Returns true if this {@link Castable} can get casted to the passed {@link ExpectedType}. */
-	public boolean canCastTo(ExpectedType t);
+	/** Returns true if this {@link Castable} can get casted to the passed {@link DataType}. */
+	public boolean canCastTo(DataType t);
 
 	/**
-	 * Cast this {@link Castable} to the passed {@link ExpectedType}.
+	 * Cast this {@link Castable} to the passed {@link DataType}.
 	 * 
 	 * @throws CastingException Can result in a {@link CastingException}, if the cast is not supported.
 	 */
-	public default Value as(ExpectedType t) throws CastingException {
+	public default Value as(DataType t) throws CastingException {
 		return switch (t) {
-			case DataType d:
-				yield switch (d) {
-					case VAR -> getValue();
-					case BOOL -> asBool();
-					case NUMBER -> asNumber();
-					case INT -> asInt();
-					case TEXT -> asText();
-					case CHAR -> asChar();
-					case DEF -> asDef();
-					case OBJECT -> throw new UnsupportedOperationException("Unsupported case: " + d);
-				};
-			case ArrayType a:
-				yield switch (a) {
-					case VAR_ARRAY -> asVarArray();
-					case BOOL_ARRAY -> asBoolArray();
-					case INT_ARRAY -> asIntArray();
-					case NUMBER_ARRAY -> asNumberArray();
-					case TEXT_ARRAY -> asTextArray();
-					case CHAR_ARRAY -> asCharArray();
-					case DEF_ARRAY -> asDefArray();
-					case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unsupported case: " + a);
-				};
-			default:
-				throw new UnexpectedTypeError(t);
+			// ARRAY TYPES
+			case VAR -> getValue();
+			case BOOL -> asBool();
+			case NUMBER -> asNumber();
+			case INT -> asInt();
+			case TEXT -> asText();
+			case CHAR -> asChar();
+			case DEF -> asDef();
+			case OBJECT -> throw new UnsupportedOperationException("Unsupported case: " + t);
+			// ARRAY TYPES
+			case VAR_ARRAY -> asVarArray();
+			case BOOL_ARRAY -> asBoolArray();
+			case INT_ARRAY -> asIntArray();
+			case NUMBER_ARRAY -> asNumberArray();
+			case TEXT_ARRAY -> asTextArray();
+			case CHAR_ARRAY -> asCharArray();
+			case DEF_ARRAY -> asDefArray();
+			case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unsupported case: " + t);
 		};
 	}
 

@@ -2,7 +2,7 @@ package runtime.datatypes.array;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.possible.allocating.Allocating;
-import building.types.specific.data.ArrayType;
+import building.types.specific.DataType;
 import interpreting.modules.merger.ValueMerger;
 import runtime.datatypes.Value;
 
@@ -15,11 +15,11 @@ import runtime.datatypes.Value;
 public final class UnitialisedArrayValue implements ValueHolder {
 
 	private ValueHolder[] content;
-	private final ArrayType type;
+	private final DataType type;
 
-	public UnitialisedArrayValue(ArrayType type, ValueHolder... content) {
-		if (type == null)
-			throw new AssertionError("Type cannot be null. Use var[] instead.");
+	public UnitialisedArrayValue(DataType type, ValueHolder... content) {
+		if (type == null || !type.isArray)
+			throw new AssertionError("Type has to be an arraytype. Was: " + type);
 		this.type = type;
 		if (content == null)
 			throw new AssertionError("Content cannot be null. Use empty array instead.");

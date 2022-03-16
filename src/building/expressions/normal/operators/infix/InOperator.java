@@ -1,7 +1,7 @@
 package building.expressions.normal.operators.infix;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.SuperType;
+import building.types.abstractions.SuperType;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 

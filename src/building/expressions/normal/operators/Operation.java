@@ -1,6 +1,6 @@
 package building.expressions.normal.operators;
 
-import static building.types.SuperType.MERGED;
+import static building.types.abstractions.SpecificType.MERGED;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import building.expressions.normal.operators.infix.ComparativeOperator;
 import building.expressions.normal.operators.infix.InfixOperator;
 import building.expressions.normal.operators.infix.LogicalOperator;
 import building.types.specific.operators.InfixOpType;
+import interpreting.modules.merger.SuperMerger;
 import runtime.datatypes.Value;
 
 /**

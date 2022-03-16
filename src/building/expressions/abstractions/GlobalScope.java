@@ -27,11 +27,11 @@ public class GlobalScope extends Scope {
 	 * defined in an inner {@link Scope}, a {@link DefNotFoundException} gets thrown.
 	 */
 	public MainFunction getMain() {
-		Registerable r = get(KeywordType.MAIN.keyword);
+		Registerable r = get(KeywordType.MAIN.toString());
 		if (r == null)
 			throw new DefNotFoundException(-1,
 					"Couldn't find main-function. \nIt has to be defined in the global-scope and can only get called once, by the interpreter.");
-		memory.remove(KeywordType.MAIN.keyword);
+		memory.remove(KeywordType.MAIN.toString());
 		if (r instanceof MainFunction m)
 			return m;
 		throw new DeclarationException(-1, "Nothing except the MainFunction can be called \"main\".");

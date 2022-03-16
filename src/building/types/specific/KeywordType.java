@@ -1,21 +1,19 @@
 package building.types.specific;
 
-import static building.types.SuperType.EXPECTED_TYPE;
-import static building.types.SuperType.EXPRESSION_TYPE;
-import static building.types.specific.BuilderType.ARRAY_START;
-import static building.types.specific.BuilderType.OPEN_BRACKET;
+import static building.types.abstractions.SuperType.DATA_TYPE;
+import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
 import static building.types.specific.BuilderType.OPEN_BLOCK;
-import static building.types.specific.ExpressionType.NAME;
+import static building.types.specific.DynamicType.NAME;
 
-import building.types.AbstractType;
-import building.types.SuperType;
+import building.types.abstractions.AbstractType;
+import building.types.abstractions.SpecificType;
 
 /**
  * Specifies all Keywords and their text-representations. This includes non-functional keywords like
  * include and flags like native.
  *
  */
-public enum KeywordType implements AbstractType {
+public enum KeywordType implements SpecificType {
 
 	FROM("from"),
 
@@ -45,7 +43,7 @@ public enum KeywordType implements AbstractType {
 
 	IS("is");
 
-	public final String keyword;
+	public final String symbol;
 
 	/**
 	 * Defines a BuilderType
@@ -55,38 +53,24 @@ public enum KeywordType implements AbstractType {
 	 *                 followups.
 	 */
 	private KeywordType(String keyword) {
-		this.keyword = keyword;
+		symbol = keyword;
+	}
+
+	@Override
+	public AbstractType[] abstractExpected() {
+		return switch (this) {
+			case FROM, UNTIL, WHILE, IF, ELIF, RETURN -> new AbstractType[] { VAL_HOLDER_TYPE };
+			case REPEAT -> new AbstractType[] { VAL_HOLDER_TYPE, OPEN_BLOCK };
+			case ANY -> new AbstractType[] { OPEN_BLOCK, IF };
+			case ELSE, MAIN -> new AbstractType[] { OPEN_BLOCK };
+			case FOR, FUNC -> new AbstractType[] { NAME };
+			case IS -> new AbstractType[] { DATA_TYPE };
+			case IMPORT -> throw new UnsupportedOperationException("An import Statement cannot be build.");
+		};
 	}
 
 	@Override
 	public String toString() {
-		return keyword;
-	}
-
-	@Override
-	public boolean is(SuperType superType) {
-		return superType == SuperType.KEYWORD_TYPE;
-	}
-
-	/** Checks, if the passed {@link String} is a {@link KeywordType}. */
-	public static boolean isKeyword(String arg) {
-		for (KeywordType t : values()) {
-			if (t.keyword.equals(arg))
-				return true;
-		}
-		return false;
-	}
-
-	@Override
-	public AbstractType[] expected() {
-		return switch (this) {
-			case FROM, UNTIL, WHILE, IF, ELIF, RETURN -> AbstractType.valHolderTypes();
-			case REPEAT -> new AbstractType[] { EXPRESSION_TYPE, ARRAY_START, OPEN_BRACKET, OPEN_BLOCK };
-			case ANY -> new AbstractType[] { OPEN_BLOCK, IF };
-			case ELSE, MAIN -> new AbstractType[] { OPEN_BLOCK };
-			case FOR, FUNC -> new AbstractType[] { NAME };
-			case IS -> new AbstractType[] { EXPECTED_TYPE };
-			case IMPORT -> throw new UnsupportedOperationException("An import Statement cannot be build.");
-		};
+		return symbol;
 	}
 }

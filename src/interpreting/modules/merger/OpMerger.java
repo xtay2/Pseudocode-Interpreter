@@ -1,6 +1,6 @@
 package interpreting.modules.merger;
 
-import static building.types.SuperType.INFIX_OPERATOR;
+import static building.types.abstractions.SuperType.INFIX_OP_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public abstract class OpMerger extends ValueMerger {
 	public static Operation buildOperation(ValueHolder fst) {
 		List<Operatable> parts = new ArrayList<>();
 		parts.add(fst);
-		while (!line.isEmpty() && line.get(0).is(INFIX_OPERATOR)) {
+		while (!line.isEmpty() && line.get(0).is(INFIX_OP_TYPE)) {
 			parts.add(buildInfix());
 			parts.add(buildVal());
 		}

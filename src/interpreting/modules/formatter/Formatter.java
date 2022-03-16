@@ -1,6 +1,6 @@
 package interpreting.modules.formatter;
 
-import static building.types.specific.FlagType.isFlag;
+import static building.types.abstractions.SpecificType.equalsString;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -364,20 +364,20 @@ public class Formatter {
 			for (int j = 0; j < line.length; j++) {
 				String word = line[j];
 				String wordWthtOls = word.replaceAll(String.valueOf(OLS), "");
-				if (!isFlag(wordWthtOls))
+				if (!equalsString(wordWthtOls, FlagType.class))
 					break;
 				int idxOfOls = word.indexOf(OLS);
-				if (idxOfOls != 1 && Helper.isRunnableCode(idxOfOls, rawProgram.get(i)) && isFlag(wordWthtOls))
+				if (idxOfOls != 1 && Helper.isRunnableCode(idxOfOls, rawProgram.get(i)) && equalsString(wordWthtOls, FlagType.class))
 					line[j] = wordWthtOls;
 			}
 			// Save flags in List
-			flags.addAll(Arrays.stream(line).takeWhile(word -> isFlag(word)).toList());
+			flags.addAll(Arrays.stream(line).takeWhile(word -> equalsString(word, FlagType.class)).toList());
 			if (!flags.isEmpty()) {
 				flags = FlagType.orderFlags(flags);
 				StringBuilder sb = new StringBuilder();
 				for (String flag : flags)
 					sb.append(flag + " ");
-				String rest = Arrays.stream(line).dropWhile(e -> isFlag(e)).reduce("", (t, e) -> t + " " + e);
+				String rest = Arrays.stream(line).dropWhile(e -> equalsString(e, FlagType.class)).reduce("", (t, e) -> t + " " + e);
 				rawProgram.set(i, sb + rest);
 				flags.clear();
 			}

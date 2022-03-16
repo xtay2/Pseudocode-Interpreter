@@ -1,7 +1,7 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.data.ArrayType.TEXT_ARRAY;
-import static building.types.specific.data.DataType.TEXT;
+import static building.types.specific.DataType.TEXT;
+import static building.types.specific.DataType.TEXT_ARRAY;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
@@ -9,7 +9,7 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.data.DataType;
+import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -109,9 +109,7 @@ public final class TextValue extends Value {
 			case NUMBER, INT -> true; // The number or NAN if its just text.
 			case CHAR -> value.length() == 1; // Only if its just one character
 			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
-			case DEF -> false;
-			// Not implemented
-			case OBJECT -> false;
+			default -> false;
 		};
 	}
 
