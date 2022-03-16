@@ -4,7 +4,7 @@
 Pseudocode is an imperative programming language (that will also support object-orientation in the future). 
 This repository contains the latest public version of the language-interpreter.
 - [Official website](https://pseudocode.site/)
-- [Use the interpreter](https://github.com/xtay2/Pseudocode)
+- [Use the interpreter](https://github.com/xtay2/Pseudocode-Installer)
 
 ### Language Philosophy
 - The syntax should be easy to read.
