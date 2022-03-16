@@ -11,10 +11,9 @@ You can find the repository for all installers [here](https://github.com/xtay2/P
  - Download the interpreter-package. (zip-Archive)
  - Unpack it somewhere.
  - Execute the "Install.bat"-File.
- - The interpreter-package should have vanished by now.
  - "pseudocode" is now added to the system-path.
  - Create a new project that contains exactly one file titled "Main.pc"
- - Navigate to the location of the project in cmd and run the command "pseudocode run" or just "pseudocode r".
+ - Navigate to the location of the project in cmd and run the command "pseudocode run".
  - The project should now get build and executed.
 
 ## Important Sidenotes
