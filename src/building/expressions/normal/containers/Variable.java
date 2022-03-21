@@ -43,7 +43,6 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 	 * @param type  is the {@link DataType} of this {@link Variable}.
 	 * @param name  is the unique {@link Name} of this {@link Variable}.
 	 * @param val   is an optional {@link Variable}. Input null if no value is wanted.
-	 * @param flags are optional {@link FlagType}s.
 	 */
 	public Variable(int lineID, Scope outer, DataType type, Name name, Value val) {
 		super(lineID, type);

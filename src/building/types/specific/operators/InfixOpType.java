@@ -3,10 +3,16 @@ package building.types.specific.operators;
 import static building.expressions.normal.operators.infix.InfixOperator.Associativity.LEFT;
 import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
 
+import building.expressions.normal.operators.Operation;
 import building.expressions.normal.operators.infix.InfixOperator.Associativity;
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
 
+/**
+ * All ranks and associativities for infix operators.
+ * 
+ * @see Operation
+ */
 public enum InfixOpType implements SpecificType {
 
 	// Arithmetic

@@ -35,7 +35,10 @@ public abstract class StatementMerger extends SuperMerger {
 
 	public static ReturnStatement buildReturn() {
 		line.remove(0);
-		return new ReturnStatement(lineID, (ValueHolder) build());
+		ValueHolder rvh = null;
+		if (!line.isEmpty())
+			rvh = buildVal();
+		return new ReturnStatement(lineID, rvh);
 	}
 
 	/** [Name] [OpenBlock] */

@@ -45,12 +45,13 @@ public class Name extends Expression implements ValueChanger {
 
 	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
 	public static boolean isName(String arg) {
-		// @formatter:off
-		return arg.matches("\\w*([a-z]|[A-Z])+\\w*") 
-				&& !SpecificType.equalsString(arg, KeywordType.class)
-				&& !SpecificType.equalsString(arg, DataType.class)
-				&& !SpecificType.equalsString(arg, FlagType.class);
-		// @formatter:on
+		return arg.matches("\\w*([a-z]|[A-Z])+\\w*") && !isAlphaNumKeyword(arg);
+	}
+
+	/** Returns true, if the passed string matches any alphanumerical keyword. */
+	public static boolean isAlphaNumKeyword(String arg) {
+		return SpecificType.equalsString(arg, KeywordType.class) || SpecificType.equalsString(arg, DataType.class)
+				|| SpecificType.equalsString(arg, FlagType.class);
 	}
 
 	/**

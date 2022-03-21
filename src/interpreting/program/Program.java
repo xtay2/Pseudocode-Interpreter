@@ -52,7 +52,7 @@ public final class Program implements Iterable<ProgramLine> {
 		try {
 			return program.get(i);
 		} catch (IndexOutOfBoundsException e) {
-			throw new AssertionError("Tried to read line " + i + " from PROGRAM in Main.");
+			throw new AssertionError("Tried to read line " + i + " from PROGRAM in Main. Size: " + program.size());
 		}
 	}
 

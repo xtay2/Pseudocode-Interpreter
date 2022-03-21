@@ -33,8 +33,10 @@ public class MainFunction extends ScopeHolder implements Registerable, Callable 
 
 	@Override
 	public Value call(ValueHolder... params) {
+		Scope.tos++;
 		callFirstLine();
 		getScope().clear();
+		Scope.tos--;
 		return null;
 	}
 

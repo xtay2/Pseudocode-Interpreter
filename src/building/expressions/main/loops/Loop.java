@@ -3,11 +3,17 @@ package building.expressions.main.loops;
 import static runtime.datatypes.numerical.NumberValue.ONE;
 import static runtime.datatypes.numerical.NumberValue.ZERO;
 
+import java.util.Set;
+
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
+import building.expressions.normal.containers.Name;
+import building.expressions.normal.containers.Variable;
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
+import building.types.specific.DataType;
+import building.types.specific.FlagType;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -46,8 +52,9 @@ public abstract class Loop extends ScopeHolder {
 		if (start == null || inc == null)
 			throw new AssertionError("Start and end have to be initialised. See: initLoop()");
 		NumberValue i = start;
+		Name cntName = getScope().getCounterName(getOriginalLine());
 		while (doContinue(i)) {
-			getScope().initCounter(i, getScope(), getOriginalLine());
+			initCounter(i, cntName);
 			if (!callFirstLine()) {
 				getScope().clear();
 				return false;
@@ -56,6 +63,16 @@ public abstract class Loop extends ScopeHolder {
 			i = i.add(inc);
 		}
 		return callNextLine();
+	}
+
+	/**
+	 * Sets the immutable counter for this iteration.
+	 * 
+	 * @param i       is the {@link NumberValue} of the counter
+	 * @param cntName is the pre-defined countername "i"-"p".
+	 */
+	private void initCounter(NumberValue i, Name cntName) {
+		new Variable(lineIdentifier, getScope(), DataType.NUMBER, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
 	}
 
 	/**

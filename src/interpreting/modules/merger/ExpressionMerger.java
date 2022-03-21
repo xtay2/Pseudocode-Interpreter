@@ -1,5 +1,6 @@
 package interpreting.modules.merger;
 
+import static building.expressions.abstractions.GlobalScope.GLOBAL;
 import static misc.helper.Output.print;
 
 import java.util.Collections;
@@ -13,10 +14,11 @@ import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.main.CloseBlock;
-import building.expressions.main.functions.MainFunction;
 import building.expressions.main.functions.Definition;
+import building.expressions.main.functions.MainFunction;
 import building.expressions.main.statements.FlagSpace;
 import building.expressions.normal.BuilderExpression;
+import building.expressions.possible.allocating.Allocating;
 import building.types.abstractions.AbstractType;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
@@ -59,15 +61,32 @@ public abstract class ExpressionMerger {
 		}
 		// Check if line was correctly build
 		if (main == null || !SuperMerger.line.isEmpty()) {
-			throw new AssertionError(
-					"Main-Merge got finished too early or was null.\nMain: " + main + "\nOriginal Line:" + orgLine + "\nLine: " + line);
+			throw new AssertionError(orgLine + ": Main-Merge got finished too early or was null.\nMain: " + main + "\nLine: " + line
+					+ "\nOrgLine: " + orgExp);
 		}
 		// Sets the Scope
 		initScopes(main);
+		// Tests if this is illegally in the global-scope.
+		globalScopeCheck(main);
 		// Sets flags from overlying FlagSpaces
 		if (main instanceof Flaggable f)
 			collectFlags(f);
 		return main;
+	}
+
+	/**
+	 * Checks if the passed {@link MainExpression} lies in the global scope and throws an
+	 * {@link IllegalCodeFormatException}. This method gets triggered immediatly after the merge in the
+	 * {@link ExpressionMerger} and should get overridden by everything that can lie in the globalscope.
+	 * 
+	 * Only {@link Allocating}, {@link MainFunction} and {@link Definition} can lie in the global scope.
+	 */
+	private static void globalScopeCheck(MainExpression main) {
+		if (!(main instanceof Allocating) && !(main instanceof Definition) && !(main instanceof MainFunction)) {
+			if ((main instanceof ScopeHolder sh && sh.getOuterScope() == GLOBAL) || main.getScope() == GLOBAL)
+				throw new IllegalCodeFormatException(orgLine,
+						main.toString() + " \"" + main.type + "\" shouldn't lie in the global-scope.");
+		}
 	}
 
 	/**

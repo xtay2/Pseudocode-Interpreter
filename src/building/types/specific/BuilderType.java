@@ -3,6 +3,7 @@ package building.types.specific;
 import static building.types.abstractions.SuperType.AFTER_VALUE_TYPE;
 import static building.types.abstractions.SuperType.DATA_TYPE;
 import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
+import static building.types.specific.DynamicType.NAME;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.main.loops.IntervalLoop;
@@ -69,8 +70,8 @@ public enum BuilderType implements SpecificType {
 		return switch (this) {
 			case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END };
 			case ARRAY_END -> new AbstractType[] { AFTER_VALUE_TYPE };
-			case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, OPEN_BRACKET, CLOSE_BRACKET };
-			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, ARRAY_END, OPEN_BRACKET, AFTER_VALUE_TYPE, EXPECTED_RETURN_TYPE };
+			case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, CLOSE_BRACKET };
+			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, NAME, AFTER_VALUE_TYPE, EXPECTED_RETURN_TYPE };
 			case EXPECTED_RETURN_TYPE -> new AbstractType[] { DATA_TYPE };
 			case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case MULTI_CALL_LINE -> new AbstractType[] { VAL_HOLDER_TYPE, AFTER_VALUE_TYPE };

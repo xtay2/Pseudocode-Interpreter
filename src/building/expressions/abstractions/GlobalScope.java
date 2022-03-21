@@ -31,7 +31,7 @@ public class GlobalScope extends Scope {
 		if (r == null)
 			throw new DefNotFoundException(-1,
 					"Couldn't find main-function. \nIt has to be defined in the global-scope and can only get called once, by the interpreter.");
-		memory.remove(KeywordType.MAIN.toString());
+		memory.removeIf(e -> e.varName().equals(KeywordType.MAIN.toString()));
 		if (r instanceof MainFunction m)
 			return m;
 		throw new DeclarationException(-1, "Nothing except the MainFunction can be called \"main\".");

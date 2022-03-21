@@ -3,6 +3,7 @@ package building.expressions.possible;
 import static building.types.abstractions.SpecificType.MERGED;
 
 import building.expressions.abstractions.PossibleMainExpression;
+import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.functions.Definition;
@@ -44,14 +45,14 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	public Value getValue() {
 		if (parameters.length == 1 && parameters[0] instanceof MultiCall m)
 			return m.getValue();
-		return findTarget().call(parameters);
+		return callTarget(parameters);
 	}
 
 	@Override
 	public Value executeFor(ValueHolder[] content) {
 		Value[] returnArr = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
-			returnArr[i] = findTarget().call(content[i]);
+			returnArr[i] = callTarget(content[i]);
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
 			return new ArrayValue(DataType.VAR_ARRAY, returnArr);
@@ -59,10 +60,21 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 		return null;
 	}
 
-	private Definition findTarget() {
-		if (getScope().contains(calledFunc.getNameString()))
-			return ((DefLink) getScope().getVar(calledFunc.getNameString(), getOriginalLine()).getValue()).raw();
-		return DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
+	/**
+	 * Finds target-{@link Definition} (this can be achieved over a {@link DefLink} or the
+	 * {@link DefManager}), calls it with the params and returns the return-values.
+	 */
+	private Value callTarget(ValueHolder... params) {
+		// Find target
+		Definition target;
+		if (getScope().containsAny(calledFunc.getNameString()))
+			target = ((DefLink) getScope().getVar(calledFunc.getNameString(), getOriginalLine()).getValue()).raw();
+		target = DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
+		// Call target
+		Scope.tos++;
+		Value returnVal = target.call(params);
+		Scope.tos--;
+		return returnVal;
 	}
 
 	/** Returns the name of the called {@link Definition}. */

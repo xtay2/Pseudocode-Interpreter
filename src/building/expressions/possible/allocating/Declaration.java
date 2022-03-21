@@ -12,6 +12,7 @@ import building.types.specific.DataType;
 import building.types.specific.FlagType;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
+import runtime.datatypes.array.ArrayValue;
 
 public class Declaration extends Allocating implements Flaggable {
 
@@ -36,6 +37,8 @@ public class Declaration extends Allocating implements Flaggable {
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
+		if (v instanceof ArrayValue av)
+			av.init();
 		new Variable(lineIdentifier, getScope(), (DataType) type, target.getName(), v).addFlags(flags);
 		return v;
 	}

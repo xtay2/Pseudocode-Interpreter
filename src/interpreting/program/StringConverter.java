@@ -62,7 +62,7 @@ public abstract class StringConverter {
 
 	/** Returns true if just the current part is a {@link Name} and next is a valid delimiter. */
 	private static boolean isNamePart(String current, char next) {
-		return Name.isName(current) && !Name.isName(String.valueOf(next));
+		return Name.isName(current) && !Name.isName(current + next) && !Name.isAlphaNumKeyword(current + next);
 	}
 
 	/**
@@ -78,9 +78,17 @@ public abstract class StringConverter {
 	private static SpecificType isStructurePart(String current, char next, SpecificType[] expectedTypes, ProgramLine line) {
 		List<SpecificType> potMatches = new ArrayList<>();
 		for (SpecificType t : expectedTypes) {
-			if (t.toString().startsWith(current))
+			if (t.toString().startsWith(current) || t.is(NAME))
 				potMatches.add(t);
 		}
+		// Check if keyword is just part of a name
+		if (potMatches.contains(NAME)) {
+			if (Name.isName(current + next))
+				return null;
+			else
+				potMatches.remove(NAME);
+		}
+		// If theres a potential match that starts with (current + next) or is equal to current
 		potMatches = potMatches.stream().filter(e -> e.toString().startsWith(current + next) || e.toString().equals(current)).toList();
 		if (potMatches.size() == 1 && potMatches.get(0).toString().equals(current))
 			return potMatches.get(0);

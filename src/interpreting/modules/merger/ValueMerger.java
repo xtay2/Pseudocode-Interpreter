@@ -21,7 +21,7 @@ import building.types.abstractions.SuperType;
 import building.types.specific.AssignmentType;
 import building.types.specific.DataType;
 import interpreting.exceptions.IllegalCodeFormatException;
-import runtime.datatypes.array.UnitialisedArrayValue;
+import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.functional.DefLink;
 import runtime.datatypes.numerical.IntValue;
 import runtime.exceptions.ShouldBeNaturalNrException;
@@ -54,8 +54,8 @@ public abstract class ValueMerger extends SuperMerger {
 	}
 
 	/* [OPEN_SQUARE] [?PARAM] [?COMMA] [?PARAM] [CLOSE_SQUARE] */
-	public static UnitialisedArrayValue buildArrayLiteral() {
-		return new UnitialisedArrayValue(VAR_ARRAY, buildParts());
+	public static ArrayValue buildArrayLiteral() {
+		return new ArrayValue(VAR_ARRAY, buildParts());
 	}
 
 	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */

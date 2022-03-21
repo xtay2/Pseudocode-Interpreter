@@ -7,6 +7,7 @@ import static building.types.specific.KeywordType.ELSE;
 import static building.types.specific.KeywordType.IF;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import building.expressions.abstractions.MainExpression;
@@ -85,8 +86,12 @@ public class ProgramLine {
 			expressions.add(StringConverter.create(current.strip(), expectedTypes, this));
 		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
-		if (expressions.contains(null)) {
-			throw new IllegalCodeFormatException(orgLine, "State of line: \"" + line + "\".\n" + expressions);
+		if (expressions.get(expressions.size() - 1) == null) {
+			String exp = expressions.size() >= 2
+					? "Expected " + Arrays.toString(expressions.get(expressions.size() - 2).getExpectedExpressions()) + "\nafter \""
+							+ expressions.get(expressions.size() - 2) + "\""
+					: "";
+			throw new IllegalCodeFormatException(orgLine, "State of line: \"" + line + "\".\n" + expressions + "\n" + exp);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package building.expressions.abstractions;
 
-import static misc.helper.Output.print;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,10 +10,8 @@ import building.expressions.main.CloseBlock;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
-import building.types.specific.DataType;
-import building.types.specific.FlagType;
+import building.expressions.possible.Call;
 import interpreting.exceptions.IllegalCodeFormatException;
-import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.VarNotFoundException;
 
 /**
@@ -28,13 +24,30 @@ import runtime.exceptions.VarNotFoundException;
  */
 public class Scope {
 
+	/**
+	 * The top of the stack. Gets incremented with every {@link Call} and decremented after every
+	 * return, end of function. The tos is part of every local variable that gets declared. This allows
+	 * for recursion.
+	 */
+	public static int tos = 0;
+
 	private final String scopeName;
 
 	private final Scope lowerScope;
 
 	private final int lineID;
 
-	protected final Map<String, Registerable> memory = new HashMap<>();
+	protected final Set<UVID> memory = new HashSet<>();
+
+	/**
+	 * Unique-Variable-Identification.
+	 */
+	protected record UVID(String varName, int varID, Registerable reg) implements Comparable<UVID> {
+		@Override
+		public int compareTo(UVID o) {
+			return Integer.compare(varID, o.varID);
+		}
+	}
 
 	/**
 	 * Constructs a Scope and connects both Scope-Brackets.
@@ -69,45 +82,58 @@ public class Scope {
 
 	/** Registers the {@link Registerable} in this scope. */
 	public final void register(Registerable reg) {
-		if (!contains(reg.getNameString())) {
-			memory.put(reg.getNameString(), reg);
-			print("Registered " + reg.getNameString() + " in line " + reg.getOriginalLine());
+		String regName = reg.getNameString();
+		if (!contains(regName, tos)) {
+			memory.add(new UVID(regName, tos, reg));
 		} else
 			throw new IllegalCodeFormatException(reg.getOriginalLine(),
-					reg.getNameString() + " is already defined in line " + get(reg.getNameString()).getOriginalLine());
+					regName + " is already defined in line " + get(reg.getNameString()).getOriginalLine());
 	}
 
 	/** Returns true, if this, or any underlying Scope contains the quested {@link Registerable}. */
-	public final boolean contains(String target) {
-		if (memory.containsKey(target))
+	public final boolean containsAny(final String target) {
+		if (memory.stream().anyMatch(e -> e.varName.equals(target)))
 			return true;
 		if (lowerScope != null)
-			return lowerScope.contains(target);
+			return lowerScope.containsAny(target);
 		return false;
 	}
 
-	/** Deletes all registered {@link Registerable} from this scope. */
-	public final void clear() {
-		memory.clear();
+	/**
+	 * Returns true, if this, or any underlying Scope contains the quested {@link Registerable} with the
+	 * specified {@link UVID#varID}.
+	 */
+	public final boolean contains(final String target, final int id) {
+		if (memory.stream().anyMatch(e -> e.varName.equals(target) && e.varID == id))
+			return true;
+		if (lowerScope != null)
+			return lowerScope.contains(target, id);
+		return false;
 	}
 
-	/** Initialises and registers a Counter-Variable with the given value. */
-	public final void initCounter(NumberValue i, Scope scope, int originalLine) {
-		new Variable(originalLine, scope, DataType.NUMBER, getCounterName(originalLine), i).addFlags(Set.of(FlagType.CONSTANT));
+	/** Deletes the registered {@link UVID}s with the highest {@link UVID#varID} from this scope. */
+	public final void clear() {
+		HashMap<String, UVID> greatesMap = new HashMap<>();
+		for (UVID uvid : memory) {
+			UVID current = greatesMap.get(uvid.varName);
+			if (current == null || current.varID < uvid.varID)
+				greatesMap.put(uvid.varName, uvid);
+		}
+		memory.removeAll(greatesMap.values());
 	}
 
 	// GETTERS--------------------------------------------------------------------
 
 	/** Returns the quested {@link Variable} from this, or any underlying scope. */
-	public final Variable getVar(String varName, int orgLine) {
-		Registerable r = get(varName);
+	public final Variable getVar(String target, int orgLine) {
+		Registerable r = get(target);
 		if (r == null) {
 			throw new VarNotFoundException(orgLine,
-					"Couldn't find var \"" + varName + "\".\nThis scope \"" + getScopeName() + "\" contains: " + wholeMemToString());
+					"Couldn't find var \"" + target + "\".\nThis scope \"" + getScopeName() + "\" contains: " + wholeMemToString());
 		}
 		if (r instanceof Variable var)
 			return var;
-		throw new VarNotFoundException(orgLine, varName + " was found in scope \"" + getScopeName() + "\" but is not a function.");
+		throw new VarNotFoundException(orgLine, target + " was found in scope \"" + getScopeName() + "\" but is not a function.");
 	}
 
 	/**
@@ -118,9 +144,9 @@ public class Scope {
 	protected final Registerable get(String target) {
 		Scope s = this;
 		do {
-			Registerable r = s.memory.get(target);
-			if (r != null)
-				return r;
+			UVID u = s.memory.stream().filter(e -> e.varName.equals(target)).max(UVID::compareTo).orElseGet(() -> null);
+			if (u != null)
+				return u.reg;
 			s = s.lowerScope;
 		} while (s != null);
 		return null;
@@ -132,12 +158,12 @@ public class Scope {
 	 * Returns a {@link Map} of every {@link Registerable} thats saved in this and all underlying
 	 * scopes.
 	 */
-	private Set<Registerable> getWholeMem() {
+	private Set<UVID> getWholeMem() {
 		if (lowerScope == null)
-			return new HashSet<>(memory.values());
-		HashSet<Registerable> mem = new HashSet<>();
+			return new HashSet<>(memory);
+		HashSet<UVID> mem = new HashSet<>();
 		mem.addAll(lowerScope.getWholeMem());
-		mem.addAll(memory.values());
+		mem.addAll(memory);
 		return mem;
 	}
 
@@ -148,7 +174,7 @@ public class Scope {
 	 */
 	private final String wholeMemToString() {
 		StringBuilder wholeMem = new StringBuilder();
-		getWholeMem().stream().forEach(e -> wholeMem.append("\n-\"" + e.getNameString() + "\"   in " + e.getScope().getScopeName()));
+		getWholeMem().stream().forEach(e -> wholeMem.append("\n-\"" + e.varName));
 		return wholeMem.toString();
 	}
 
@@ -156,12 +182,12 @@ public class Scope {
 	 * Returns the next available counter-name. If more than 8 counter-names are in use, an
 	 * {@link IllegalCodeFormatException} gets thrown.
 	 */
-	private final Name getCounterName(int originalLine) {
+	public final Name getCounterName(int originalLine) {
 		final char fstCnt = 'i';
 		final int cntNr = 8;
 		for (char c = fstCnt; c < (fstCnt + cntNr); c++) {
 			String n = String.valueOf(c);
-			if (!contains(n))
+			if (!containsAny(n))
 				return new Name(lineID, n);
 		}
 		throw new IllegalCodeFormatException(originalLine,

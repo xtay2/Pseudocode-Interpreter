@@ -47,7 +47,7 @@ public abstract class OpMerger extends ValueMerger {
 		parts.add(fst);
 		while (!line.isEmpty() && line.get(0).is(INFIX_OP_TYPE)) {
 			parts.add(buildInfix());
-			parts.add(buildVal());
+			parts.add(buildVal(true));
 		}
 		return new Operation(lineID, parts);
 	}

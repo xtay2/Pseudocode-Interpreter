@@ -2,7 +2,6 @@ package building.types.specific;
 
 import static building.types.abstractions.SuperType.AFTER_VALUE_TYPE;
 import static building.types.abstractions.SuperType.ASSIGNMENT_TYPE;
-import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.DynamicType.NAME;
 
 import java.util.Arrays;
@@ -39,21 +38,23 @@ public enum DataType implements SpecificType {
 
 	final String symbol;
 
-	public final boolean isArray;
+	private final DataType match;
 
 	DataType(String type) {
 		this.symbol = type;
-		isArray = false;
+		match = null;
 	}
 
 	DataType(DataType type) {
 		this.symbol = type.symbol + "[]";
-		isArray = true;
+		match = type;
 	}
 
 	public Value stdVal() {
 		return switch (this) {
-			case VAR, OBJECT:
+			case VAR:
+				throw new IllegalCodeFormatException("A declaration that uses var, has to get initialised with a value.");
+			case OBJECT:
 				yield NullValue.NULL;
 			case BOOL:
 				yield BoolValue.FALSE;
@@ -66,7 +67,7 @@ public enum DataType implements SpecificType {
 			case DEF:
 				throw new IllegalCodeFormatException("A def has to get initialised at declaration.");
 			default:
-				if (isArray)
+				if (isArray())
 					yield new ArrayValue(this);
 				throw new AssertionError();
 		};
@@ -79,7 +80,7 @@ public enum DataType implements SpecificType {
 
 	@Override
 	public AbstractType[] abstractExpected() {
-		return new AbstractType[] { ASSIGNMENT_TYPE, AFTER_VALUE_TYPE, NAME, OPEN_BLOCK };
+		return new AbstractType[] { ASSIGNMENT_TYPE, AFTER_VALUE_TYPE, NAME };
 	}
 
 	@Override
@@ -89,7 +90,20 @@ public enum DataType implements SpecificType {
 
 	/** Returns all array-values. */
 	public static AbstractType[] arrayValues() {
-		Object[] o = Arrays.stream(values()).filter(e -> e.isArray).toArray();
+		Object[] o = Arrays.stream(values()).filter(e -> e.isArray()).toArray();
 		return Arrays.copyOf(o, o.length, AbstractType[].class);
 	}
+
+	public boolean isArray() {
+		return match != null;
+	}
+
+	public DataType toDataType() {
+		return isArray() ? match : this;
+	}
+
+	public DataType toArrayType() {
+		return isArray() ? this : Arrays.stream(values()).filter(e -> e.match == this).findFirst().get();
+	}
+
 }

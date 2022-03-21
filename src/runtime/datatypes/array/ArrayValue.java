@@ -3,9 +3,11 @@ package runtime.datatypes.array;
 import static building.types.specific.DataType.*;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.ArrayAccess;
+import building.expressions.possible.allocating.Allocating;
 import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
@@ -24,13 +26,37 @@ import runtime.exceptions.UnexpectedTypeError;
  */
 public final class ArrayValue extends Value {
 
-	private final Value[] container;
+	private Value[] container;
+	private ValueHolder[] preInit;
 
+	/** Strict Constructor. Should always get used for spontaneous cases. */
 	public ArrayValue(DataType type, Value... container) {
+		this(type, (ValueHolder[]) container);
+		init();
+	}
+
+	/** Lazy Constructor that waits for an {@link Allocating} to initialise this. */
+	public ArrayValue(DataType type, ValueHolder... preInit) {
 		super(type);
-		if (!type.isArray)
+		if (!type.isArray())
 			throw new UnexpectedTypeError(type);
-		this.container = container;
+		if (preInit == null)
+			throw new AssertionError("Arraycontent cannot be null.");
+		this.preInit = preInit;
+	}
+
+	/** This gets called by every {@link Allocating} Expression. */
+	public void init() {
+		if (preInit == null && container == null)
+			throw new IllegalStateException("Array cannot be unitialised and initialised at the same time.");
+		// Already initialised
+		if (preInit == null)
+			return;
+		// Init
+		container = new Value[preInit.length];
+		for (int i = 0; i < preInit.length; i++)
+			container[i] = preInit[i].getValue();
+		preInit = null;
 	}
 
 	// CASTING--------------------------------------------------
@@ -94,7 +120,7 @@ public final class ArrayValue extends Value {
 	 * Lazily casts every value in this Array to the specified type.
 	 */
 	private ArrayValue asTypedArray(DataType t) {
-		if (t.isArray)
+		if (t.isArray())
 			return new ArrayValue(t, container);
 		throw new UnexpectedTypeError(t);
 	}
@@ -135,7 +161,7 @@ public final class ArrayValue extends Value {
 	 * @see {@link ArrayAccess#getValue()}
 	 */
 	public Value get(int i) {
-		return container[i].as(getType());
+		return container[i].as(getType().toDataType());
 	}
 
 	/**
@@ -147,7 +173,7 @@ public final class ArrayValue extends Value {
 	public void set(int idx, Value val) {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
-		if (!val.canCastTo(getType()))
+		if (!val.canCastTo(getType().toDataType()))
 			throw new CastingException("Tried to insert a " + val.type + " into a " + type + ".");
 		container[idx] = val;
 	}
@@ -160,11 +186,8 @@ public final class ArrayValue extends Value {
 	}
 
 	@Override
-	public ValueHolder[] raw() {
-		Value[] content = new Value[length()];
-		for (int i = 0; i < length(); i++)
-			content[i] = container[i].getValue();
-		return content;
+	public Value[] raw() {
+		return Arrays.copyOf(container, length());
 	}
 
 	/**
@@ -194,7 +217,9 @@ public final class ArrayValue extends Value {
 
 	/** Merges this {@link ArrayValue} with another one. */
 	public ArrayValue concat(ArrayValue a, int executedInLine) {
-		if (!this.canCastTo(getType()) || !a.canCastTo(getType()))
+		init();
+		a.init();
+		if (!this.canCastTo(a.getType()) || !a.canCastTo(getType()))
 			throw new CastingException(executedInLine,
 					"Only two arrays of the same type can be concatenated. Tried " + type + " and " + a.type);
 		Value[] content = new Value[length() + a.length()];
@@ -205,6 +230,7 @@ public final class ArrayValue extends Value {
 
 	/** Multiplies this {@link ArrayValue} n times */
 	public ArrayValue multiply(int n, int executedInLine) {
+		init();
 		if (n < 0)
 			throw new ShouldBeNaturalNrException(executedInLine, "Array cannot be multiplied with negative numbers.");
 		final int orgL = length();
@@ -216,6 +242,7 @@ public final class ArrayValue extends Value {
 
 	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
 	public BoolValue contains(Value element) {
+		init();
 		for (int i = 0; i < length(); i++) {
 			if (Value.eq(get(i), element).value)
 				return BoolValue.TRUE;
@@ -229,7 +256,8 @@ public final class ArrayValue extends Value {
 	 * @throws CastingException if the {@link DataType}s didn't match.
 	 */
 	public ArrayValue append(Value val, int executedInLine) throws CastingException {
-		if (!val.canCastTo(getType()))
+		init();
+		if (!val.canCastTo(getType().toDataType()))
 			throw new CastingException(executedInLine, "Trying to append " + val + " to " + this + ".");
 		// Create
 		Value[] content = new Value[length() + 1];
@@ -245,7 +273,8 @@ public final class ArrayValue extends Value {
 	 * @throws CastingException if the {@link DataType}s didn't match.
 	 */
 	public ArrayValue prepend(Value val, int executedInLine) throws CastingException {
-		if (!val.canCastTo(getType()))
+		init();
+		if (!val.canCastTo(getType().toDataType()))
 			throw new CastingException(executedInLine, "Trying to prepend " + val + " to " + this + ".");
 		// Create
 		Value[] content = new Value[length() + 1];

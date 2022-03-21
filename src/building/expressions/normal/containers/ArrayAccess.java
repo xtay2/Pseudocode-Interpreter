@@ -39,6 +39,8 @@ public class ArrayAccess extends Expression implements ValueChanger {
 			throw new ArrayAccessException(getOriginalLine(),
 					"Index " + indices.stream().map(e -> e.getValue().toString()).collect(Collectors.joining(", "))
 							+ " is out of bounds for length " + v.asVarArray().length());
+		} catch (NullPointerException npe) {
+			throw new AssertionError("Array " + name + " is unitialised.");
 		}
 	}
 

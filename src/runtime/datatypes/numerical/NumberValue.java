@@ -103,10 +103,12 @@ public abstract class NumberValue extends Value {
 	public final boolean isSmallerThan(NumberValue v) {
 		if (this == NAN || v == NAN)
 			throw new ArithmeticException("The value of NaN cannot be compared.");
-		if (this == POS_INF) // Pos inf is the greates val.
+		if (this == v)
 			return false;
-		if (this == NEG_INF) // NegInf == NegInf
-			return v != NEG_INF;
+		if (v == POS_INF || this == NEG_INF)
+			return true;
+		if (v == NEG_INF || this == POS_INF)
+			return false;
 		if (this instanceof IntValue x && v instanceof IntValue y)
 			return x.value.compareTo(y.value) < 0;
 		if (this instanceof DecimalValue x && v instanceof DecimalValue y)
@@ -115,7 +117,7 @@ public abstract class NumberValue extends Value {
 			return asInt().value.compareTo(i.value) < 0;
 		if (this instanceof IntValue x && v instanceof DecimalValue y)
 			return x.value.compareTo(y.asInt().value) <= 0;
-		throw new AssertionError("Undefined Case for Number-Value Comparison");
+		throw new AssertionError("Undefined Case for Number-Value Comparison: " + this.raw() + " and " + v.raw());
 	}
 
 	/** a1 <= a2 */

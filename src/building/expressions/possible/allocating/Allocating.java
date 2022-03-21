@@ -7,6 +7,8 @@ import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.SpecificType;
+import runtime.datatypes.Value;
+import runtime.datatypes.array.ArrayValue;
 
 /**
  * The superclass for the {@link Assignment} and the {@link Declaration}.
@@ -30,7 +32,9 @@ public abstract class Allocating extends PossibleMainExpression implements Value
 	/** Assigns the value and calls the next line afterwards. */
 	@Override
 	public final boolean execute() {
-		getValue();
+		Value v = getValue();
+		if (v instanceof ArrayValue av)
+			av.init();
 		return callNextLine();
 	}
 

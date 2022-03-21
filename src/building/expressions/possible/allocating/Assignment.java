@@ -15,6 +15,7 @@ import building.expressions.normal.operators.infix.InfixOperator;
 import building.expressions.normal.operators.infix.LogicalOperator;
 import building.types.specific.AssignmentType;
 import runtime.datatypes.Value;
+import runtime.datatypes.array.ArrayValue;
 
 /**
  * Assigns a value to a {@link Variable} thats already initialised, and returns the {@link Value}
@@ -52,6 +53,8 @@ public class Assignment extends Allocating {
 	@Override
 	public Value getValue() {
 		Value value = val.getValue();
+		if (value instanceof ArrayValue av)
+			av.init();
 		if (op != null)
 			value = new Operation(lineIdentifier, List.of(target.getValue(), op, val.getValue())).getValue();
 		print("Changing the value of " + target + " to " + value);

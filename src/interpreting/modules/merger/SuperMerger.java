@@ -46,10 +46,18 @@ import runtime.exceptions.UnexpectedTypeError;
 public abstract class SuperMerger extends ExpressionMerger {
 
 	/**
+	 * The default implementation for {@link #buildVal(boolean inOperation)} if no operation gets
+	 * evaluated.)
+	 */
+	protected static ValueHolder buildVal() {
+		return buildVal(false);
+	}
+
+	/**
 	 * Constructs an {@link ValueHolder} from the {@link AbstractType} of the first
 	 * {@link BuilderExpression}.
 	 */
-	protected static ValueHolder buildVal() {
+	protected static ValueHolder buildVal(boolean inOperation) {
 		BuilderExpression fst = line.get(0);
 		BuilderExpression sec = line.size() > 1 ? line.get(1) : null;
 		ValueHolder result = switch (fst.type) {
@@ -95,7 +103,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
-			if (line.get(0).is(INFIX_OP_TYPE))
+			if (!inOperation && line.get(0).is(INFIX_OP_TYPE))
 				result = OpMerger.buildOperation(result);
 			else if (line.get(0).is(POSTFIX_OP_TYPE))
 				result = OpMerger.buildPostfix((ValueChanger) result);

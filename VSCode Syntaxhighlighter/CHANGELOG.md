@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.1
+The highlighter now also supports ".pseudocode" files.
+
 ### Update 0.4.0
 Merged the syntaxhighlighter with the language-detection.
 

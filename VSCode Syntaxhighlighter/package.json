@@ -3,7 +3,7 @@
     "displayName": "Pseudocode Syntaxhighlighter",
     "description": "A dark-themed syntaxhighlighter, optimised for the imperative language pseudocode.",
     "icon": "logo.png",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "publisher": "xtay",
     "repository": {"url": "https://github.com/xtay2/Pseudocode-II/tree/main/VSCode%20Syntaxhighlighter"},
     "engines": {
@@ -21,7 +21,8 @@
                     "pseudocode"
                 ],
                 "extensions": [
-                    ".pc"
+                    ".pc",
+                    ".pseudocode"
                 ],
                 "configuration": "./language-configuration.json"
             }

@@ -34,7 +34,8 @@ public class Main {
 				//@formatter:on
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+//			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

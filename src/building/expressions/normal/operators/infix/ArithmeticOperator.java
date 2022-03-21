@@ -37,18 +37,27 @@ public class ArithmeticOperator extends InfixOperator {
 	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
 	 */
 	private Value add(Value a, Value b) {
+		// Text and array concat
+		if (a instanceof ArrayValue arr && b instanceof TextValue txt)
+			return arr.asText().concat(txt);
+		if (a instanceof TextValue txt && b instanceof ArrayValue arr)
+			return txt.concat(arr.asText());
+
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
 			return a1.concat(a2, getOriginalLine());
+
 		// Arithmetical Addition
 		if (a.is(NUMBER) && b.is(NUMBER))
 			return a.asNumber().add(b.asNumber());
+
 		// Array Addition End
 		if (a instanceof ArrayValue arr && !(b instanceof ArrayValue))
 			return arr.append(b, getOriginalLine());
 		// Array Addition Start
 		if (!(a instanceof ArrayValue) && b instanceof ArrayValue arr)
 			return arr.prepend(a, getOriginalLine());
+
 		return a.asText().concat(b.asText());
 	}
 
