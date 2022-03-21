@@ -1,6 +1,6 @@
 # General
 Pseudocode is a dynamically typed, imperative programming language that focuses on readability and a broad selection of common features.
- - Specific informations about all features are documented in the [wiki](https://github.com/xtay2/Pseudocode-II/wiki).
+ - Specific informations about all features are documented in the [wiki](https://wiki.pseudocode.site).
  - The language features a custom [syntaxhighlighter](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang) for VSCode.
 
 ## Download
