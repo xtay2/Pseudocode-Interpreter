@@ -58,7 +58,10 @@ public abstract class ValueMerger extends SuperMerger {
 		return new ArrayValue(VAR_ARRAY, buildParts());
 	}
 
-	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */
+	/**
+	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER]
+	 * [ARRAY_END])...
+	 */
 	public static ArrayAccess buildArrayAccess() {
 		Name target = buildName();
 		List<ValueHolder> parts = new ArrayList<>();
@@ -87,8 +90,7 @@ public abstract class ValueMerger extends SuperMerger {
 	// ASSIGNING /////////////////////////////////////////////
 
 	/** [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
-	public static Assignment buildAssignment() {
-		Name target = buildName();
+	public static Assignment buildAssignment(ValueChanger target) {
 		AssignmentType type = (AssignmentType) line.remove(0).type; // Assignment
 		return new Assignment(lineID, type, target, buildVal());
 	}
@@ -109,7 +111,8 @@ public abstract class ValueMerger extends SuperMerger {
 				return new Declaration(lineID, type, target, buildVal());
 			} else if (line.get(0).is(SuperType.ASSIGNMENT_TYPE))
 				throw new IllegalCodeFormatException(orgLine,
-						"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
+						"An initial declaration can only utilise the normal assignment operator \""
+								+ AssignmentType.NORMAL + "\".");
 		}
 		return new Declaration(lineID, type, target, type.stdVal());
 	}

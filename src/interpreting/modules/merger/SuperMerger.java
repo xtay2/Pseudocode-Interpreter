@@ -12,6 +12,7 @@ import static building.types.specific.KeywordType.FUNC;
 import static building.types.specific.KeywordType.IS;
 import static building.types.specific.operators.InfixOpType.GREATER;
 import static building.types.specific.operators.InfixOpType.LESS;
+import static interpreting.modules.merger.ValueMerger.buildAssignment;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,14 +26,10 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.brackets.OpenBlock;
+import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.AbstractType;
-import building.types.specific.AssignmentType;
-import building.types.specific.BuilderType;
-import building.types.specific.DataType;
-import building.types.specific.DynamicType;
-import building.types.specific.FlagType;
-import building.types.specific.KeywordType;
+import building.types.specific.*;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
@@ -41,13 +38,14 @@ import runtime.exceptions.UnexpectedTypeError;
 /**
  * Every build-Method should atleast remove the first element of the line.
  * 
- * The subclasses of this are all indirectly called by the switch-cases in {@link #build()}.
+ * The subclasses of this are all indirectly called by the switch-cases in
+ * {@link #build()}.
  */
 public abstract class SuperMerger extends ExpressionMerger {
 
 	/**
-	 * The default implementation for {@link #buildVal(boolean inOperation)} if no operation gets
-	 * evaluated.)
+	 * The default implementation for {@link #buildVal(boolean inOperation)} if no
+	 * operation gets evaluated.)
 	 */
 	protected static ValueHolder buildVal() {
 		return buildVal(false);
@@ -61,45 +59,49 @@ public abstract class SuperMerger extends ExpressionMerger {
 		BuilderExpression fst = line.get(0);
 		BuilderExpression sec = line.size() > 1 ? line.get(1) : null;
 		ValueHolder result = switch (fst.type) {
-			case DynamicType e:
-				yield switch (e) {
-					case LITERAL:
-						yield ValueBuilder.stringToLiteral(line.remove(0).value);
-					case NAME:
-						if (sec != null) {
-							if (sec.is(OPEN_BRACKET))
-								yield ValueMerger.buildCall();
-							if (sec.is(ARRAY_START))
-								yield ValueMerger.buildArrayAccess();
-							if (sec.is(ASSIGNMENT_TYPE))
-								yield ValueMerger.buildAssignment();
-							// Check if it is a def link, rather than a operation
-							if (line.size() >= 4 && sec.is(LESS) && line.get(2).is(LITERAL) && line.get(3).is(GREATER))
-								if (line.size() == 4 || (line.size() > 4 && !line.get(4).is(NAME) && !line.get(4).is(LITERAL)))
-									yield ValueMerger.buildDefLink();
-						}
-						yield buildName();
-				};
-			case BuilderType b:
-				yield switch (b) {
-					case ARRAY_START:
-						yield ValueMerger.buildArrayLiteral();
-					case OPEN_BRACKET:
-						if (sec != null && sec.is(DATA_TYPE))
-							yield ValueMerger.buildExplicitCast();
-						yield ValueMerger.buildBracketedExpression();
-					case MULTI_CALL_LINE:
-						yield ValueMerger.buildMultiCall();
-					// Non-Value-BuilderTypes
-					default:
-						throw new UnexpectedTypeError(orgLine, b);
-				};
-			case DataType e:
-				yield ValueMerger.buildDeclaration();
-			case PrefixOpType p:
-				yield OpMerger.buildPrefix();
+		case DynamicType e:
+			yield switch (e) {
+			case LITERAL:
+				yield ValueBuilder.stringToLiteral(line.remove(0).value);
+			case NAME:
+				if (sec != null) {
+					if (sec.is(OPEN_BRACKET))
+						yield ValueMerger.buildCall();
+					if (sec.is(ARRAY_START)) {
+						ArrayAccess acc = ValueMerger.buildArrayAccess();
+						if (!line.isEmpty() && line.get(0).is(ASSIGNMENT_TYPE))
+							yield buildAssignment(acc);
+						yield acc;
+					}
+					if (sec.is(ASSIGNMENT_TYPE))
+						yield buildAssignment(buildName());
+					// Check if it is a def link, rather than a operation
+					if (line.size() >= 4 && sec.is(LESS) && line.get(2).is(LITERAL) && line.get(3).is(GREATER))
+						if (line.size() == 4 || (line.size() > 4 && !line.get(4).is(NAME) && !line.get(4).is(LITERAL)))
+							yield ValueMerger.buildDefLink();
+				}
+				yield buildName();
+			};
+		case BuilderType b:
+			yield switch (b) {
+			case ARRAY_START:
+				yield ValueMerger.buildArrayLiteral();
+			case OPEN_BRACKET:
+				if (sec != null && sec.is(DATA_TYPE))
+					yield ValueMerger.buildExplicitCast();
+				yield ValueMerger.buildBracketedExpression();
+			case MULTI_CALL_LINE:
+				yield ValueMerger.buildMultiCall();
+			// Non-Value-BuilderTypes
 			default:
-				throw new UnexpectedTypeError(orgLine, fst.type);
+				throw new UnexpectedTypeError(orgLine, b);
+			};
+		case DataType e:
+			yield ValueMerger.buildDeclaration();
+		case PrefixOpType p:
+			yield OpMerger.buildPrefix();
+		default:
+			throw new UnexpectedTypeError(orgLine, fst.type);
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
@@ -113,17 +115,20 @@ public abstract class SuperMerger extends ExpressionMerger {
 		return result;
 	}
 
-	/** Constructs an {@link Expression} from a {@link BuilderType}. This includes Scopes. */
+	/**
+	 * Constructs an {@link Expression} from a {@link BuilderType}. This includes
+	 * Scopes.
+	 */
 	protected static Expression buildAbstract() {
 		BuilderType type = (BuilderType) line.get(0).type;
 		return switch (type) {
-			// Simple BuilderTypes
-			case OPEN_BLOCK -> buildOpenBlock();
-			case CLOSE_BLOCK -> buildCloseBlock();
-			// Complex BuilderTypes
-			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_LINE -> (Expression) buildVal();
-			// Decorative BuilderTypes
-			default -> throw new UnexpectedTypeError(orgLine, type);
+		// Simple BuilderTypes
+		case OPEN_BLOCK -> buildOpenBlock();
+		case CLOSE_BLOCK -> buildCloseBlock();
+		// Complex BuilderTypes
+		case ARRAY_START, OPEN_BRACKET, MULTI_CALL_LINE -> (Expression) buildVal();
+		// Decorative BuilderTypes
+		default -> throw new UnexpectedTypeError(orgLine, type);
 		};
 	}
 
@@ -131,18 +136,18 @@ public abstract class SuperMerger extends ExpressionMerger {
 	protected static Expression buildKeyword() {
 		KeywordType type = (KeywordType) line.get(0).type;
 		return switch (type) {
-			// Loops
-			case FOR -> LoopMerger.buildForEach();
-			case REPEAT -> LoopMerger.buildRepeat();
-			case FROM -> LoopMerger.buildFromTo();
-			case WHILE, UNTIL -> LoopMerger.buildConditional(type);
-			// Statements
-			case IF, ELIF, ANY, ELSE -> StatementMerger.buildConditional(type);
-			case RETURN -> StatementMerger.buildReturn();
-			// Callables
-			case FUNC -> FuncMerger.buildFunc(false);
-			case MAIN -> FuncMerger.buildMain();
-			case IS, IMPORT -> throw new UnexpectedTypeError(orgLine, type);
+		// Loops
+		case FOR -> LoopMerger.buildForEach();
+		case REPEAT -> LoopMerger.buildRepeat();
+		case FROM -> LoopMerger.buildFromTo();
+		case WHILE, UNTIL -> LoopMerger.buildConditional(type);
+		// Statements
+		case IF, ELIF, ANY, ELSE -> StatementMerger.buildConditional(type);
+		case RETURN -> StatementMerger.buildReturn();
+		// Callables
+		case FUNC -> FuncMerger.buildFunc(false);
+		case MAIN -> FuncMerger.buildMain();
+		case IS, IMPORT -> throw new UnexpectedTypeError(orgLine, type);
 		};
 	}
 
@@ -199,7 +204,8 @@ public abstract class SuperMerger extends ExpressionMerger {
 		else if ((flags.contains(CONSTANT) || flags.contains(FINAL)) && line.get(0).is(NAME)) {
 			line.add(0, new BuilderExpression(lineID, VAR));
 			if (line.size() <= 2 || !line.get(2).is(AssignmentType.NORMAL))
-				throw new IllegalCodeFormatException(orgLine, "A final variable has to be defined with a value at declaration.");
+				throw new IllegalCodeFormatException(orgLine,
+						"A final variable has to be defined with a value at declaration.");
 			f = ValueMerger.buildDeclaration();
 		}
 		// Definition-Declaration with optional flags

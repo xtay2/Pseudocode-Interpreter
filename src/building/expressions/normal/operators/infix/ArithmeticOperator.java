@@ -21,14 +21,14 @@ public class ArithmeticOperator extends InfixOperator {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
 		return switch (op) {
-			case ADD -> add(fst, sec);
-			case SUB -> sub(fst, sec);
-			case MULT -> mult(fst, sec);
-			case DIV -> div(fst, sec);
-			case MOD -> mod(fst, sec);
-			case POW -> pow(fst, sec);
-			case ROOT -> root(fst, sec);
-			default -> throw new AssertionError("Unexpected arithmetic operator: " + op);
+		case ADD -> add(fst, sec);
+		case SUB -> sub(fst, sec);
+		case MULT -> mult(fst, sec);
+		case DIV -> div(fst, sec);
+		case MOD -> mod(fst, sec);
+		case POW -> pow(fst, sec);
+		case ROOT -> root(fst, sec);
+		default -> throw new AssertionError("Unexpected arithmetic operator: " + op);
 		};
 	}
 
@@ -37,12 +37,6 @@ public class ArithmeticOperator extends InfixOperator {
 	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
 	 */
 	private Value add(Value a, Value b) {
-		// Text and array concat
-		if (a instanceof ArrayValue arr && b instanceof TextValue txt)
-			return arr.asText().concat(txt);
-		if (a instanceof TextValue txt && b instanceof ArrayValue arr)
-			return txt.concat(arr.asText());
-
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
 			return a1.concat(a2, getOriginalLine());

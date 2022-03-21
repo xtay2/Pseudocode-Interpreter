@@ -59,6 +59,7 @@ public class ArrayAccess extends Expression implements ValueChanger {
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 		}
 		arr.set(indices.get(indices.size() - 1).getValue().asInt().value.intValueExact(), val);
+		v.setValue(arr);
 	}
 
 	@Override

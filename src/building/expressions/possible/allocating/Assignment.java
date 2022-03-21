@@ -8,18 +8,14 @@ import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Variable;
 import building.expressions.normal.operators.Operation;
-import building.expressions.normal.operators.infix.ArithmeticOperator;
-import building.expressions.normal.operators.infix.ComparativeOperator;
-import building.expressions.normal.operators.infix.InOperator;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.infix.LogicalOperator;
+import building.expressions.normal.operators.infix.*;
 import building.types.specific.AssignmentType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
 /**
- * Assigns a value to a {@link Variable} thats already initialised, and returns the {@link Value}
- * afterwards.
+ * Assigns a value to a {@link Variable} thats already initialised, and returns
+ * the {@link Value} afterwards.
  */
 public class Assignment extends Allocating {
 
@@ -38,14 +34,15 @@ public class Assignment extends Allocating {
 			op = null;
 		else {
 			op = switch (type.op) {
-				// Arithmetic
-				case ADD, SUB, MULT, DIV, MOD, POW, ROOT -> new ArithmeticOperator(lineIdentifier, type.op);
-				// Comparison
-				case EQUALS, NOT_EQUALS, GREATER, GREATER_EQ, LESS, LESS_EQ -> new ComparativeOperator(lineIdentifier, type.op);
-				// Logical
-				case AND, NAND, OR, NOR, XOR, XNOR -> new LogicalOperator(lineIdentifier, type.op);
-				// Misc
-				case IN -> new InOperator(lineIdentifier, type.op);
+			// Arithmetic
+			case ADD, SUB, MULT, DIV, MOD, POW, ROOT -> new ArithmeticOperator(lineIdentifier, type.op);
+			// Comparison
+			case EQUALS, NOT_EQUALS, GREATER, GREATER_EQ, LESS, LESS_EQ -> new ComparativeOperator(lineIdentifier,
+					type.op);
+			// Logical
+			case AND, NAND, OR, NOR, XOR, XNOR -> new LogicalOperator(lineIdentifier, type.op);
+			// Misc
+			case IN -> new InOperator(lineIdentifier, type.op);
 			};
 		}
 	}

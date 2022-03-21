@@ -64,11 +64,13 @@ public final class ArrayValue extends Value {
 	/** Acts as a isEmpty-Function */
 	@Override
 	public BoolValue asBool() {
+		init();
 		return BoolValue.valueOf(length() != 0);
 	}
 
 	@Override
 	public TextValue asText() {
+		init();
 		StringBuilder b = new StringBuilder();
 		b.append('[');
 		for (int i = 0; i < length(); i++) {
@@ -82,6 +84,7 @@ public final class ArrayValue extends Value {
 
 	@Override
 	public IntValue asInt() {
+		init();
 		return NumberValue.create(BigInteger.valueOf(length()));
 	}
 
@@ -120,6 +123,7 @@ public final class ArrayValue extends Value {
 	 * Lazily casts every value in this Array to the specified type.
 	 */
 	private ArrayValue asTypedArray(DataType t) {
+		init();
 		if (t.isArray())
 			return new ArrayValue(t, container);
 		throw new UnexpectedTypeError(t);
@@ -130,17 +134,17 @@ public final class ArrayValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-			case VAR -> true; // Gibt sich selbst zurück
-			case BOOL -> true; // IsEmpty
-			case NUMBER, INT -> true; // Gibt Länge zurück
-			case TEXT -> true; // Gibt text-repräsentation zurück
-			case VAR_ARRAY -> true; // Gibt sich selbst zurück
-			case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
-			case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
-			case CHAR_ARRAY -> everyElementIs(CHAR_ARRAY);// Only if every element can be casted to a char.
-			case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
-			case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
-			default -> false;
+		case VAR -> true; // Gibt sich selbst zurück
+		case BOOL -> true; // IsEmpty
+		case NUMBER, INT -> true; // Gibt Länge zurück
+		case TEXT -> true; // Gibt text-repräsentation zurück
+		case VAR_ARRAY -> true; // Gibt sich selbst zurück
+		case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
+		case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
+		case CHAR_ARRAY -> everyElementIs(CHAR_ARRAY);// Only if every element can be casted to a char.
+		case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
+		case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
+		default -> false;
 		};
 	}
 
@@ -240,7 +244,9 @@ public final class ArrayValue extends Value {
 		return new ArrayValue(getType(), content);
 	}
 
-	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
+	/**
+	 * Returns {@link BoolValue#TRUE} if this array contains the specified element.
+	 */
 	public BoolValue contains(Value element) {
 		init();
 		for (int i = 0; i < length(); i++) {

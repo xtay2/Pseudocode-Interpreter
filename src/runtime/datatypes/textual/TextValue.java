@@ -99,17 +99,17 @@ public final class TextValue extends Value {
 
 	@Override
 	public ArrayValue asVarArray() throws CastingException {
-		return asTextArray().asVarArray();
+		return asCharArray().asVarArray();
 	}
 
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-			case VAR, TEXT -> true; // Returns this
-			case NUMBER, INT -> true; // The number or NAN if its just text.
-			case CHAR -> value.length() == 1; // Only if its just one character
-			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
-			default -> false;
+		case VAR, TEXT -> true; // Returns this
+		case NUMBER, INT -> true; // The number or NAN if its just text.
+		case CHAR -> value.length() == 1; // Only if its just one character
+		case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
+		default -> false;
 		};
 	}
 
