@@ -3,6 +3,7 @@ package building.expressions.abstractions;
 import building.expressions.abstractions.interfaces.BlockBracket;
 import building.expressions.main.functions.NativeFunction;
 import building.expressions.main.statements.FlagSpace;
+import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.brackets.OpenBlock;
 import building.types.abstractions.SpecificType;
 import interpreting.modules.interpreter.Interpreter;
@@ -38,7 +39,12 @@ public abstract class BlockHolder extends MainExpression {
 		return ob.getMatch();
 	}
 
-	/** Calls the line after the {@link OpenBlock}. */
+	/**
+	 * Calls the line after the {@link OpenBlock}.
+	 * 
+	 * @return false if this function shouldn't call any other functions afterwards.
+	 *         {@link ReturnStatement#execute}
+	 */
 	public final boolean callFirstLine() {
 		return Interpreter.execute(getStart() + 1);
 	}

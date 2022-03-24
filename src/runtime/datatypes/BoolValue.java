@@ -42,16 +42,16 @@ public class BoolValue extends Value {
 
 	@Override
 	public TextValue asText() {
-		return value ? new TextValue("true") : new TextValue("false");
+		return new TextValue(toString());
 	}
 
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-			case VAR, BOOL -> true; // Returns this
-			case NUMBER, INT -> true; // Returns 0 or 1
-			case TEXT -> true; // Text-Representation.
-			default -> false;
+		case VAR, BOOL -> true; // Returns this
+		case NUMBER, INT -> true; // Returns 0 or 1
+		case TEXT -> true; // Text-Representation.
+		default -> false;
 		};
 	}
 
@@ -74,5 +74,10 @@ public class BoolValue extends Value {
 	@Override
 	public Boolean raw() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(value);
 	}
 }

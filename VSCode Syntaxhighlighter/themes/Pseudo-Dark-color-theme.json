@@ -81,7 +81,7 @@
 				"constant.other.color"
 			],
 			"settings": {
-				"foreground": "#ffffff"
+				"foreground": "#f2fffff5"
 			}
 		},
 		{
@@ -109,7 +109,6 @@
 			"name": "Operator, Misc",
 			"scope": [
 				"keyword.control",
-				"constant.other.color",
 				"punctuation",
 				"meta.tag",
 				"punctuation.definition.tag",

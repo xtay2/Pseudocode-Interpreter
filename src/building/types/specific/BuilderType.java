@@ -1,10 +1,6 @@
 package building.types.specific;
 
-import static building.types.abstractions.SuperType.AFTER_VALUE_TYPE;
-import static building.types.abstractions.SuperType.ASSIGNMENT_TYPE;
-import static building.types.abstractions.SuperType.DATA_TYPE;
-import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
-import static building.types.specific.DynamicType.NAME;
+import static building.types.abstractions.SuperType.*;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.main.loops.IntervalLoop;
@@ -48,7 +44,7 @@ public enum BuilderType implements SpecificType {
 	 * An Arrow at the end of a func-declaration, used to indicate an oncoming
 	 * return type.
 	 */
-	EXPECTED_RETURN_TYPE("->"),
+	ARROW_R("->"),
 
 	/** A comma, used in Arrays, Calls, Declarations, etc.. */
 	COMMA(","),
@@ -78,16 +74,15 @@ public enum BuilderType implements SpecificType {
 	@Override
 	public AbstractType[] abstractExpected() {
 		return switch (this) {
-		case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END };
-		case ARRAY_END -> new AbstractType[] { AFTER_VALUE_TYPE, ASSIGNMENT_TYPE };
-		case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, CLOSE_BRACKET };
-		case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, NAME, AFTER_VALUE_TYPE,
-				EXPECTED_RETURN_TYPE };
-		case EXPECTED_RETURN_TYPE -> new AbstractType[] { DATA_TYPE };
-		case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
-		case MULTI_CALL_LINE -> new AbstractType[] { VAL_HOLDER_TYPE, AFTER_VALUE_TYPE };
-		case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
-		case OPEN_BLOCK, CLOSE_BLOCK -> new AbstractType[] {};
+			case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END };
+			case ARRAY_END -> new AbstractType[] { AFTER_VALUE_TYPE, ASSIGNMENT_TYPE };
+			case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, CLOSE_BRACKET };
+			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, DYNAMIC_TYPE, AFTER_VALUE_TYPE, ARROW_R };
+			case ARROW_R -> new AbstractType[] { DATA_TYPE };
+			case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
+			case MULTI_CALL_LINE -> new AbstractType[] { VAL_HOLDER_TYPE, AFTER_VALUE_TYPE };
+			case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
+			case OPEN_BLOCK, CLOSE_BLOCK -> new AbstractType[] {};
 		};
 	}
 

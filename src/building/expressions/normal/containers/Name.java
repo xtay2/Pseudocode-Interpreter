@@ -10,12 +10,13 @@ import building.types.abstractions.SpecificType;
 import building.types.specific.DataType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.exceptions.DeclarationException;
 
 /**
- * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
- * (Wrapper-{@link Expression} for {@link String}s).
+ * Every piece of text that isn't predefined by the Interpreter via Keywords,
+ * Operators, etc... (Wrapper-{@link Expression} for {@link String}s).
  */
 public class Name extends Expression implements ValueChanger {
 
@@ -43,15 +44,22 @@ public class Name extends Expression implements ValueChanger {
 		getScope().getVar(name, getOriginalLine()).setValue(val);
 	}
 
-	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
+	/**
+	 * Arg is valid name if alphanumerical with underscores. (Atleast one
+	 * character.)
+	 */
 	public static boolean isName(String arg) {
-		return arg.matches("\\w*([a-z]|[A-Z])+\\w*") && !isAlphaNumKeyword(arg);
+		return arg.matches("\\w*([a-zäöüßA-ZÄÖÜ])+\\w*") && !isAlphaNumKeyword(arg);
 	}
 
 	/** Returns true, if the passed string matches any alphanumerical keyword. */
 	public static boolean isAlphaNumKeyword(String arg) {
-		return SpecificType.equalsString(arg, KeywordType.class) || SpecificType.equalsString(arg, DataType.class)
-				|| SpecificType.equalsString(arg, FlagType.class);
+		//@formatter:off
+		return SpecificType.equalsString(arg, KeywordType.class) 
+				|| SpecificType.equalsString(arg, DataType.class)
+				|| SpecificType.equalsString(arg, FlagType.class)
+				|| SpecificType.equalsString(arg, InfixOpType.class);
+		//@formatter:on
 	}
 
 	/**

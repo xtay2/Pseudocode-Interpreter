@@ -21,7 +21,6 @@ import java.util.Set;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.Flaggable;
-import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
@@ -105,10 +104,10 @@ public abstract class SuperMerger extends ExpressionMerger {
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
+			if (line.get(0).is(POSTFIX_OP_TYPE))
+				result = OpMerger.buildPostfix(result);
 			if (!inOperation && line.get(0).is(INFIX_OP_TYPE))
 				result = OpMerger.buildOperation(result);
-			else if (line.get(0).is(POSTFIX_OP_TYPE))
-				result = OpMerger.buildPostfix((ValueChanger) result);
 			else if (line.get(0).is(IS))
 				result = ValueMerger.buildIsStatement(result);
 		}

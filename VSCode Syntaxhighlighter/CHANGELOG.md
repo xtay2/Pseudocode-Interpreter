@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.2
+Added utf8-operators, the prefix-operator `not` and case insensitivity for numeric constants.
+
 ### Update 0.4.1
 The highlighter now also supports ".pseudocode" files.
 

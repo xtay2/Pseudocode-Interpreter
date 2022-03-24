@@ -1,21 +1,22 @@
 package interpreting.modules.assembler;
 
-import static interpreting.modules.formatter.Formatter.CB;
-import static interpreting.modules.formatter.Formatter.MCS;
-import static interpreting.modules.formatter.Formatter.OB;
-import static interpreting.modules.formatter.Formatter.SLC;
+import static formatter.basic.Formatter.CB;
+import static formatter.basic.Formatter.MCS;
+import static formatter.basic.Formatter.OB;
+import static formatter.basic.Formatter.SLC;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import building.expressions.main.CloseBlock;
+import formatter.basic.Formatter;
 import interpreting.exceptions.IllegalCodeFormatException;
-import interpreting.modules.formatter.Formatter;
 import interpreting.modules.parser.Parser.IdxLine;
 import misc.helper.Helper;
 
 /**
- * Does all the invisible but necessary formatting that is not done by the {@link Formatter}.
+ * Does all the invisible but necessary formatting that is not done by the
+ * {@link Formatter}.
  */
 public class Assembler {
 
@@ -45,7 +46,8 @@ public class Assembler {
 	}
 
 	/**
-	 * If a line contains something except a {@link CloseBlock}, it gets split into two lines.
+	 * If a line contains something except a {@link CloseBlock}, it gets split into
+	 * two lines.
 	 * 
 	 * <pre>
 	 * if ... {
@@ -75,7 +77,7 @@ public class Assembler {
 				for (int seg = 0; seg < line.length; seg++)
 					lines.add(i + seg, new IdxLine(line[seg].strip(), index));
 				// Jump over the new lines
-				i += line.length;
+				i += line.length - 1;
 			}
 		}
 	}
@@ -99,7 +101,7 @@ public class Assembler {
 			final int index = lines.get(i).index();
 
 			int lineBreak = l.indexOf(Formatter.OLS);
-			if (lineBreak != -1 && Helper.isRunnableCode(lineBreak, l)) {
+			if (Helper.isRunnableCode(lineBreak, l)) {
 				if (lineBreak == l.length() - 1)
 					throw new IllegalCodeFormatException(lines.get(i).index(), "This one-line statement has to end with a semicolon.");
 				// Replace Semikolon with BlockBrackets

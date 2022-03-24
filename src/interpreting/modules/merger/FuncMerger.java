@@ -2,7 +2,7 @@ package interpreting.modules.merger;
 
 import static building.types.specific.BuilderType.CLOSE_BRACKET;
 import static building.types.specific.BuilderType.COMMA;
-import static building.types.specific.BuilderType.EXPECTED_RETURN_TYPE;
+import static building.types.specific.BuilderType.ARROW_R;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -62,7 +62,7 @@ public abstract class FuncMerger extends SuperMerger {
 
 	/** ([->] [TYPE])? */
 	private static DataType buildReturnType() {
-		if (!line.isEmpty() && line.get(0).is(EXPECTED_RETURN_TYPE)) {
+		if (!line.isEmpty() && line.get(0).is(ARROW_R)) {
 			line.remove(0); // Arrow
 			return buildExpType();
 		}

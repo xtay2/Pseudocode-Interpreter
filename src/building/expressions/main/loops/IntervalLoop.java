@@ -1,6 +1,7 @@
 package building.expressions.main.loops;
 
 import static building.types.specific.KeywordType.REPEAT;
+import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import static runtime.datatypes.numerical.NumberValue.ONE;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
@@ -22,8 +23,7 @@ public class IntervalLoop extends Loop {
 	/** Should get initialised at {@link #initLoop()}. */
 	private NumberValue end;
 
-	public IntervalLoop(int lineID, KeywordType loopType, ValueHolder startH, ValueHolder endH, ValueHolder incH,
-			OpenBlock os) {
+	public IntervalLoop(int lineID, KeywordType loopType, ValueHolder startH, ValueHolder endH, ValueHolder incH, OpenBlock os) {
 		super(lineID, loopType, os);
 		if (type != KeywordType.FROM && type != KeywordType.REPEAT)
 			throw new AssertionError("LoopType has to be either from or repeat.");
@@ -36,7 +36,7 @@ public class IntervalLoop extends Loop {
 	protected void initLoop() {
 		start = startHolder.getValue().asNumber();
 		end = endHolder.getValue().asNumber();
-		if (is(REPEAT)) {
+		if (is(REPEAT) && end != POS_INF) {
 			end = end.sub(ONE).asInt();
 			if (end.isNegative())
 				throw new ShouldBeNaturalNrException(getOriginalLine(), "Repeat-start cannot be negative.");

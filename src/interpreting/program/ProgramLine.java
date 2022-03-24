@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import building.expressions.abstractions.MainExpression;
+import building.expressions.main.CloseBlock;
 import building.expressions.main.functions.Function;
 import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.ReturnStatement;
@@ -47,7 +48,8 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Reads the line and constructs an object-expression-notation from the information.
+	 * Reads the line and constructs an object-expression-notation from the
+	 * information.
 	 */
 	void construct() {
 		String current = "";
@@ -105,7 +107,9 @@ public class ProgramLine {
 		return Main.PROGRAM.getLine(lineID - 1).findLastIf();
 	}
 
-	/** Merges the {@link MainExpression} from the constructed {@link #expressions}. */
+	/**
+	 * Merges the {@link MainExpression} from the constructed {@link #expressions}.
+	 */
 	void merge() {
 		main = ExpressionMerger.merge(this);
 		expressions.clear();
@@ -113,12 +117,16 @@ public class ProgramLine {
 		if (main instanceof ReturnStatement)
 			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineID - 1).searchForFunc());
 		// Connect Conditional blocks.
-		else if (main.is(ELIF) || main.is(ANY) || main.is(ELSE))
+		else if (main.is(ELIF) || main.is(ANY) || main.is(ELSE)) {
+			if (lineID > 0 && !(Main.PROGRAM.getLine(lineID - 1).getMainExpression() instanceof CloseBlock))
+				throw new IllegalCodeFormatException(orgLine, main.type + " can only get placed after a closed scope.");
 			findLastIf().setNextBlock((ConditionalStatement) main);
+		}
 	}
 
 	/**
-	 * Recursivly searches for func-declaration. Breaks when encountering the start of the file.
+	 * Recursivly searches for func-declaration. Breaks when encountering the start
+	 * of the file.
 	 */
 	private Function searchForFunc() {
 		if (main instanceof Function)

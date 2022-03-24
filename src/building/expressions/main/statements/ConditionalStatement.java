@@ -26,11 +26,13 @@ public final class ConditionalStatement extends ScopeHolder {
 	private ConditionalStatement nextBlock;
 
 	/**
-	 * Creates a {@link ConditionalStatement}, based on the passed {@link KeywordType}.
+	 * Creates a {@link ConditionalStatement}, based on the passed
+	 * {@link KeywordType}.
 	 * 
 	 * @param lineID    is the identifier of the matching {@link ProgramLine}.
-	 * @param myType    is the identifying Type, eiter {@link KeywordType#IF}, {@link KeywordType#ELIF}
-	 *                  {@link KeywordType#ANY} or {@link KeywordType#ELSE}.
+	 * @param myType    is the identifying Type, eiter {@link KeywordType#IF},
+	 *                  {@link KeywordType#ELIF} {@link KeywordType#ANY} or
+	 *                  {@link KeywordType#ELSE}.
 	 * @param condition can be null
 	 * @param os        shouldn't be null
 	 */
@@ -61,13 +63,14 @@ public final class ConditionalStatement extends ScopeHolder {
 				return executeBody() ? Interpreter.execute(findAnyCase()) : false; // Find any or end if successfull.
 			return Interpreter.execute(findElseCase()); // Find next else if not successfull.
 		} else if (is(ANY) && condition != null) {
+			// If any-if condition is true
 			if (condition.getValue().asBool().value) {
-				if (!executeBody()) // If any-if condition is true
+				if (!executeBody()) // ... and return got triggered
 					return false; // Return
 			}
-			return callNextLine(); // End, if condition was false or statement is done.
+			return Interpreter.execute(endOfConstruct()); // End, if condition was false or statement is done.
 		} else // Execute without condition. ANY / ELSE
-			return executeBody() ? callNextLine() : false; // Jump to end after execution
+			return executeBody() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
 	}
 
 	/**
@@ -86,8 +89,8 @@ public final class ConditionalStatement extends ScopeHolder {
 	}
 
 	/**
-	 * Returns the lineID of the next elif- or else-Statement, or the end of the construct, if none
-	 * exist.
+	 * Returns the lineID of the next elif- or else-Statement, or the end of the
+	 * construct, if none exist.
 	 */
 	private int findElseCase() {
 		if (nextBlock != null) {
@@ -101,7 +104,8 @@ public final class ConditionalStatement extends ScopeHolder {
 	}
 
 	/**
-	 * Returns the lineID of the connected any-Statement, or the end of the construct, if none exist.
+	 * Returns the lineID of the connected any-Statement, or the end of the
+	 * construct, if none exist.
 	 */
 	private int findAnyCase() {
 		if (nextBlock != null) {

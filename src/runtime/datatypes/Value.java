@@ -19,7 +19,9 @@ import runtime.exceptions.UnexpectedTypeError;
 
 public abstract class Value extends Expression implements Castable {
 
-	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
+	/**
+	 * Creates a new {@link Value}. The lineID is -1 because this has no position.
+	 */
 	public Value(DataType dataType) {
 		super(dataType);
 	}
@@ -42,13 +44,12 @@ public abstract class Value extends Expression implements Castable {
 	 * @throws UnexpectedTypeError if the types aren't comparable.
 	 */
 	public static final BoolValue eq(Value a, Value b) {
-		if (a.type == b.type)
-			return BoolValue.valueOf(a.valueCompare(b));
-		throw new AssertionError("Tried to compare Values of type " + a.type + " and " + b.type + ".");
+		return a.type == b.type ? BoolValue.valueOf(a.valueCompare(b)) : BoolValue.FALSE;
 	}
 
 	/**
-	 * Tells, if this Value can always be safely casted to the suggested {@link DataType}.
+	 * Tells, if this Value can always be safely casted to the suggested
+	 * {@link DataType}.
 	 * 
 	 * Default: True for charwise-, text-, numeric-, representation.
 	 */
@@ -61,7 +62,8 @@ public abstract class Value extends Expression implements Castable {
 	 * Should get implemented by all Classes that inherit this class (Value).
 	 * 
 	 * @param v is the value its checked against.
-	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
+	 * @throws UnexpectedTypeError if isn't an instance of the same class this
+	 *                             method gets executed on.
 	 */
 	public abstract boolean valueCompare(Value v) throws UnexpectedTypeError;
 

@@ -5,8 +5,8 @@ import static misc.helper.Output.print;
 
 import building.expressions.abstractions.GlobalScope;
 import building.expressions.abstractions.MainExpression;
-import building.expressions.main.functions.MainFunction;
 import building.expressions.main.functions.Definition;
+import building.expressions.main.functions.MainFunction;
 import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.containers.Variable;
 import building.expressions.possible.allocating.Declaration;
@@ -16,8 +16,8 @@ import misc.main.Main;
 public final class Interpreter {
 
 	/**
-	 * Registeres every {@link Variable} and {@link Definition} and starts the interpreting-process by
-	 * calling the {@link MainFunction}.
+	 * Registeres every {@link Variable} and {@link Definition} and starts the
+	 * interpreting-process by calling the {@link MainFunction}.
 	 * 
 	 * @param program is the program that gets interpreted.
 	 * 

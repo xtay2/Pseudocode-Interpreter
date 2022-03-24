@@ -3,13 +3,14 @@ package interpreting.modules.parser;
 import static misc.helper.Output.print;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import formatter.basic.Formatter;
 import interpreting.modules.disassembler.Disassembler;
-import interpreting.modules.formatter.Formatter;
 import misc.helper.FileManager;
 import misc.main.Main;
 
@@ -46,10 +47,9 @@ public final class Parser {
 	private static List<String> format(Path mainFilePath) {
 		List<String> lines;
 		try {
-			lines = Files.readAllLines(mainFilePath);
-
+			lines = Files.readAllLines(mainFilePath, StandardCharsets.UTF_8);
 			// Format all lines.
-			lines = Formatter.format(lines);
+			lines = Formatter.format(lines, 5, true);
 
 			// Write the formatted lines back into the file.
 			FileManager.writeFile(lines, mainFilePath);
@@ -78,7 +78,8 @@ public final class Parser {
 
 		print("-".repeat(70));
 
-		// Index all newly written and formatted lines correctly, as this is the code that the user sees.
+		// Index all newly written and formatted lines correctly, as this is the code
+		// that the user sees.
 		for (IdxLine line : lines)
 			Main.PROGRAM.appendLine(line.line(), line.index());
 		Main.PROGRAM.constructAndMerge();

@@ -17,7 +17,7 @@ public final class ComparativeOperator extends InfixOperator {
 	public ComparativeOperator(int lineID, InfixOpType operator) {
 		super(lineID, operator);
 		operation = switch (operator) {
-			case EQUALS -> (a, b) -> Value.eq(a, b.asInt());
+			case EQUALS -> (a, b) -> Value.eq(a, b);
 			case NOT_EQUALS -> (a, b) -> Value.eq(a, b).not();
 
 			case LESS -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerThan(b.asNumber()));

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public final class FileManager {
 	public static void writeFile(String content, Path path) {
 		BufferedWriter writer;
 		try {
-			writer = new BufferedWriter(new FileWriter(path.toString()));
+			writer = new BufferedWriter(new FileWriter(path.toString(), StandardCharsets.UTF_8));
 			writer.write(content);
 			writer.close();
 		} catch (IOException e) {

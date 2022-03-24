@@ -9,6 +9,8 @@ import runtime.datatypes.Value;
 
 /**
  * Used in an {@link Operation}.
+ * 
+ * @see InfixOpType
  */
 public abstract class InfixOperator extends Expression implements Operatable {
 

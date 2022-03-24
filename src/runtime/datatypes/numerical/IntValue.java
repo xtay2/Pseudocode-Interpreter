@@ -116,6 +116,11 @@ public final class IntValue extends NumberValue {
 	public NumberValue root(NumberValue v) {
 //		if (v == NAN || v.isInfinite())
 //			TODO
+		// 0^0 = NaN and x^0 = 1
+		if (v.valueCompare(ZERO))
+			return this.valueCompare(ZERO) ? NAN : ONE;
+		if (v.valueCompare(ONE))
+			return this;
 //		if (v instanceof DecimalValue d)
 //			TODO
 //		if (v instanceof IntValue i)
@@ -128,6 +133,7 @@ public final class IntValue extends NumberValue {
 		return value;
 	}
 
+	/** Returns the faculty of this {@link IntValue}. */
 	public IntValue fac() {
 		BigInteger fac = BigInteger.ONE;
 		for (long i = value.longValueExact(); i > 0; i--)
