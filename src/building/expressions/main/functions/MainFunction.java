@@ -1,10 +1,11 @@
 package building.expressions.main.functions;
 
-import static building.types.specific.KeywordType.MAIN;
+import static building.types.specific.FlagType.FINAL;
+
+import java.util.Set;
 
 import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.Callable;
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
@@ -12,23 +13,17 @@ import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
 import runtime.datatypes.Value;
 
-public class MainFunction extends ScopeHolder implements Registerable, Callable {
-
-	public final Name name;
+public class MainFunction extends Definition implements Registerable {
 
 	/**
 	 * Creates a {@link MainFunction} and registers it in the outer {@link Scope}.
 	 * 
-	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
+	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be
+	 *           null.
 	 */
 	public MainFunction(int lineID, OpenBlock os) {
-		super(lineID, MAIN, os);
-		this.name = new Name(lineIdentifier, KeywordType.MAIN.toString());
-	}
-
-	@Override
-	public boolean execute() {
-		throw new AssertionError("A main-declaration cannot be executed.");
+		super(lineID, new Name(lineID, KeywordType.MAIN.toString()), os);
+		addFlags(Set.of(FINAL));
 	}
 
 	@Override
@@ -41,8 +36,7 @@ public class MainFunction extends ScopeHolder implements Registerable, Callable 
 	}
 
 	@Override
-	public Name getName() {
-		return name;
+	public int expectedParams() {
+		return 0;
 	}
-
 }

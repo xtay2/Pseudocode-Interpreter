@@ -1,5 +1,6 @@
 package building.expressions.main.functions;
 
+import java.util.Arrays;
 import java.util.List;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
@@ -10,14 +11,15 @@ import building.types.specific.FlagType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
+import runtime.exceptions.DeclarationException;
 import runtime.exceptions.IllegalCallException;
 import runtime.natives.SystemFunctions;
 
 /**
  * This is the class for a native Function-Declaration.
  * 
- * If a {@link NativeFunction} called, this happens through the {@link Call}-Class and
- * {@link Interpreter#call}.
+ * If a {@link NativeFunction} called, this happens through the
+ * {@link Call}-Class and {@link Interpreter#call}.
  */
 public class NativeFunction extends Definition {
 
@@ -26,10 +28,11 @@ public class NativeFunction extends Definition {
 	/**
 	 * Defines and registers a {@link NativeFunction}.
 	 * 
-	 * @param name       is the unique {@link Name} of this {@link Definition}. shouldn't be null
+	 * @param name       is the unique {@link Name} of this {@link Definition}.
+	 *                   shouldn't be null
 	 * @param params     shouldn't be null.
-	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a
-	 *                   void.
+	 * @param returnType is the {@link DataType} of the return value. Should be null
+	 *                   if this is a void.
 	 * @param flags      are optional {@link FlagType}s.
 	 */
 	public NativeFunction(int lineID, Name name, List<DataType> params, DataType returnType) {
@@ -38,6 +41,11 @@ public class NativeFunction extends Definition {
 			throw new AssertionError("Params cannot be null.");
 		this.params = params;
 		this.returnType = returnType;
+		if (!Arrays.stream(SystemFunctions.SYSTEM_FUNCTION.values())
+				.anyMatch(f -> f.name.equals(name.getNameString()) && f.args == params.size())) {
+			throw new DeclarationException(getOriginalLine(),
+					"Internally, there is no native function \"" + name + "<" + params.size() + ">\".");
+		}
 	}
 
 	@Override

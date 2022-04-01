@@ -1,6 +1,5 @@
 package runtime.datatypes.functional;
 
-import building.expressions.abstractions.interfaces.Callable;
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.functions.Definition;
@@ -19,7 +18,7 @@ import runtime.exceptions.UnexpectedTypeError;
  * For example: print<1>
  * </pre>
  */
-public class DefLink extends DefValue implements Callable, NameHolder {
+public class DefLink extends DefValue implements NameHolder {
 
 	/** The name of the targetted def. */
 	private final Name target;
@@ -46,7 +45,6 @@ public class DefLink extends DefValue implements Callable, NameHolder {
 		return false;
 	}
 
-	@Override
 	public Value call(ValueHolder... params) {
 		if (params.length != paramCnt)
 			new IllegalCodeFormatException(getOriginalLine(),

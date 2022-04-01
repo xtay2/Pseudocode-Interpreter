@@ -12,14 +12,14 @@ import java.util.List;
 
 import building.expressions.abstractions.MainExpression;
 import building.expressions.main.CloseBlock;
-import building.expressions.main.functions.Function;
+import building.expressions.main.functions.Definition;
 import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.BuilderExpression;
 import building.types.abstractions.SpecificType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.merger.ExpressionMerger;
-import misc.main.Main;
+import launching.Main;
 
 public class ProgramLine {
 
@@ -114,8 +114,8 @@ public class ProgramLine {
 		main = ExpressionMerger.merge(this);
 		expressions.clear();
 		// Wenn es ein Returnstatement ist, suche die Funktion
-		if (main instanceof ReturnStatement)
-			((ReturnStatement) main).initFunc(Main.PROGRAM.getLine(lineID - 1).searchForFunc());
+		if (main instanceof ReturnStatement ret)
+			ret.initFunc(Main.PROGRAM.getLine(lineID - 1).searchForFunc());
 		// Connect Conditional blocks.
 		else if (main.is(ELIF) || main.is(ANY) || main.is(ELSE)) {
 			if (lineID > 0 && !(Main.PROGRAM.getLine(lineID - 1).getMainExpression() instanceof CloseBlock))
@@ -125,12 +125,12 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Recursivly searches for func-declaration. Breaks when encountering the start
-	 * of the file.
+	 * Recursivly searches for the next {@link Definition} above this line. Gets
+	 * used while building the {@link ReturnStatement}.
 	 */
-	private Function searchForFunc() {
-		if (main instanceof Function)
-			return (Function) main;
+	private Definition searchForFunc() {
+		if (main instanceof Definition def)
+			return def;
 		if (lineID == 0)
 			throw new IllegalCodeFormatException(orgLine, "Return-Statement has to be declared inside a function.");
 		return Main.PROGRAM.getLine(lineID - 1).searchForFunc();

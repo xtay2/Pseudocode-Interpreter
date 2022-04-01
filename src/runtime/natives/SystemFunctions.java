@@ -20,27 +20,29 @@ public final class SystemFunctions {
 	public static enum SYSTEM_FUNCTION {
 
 		/** Terminates the program. */
-		EXIT("exit"),
+		EXIT("exit", 1),
 
 		/** Prints something in the console. */
-		PRINT("print"),
+		PRINT("print", 1),
 
 		/** Reads something from the console. */
-		READ("read"),
+		READ("read", 0),
 
 		/** Returns a fractional representation of a number. */
-		AS_RATIONAL("asRational"),
+		AS_RATIONAL("asRational", 1),
 
 		/** Returns a random {@link NumberValue} in a specified range. */
-		RAND_NR("randNr"),
+		RAND_NR("randNr", 2),
 
 		/** Returns a random {@link IntValue} in a specified range. */
-		RAND_INT("randInt");
+		RAND_INT("randInt", 2);
 
 		public final String name;
+		public final int args;
 
-		private SYSTEM_FUNCTION(String name) {
+		private SYSTEM_FUNCTION(String name, int args) {
 			this.name = name;
+			this.args = args;
 		}
 	}
 
@@ -73,7 +75,7 @@ public final class SystemFunctions {
 
 	/** native func read(text) */
 	private static Value print(ValueHolder[] params) {
-		System.out.println((Output.DEBUG ? "Printing: " : "") + (params[0].getValue().asText().value));
+		System.out.println((Output.debugMode ? "Printing: " : "") + (params[0].getValue().asText().value));
 		return null;
 	}
 

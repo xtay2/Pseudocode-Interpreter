@@ -61,15 +61,13 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	}
 
 	/**
-	 * Finds target-{@link Definition} (this can be achieved over a {@link DefLink} or the
-	 * {@link DefManager}), calls it with the params and returns the return-values.
+	 * Finds target-{@link Definition} (this can be achieved over a {@link DefLink}
+	 * or the {@link DefManager}), calls it with the params and returns the
+	 * return-values.
 	 */
 	private Value callTarget(ValueHolder... params) {
 		// Find target
-		Definition target;
-		if (getScope().containsAny(calledFunc.getNameString()))
-			target = ((DefLink) getScope().getVar(calledFunc.getNameString(), getOriginalLine()).getValue()).raw();
-		target = DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
+		Definition target = DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
 		// Call target
 		Scope.tos++;
 		Value returnVal = target.call(params);

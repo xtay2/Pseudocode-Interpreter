@@ -2,11 +2,15 @@ package building.expressions.main;
 
 import static building.types.specific.BuilderType.CLOSE_BLOCK;
 
+import java.util.List;
+
 import building.expressions.abstractions.BlockHolder;
 import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.BlockBracket;
 import building.expressions.normal.brackets.OpenBlock;
-import misc.main.Main;
+import building.types.abstractions.SpecificType;
+import building.types.specific.KeywordType;
+import launching.Main;
 
 public final class CloseBlock extends MainExpression implements BlockBracket {
 
@@ -39,5 +43,13 @@ public final class CloseBlock extends MainExpression implements BlockBracket {
 	@Override
 	public int getMatch() {
 		return myMatch;
+	}
+
+	/**
+	 * Returns an immutable list of all types that are allowed to follow a
+	 * {@link CloseBlock} in code.
+	 */
+	public static List<SpecificType> allowedAfter() {
+		return List.of(KeywordType.ELIF, KeywordType.ANY, KeywordType.ELSE);
 	}
 }

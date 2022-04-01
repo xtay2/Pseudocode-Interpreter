@@ -123,7 +123,7 @@ public final class DecimalValue extends NumberValue {
 	/** This should only get called in debugging scenarios. */
 	@Override
 	public String toString() {
-		return Output.DEBUG ? getClass().getSimpleName() : fractionToDecimal();
+		return Output.debugMode ? getClass().getSimpleName() : fractionToDecimal();
 	}
 
 	// Operations

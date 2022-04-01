@@ -10,7 +10,7 @@ import misc.helper.Helper;
 public final class FormattingPreChecks extends Formatter {
 
 	protected static void check() throws IllegalCodeFormatException {
-
+		checkForLonelyBrackets();
 	}
 
 	/**

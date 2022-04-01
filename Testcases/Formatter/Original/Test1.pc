@@ -1,0 +1,6 @@
+int importStuff
+func importer() {
+    importStuff + 10
+}
+
+import stdlib..Arrays

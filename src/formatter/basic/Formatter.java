@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import building.types.specific.BuilderType;
 import interpreting.modules.parser.Parser;
+import launching.Main;
 
 public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1,FormatterLvl2,FormatterLvl3,FormatterLvl4,FormatterLvl5 {
 
@@ -25,7 +26,8 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 	 * @param isMain     tells, if the formatted file is the Main.pc-file
 	 * @return the formatted program.
 	 */
-	public static final List<String> format(List<String> rawProgram, int level, boolean isMain) {
+	public static final List<String> format(List<String> rawProgram, boolean isMain) {
+		int level = Main.getFormattingLvl();
 		if (level < 1 && level > 5)
 			throw new IllegalArgumentException("The level of the formatter has to be between 1 and 5. Was: " + level);
 		program = rawProgram.stream().map(l -> l.strip()).collect(Collectors.toList()); // Stripping has to occur first

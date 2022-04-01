@@ -1,6 +1,7 @@
 package runtime.defmanager;
 
 import java.util.HashMap;
+import java.util.List;
 
 import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
@@ -31,8 +32,15 @@ public abstract class DefManager {
 	 */
 	public static Definition get(String defName, int params, int orgLine) throws DefNotFoundException {
 		Definition def = memory.get(defName + "<" + params + ">");
-		if (def == null)
-			throw new DefNotFoundException(orgLine, "There is no definition called " + defName + ".\nDefs in memory: " + memory);
+		if (def == null) {
+			List<String> similarNames = memory.keySet().stream().filter(e -> e.contains(defName)).toList();
+			if (!similarNames.isEmpty()) {
+				throw new DefNotFoundException(orgLine, "There is no definition called \"" + defName + "\" that takes " + params
+						+ " parameter" + (params == 1 ? "" : "s") + ".\nSimilar defs in memory: " + similarNames);
+			}
+			throw new DefNotFoundException(orgLine, "There is no definition called " + defName + ".\nDefs in memory:"
+					+ memory.keySet().stream().reduce("", (acc, e) -> acc + "\n-" + e));
+		}
 		return def;
 	}
 

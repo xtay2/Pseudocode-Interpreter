@@ -10,8 +10,10 @@ import runtime.datatypes.Value;
  */
 public abstract class DefValue extends Value {
 
+	@Deprecated
 	public DefValue() {
 		super(DEF);
+		throw new AssertionError("The def-type is currently WIP.");
 	}
 
 	/** A {@link DefValue} can get cast to nothing except NaN and its Text rep. */

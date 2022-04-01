@@ -11,8 +11,8 @@ import java.util.List;
 
 import formatter.basic.Formatter;
 import interpreting.modules.disassembler.Disassembler;
+import launching.Main;
 import misc.helper.FileManager;
-import misc.main.Main;
 
 public final class Parser {
 
@@ -49,7 +49,7 @@ public final class Parser {
 		try {
 			lines = Files.readAllLines(mainFilePath, StandardCharsets.UTF_8);
 			// Format all lines.
-			lines = Formatter.format(lines, 5, true);
+			lines = Formatter.format(lines, true);
 
 			// Write the formatted lines back into the file.
 			FileManager.writeFile(lines, mainFilePath);
@@ -68,7 +68,7 @@ public final class Parser {
 	 * @param lineArray
 	 * @return
 	 */
-	public static void parse(Path libPath, Path mainFilePath) {
+	public static void parse(Path libPath, Path mainFilePath, boolean forceFormat) {
 		List<IdxLine> lines = indexLines(format(mainFilePath));
 
 		lines = Disassembler.dissassemble(lines);

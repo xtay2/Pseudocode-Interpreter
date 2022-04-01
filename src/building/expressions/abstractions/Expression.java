@@ -6,7 +6,7 @@ import building.types.abstractions.SpecificType;
 import building.types.specific.KeywordType;
 import interpreting.modules.merger.SuperMerger;
 import interpreting.program.ProgramLine;
-import misc.main.Main;
+import launching.Main;
 
 /**
  * Every little part of a program is an expression. This includes names, values, brackets and

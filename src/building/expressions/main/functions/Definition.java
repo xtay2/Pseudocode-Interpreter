@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.Callable;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.NameHolder;
+import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.specific.DataType;
@@ -20,11 +20,12 @@ import runtime.datatypes.Value;
 import runtime.exceptions.IllegalCallException;
 
 /**
- * This is the Superclass for {@link Function} and {@link NativeFunction}.
+ * This is the Superclass for {@link Function}, {@link MainFunction} and
+ * {@link NativeFunction}.
  * 
  * It provides the ability to set and give return-values.
  */
-public abstract class Definition extends ScopeHolder implements Flaggable, Callable, NameHolder {
+public abstract class Definition extends ScopeHolder implements Flaggable, NameHolder {
 
 	/** The {@link Name} of the underlying {@link Definition}. */
 	protected final Name name;
@@ -46,10 +47,12 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 	protected boolean wasCalled = false;
 
 	/**
-	 * Creates this {@link Definition}. It gets later registered in the {@link ExpressionMerger}.
+	 * Creates this {@link Definition}. It gets later registered in the
+	 * {@link ExpressionMerger}.
 	 * 
 	 * @param name is the unique {@link Name} of this {@link Definition}.
-	 * @param os   is the {@link OpenBlock} of this {@link ScopeHolder} (Can be null for native funcs).
+	 * @param os   is the {@link OpenBlock} of this {@link ScopeHolder} (Can be null
+	 *             for native funcs).
 	 */
 	protected Definition(int lineID, Name name, OpenBlock os) {
 		super(lineID, FUNC, os);
@@ -59,8 +62,8 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 	}
 
 	/**
-	 * This method gets called by the ReturnStatement. If a returntype is specified, the value gets
-	 * implicitly casted.
+	 * This method gets called by the ReturnStatement. If a returntype is specified,
+	 * the value gets implicitly casted.
 	 */
 	public final void setValue(Value val) {
 		if (returnVal != null && val != null)
@@ -90,7 +93,8 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 	}
 
 	/**
-	 * Checks, if this {@link Definition} is {@link FlagType#FINAL} and already got called.
+	 * Checks, if this {@link Definition} is {@link FlagType#FINAL} and already got
+	 * called.
 	 * 
 	 * If both is true, an {@link IllegalCallException} gets thrown.
 	 * 
@@ -105,6 +109,14 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 		}
 	}
 
+	/**
+	 * Calls this {@link Definition}
+	 * 
+	 * @param params optional call-parameters.
+	 * @return an optional return-value. Default: null.
+	 */
+	public abstract Value call(ValueHolder... params);
+
 	@Override
 	public final boolean execute() {
 		throw new AssertionError("A func-declaration cannot be executed.");
@@ -112,6 +124,6 @@ public abstract class Definition extends ScopeHolder implements Flaggable, Calla
 
 	@Override
 	public final String toString() {
-		return Output.DEBUG ? getClass().getSimpleName() : getNameString();
+		return Output.debugMode ? getClass().getSimpleName() : getNameString();
 	}
 }

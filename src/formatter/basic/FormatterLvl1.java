@@ -141,14 +141,15 @@ public final class FormatterLvl1 extends Formatter {
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i);
 			int idxOfCs = line.indexOf(CB);
+			// Line contains cs
 			if (Helper.isRunnableCode(idxOfCs, line)) {
-				final String lineWthtFstCS = line.substring(idxOfCs + 1).stripLeading();
+				String lineWthtFstCS = line.substring(idxOfCs + 1).stripLeading();
 				if (!line.startsWith(CB)) {
 					program.add(i, line.substring(0, idxOfCs));
 					program.set(i + 1, line.substring(idxOfCs));
-				}
-				// If line starts with multiple OS, possibly seperated by blanks.
-				else if (lineWthtFstCS.startsWith(CB)) {
+				} else if (!lineWthtFstCS.isBlank()
+						// Only break the line if the next word isn't allowed as a follower.
+						&& !CloseBlock.allowedAfter().stream().anyMatch(e -> lineWthtFstCS.startsWith(e.toString()))) {
 					program.set(i, CB);
 					program.add(i + 1, lineWthtFstCS);
 				}

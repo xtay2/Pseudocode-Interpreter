@@ -1,0 +1,6 @@
+main {
+	print("Hi")
+	bool a = true
+	if a: print("Ho");
+}
+native func print(text)

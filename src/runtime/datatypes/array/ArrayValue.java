@@ -119,6 +119,11 @@ public final class ArrayValue extends Value {
 		return asTypedArray(INT_ARRAY);
 	}
 
+	@Override
+	public ArrayValue asCharArray() {
+		return asTypedArray(CHAR_ARRAY);
+	}
+
 	/**
 	 * Lazily casts every value in this Array to the specified type.
 	 */
@@ -134,17 +139,17 @@ public final class ArrayValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR -> true; // Gibt sich selbst zurück
-		case BOOL -> true; // IsEmpty
-		case NUMBER, INT -> true; // Gibt Länge zurück
-		case TEXT -> true; // Gibt text-repräsentation zurück
-		case VAR_ARRAY -> true; // Gibt sich selbst zurück
-		case TEXT_ARRAY -> true; // Gibt text-repräsentation zurück
-		case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
-		case CHAR_ARRAY -> everyElementIs(CHAR_ARRAY);// Only if every element can be casted to a char.
-		case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
-		case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
-		default -> false;
+			case VAR -> true; // Gibt sich selbst zurück
+			case BOOL -> true; // IsEmpty
+			case NUMBER, INT -> true; // Gibt Länge zurück
+			case TEXT -> true; // Gibt text-repräsentation zurück
+			case VAR_ARRAY -> true; // Gibt sich selbst zurück
+			case TEXT_ARRAY -> true; // Casts every element to text
+			case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
+			case CHAR_ARRAY -> everyElementIs(CHAR);// Only if every element can be casted to a char.
+			case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
+			case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
+			default -> false;
 		};
 	}
 
@@ -152,11 +157,7 @@ public final class ArrayValue extends Value {
 	 * Checks, if every element in this array can get casted to the passed type.
 	 */
 	private boolean everyElementIs(DataType t) {
-		for (Value v : container) {
-			if (!v.canCastTo(t))
-				return false;
-		}
-		return true;
+		return Arrays.stream(container).allMatch(v -> v.canCastTo(t));
 	}
 
 	/**

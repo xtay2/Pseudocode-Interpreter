@@ -25,7 +25,7 @@ import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ProgramLine;
-import misc.main.Main;
+import launching.Main;
 import runtime.defmanager.DefManager;
 
 public abstract class ExpressionMerger {

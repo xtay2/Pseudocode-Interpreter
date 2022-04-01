@@ -75,7 +75,7 @@ public enum BuilderType implements SpecificType {
 	public AbstractType[] abstractExpected() {
 		return switch (this) {
 			case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END };
-			case ARRAY_END -> new AbstractType[] { AFTER_VALUE_TYPE, ASSIGNMENT_TYPE };
+			case ARRAY_END -> new AbstractType[] { ARRAY_START, AFTER_VALUE_TYPE, ASSIGNMENT_TYPE };
 			case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, CLOSE_BRACKET };
 			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, DYNAMIC_TYPE, AFTER_VALUE_TYPE, ARROW_R };
 			case ARROW_R -> new AbstractType[] { DATA_TYPE };

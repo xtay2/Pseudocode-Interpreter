@@ -9,7 +9,7 @@ import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.BlockBracket;
 import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
-import misc.main.Main;
+import launching.Main;
 
 public final class OpenBlock extends Expression implements BlockBracket {
 

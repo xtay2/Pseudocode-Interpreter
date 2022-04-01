@@ -11,7 +11,7 @@ import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.containers.Variable;
 import building.expressions.possible.allocating.Declaration;
 import interpreting.program.ProgramLine;
-import misc.main.Main;
+import launching.Main;
 
 public final class Interpreter {
 

@@ -5,12 +5,14 @@ import static misc.helper.Output.print;
 
 import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.ValueHolder;
+import building.expressions.main.functions.Definition;
 import building.expressions.main.functions.Function;
+import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 
 public class ReturnStatement extends MainExpression {
 
-	private Function myFunc = null;
+	private Definition myFunc = null;
 	private final ValueHolder val;
 
 	/**
@@ -26,8 +28,6 @@ public class ReturnStatement extends MainExpression {
 	/** Set the return-value of the function, and well... return. */
 	@Override
 	public boolean execute() {
-		if (myFunc == null)
-			throw new AssertionError("This return-value has to be connected to a function.");
 		if (val != null) {
 			Value r = val.getValue();
 			print("Returning: " + r);
@@ -37,9 +37,15 @@ public class ReturnStatement extends MainExpression {
 	}
 
 	/** Connect this {@link ReturnStatement} to a {@link Function}. */
-	public void initFunc(Function func) {
+	public void initFunc(Definition def) {
 		if (myFunc != null)
 			throw new AssertionError("The function was already initialised.");
-		myFunc = func;
+		if (def instanceof Function)
+			myFunc = def;
+		else if (val != null) {
+
+			throw new IllegalCodeFormatException(getOriginalLine(),
+					"Only return-statements that don't return values can be used in a " + def);
+		}
 	}
 }
