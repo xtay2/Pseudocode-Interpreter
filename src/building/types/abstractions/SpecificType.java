@@ -14,8 +14,8 @@ import building.expressions.normal.containers.ArrayAccess;
 public non-sealed interface SpecificType extends AbstractType {
 
 	/**
-	 * A specific type that has no followups. Examples for merged expressions are
-	 * the {@link ArrayAccess} and the {@link BracketedExpression}.
+	 * A specific type that has no followups. Examples for merged expressions are the
+	 * {@link ArrayAccess} and the {@link BracketedExpression}.
 	 */
 	public static final SpecificType MERGED = new SpecificType() {
 
@@ -34,17 +34,16 @@ public non-sealed interface SpecificType extends AbstractType {
 	};
 
 	/**
-	 * Nearly every {@link SpecificType} has expected strucures that can follow
-	 * behind it. This method supports also {@link UnspecificType}s and gets called
-	 * by {@link #expected()}.
+	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
+	 * supports also {@link UnspecificType}s and gets called by {@link #expected()}.
 	 * 
 	 * @return a non-null array.
 	 */
 	AbstractType[] abstractExpected();
 
 	/**
-	 * Nearly every {@link SpecificType} has expected strucures that can follow
-	 * behind it. This method only returns the absolute subvalues.
+	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
+	 * only returns the absolute subvalues.
 	 * 
 	 * @return a non-null array.
 	 */
@@ -75,8 +74,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	// Static methods
 
 	/**
-	 * Checks if the {@link String} matches a raw-type of the passed
-	 * {@link SpecificType}.
+	 * Checks if the {@link String} matches a raw-type of the passed {@link SpecificType}.
 	 * 
 	 * @param arg       is the passed {@link String}.
 	 * @param typeClass is the class of the {@link SpecificType}.
@@ -86,8 +84,8 @@ public non-sealed interface SpecificType extends AbstractType {
 	}
 
 	/**
-	 * Returns the first raw-type of the passed {@link SpecificType} that matches
-	 * the passed {@link String}.
+	 * Returns the first raw-type of the passed {@link SpecificType} that matches the passed
+	 * {@link String}.
 	 * 
 	 * @param <T>       is the class-type of the return-value.
 	 * @param arg       is the passed {@link String}.
@@ -98,8 +96,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	}
 
 	/**
-	 * Calls the hidden, static method {@link Enum#values()} for any subclass of
-	 * {@link SpecificType}.
+	 * Calls the hidden, static method {@link Enum#values()} for any subclass of {@link SpecificType}.
 	 * 
 	 * @param <T>       is the class-type of the return-value.
 	 * @param typeClass is the class of the {@link SpecificType}.

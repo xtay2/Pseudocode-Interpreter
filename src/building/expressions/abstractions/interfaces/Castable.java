@@ -6,7 +6,6 @@ import building.types.specific.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.functional.DefValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.CharValue;
@@ -40,7 +39,6 @@ public interface Castable extends ValueHolder {
 			case INT -> asInt();
 			case TEXT -> asText();
 			case CHAR -> asChar();
-			case DEF -> asDef();
 			case OBJECT -> throw new UnsupportedOperationException("Unsupported case: " + t);
 			// ARRAY TYPES
 			case VAR_ARRAY -> asVarArray();
@@ -49,7 +47,6 @@ public interface Castable extends ValueHolder {
 			case NUMBER_ARRAY -> asNumberArray();
 			case TEXT_ARRAY -> asTextArray();
 			case CHAR_ARRAY -> asCharArray();
-			case DEF_ARRAY -> asDefArray();
 			case OBJECT_ARRAY -> throw new UnsupportedOperationException("Unsupported case: " + t);
 		};
 	}
@@ -72,10 +69,6 @@ public interface Castable extends ValueHolder {
 
 	public default CharValue asChar() throws CastingException {
 		throw new CastingException("A " + getType() + " cannot be casted to a CharValue.");
-	}
-
-	public default DefValue asDef() {
-		throw new CastingException("A " + getType() + " cannot be casted to a def.");
 	}
 
 	/** Returns a characterwise textrepresentation for default. */

@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.3
+There is now a difference between the `in` operator and the `in` keyword.
+
 ### Update 0.4.2
 Added utf8-operators, the prefix-operator `not` and case insensitivity for numeric constants.
 

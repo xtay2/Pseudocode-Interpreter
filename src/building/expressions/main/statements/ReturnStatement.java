@@ -1,7 +1,7 @@
 package building.expressions.main.statements;
 
 import static building.types.specific.KeywordType.RETURN;
-import static misc.helper.Output.print;
+import static misc.supporting.Output.print;
 
 import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.ValueHolder;

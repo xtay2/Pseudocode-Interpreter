@@ -3,6 +3,7 @@ package formatter.basic;
 import static building.types.abstractions.SpecificType.equalsString;
 import static building.types.specific.KeywordType.*;
 import static java.lang.String.valueOf;
+import static misc.helper.ProgramHelper.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,6 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import building.types.specific.operators.InfixOpType;
-import misc.helper.Helper;
 
 /**
  * Everything should get executed after {@link FormatterLvl2#format()}.
@@ -36,18 +36,37 @@ import misc.helper.Helper;
  */
 public final class FormatterLvl1 extends Formatter {
 
+	/**
+	 * Gets executed before everything else.
+	 * 
+	 * (Mainly before {@link FormatterLvl2#format()})
+	 */
+	protected static void preFormatting() {
+		forEachLine(List.of((x, y) -> replaceOperators(x, y)));
+	}
+
+	/**
+	 * A {@link LineFormatterFunc} that replaces simple writings or operators with their
+	 * unicode-equivalent.
+	 */
+	static String replaceOperators(String line, boolean isFullyRunnable) {
+		line = replaceAllIfRunnable(line, "!=", InfixOpType.NOT_EQUALS.toString(), isFullyRunnable);
+		line = replaceAllIfRunnable(line, "<=", InfixOpType.LESS_EQ.toString(), isFullyRunnable);
+		line = replaceAllIfRunnable(line, ">=", InfixOpType.GREATER_EQ.toString(), isFullyRunnable);
+		return line;
+	}
+
 	protected static void format(boolean isMain) {
 		if (isMain)
 			addMissingMain();
 		moveImportsUp();
 		formatOpenScopes();
 		formatClosedScopes();
+		correctSemicolons();
 //		//@formatter:off
 		forEachLine(List.of(
-				(x, y) -> correctSemicolons(x, y),
 				(x, y) -> replaceElifs(x, y),
-				(x, y) -> orderFlags(x, y),
-				(x, y) -> replaceOperators(x, y)
+				(x, y) -> orderFlags(x, y)
 				));
 		//@formatter:on
 	}
@@ -82,8 +101,8 @@ public final class FormatterLvl1 extends Formatter {
 	/**
 	 * Formats {@link OpenBlock} Brackets.
 	 * 
-	 * Move everything behind a {@link OpenBlock}-Bracket into the next line and
-	 * connect the bracket to the statement.
+	 * Move everything behind a {@link OpenBlock}-Bracket into the next line and connect the bracket to
+	 * the statement.
 	 * 
 	 * <pre>
 	 * if false 
@@ -100,7 +119,7 @@ public final class FormatterLvl1 extends Formatter {
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i);
 			int idxOfOs = line.indexOf(OB);
-			if (Helper.isRunnableCode(idxOfOs, line)) {
+			if (isRunnableCode(idxOfOs, line)) {
 				// If something is behind the open block, move it down.
 				if (idxOfOs != line.length() - 1) {
 					program.add(i + 1, program.get(i).substring(idxOfOs + 1, line.length()));
@@ -112,7 +131,7 @@ public final class FormatterLvl1 extends Formatter {
 					// Go back and reconnect it to the statement
 					for (int j = i - 1; j >= 0; j--) {
 						line = program.get(j);
-						if (Helper.isRunnableCode(0, line)) {
+						if (isRunnableCode(0, line)) {
 							program.set(j, line + " " + OB);
 							break;
 						}
@@ -123,8 +142,8 @@ public final class FormatterLvl1 extends Formatter {
 	}
 
 	/**
-	 * If something stands in front of a {@link CloseBlock} the, CB and everything
-	 * behind it gets moved to the next line.
+	 * If something stands in front of a {@link CloseBlock} the, CB and everything behind it gets moved
+	 * to the next line.
 	 * 
 	 * <pre>
 	 * 
@@ -134,7 +153,13 @@ public final class FormatterLvl1 extends Formatter {
 	 * 
 	 * }
 	 * } else {...}
+	 * -----------------------------------
+	 * };}
 	 * 
+	 * becomes
+	 * 
+	 * };
+	 * }
 	 * </pre>
 	 */
 	static void formatClosedScopes() {
@@ -142,55 +167,63 @@ public final class FormatterLvl1 extends Formatter {
 			String line = program.get(i);
 			int idxOfCs = line.indexOf(CB);
 			// Line contains cs
-			if (Helper.isRunnableCode(idxOfCs, line)) {
+			if (isRunnableCode(idxOfCs, line)) {
 				String lineWthtFstCS = line.substring(idxOfCs + 1).stripLeading();
 				if (!line.startsWith(CB)) {
 					program.add(i, line.substring(0, idxOfCs));
 					program.set(i + 1, line.substring(idxOfCs));
-				} else if (!lineWthtFstCS.isBlank()
-						// Only break the line if the next word isn't allowed as a follower.
-						&& !CloseBlock.allowedAfter().stream().anyMatch(e -> lineWthtFstCS.startsWith(e.toString()))) {
-					program.set(i, CB);
-					program.add(i + 1, lineWthtFstCS);
+				} else if (!lineWthtFstCS.isBlank()) {
+					// Only break the line if the next word isn't allowed as a follower.
+					if (!CloseBlock.allowedAfter().stream().anyMatch(e -> lineWthtFstCS.startsWith(e.toString()))) {
+						program.set(i, CB);
+						program.add(i + 1, lineWthtFstCS);
+					} // If a SLS ends with an actual block, the block has to be followed by a semicolon.
+					else if (lineWthtFstCS.startsWith(MCS) && lineWthtFstCS.length() > 1) {
+						program.set(i, CB + MCS);
+						program.add(i + 1, lineWthtFstCS.substring(1));
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that adds a semicolon behind each
-	 * one-line-statement thats missing one, and removes the unnecessary ones.
+	 * Adds missing semicolons and removes unnecessary ones.
+	 * 
+	 * <pre>
+	 * Lines where semicolons get added:
+	 * if a: return true
+	 * 
+	 * if b: repeat {
+	 * 	...
+	 * }
+	 * 
+	 * All other semicolons get removed.
+	 * </pre>
 	 */
-	static String correctSemicolons(String line, boolean isFullyRunnable) {
-		// If the line doesn't contain any OLS', remove all semicolons
-		if (line.indexOf(OLS) == -1)
-			return replaceAllIfRunnable(line, MCS, "", isFullyRunnable);
-		// If the line contains a OLS', it should end with a semicolon
-		else if (!line.endsWith(MCS))
-			return line + MCS;
-		return line;
+	static void correctSemicolons() {
+		for (int i = 0; i < program.size(); i++) {
+			final String line = program.get(i);
+			if (containsRunnable(line, String.valueOf(OLS))) {
+				if (lineEndsWith(line, OB)) {
+					int idxOfMatch = findMatchingBrack(program, i, indexOfRunnable(line, OBR))[0];
+					if (!lineEndsWith(program.get(idxOfMatch), MCS))
+						program.set(idxOfMatch, appendRunnable(program.get(idxOfMatch), MCS));
+				} else if (!lineEndsWith(line, MCS))
+					program.set(i, appendRunnable(line, MCS));
+			} else if (!containsRunnable(line, CBR))
+				program.set(i, replaceAllIfRunnable(line, MCS, "", isFullyRunnable(line)));
+		}
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that replaces wrong spellings of
-	 * {@link KeywordType#ELIF}.
+	 * A {@link LineFormatterFunc} that replaces wrong spellings of {@link KeywordType#ELIF}.
 	 * 
 	 * If level2 is active, this should get executed after
 	 * {@link FormatterLvl2#miscPadding(String, boolean)}
 	 */
 	static String replaceElifs(String line, boolean isFullyRunnable) {
 		return replaceAllIfRunnable(line, ELSE + "(:?)\\s" + IF, ELIF.toString(), isFullyRunnable);
-	}
-
-	/**
-	 * A {@link LineFormatterFunc} that replaces simple writings or operators with
-	 * their unicode-equivalent.
-	 */
-	static String replaceOperators(String line, boolean isFullyRunnable) {
-		line = replaceAllIfRunnable(line, "!=", InfixOpType.NOT_EQUALS.toString(), isFullyRunnable);
-		line = replaceAllIfRunnable(line, "<=", InfixOpType.LESS_EQ.toString(), isFullyRunnable);
-		line = replaceAllIfRunnable(line, ">=", InfixOpType.GREATER_EQ.toString(), isFullyRunnable);
-		return line;
 	}
 
 	/**
@@ -218,7 +251,6 @@ public final class FormatterLvl1 extends Formatter {
 				withoutFlags = withoutFlags.substring(fst.length()).stripLeading();
 			} else
 				break;
-
 		}
 		if (flags.isEmpty())
 			return line;

@@ -1,38 +1,33 @@
 package building.expressions.normal.operators.infix;
 
+import static runtime.datatypes.BoolValue.valueOf;
+
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 
-@FunctionalInterface
-interface ComparativeOperation {
-	BoolValue execute(Value a, Value b);
-}
-
 public final class ComparativeOperator extends InfixOperator {
-
-	private final ComparativeOperation operation;
 
 	public ComparativeOperator(int lineID, InfixOpType operator) {
 		super(lineID, operator);
-		operation = switch (operator) {
-			case EQUALS -> (a, b) -> Value.eq(a, b);
-			case NOT_EQUALS -> (a, b) -> Value.eq(a, b).not();
-
-			case LESS -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerThan(b.asNumber()));
-			case LESS_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isSmallerEq(b.asNumber()));
-
-			case GREATER -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterThan(b.asNumber()));
-			case GREATER_EQ -> (a, b) -> BoolValue.valueOf(a.asNumber().isGreaterEq(b.asNumber()));
-
-			default -> throw new IllegalArgumentException("Unexpected value: " + operator);
-		};
 	}
 
 	@Override
-	public final Value perform(ValueHolder a, ValueHolder b) {
-		return operation.execute(a.getValue(), b.getValue());
-	}
+	public final BoolValue perform(ValueHolder a, ValueHolder b) {
+		Value aVal = a.getValue();
+		Value bVal = a.getValue();
+		return switch (op) {
+			case EQUALS -> Value.eq(aVal, bVal);
+			case NOT_EQUALS -> Value.eq(aVal, bVal).not();
 
+			case LESS -> valueOf(aVal.asNumber().isSmallerThan(bVal.asNumber()));
+			case LESS_EQ -> valueOf(aVal.asNumber().isSmallerEq(bVal.asNumber()));
+
+			case GREATER -> valueOf(aVal.asNumber().isGreaterThan(bVal.asNumber()));
+			case GREATER_EQ -> valueOf(aVal.asNumber().isGreaterEq(bVal.asNumber()));
+
+			default -> throw new IllegalArgumentException("Unexpected value: " + op);
+		};
+	}
 }

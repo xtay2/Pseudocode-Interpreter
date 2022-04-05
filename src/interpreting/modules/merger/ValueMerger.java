@@ -22,9 +22,6 @@ import building.types.specific.AssignmentType;
 import building.types.specific.DataType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.functional.DefLink;
-import runtime.datatypes.numerical.IntValue;
-import runtime.exceptions.ShouldBeNaturalNrException;
 import runtime.exceptions.UnexpectedTypeError;
 
 /**
@@ -34,23 +31,12 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [|] [VALUE_HOLDER] [,] [VALUE_HOLDER]... [|] */
 	public static MultiCall buildMultiCall() {
-		return new MultiCall(lineID, null, buildParts());
+		return new MultiCall(lineID, buildParts());
 	}
 
 	/** [(] **/
 	public static Call buildCall() {
 		return new Call(lineID, buildName(), buildParts());
-	}
-
-	/** [Name] [<] [INT_VALUE] [>] */
-	public static DefLink buildDefLink() {
-		Name target = buildName();
-		line.remove(0); // <
-		line.remove(1); // >
-		if (buildVal() instanceof IntValue i && i.isPositive()) {
-			return new DefLink(target, i.raw().intValueExact());
-		}
-		throw new ShouldBeNaturalNrException(orgLine, "The paramcount in a def has to be a literal integer.");
 	}
 
 	/* [OPEN_SQUARE] [?PARAM] [?COMMA] [?PARAM] [CLOSE_SQUARE] */
@@ -59,8 +45,7 @@ public abstract class ValueMerger extends SuperMerger {
 	}
 
 	/**
-	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER]
-	 * [ARRAY_END])...
+	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])...
 	 */
 	public static ArrayAccess buildArrayAccess() {
 		Name target = buildName();
@@ -111,8 +96,7 @@ public abstract class ValueMerger extends SuperMerger {
 				return new Declaration(lineID, type, target, buildVal());
 			} else if (line.get(0).is(SuperType.ASSIGNMENT_TYPE))
 				throw new IllegalCodeFormatException(orgLine,
-						"An initial declaration can only utilise the normal assignment operator \""
-								+ AssignmentType.NORMAL + "\".");
+						"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
 		}
 		return new Declaration(lineID, type, target, type.stdVal());
 	}

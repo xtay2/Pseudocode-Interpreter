@@ -148,7 +148,6 @@ public final class ArrayValue extends Value {
 			case NUMBER_ARRAY, INT_ARRAY -> true; // Casted jedes Element zu einer Zahl oder NaN.
 			case CHAR_ARRAY -> everyElementIs(CHAR);// Only if every element can be casted to a char.
 			case BOOL_ARRAY -> everyElementIs(BOOL); // Only if every element can be casted to a bool.
-			case DEF_ARRAY -> everyElementIs(DEF); // Only if every element can be casted to a def.
 			default -> false;
 		};
 	}

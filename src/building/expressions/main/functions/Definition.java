@@ -1,6 +1,5 @@
 package building.expressions.main.functions;
 
-import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.KeywordType.FUNC;
 
 import java.util.HashSet;
@@ -15,13 +14,10 @@ import building.expressions.normal.containers.Name;
 import building.types.specific.DataType;
 import building.types.specific.FlagType;
 import interpreting.modules.merger.ExpressionMerger;
-import misc.helper.Output;
 import runtime.datatypes.Value;
-import runtime.exceptions.IllegalCallException;
 
 /**
- * This is the Superclass for {@link Function}, {@link MainFunction} and
- * {@link NativeFunction}.
+ * This is the Superclass for {@link Function}, {@link MainFunction} and {@link NativeFunction}.
  * 
  * It provides the ability to set and give return-values.
  */
@@ -47,12 +43,10 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 	protected boolean wasCalled = false;
 
 	/**
-	 * Creates this {@link Definition}. It gets later registered in the
-	 * {@link ExpressionMerger}.
+	 * Creates this {@link Definition}. It gets later registered in the {@link ExpressionMerger}.
 	 * 
 	 * @param name is the unique {@link Name} of this {@link Definition}.
-	 * @param os   is the {@link OpenBlock} of this {@link ScopeHolder} (Can be null
-	 *             for native funcs).
+	 * @param os   is the {@link OpenBlock} of this {@link ScopeHolder} (Can be null for native funcs).
 	 */
 	protected Definition(int lineID, Name name, OpenBlock os) {
 		super(lineID, FUNC, os);
@@ -62,8 +56,8 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 	}
 
 	/**
-	 * This method gets called by the ReturnStatement. If a returntype is specified,
-	 * the value gets implicitly casted.
+	 * This method gets called by the ReturnStatement. If a returntype is specified, the value gets
+	 * implicitly casted.
 	 */
 	public final void setValue(Value val) {
 		if (returnVal != null && val != null)
@@ -93,23 +87,6 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 	}
 
 	/**
-	 * Checks, if this {@link Definition} is {@link FlagType#FINAL} and already got
-	 * called.
-	 * 
-	 * If both is true, an {@link IllegalCallException} gets thrown.
-	 * 
-	 * This method gets called by all {@link #execute()}-Methods.
-	 */
-	protected final void finalCheck() {
-		if (hasFlag(FINAL)) {
-			if (wasCalled)
-				throw new IllegalCallException(getOriginalLine(),
-						"Function \"" + getNameString() + "\" is declared as final and can only get called once.");
-			wasCalled = true;
-		}
-	}
-
-	/**
 	 * Calls this {@link Definition}
 	 * 
 	 * @param params optional call-parameters.
@@ -122,8 +99,8 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 		throw new AssertionError("A func-declaration cannot be executed.");
 	}
 
-	@Override
+	@Override // This shouldn't get changed.
 	public final String toString() {
-		return Output.debugMode ? getClass().getSimpleName() : getNameString();
+		return getNameString() + "<" + expectedParams() + ">";
 	}
 }

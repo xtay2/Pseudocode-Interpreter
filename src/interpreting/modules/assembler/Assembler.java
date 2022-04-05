@@ -1,22 +1,22 @@
 package interpreting.modules.assembler;
 
-import static formatter.basic.Formatter.CB;
-import static formatter.basic.Formatter.MCS;
-import static formatter.basic.Formatter.OB;
-import static formatter.basic.Formatter.SLC;
+import static formatter.basic.Formatter.*;
+import static misc.helper.ProgramHelper.containsRunnable;
+import static misc.helper.ProgramHelper.indexOfRunnable;
+import static misc.helper.ProgramHelper.lineEndsWith;
+import static misc.helper.StringHelper.removeCharAt;
+import static misc.helper.StringHelper.unIndexLines;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import building.expressions.main.CloseBlock;
 import formatter.basic.Formatter;
-import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.parser.Parser.IdxLine;
-import misc.helper.Helper;
+import misc.helper.ProgramHelper;
 
 /**
- * Does all the invisible but necessary formatting that is not done by the
- * {@link Formatter}.
+ * Does all the invisible but necessary formatting that is not done by the {@link Formatter}.
  */
 public class Assembler {
 
@@ -27,7 +27,8 @@ public class Assembler {
 		lines = new ArrayList<>(program.stream().map(e -> new IdxLine(e.line().strip(), e.index())).toList());
 		removeEmptyAndComments();
 		splitCloseBlocks();
-		splitOneLiners();
+		splitFullOneLiners();
+		splitPartialOneLiners();
 		return lines;
 	}
 
@@ -46,8 +47,7 @@ public class Assembler {
 	}
 
 	/**
-	 * If a line contains something except a {@link CloseBlock}, it gets split into
-	 * two lines.
+	 * If a line contains something except a {@link CloseBlock}, it gets split into two lines.
 	 * 
 	 * <pre>
 	 * if ... {
@@ -63,12 +63,14 @@ public class Assembler {
 	 * } 
 	 * else {
 	 * </pre>
+	 * 
+	 * An exeption is the partial one-line-statement, that ends with "};", and doesn't get split.
 	 */
 	private static void splitCloseBlocks() {
 		for (int i = 0; i < lines.size(); i++) {
 			final String l = lines.get(i).line();
 			final int index = lines.get(i).index();
-			if (l.contains(CB) && l.length() > 1) {
+			if (containsRunnable(l, CB) && l.length() > 1 && !l.equals(CB + MCS)) {
 				// Remove original
 				lines.remove(i);
 				// Split the line, but keep the } symbols.
@@ -95,23 +97,63 @@ public class Assembler {
 	 * }
 	 * </pre>
 	 */
-	private static void splitOneLiners() {
+	private static void splitFullOneLiners() {
 		for (int i = 0; i < lines.size(); i++) {
-			String l = lines.get(i).line();
-			final int index = lines.get(i).index();
-
-			int lineBreak = l.indexOf(Formatter.OLS);
-			if (Helper.isRunnableCode(lineBreak, l)) {
-				if (lineBreak == l.length() - 1)
-					throw new IllegalCodeFormatException(lines.get(i).index(), "This one-line statement has to end with a semicolon.");
-				// Replace Semikolon with BlockBrackets
-				if (l.endsWith(MCS)) // For Nested Loops/Statements
-					l = l.substring(0, l.length() - 1);
-				lines.add(i + 1, new IdxLine(CB, index));
-				lines.add(i + 1, new IdxLine(l.substring(lineBreak + 2), index)); // Teil nach :
-				lines.set(i, new IdxLine(l.substring(0, lineBreak) + " " + OB, index));
+			final String line = lines.get(i).line();
+			final int orgLine = lines.get(i).index();
+			int idxOfFstOLS = indexOfRunnable(line, String.valueOf(OLS));
+			if (idxOfFstOLS != -1) {
+				if (lineEndsWith(line, MCS)) {
+					lines.set(i, new IdxLine(line.substring(0, idxOfFstOLS) + " " + OB, orgLine));
+					// SUBLINE
+					String subLine = line.substring(idxOfFstOLS + 2);
+					if (!containsRunnable(subLine, String.valueOf(OLS)))
+						subLine = removeCharAt(indexOfRunnable(subLine, MCS), subLine);
+					lines.add(i + 1, new IdxLine(subLine, orgLine));
+					// CLOSE-BLOCK
+					lines.add(i + 2, new IdxLine(CB, orgLine));
+				}
 			}
 		}
 	}
 
+	/**
+	 * Splits up all partial one-line-statements and removes the semicolon.
+	 * 
+	 * <pre>
+	 * for e in [1, 2, 3]: if e % 2 == 0 {
+	 * print(e)
+	 * };
+	 * 
+	 * becomes
+	 * 
+	 * for e in [1, 2, 3] {
+	 * if e % 2 == 0 {
+	 * print(e)
+	 * }
+	 * }
+	 * </pre>
+	 */
+	private static void splitPartialOneLiners() {
+		for (int i = 0; i < lines.size(); i++) {
+			final String line = lines.get(i).line();
+			final int orgLine = lines.get(i).index();
+			int idxOfFstOLS = indexOfRunnable(line, String.valueOf(OLS));
+			if (idxOfFstOLS != -1) {
+				if (lineEndsWith(line, OB)) {
+					// CLOSE-BLOCK
+					int idxOfMSC = ProgramHelper.findMatchingBrack(unIndexLines(lines), i, idxOfFstOLS)[0];
+					lines.add(idxOfMSC + 1, new IdxLine(CB, lines.get(idxOfMSC).index()));
+					lines.set(i, new IdxLine(line.substring(0, idxOfFstOLS) + " " + OB, orgLine));
+					lines.add(i + 1, new IdxLine(line.substring(idxOfFstOLS + 2), orgLine));
+				} else {
+					//@formatter:off
+					throw new AssertionError( // The error-msg exists in this method, because it gets called after #splitFullOneLiners
+							"A line that contains a one-line-start, has to end with an open-block or a multi-close-scope."
+							+ "\nThis should get handled by FormatterLvl1.\nLine was: " + line);
+				} //@formatter:on
+			} else if (line.equals(CB + MCS))
+				lines.set(i, new IdxLine(CB, orgLine));
+		}
+	}
 }

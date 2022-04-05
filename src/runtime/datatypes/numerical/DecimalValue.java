@@ -1,6 +1,7 @@
 package runtime.datatypes.numerical;
 
 import static building.types.specific.DataType.NUMBER;
+import static misc.helper.MathHelper.getDigitCount;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 
 import java.math.BigDecimal;
@@ -8,8 +9,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.HashMap;
 
-import misc.helper.Helper;
-import misc.helper.Output;
+import misc.supporting.Output;
 import runtime.natives.SystemFunctions;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */
@@ -56,7 +56,7 @@ public final class DecimalValue extends NumberValue {
 		if (denominator.equals(BigInteger.ONE))
 			throw new AssertionError("Denominator cannot be one, use an IntValue instead.");
 		// Length check
-		if (Helper.getDigitCount(numerator) > MAX_LENGTH || Helper.getDigitCount(denominator) > MAX_LENGTH)
+		if (getDigitCount(numerator) > MAX_LENGTH || getDigitCount(denominator) > MAX_LENGTH)
 			throw new ArithmeticException("Numbers cannot extend 100 digits.");
 		// Sign Check I: -x / -y = x / y
 		if (numerator.compareTo(BigInteger.ZERO) < 0 && denominator.compareTo(BigInteger.ZERO) < 0) {

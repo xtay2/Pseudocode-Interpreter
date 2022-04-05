@@ -1,5 +1,9 @@
 package building.expressions.main.functions;
 
+import static building.types.specific.FlagType.FINAL;
+import static runtime.natives.SystemFunctions.callSystemFunc;
+import static runtime.natives.SystemFunctions.getSystemFunction;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,6 +15,7 @@ import building.types.specific.FlagType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
+import runtime.defmanager.DefManager;
 import runtime.exceptions.DeclarationException;
 import runtime.exceptions.IllegalCallException;
 import runtime.natives.SystemFunctions;
@@ -18,8 +23,8 @@ import runtime.natives.SystemFunctions;
 /**
  * This is the class for a native Function-Declaration.
  * 
- * If a {@link NativeFunction} called, this happens through the
- * {@link Call}-Class and {@link Interpreter#call}.
+ * If a {@link NativeFunction} called, this happens through the {@link Call}-Class and
+ * {@link Interpreter#call}.
  */
 public class NativeFunction extends Definition {
 
@@ -28,11 +33,9 @@ public class NativeFunction extends Definition {
 	/**
 	 * Defines and registers a {@link NativeFunction}.
 	 * 
-	 * @param name       is the unique {@link Name} of this {@link Definition}.
-	 *                   shouldn't be null
+	 * @param name       is the unique {@link Name} of this {@link Definition}. shouldn't be null
 	 * @param params     shouldn't be null.
-	 * @param returnType is the {@link DataType} of the return value. Should be null
-	 *                   if this is a void.
+	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a void.
 	 * @param flags      are optional {@link FlagType}s.
 	 */
 	public NativeFunction(int lineID, Name name, List<DataType> params, DataType returnType) {
@@ -55,11 +58,12 @@ public class NativeFunction extends Definition {
 
 	@Override
 	public Value call(ValueHolder... params) {
-		finalCheck(); // Has to come first
+		if (hasFlag(FINAL))
+			DefManager.finalize(this);
 		// Call to System-Functions
 		if (params.length != expectedParams())
 			throw new IllegalCallException(getOriginalLine(), "Illegal amount of params. Expected " + expectedParams());
-		returnVal = SystemFunctions.callSystemFunc(SystemFunctions.getSystemFunction(getNameString()), params);
+		returnVal = callSystemFunc(getSystemFunction(getNameString(), getOriginalLine()), params);
 		// The return-value is now set.
 		if (returnVal != null && returnType != null)
 			returnVal = returnVal.as(returnType);

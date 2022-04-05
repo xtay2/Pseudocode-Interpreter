@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @see SuperType
+ */
 public non-sealed interface UnspecificType extends AbstractType {
 
 	/** Returns true, if this is == other or other {@link #has()} this. */

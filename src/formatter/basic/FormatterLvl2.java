@@ -1,6 +1,8 @@
 package formatter.basic;
 
-import static misc.helper.Helper.merge;
+import static misc.helper.CollectionHelper.merge;
+import static misc.helper.ProgramHelper.isNotInString;
+import static misc.helper.ProgramHelper.replaceAllIfRunnable;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,10 +10,13 @@ import java.util.regex.Pattern;
 
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.SpecificType;
-import building.types.specific.*;
+import building.types.specific.AssignmentType;
+import building.types.specific.BuilderType;
+import building.types.specific.DataType;
+import building.types.specific.DynamicType;
+import building.types.specific.KeywordType;
 import building.types.specific.operators.InfixOpType;
 import building.types.specific.operators.PrefixOpType;
-import misc.helper.Helper;
 
 /**
  * This gets executed first!
@@ -43,8 +48,7 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that replaces multiple occurrences of whitespaces
-	 * with just one.
+	 * A {@link LineFormatterFunc} that replaces multiple occurrences of whitespaces with just one.
 	 */
 	static String reduceSpaces(String line, boolean isFullyRunnable) {
 		return replaceAllIfRunnable(line, "\\s{2,}", " ", isFullyRunnable);
@@ -60,8 +64,8 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence
-	 * of an {@link AssignmentType} in the passed line.
+	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence of an
+	 * {@link AssignmentType} in the passed line.
 	 */
 	static String assignmentPadding(String line, boolean isFullyRunnable) {
 		//@formatter:off
@@ -72,8 +76,8 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence
-	 * of an {@link InfixOpType} in the passed line.
+	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence of an
+	 * {@link InfixOpType} in the passed line.
 	 */
 	static String infixOpPadding(String line, boolean isFullyRunnable) {
 		//@formatter:off
@@ -96,8 +100,8 @@ public final class FormatterLvl2 extends Formatter {
 	 * Surrounds every occurrence of any passed type in the line with whitespaces.
 	 * 
 	 * @param types           is an array of possible types.
-	 * @param container       is an array of types that could contain the
-	 *                        target-types in their {@link String}-representation.
+	 * @param container       is an array of types that could contain the target-types in their
+	 *                        {@link String}-representation.
 	 * @param line            is the line that gets evaluated.
 	 * @param isFullyRunnable tells if the line contains comments or strings.
 	 * @return the line with optimal possible padding around the types.
@@ -112,7 +116,7 @@ public final class FormatterLvl2 extends Formatter {
 			// Find the first occurrence, fix it, repeat for what left behind the fix.
 			while ((m = p.matcher(line)).find(lastMatch)) {
 				lastMatch = m.start();
-				if (isFullyRunnable || Helper.isNotInString(lastMatch, line))
+				if (isFullyRunnable || isNotInString(lastMatch, line))
 					line = formatNextMatch(line, lastMatch, typeStr, container);
 				lastMatch++; // Go on, in case nothing was found.
 			}
@@ -142,11 +146,9 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * Checks if the current type is contained in the {@link String}-representation
-	 * of another type.
+	 * Checks if the current type is contained in the {@link String}-representation of another type.
 	 * 
-	 * @param current   is a validated {@link String}-representation of a
-	 *                  {@link SpecificType}.
+	 * @param current   is a validated {@link String}-representation of a {@link SpecificType}.
 	 * @param next      is the character thats following the type.
 	 * @param container is an array of types that could contain this type.
 	 * @return true if the passed type isn't part of another one.
@@ -170,8 +172,7 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that corrects the padding for three types of
-	 * brackets: (), [], {}.
+	 * A {@link LineFormatterFunc} that corrects the padding for three types of brackets: (), [], {}.
 	 * 
 	 * This should get executed after {@link #reduceSpaces(String, boolean)}
 	 */
@@ -195,8 +196,7 @@ public final class FormatterLvl2 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that corrects the padding for commas, colons and
-	 * semicolons.
+	 * A {@link LineFormatterFunc} that corrects the padding for commas, colons and semicolons.
 	 * 
 	 * This should get executed after {@link #reduceSpaces(String, boolean)}
 	 */

@@ -1,6 +1,6 @@
 package launching;
 
-import static misc.helper.Output.print;
+import static misc.supporting.Output.print;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,14 +10,13 @@ import java.util.Arrays;
 import interpreting.modules.interpreter.Interpreter;
 import interpreting.modules.parser.Parser;
 import interpreting.program.Program;
-import misc.helper.FileManager;
-import misc.helper.Output;
+import misc.supporting.FileManager;
+import misc.supporting.Output;
 
 /**
  * The starting point for the Interpreter.
  * 
- * Takes the execution command and possible flags, and starts the program
- * accordingly.
+ * Takes the execution command and possible flags, and starts the program accordingly.
  */
 public abstract class Main {
 
@@ -62,8 +61,7 @@ public abstract class Main {
 	 * Starts the formatting and the execution.
 	 * 
 	 * @param execFlags      are optional execution-flags.
-	 * @param justFormatting is true, if the program should only get formatted and
-	 *                       not interpreted.
+	 * @param justFormatting is true, if the program should only get formatted and not interpreted.
 	 */
 	private static void exec(String[] execFlags, boolean justFormatting) {
 		// Set flags
@@ -75,7 +73,7 @@ public abstract class Main {
 			else if ("--j-stacktrace".equals(flag))
 				jStacktrace = true;
 			else if (flag.matches("--formatter-lvl:\\d"))
-				formatterLvl = Integer.valueOf(flag.charAt(flag.length() - 1));
+				formatterLvl = Character.getNumericValue(flag.charAt(flag.length() - 1));
 			else if ("--force-format".equals(flag))
 				force = true;
 			else
@@ -121,5 +119,9 @@ public abstract class Main {
 	 */
 	public static int getFormattingLvl() {
 		return formatterLvl;
+	}
+
+	public static boolean showJStacktrace() {
+		return jStacktrace;
 	}
 }

@@ -8,6 +8,6 @@ public abstract class InterpretingException extends IllegalStateException {
 	 * @param line is the original line of code which produced this error.
 	 */
 	public InterpretingException(int line, String message) {
-		super(line == -1 ? message : line + ": " + message);
+		super(line == -1 ? message : "Line " + line + ": " + message);
 	}
 }

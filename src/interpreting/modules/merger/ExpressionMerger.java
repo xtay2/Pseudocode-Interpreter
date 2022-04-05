@@ -1,7 +1,7 @@
 package interpreting.modules.merger;
 
 import static building.expressions.abstractions.GlobalScope.GLOBAL;
-import static misc.helper.Output.print;
+import static misc.supporting.Output.print;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +54,12 @@ public abstract class ExpressionMerger {
 		try {
 			main = (MainExpression) SuperMerger.build();
 		} catch (Exception | Error e) {
-			e.printStackTrace();
+			if (Main.showJStacktrace())
+				e.printStackTrace();
+			else {
+				System.err.println("---" + e.getClass().getSimpleName() + "---");
+				System.err.println(e.getMessage());
+			}
 			System.err.print("\nCaused: ");
 			throw new IllegalCodeFormatException(orgLine,
 					"Unknown unpropper format." + "\nOriginal state of line " + orgExp + "\nCurrent state of line: " + line);

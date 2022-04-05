@@ -5,10 +5,8 @@ import java.math.BigInteger;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.Castable;
-import building.expressions.main.functions.Definition;
 import building.types.specific.DataType;
 import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.functional.DefValue;
 import runtime.datatypes.numerical.ConceptualNrValue;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.IntValue;
@@ -48,8 +46,7 @@ public abstract class Value extends Expression implements Castable {
 	}
 
 	/**
-	 * Tells, if this Value can always be safely casted to the suggested
-	 * {@link DataType}.
+	 * Tells, if this Value can always be safely casted to the suggested {@link DataType}.
 	 * 
 	 * Default: True for charwise-, text-, numeric-, representation.
 	 */
@@ -62,8 +59,7 @@ public abstract class Value extends Expression implements Castable {
 	 * Should get implemented by all Classes that inherit this class (Value).
 	 * 
 	 * @param v is the value its checked against.
-	 * @throws UnexpectedTypeError if isn't an instance of the same class this
-	 *                             method gets executed on.
+	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
 	 */
 	public abstract boolean valueCompare(Value v) throws UnexpectedTypeError;
 
@@ -90,8 +86,6 @@ public abstract class Value extends Expression implements Castable {
 	 * -{@link Character} for {@link CharValue}.
 	 * 
 	 * -{@link Boolean} for {@link BoolValue}.
-	 * 
-	 * -{@link Definition} for {@link DefValue}
 	 * 
 	 * -{@link Object} (null) for {@link NullValue}.
 	 * 

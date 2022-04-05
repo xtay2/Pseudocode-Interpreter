@@ -1,4 +1,4 @@
-package misc.helper;
+package misc.supporting;
 
 public final class Output {
 

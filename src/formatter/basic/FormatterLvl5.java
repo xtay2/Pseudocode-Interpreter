@@ -4,9 +4,8 @@ import static building.types.specific.DataType.VAR;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.KeywordType.*;
-import static misc.helper.Helper.findMatchingBrackInLine;
-import static misc.helper.Helper.isRunnableCode;
-import static misc.helper.Helper.removeCharAt;
+import static misc.helper.ProgramHelper.*;
+import static misc.helper.StringHelper.removeCharAt;
 import static runtime.datatypes.BoolValue.FALSE;
 import static runtime.datatypes.BoolValue.TRUE;
 
@@ -20,10 +19,14 @@ import building.types.specific.AssignmentType;
  * 
  * <pre>
  * For the whole file:
- * {@link #commentDeadCode()} * 
+ * {@link #commentDeadCode()}
+ * {@link #commentDeadVars()}
+ * {@link #commentDeadDefs()}
+ * {@link #commentAfterReturn()}
  * For each line:
  * {@link #removeBrackets(String, boolean)}
  * {@link #simplifyBools(String, boolean)}
+ * {@link #simplifyImmutables(String, boolean)}
  * </pre>
  *
  * @see Formatter
@@ -32,10 +35,12 @@ public final class FormatterLvl5 extends Formatter {
 
 	protected static void format() {
 		commentDeadScopes();
+		commentDeadVars();
+		commentDeadDefs();
 		commentAfterReturn();
 		//@formatter:off
 		forEachLine(List.of(
-//			(x, y) -> removeDoubleBrackets(x, y),
+			(x, y) -> removeDoubleBrackets(x, y),
 			(x, y) -> removeOuterBrackets(x, y),
 //			(x, y) -> simplifyBools(x, y),
 			(x, y) -> simplifyImmutables(x, y)
@@ -54,8 +59,8 @@ public final class FormatterLvl5 extends Formatter {
 	 * -repeat 0
 	 * </pre>
 	 * 
-	 * (This doesn't include the "if false"-statement, as it could be followed by
-	 * another conditional and thereby have an impact on the behavior.)
+	 * (This doesn't include the "if false"-statement, as it could be followed by another conditional
+	 * and thereby have an impact on the behavior.)
 	 */
 	static void commentDeadScopes() {
 		for (int i = 0; i < program.size(); i++) {
@@ -68,14 +73,29 @@ public final class FormatterLvl5 extends Formatter {
 				containsRunnable(line, UNTIL + " " + TRUE + OSR) ||
 				containsRunnable(line, REPEAT + " 0" + OSR)
 			) { //@formatter:on
-				if (line.contains(CB)) {
+				int idxOfCB = findMatchingBrack(program, i, indexOfRunnable(line, OBR))[0];
+				if (containsRunnable(line, CBR)) {
 					splitCBLineStart(i);
-					splitCBLineStart(findEndOfScope(i + 1));
+					splitCBLineStart(idxOfCB + 1);
 					continue;
 				}
-				commentRange(i, findEndOfScope(i));
+				commentRange(i, idxOfCB);
 			}
 		}
+	}
+
+	/**
+	 * Comments out all variable-declarations that dont get used.
+	 */
+	static void commentDeadVars() {
+		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * Comments out all definition-declarations that dont get called.
+	 */
+	static void commentDeadDefs() {
+		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -103,7 +123,7 @@ public final class FormatterLvl5 extends Formatter {
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i);
 			if (containsRunnable(line, RETURN.toString())) {
-				if (line.endsWith(MCS))
+				if (lineEndsWith(line, MCS))
 					continue;
 				// For all lines between return and next CloseBlock
 				for (int j = i + 1; j < program.size(); j++) {
@@ -121,12 +141,27 @@ public final class FormatterLvl5 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that removes multiple brackets that enclose the
-	 * same thing.
+	 * A {@link LineFormatterFunc} that removes multiple brackets that enclose the same thing.
 	 */
 	static String removeDoubleBrackets(String line, boolean isFullyRunnable) {
-		// TODO Implement me!
-		return null;
+		for (int i = 0; i < line.length(); i++) {
+			char c = line.charAt(i);
+			if (c == '(') {
+				int match = findMatchingBrackInLine(i, line, isFullyRunnable);
+				while (line.charAt(i + 1) == '(') {
+					int nextMatch = findMatchingBrackInLine(i + 1, line, isFullyRunnable);
+					if (match - 1 == nextMatch) {
+						line = removeCharAt(nextMatch, line);
+						line = removeCharAt(i + 1, line);
+						match--;
+					} else {
+						i--;
+						break;
+					}
+				}
+			}
+		}
+		return line;
 	}
 
 	/**
@@ -171,8 +206,7 @@ public final class FormatterLvl5 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that aggressively removes redundant parts from
-	 * boolean-expressions.
+	 * A {@link LineFormatterFunc} that aggressively removes redundant parts from boolean-expressions.
 	 */
 	static String simplifyBools(String line, boolean isFullyRunnable) {
 		// TODO Implement me!

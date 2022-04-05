@@ -7,12 +7,13 @@ import java.math.BigInteger;
 import java.util.Random;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
-import misc.helper.Output;
+import misc.supporting.Output;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
+import runtime.exceptions.DefNotFoundException;
 
 public final class SystemFunctions {
 
@@ -58,11 +59,11 @@ public final class SystemFunctions {
 	}
 
 	/** Returns the matching system-function for this name. */
-	public static SYSTEM_FUNCTION getSystemFunction(String name) {
+	public static SYSTEM_FUNCTION getSystemFunction(String name, int orgLine) {
 		for (SYSTEM_FUNCTION f : SYSTEM_FUNCTION.values())
 			if (f.name.equals(name))
 				return f;
-		return null;
+		throw new DefNotFoundException(orgLine, "There is no native function called " + name + ".");
 	}
 
 	/** native func exit(text) */

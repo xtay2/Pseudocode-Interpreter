@@ -36,7 +36,7 @@ public final class TextValue extends Value {
 			return BoolValue.valueOf(true);
 		if ("false".equals(value))
 			return BoolValue.valueOf(false);
-		throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool.");
+		throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool. \nWas: \"" + raw() + "\"");
 	}
 
 	@Override
@@ -105,11 +105,11 @@ public final class TextValue extends Value {
 	@Override
 	public boolean canCastTo(DataType type) {
 		return switch (type) {
-		case VAR, TEXT -> true; // Returns this
-		case NUMBER, INT -> true; // The number or NAN if its just text.
-		case CHAR -> value.length() == 1; // Only if its just one character
-		case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
-		default -> false;
+			case VAR, TEXT -> true; // Returns this
+			case NUMBER, INT -> true; // The number or NAN if its just text.
+			case CHAR -> value.length() == 1; // Only if its just one character
+			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
+			default -> false;
 		};
 	}
 

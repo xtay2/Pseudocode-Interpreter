@@ -3,15 +3,12 @@ package interpreting.modules.merger;
 import static building.types.abstractions.SuperType.*;
 import static building.types.specific.BuilderType.*;
 import static building.types.specific.DataType.VAR;
-import static building.types.specific.DynamicType.LITERAL;
 import static building.types.specific.DynamicType.NAME;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.FlagType.NATIVE;
 import static building.types.specific.KeywordType.FUNC;
 import static building.types.specific.KeywordType.IS;
-import static building.types.specific.operators.InfixOpType.GREATER;
-import static building.types.specific.operators.InfixOpType.LESS;
 import static interpreting.modules.merger.ValueMerger.buildAssignment;
 
 import java.util.ArrayList;
@@ -28,7 +25,12 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.AbstractType;
-import building.types.specific.*;
+import building.types.specific.AssignmentType;
+import building.types.specific.BuilderType;
+import building.types.specific.DataType;
+import building.types.specific.DynamicType;
+import building.types.specific.FlagType;
+import building.types.specific.KeywordType;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
@@ -37,14 +39,13 @@ import runtime.exceptions.UnexpectedTypeError;
 /**
  * Every build-Method should atleast remove the first element of the line.
  * 
- * The subclasses of this are all indirectly called by the switch-cases in
- * {@link #build()}.
+ * The subclasses of this are all indirectly called by the switch-cases in {@link #build()}.
  */
 public abstract class SuperMerger extends ExpressionMerger {
 
 	/**
-	 * The default implementation for {@link #buildVal(boolean inOperation)} if no
-	 * operation gets evaluated.)
+	 * The default implementation for {@link #buildVal(boolean inOperation)} if no operation gets
+	 * evaluated.)
 	 */
 	protected static ValueHolder buildVal() {
 		return buildVal(false);
@@ -74,10 +75,6 @@ public abstract class SuperMerger extends ExpressionMerger {
 							}
 							if (sec.is(ASSIGNMENT_TYPE))
 								yield buildAssignment(buildName());
-							// Check if it is a def link, rather than a operation
-							if (line.size() >= 4 && sec.is(LESS) && line.get(2).is(LITERAL) && line.get(3).is(GREATER))
-								if (line.size() == 4 || (line.size() > 4 && !line.get(4).is(NAME) && !line.get(4).is(LITERAL)))
-									yield ValueMerger.buildDefLink();
 						}
 						yield buildName();
 				};
@@ -89,7 +86,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 						if (sec != null && sec.is(DATA_TYPE))
 							yield ValueMerger.buildExplicitCast();
 						yield ValueMerger.buildBracketedExpression();
-					case MULTI_CALL_LINE:
+					case MULTI_CALL_START:
 						yield ValueMerger.buildMultiCall();
 					// Non-Value-BuilderTypes
 					default:
@@ -106,17 +103,18 @@ public abstract class SuperMerger extends ExpressionMerger {
 		if (!line.isEmpty()) {
 			if (line.get(0).is(POSTFIX_OP_TYPE))
 				result = OpMerger.buildPostfix(result);
-			if (!inOperation && line.get(0).is(INFIX_OP_TYPE))
-				result = OpMerger.buildOperation(result);
-			else if (line.get(0).is(IS))
-				result = ValueMerger.buildIsStatement(result);
+			if (!line.isEmpty()) { // Second check, if first if comes through
+				if (!inOperation && line.get(0).is(INFIX_OP_TYPE))
+					result = OpMerger.buildOperation(result);
+				else if (line.get(0).is(IS))
+					result = ValueMerger.buildIsStatement(result);
+			}
 		}
 		return result;
 	}
 
 	/**
-	 * Constructs an {@link Expression} from a {@link BuilderType}. This includes
-	 * Scopes.
+	 * Constructs an {@link Expression} from a {@link BuilderType}. This includes Scopes.
 	 */
 	protected static Expression buildAbstract() {
 		BuilderType type = (BuilderType) line.get(0).type;
@@ -125,7 +123,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 			case OPEN_BLOCK -> buildOpenBlock();
 			case CLOSE_BLOCK -> buildCloseBlock();
 			// Complex BuilderTypes
-			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_LINE -> (Expression) buildVal();
+			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_START -> (Expression) buildVal();
 			// Decorative BuilderTypes
 			default -> throw new UnexpectedTypeError(orgLine, type);
 		};
@@ -173,7 +171,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		line.remove(0); // Start
 		do {
 			Expression fst = line.get(0);
-			if (!fst.is(MULTI_CALL_LINE) && !fst.is(CLOSE_BRACKET) && !fst.is(ARRAY_END))
+			if (!fst.is(CLOSE_BRACKET) && !fst.is(ARRAY_END) && !fst.is(MULTI_CALL_END))
 				parts.add(buildVal());
 		} while (line.remove(0).is(COMMA));
 		return parts.toArray(new ValueHolder[parts.size()]);

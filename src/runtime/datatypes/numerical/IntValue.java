@@ -37,7 +37,7 @@ public final class IntValue extends NumberValue {
 	/** This should only get called in debugging scenarios. */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":" + value.toString();
+		return value.toString();
 	}
 
 	@Override

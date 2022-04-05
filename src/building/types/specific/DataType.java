@@ -21,7 +21,7 @@ import runtime.datatypes.textual.TextValue;
 public enum DataType implements SpecificType {
 
 	// Vartypes
-	VAR("var"), TEXT("text"), CHAR("char"), BOOL("bool"), NUMBER("nr"), INT("int"), DEF("def"),
+	VAR("var"), TEXT("text"), CHAR("char"), BOOL("bool"), NUMBER("nr"), INT("int"),
 
 	// Not implemented
 
@@ -29,7 +29,7 @@ public enum DataType implements SpecificType {
 	OBJECT("obj"),
 
 	// Vartypes
-	VAR_ARRAY(VAR), TEXT_ARRAY(TEXT), CHAR_ARRAY(CHAR), BOOL_ARRAY(BOOL), NUMBER_ARRAY(NUMBER), INT_ARRAY(INT), DEF_ARRAY(DEF),
+	VAR_ARRAY(VAR), TEXT_ARRAY(TEXT), CHAR_ARRAY(CHAR), BOOL_ARRAY(BOOL), NUMBER_ARRAY(NUMBER), INT_ARRAY(INT),
 
 	// Not implemented
 
@@ -64,8 +64,6 @@ public enum DataType implements SpecificType {
 				yield new TextValue("");
 			case CHAR:
 				yield new CharValue(' ');
-			case DEF:
-				throw new IllegalCodeFormatException("A def has to get initialised at declaration.");
 			default:
 				if (isArray())
 					yield new ArrayValue(this);

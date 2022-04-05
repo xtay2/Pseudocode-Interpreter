@@ -11,8 +11,8 @@ import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
 
 /**
- * Because no {@link BuilderExpression} has its own class, they, and all their
- * expected followers are defined here.
+ * Because no {@link BuilderExpression} has its own class, they, and all their expected followers
+ * are defined here.
  */
 public enum BuilderType implements SpecificType {
 
@@ -23,14 +23,12 @@ public enum BuilderType implements SpecificType {
 	ARRAY_END("]"),
 
 	/**
-	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function},
-	 * etc...
+	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
 	 */
 	OPEN_BRACKET("("),
 
 	/**
-	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function},
-	 * etc...
+	 * Found in any {@link BracketedExpression}, {@link Call}, {@link Function}, etc...
 	 */
 	CLOSE_BRACKET(")"),
 
@@ -41,8 +39,7 @@ public enum BuilderType implements SpecificType {
 	CLOSE_BLOCK("}"),
 
 	/**
-	 * An Arrow at the end of a func-declaration, used to indicate an oncoming
-	 * return type.
+	 * An Arrow at the end of a func-declaration, used to indicate an oncoming return type.
 	 */
 	ARROW_R("->"),
 
@@ -50,13 +47,23 @@ public enum BuilderType implements SpecificType {
 	COMMA(","),
 
 	/** Open and Closing Vertical Separator | */
-	MULTI_CALL_LINE("|"),
+	MULTI_CALL_START("|"),
+
+	MULTI_CALL_END("|"),
 
 	/** Part of the {@link IntervalLoop}. */
 	TO("to"),
 
 	/** Part of the {@link IntervalLoop}. */
-	STEP("step");
+	STEP("step"),
+
+	// Not used in code
+
+	/** Ending character for multiple scopes in one line. */
+	MULTI_CLOSE_SCOPE(";"),
+
+	/** Starting Symbol for a comment that covers the rest of the line. */
+	SINGLE_LINE_COMMENT("#");
 
 	final String symbol;
 
@@ -64,8 +71,8 @@ public enum BuilderType implements SpecificType {
 	 * Defines a BuilderType
 	 * 
 	 * @param id       is the unique identifying symbol from the code.
-	 * @param expected are the expected following types. BuilderTypes allways expect
-	 *                 themselves as followups.
+	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
+	 *                 followups.
 	 */
 	BuilderType(String id) {
 		this.symbol = id;
@@ -80,9 +87,10 @@ public enum BuilderType implements SpecificType {
 			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, DYNAMIC_TYPE, AFTER_VALUE_TYPE, ARROW_R };
 			case ARROW_R -> new AbstractType[] { DATA_TYPE };
 			case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
-			case MULTI_CALL_LINE -> new AbstractType[] { VAL_HOLDER_TYPE, AFTER_VALUE_TYPE };
+			case MULTI_CALL_START -> new AbstractType[] { VAL_HOLDER_TYPE };
+			case MULTI_CALL_END -> new AbstractType[] { AFTER_VALUE_TYPE };
 			case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
-			case OPEN_BLOCK, CLOSE_BLOCK -> new AbstractType[] {};
+			case OPEN_BLOCK, CLOSE_BLOCK, MULTI_CLOSE_SCOPE, SINGLE_LINE_COMMENT -> new AbstractType[] {};
 		};
 	}
 

@@ -1,11 +1,12 @@
 package formatter.basic;
 
+import static misc.helper.ProgramHelper.isRunnableCode;
+
 import interpreting.exceptions.IllegalCodeFormatException;
-import misc.helper.Helper;
 
 /**
- * This class checks, if the {@link Formatter#program} can get "safely"
- * formatted. Formatting-errors might still occur.
+ * This class checks, if the {@link Formatter#program} can get "safely" formatted. Formatting-errors
+ * might still occur.
  */
 public final class FormattingPreChecks extends Formatter {
 
@@ -16,8 +17,7 @@ public final class FormattingPreChecks extends Formatter {
 	/**
 	 * Finds any occurrence of a bracket that has no match.
 	 * 
-	 * @throws IllegalCodeFormatException if there are not equally many opened, as
-	 *                                    closed brackets.
+	 * @throws IllegalCodeFormatException if there are not equally many opened, as closed brackets.
 	 */
 	static void checkForLonelyBrackets() throws IllegalCodeFormatException {
 		int simple = 0, square = 0, curly = 0;
@@ -26,7 +26,7 @@ public final class FormattingPreChecks extends Formatter {
 			final boolean isFullyRunnable = isFullyRunnable(line);
 			for (int j = 0; j < line.length(); j++) {
 				char c = line.charAt(j);
-				if (isFullyRunnable || Helper.isRunnableCode(j, line)) {
+				if (isFullyRunnable || isRunnableCode(j, line)) {
 					switch (c) {
 						case '(' -> simple++;
 						case '[' -> square++;

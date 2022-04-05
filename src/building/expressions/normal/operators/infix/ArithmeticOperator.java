@@ -3,6 +3,7 @@ package building.expressions.normal.operators.infix;
 import static building.types.specific.DataType.NUMBER;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
+import building.types.specific.DataType;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -21,15 +22,31 @@ public class ArithmeticOperator extends InfixOperator {
 		Value fst = a.getValue();
 		Value sec = b.getValue();
 		return switch (op) {
-		case ADD -> add(fst, sec);
-		case SUB -> sub(fst, sec);
-		case MULT -> mult(fst, sec);
-		case DIV -> div(fst, sec);
-		case MOD -> mod(fst, sec);
-		case POW -> pow(fst, sec);
-		case ROOT -> root(fst, sec);
-		default -> throw new AssertionError("Unexpected arithmetic operator: " + op);
+			case ADD -> add(fst, sec);
+			case SUB -> sub(fst, sec);
+			case MULT -> mult(fst, sec);
+			case DIV -> div(fst, sec);
+			case MOD -> mod(fst, sec);
+			case POW -> pow(fst, sec);
+			case ROOT -> root(fst, sec);
+			default -> throw new AssertionError("Unexpected arithmetic operator: " + op);
 		};
+	}
+
+	@Override
+	public ArrayValue executeFor(ValueHolder operand, ValueHolder[] content) {
+		ValueHolder[] res = new ValueHolder[content.length];
+		for (int i = 0; i < content.length; i++)
+			res[i] = perform(operand, content[i]);
+		return new ArrayValue(DataType.VAR_ARRAY, res);
+	}
+
+	@Override
+	public ArrayValue executeFor(ValueHolder[] content, ValueHolder operand) {
+		ValueHolder[] res = new ValueHolder[content.length];
+		for (int i = 0; i < content.length; i++)
+			res[i] = perform(content[i], operand);
+		return new ArrayValue(DataType.VAR_ARRAY, res);
 	}
 
 	/**

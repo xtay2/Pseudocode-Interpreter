@@ -1,6 +1,6 @@
 package building.expressions.possible.allocating;
 
-import static misc.helper.Output.print;
+import static misc.supporting.Output.print;
 
 import java.util.List;
 

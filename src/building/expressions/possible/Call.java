@@ -2,6 +2,8 @@ package building.expressions.possible;
 
 import static building.types.abstractions.SpecificType.MERGED;
 
+import java.util.Arrays;
+
 import building.expressions.abstractions.PossibleMainExpression;
 import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.NameHolder;
@@ -11,15 +13,20 @@ import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallable;
 import building.types.specific.DataType;
+import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.functional.DefLink;
 import runtime.defmanager.DefManager;
 
-public class Call extends PossibleMainExpression implements ValueHolder, MultiCallable, NameHolder {
+public class Call extends PossibleMainExpression implements MultiCallable, NameHolder {
 
 	private final Name calledFunc;
 	private final ValueHolder[] parameters;
+
+	/** If the call contains a multi-call in the parameters, it get extracted in the constructor. */
+	private MultiCall multiCall = null;
+
+	private int idxOfMultiCall = -1;
 
 	/**
 	 * Creates a {@link Call}.
@@ -29,10 +36,21 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	 */
 	public Call(int lineID, Name calledFunc, ValueHolder... parameters) {
 		super(lineID, MERGED);
-		this.calledFunc = calledFunc;
-		this.parameters = parameters;
 		if (calledFunc == null || parameters == null)
 			throw new AssertionError("CalledFunc and Params cannot be null.");
+		this.calledFunc = calledFunc;
+		this.parameters = parameters;
+		// Check if there is a multicall in the parameters
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i] instanceof MultiCall mc) {
+				if (multiCall != null) {
+					throw new IllegalCodeFormatException(getOriginalLine(),
+							"Tried to call " + getNameString() + " with multiple multi-calls.");
+				}
+				multiCall = mc;
+				idxOfMultiCall = i;
+			}
+		}
 	}
 
 	@Override
@@ -43,16 +61,19 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 
 	@Override
 	public Value getValue() {
-		if (parameters.length == 1 && parameters[0] instanceof MultiCall m)
-			return m.getValue();
+		if (multiCall != null)
+			return executeFor(multiCall.content);
 		return callTarget(parameters);
 	}
 
 	@Override
 	public Value executeFor(ValueHolder[] content) {
 		Value[] returnArr = new Value[content.length];
-		for (int i = 0; i < content.length; i++)
-			returnArr[i] = callTarget(content[i]);
+		ValueHolder[] paramCopy = Arrays.copyOf(parameters, parameters.length);
+		for (int i = 0; i < content.length; i++) {
+			paramCopy[idxOfMultiCall] = content[i];
+			returnArr[i] = callTarget(paramCopy);
+		}
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
 			return new ArrayValue(DataType.VAR_ARRAY, returnArr);
@@ -61,9 +82,7 @@ public class Call extends PossibleMainExpression implements ValueHolder, MultiCa
 	}
 
 	/**
-	 * Finds target-{@link Definition} (this can be achieved over a {@link DefLink}
-	 * or the {@link DefManager}), calls it with the params and returns the
-	 * return-values.
+	 * Finds target-{@link Definition}, calls it with the params and returns the return-values.
 	 */
 	private Value callTarget(ValueHolder... params) {
 		// Find target

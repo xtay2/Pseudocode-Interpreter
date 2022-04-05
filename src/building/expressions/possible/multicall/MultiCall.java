@@ -2,14 +2,17 @@ package building.expressions.possible.multicall;
 
 import static building.types.abstractions.SpecificType.MERGED;
 
-import building.expressions.abstractions.PossibleMainExpression;
+import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.IsStatement;
 import building.expressions.normal.operators.infix.InOperator;
 import building.expressions.normal.operators.infix.LogicalOperator;
+import building.expressions.normal.operators.postfix.PostfixOperator;
+import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.Call;
 import building.types.specific.operators.InfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
+import interpreting.modules.merger.SuperMerger;
 import runtime.datatypes.Value;
 
 /**
@@ -18,7 +21,7 @@ import runtime.datatypes.Value;
  * <pre>
  * Should support:
  * 
- *  - Any {@link Crement}-Operation:
+ *  - Any changing {@link PrefixOperator} or {@link PostfixOperator}:
  * 	|a, b|++ -> a++, b++
  * 
  *  - Any {@link Call} that takes just one parameter:
@@ -37,16 +40,15 @@ import runtime.datatypes.Value;
  * 
  * Should explicitly not support:
  * 
- *  - An {@link MultiCall} thats somehow connected with anotherone, like:
+ *  - An {@link MultiCall} thats somehow connected with another one, like:
  *	|a, |b, c||
  *	|a, b| and |c, d|
  *	add(|a, b, c|, |d, e|)
  * </pre>
  */
-public class MultiCall extends PossibleMainExpression implements ValueHolder {
+public class MultiCall extends Expression implements ValueHolder {
 
-	private final ValueHolder[] content;
-	private final MultiCallable outer;
+	public final ValueHolder[] content;
 
 	/**
 	 * Creates a {@link MultiCall}.
@@ -54,24 +56,20 @@ public class MultiCall extends PossibleMainExpression implements ValueHolder {
 	 * @param outer   shouldn't be null
 	 * @param content shouldn't be null
 	 */
-	public MultiCall(int lineID, MultiCallable outer, ValueHolder[] content) {
+	public MultiCall(int lineID, ValueHolder[] content) {
 		super(lineID, MERGED);
-		this.outer = outer;
 		this.content = content;
-		if (outer == null)
-			throw new AssertionError("Outer cannot be null.");
 		if (content.length < 2)
 			throw new IllegalCodeFormatException(getOriginalLine(), "This Multicall has to contain atleast two elements");
 	}
 
+	/**
+	 * Because multicalls are allways wrapped inside a bigger {@link ValueHolder}, they only have the
+	 * status of a {@link ValueHolder}, but not the functionality. This is necessarry, so that they can
+	 * get detected by the {@link SuperMerger}.
+	 */
 	@Override
 	public Value getValue() {
-		return outer.executeFor(content);
-	}
-
-	@Override
-	public boolean execute() {
-		getValue();
-		return callNextLine();
+		throw new UnsupportedOperationException("A multicall holds no direct value but should access the value-holders around it.");
 	}
 }

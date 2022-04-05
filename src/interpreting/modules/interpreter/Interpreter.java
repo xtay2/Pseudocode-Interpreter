@@ -1,7 +1,7 @@
 package interpreting.modules.interpreter;
 
-import static misc.helper.Output.UNDERLINE;
-import static misc.helper.Output.print;
+import static misc.supporting.Output.UNDERLINE;
+import static misc.supporting.Output.print;
 
 import building.expressions.abstractions.GlobalScope;
 import building.expressions.abstractions.MainExpression;

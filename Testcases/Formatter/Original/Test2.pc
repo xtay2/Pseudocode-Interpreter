@@ -1,8 +1,0 @@
-main {
-    bool a = true
-
-    if not a {print("Yey")} else: print("Ney");
-
-    if a {print("Hello")} print("World")}
-
-native func print(text)

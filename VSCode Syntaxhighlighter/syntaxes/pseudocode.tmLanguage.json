@@ -33,7 +33,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pseudocode",
-				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|for|in|native|final|const|public|is|null)\\b|\\|"
+				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|for|native|final|const|public|is|null)\\b|(\\|)|((?<=for\\s\\S+\\s)in)"
 			}]
 		},
 		"return_statements": {
@@ -45,13 +45,13 @@
 		"import_statements": {
 			"patterns": [{
 				"name": "keyword.import.pseudocode",
-				"match": "\\b(import)\\b"
+				"match": "\\b(import\\s)\\b"
 			}]
 		},
 		"import_lines": {
 			"patterns": [{
 				"name": "comment.pseudocode",
-				"match": "(?<=import).((\\w+)|(\\.))+"
+				"match": "(?<=import\\s)((\\w+)|(\\.))+"
 			}]
 		},
 		"names": {
@@ -98,7 +98,7 @@
 		"operators": {
 			"patterns": [{
 				"name": "operator.pseudocode",
-				"match": "([\\+|\\-|\\*|\\/|\\%|\\^|\\!|\\=]=?)|(\\b(and|nand|or|nor|xor|xnor|root|not)\\b)|(<|<=|=|>=|>)|(≤|≠|≥)"
+				"match": "([\\+|\\-|\\*|\\/|\\%|\\^|\\!|\\=]=?)|(\\b(and|nand|or|nor|xor|xnor|root|not|in)\\b)|(<|<=|=|>=|>)|(≤|≠|≥)"
 			}]
 		},
 		"var_types": {

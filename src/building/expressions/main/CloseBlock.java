@@ -9,6 +9,7 @@ import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.BlockBracket;
 import building.expressions.normal.brackets.OpenBlock;
 import building.types.abstractions.SpecificType;
+import building.types.specific.BuilderType;
 import building.types.specific.KeywordType;
 import launching.Main;
 
@@ -46,10 +47,9 @@ public final class CloseBlock extends MainExpression implements BlockBracket {
 	}
 
 	/**
-	 * Returns an immutable list of all types that are allowed to follow a
-	 * {@link CloseBlock} in code.
+	 * Returns an immutable list of all types that are allowed to follow a {@link CloseBlock} in code.
 	 */
 	public static List<SpecificType> allowedAfter() {
-		return List.of(KeywordType.ELIF, KeywordType.ANY, KeywordType.ELSE);
+		return List.of(KeywordType.ELIF, KeywordType.ANY, KeywordType.ELSE, BuilderType.MULTI_CLOSE_SCOPE);
 	}
 }

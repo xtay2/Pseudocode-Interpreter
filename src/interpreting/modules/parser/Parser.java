@@ -1,23 +1,20 @@
 package interpreting.modules.parser;
 
-import static misc.helper.Output.print;
+import static misc.helper.StringHelper.indexLines;
+import static misc.supporting.Output.print;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import formatter.basic.Formatter;
 import interpreting.modules.disassembler.Disassembler;
 import launching.Main;
-import misc.helper.FileManager;
+import misc.supporting.FileManager;
 
 public final class Parser {
-
-	public static final char SINGLE_LINE_COMMENT = '#';
-	public static final char MULTI_CLOSE_SCOPE = ';';
 
 	/**
 	 * An indexed line is a String with the orgLineNr attached.
@@ -32,13 +29,6 @@ public final class Parser {
 			return index + ": " + line;
 		}
 
-	}
-
-	public static List<IdxLine> indexLines(List<String> lines) {
-		List<IdxLine> indexedLines = new ArrayList<>();
-		for (int i = 0; i < lines.size(); i++)
-			indexedLines.add(new IdxLine(lines.get(i), i + 1));
-		return indexedLines;
 	}
 
 	/**

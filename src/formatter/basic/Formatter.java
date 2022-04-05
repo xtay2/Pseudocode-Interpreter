@@ -1,17 +1,12 @@
 package formatter.basic;
 
-import static misc.helper.Helper.isRunnableCode;
-import static misc.helper.Output.print;
+import static misc.helper.ProgramHelper.containsRunnable;
+import static misc.supporting.Output.print;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import building.types.specific.BuilderType;
-import interpreting.modules.parser.Parser;
 import launching.Main;
 
 public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1,FormatterLvl2,FormatterLvl3,FormatterLvl4,FormatterLvl5 {
@@ -35,12 +30,12 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 		FormattingPreChecks.check();
 		print("Formatting the program on level " + level + ".");
 		/////////////////////////////////////////
+		FormatterLvl1.preFormatting();
 		// Padding
 		if (level >= 2)
 			FormatterLvl2.format();
 		// Necessary
-		if (level >= 1)
-			FormatterLvl1.format(isMain);
+		FormatterLvl1.format(isMain);
 		/////////////////////////////////////////
 		// Shortening
 		if (level >= 5)
@@ -62,10 +57,11 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 		int brack = 0;
 		for (int i = 0; i < program.size(); i++) {
 			String s = program.get(i);
-			if (s.indexOf(CB) != -1)
+			if (containsRunnable(s, CBR))
 				brack--;
+			System.out.println(brack + " " + program.get(i));
 			program.set(i, "\t".repeat(brack) + s.stripIndent());
-			if (s.indexOf(OB) != -1)
+			if (containsRunnable(s, OBR))
 				brack++;
 		}
 	}
@@ -100,55 +96,16 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
   	OSR = "((?=" + OLS + "\\s)|(?=\\s" + OBR +"))",
   	
   	/** The symbol of a multi-close-scope ; */
-  	MCS = String.valueOf(Parser.MULTI_CLOSE_SCOPE),
+  	MCS = BuilderType.MULTI_CLOSE_SCOPE.toString(),
   			
   	/** The symbol of a single-line-comment # */
-  	SLC = String.valueOf(Parser.SINGLE_LINE_COMMENT);
+  	SLC = BuilderType.SINGLE_LINE_COMMENT.toString();
     
     //@formatter:on
 
 	/**
-	 * Replaces all matches of the regex in the line with the replacement, if they
-	 * are runnable code.
-	 * 
-	 * @param line            is the input line that gets tested
-	 * @param regex           is the pattern
-	 * @param replacement     is the replacement of the matches
-	 * @param isFullyRunnable if the line was tested as fully runnable, the
-	 *                        {@link String#replaceAll(String, String)} method gets
-	 *                        chosen instead.
-	 * @return the formatted string
-	 */
-	static String replaceAllIfRunnable(String line, String regex, String replacement, boolean isFullyRunnable) {
-		if (isFullyRunnable)
-			return line.replaceAll(regex, replacement);
-		Matcher m = Pattern.compile(regex).matcher(line);
-		final String unedited = line;
-		// Filter out all matches that aren't runnable
-		List<MatchResult> matches = m.results().filter(r -> isRunnableCode(r.start(), unedited)).collect(Collectors.toList());
-		// Replace all matches, back to front
-		Collections.reverse(matches);
-		for (MatchResult match : matches)
-			line = line.substring(0, match.start()) + replacement + line.substring(match.end());
-		return line;
-	}
-
-	/**
-	 * This function tells, if there is any match of the regex in the line, that is
-	 * also runnable.
-	 * 
-	 * @param line  is the whole line.
-	 * @param regex is the regular expression that gets matched.
-	 * @return true if the line contains that runnable expression.
-	 */
-	static boolean containsRunnable(String line, String regex) {
-		return Pattern.compile(regex).matcher(line).results().anyMatch(mRes -> isRunnableCode(mRes.start(), line));
-	}
-
-	/**
-	 * Every formatting-function that only edits one line is a
-	 * {@link LineFormatterFunc}. They all get called in
-	 * {@link Formatter#forEachLine(List)}.
+	 * Every formatting-function that only edits one line is a {@link LineFormatterFunc}. They all get
+	 * called in {@link Formatter#forEachLine(List)}.
 	 */
 	@FunctionalInterface
 	interface LineFormatterFunc {
@@ -163,8 +120,7 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 	}
 
 	/**
-	 * Executes the formatting that can be done linewise, i.e is not dependent on
-	 * other lines.
+	 * Executes the formatting that can be done linewise, i.e is not dependent on other lines.
 	 */
 	static void forEachLine(List<LineFormatterFunc> functions) {
 		for (int i = 0; i < program.size(); i++) {
@@ -180,12 +136,12 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 	}
 
 	/** Returns true if the line doesn't contain comments or strings. */
-	static boolean isFullyRunnable(String line) {
+	public static boolean isFullyRunnable(String line) {
 		return !line.contains(SLC) && !line.contains("\"");
 	}
 
 	/**
-	 * Comment out multiple lines in the {@link Formatter#program}.
+	 * Comment out all uncommented lines between two indices in the {@link Formatter#program}.
 	 * 
 	 * @param start is the start-index (inclusive)
 	 * @param end   is the end index (inclusive)
@@ -196,37 +152,17 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 	}
 
 	/**
-	 * Comments out the line at the specified index in {@link Formatter#program}.
+	 * Comments out the line at the specified index in {@link Formatter#program}, if its not already
+	 * done.
 	 */
 	static void comment(int line) {
 		program.set(line, comment(program.get(line)));
 	}
 
-	/** Returns the same {@link String} with a prepended SLC. */
+	/** Returns the same {@link String} with a prepended SLC if it doesn't already start with one. */
 	static String comment(String line) {
-		return SLC + " " + line.stripLeading();
-	}
-
-	static int findEndOfScope(int start) {
-		if (program.get(start).endsWith(MCS))
-			return start;
-		int brack = 0;
-		for (int i = start; i < program.size(); i++) {
-			String line = program.get(i);
-			if (containsRunnable(line, OBR))
-				brack++;
-			if (containsRunnable(line, CBR)) {
-				if (--brack == 0)
-					return i;
-			}
-		}
-		throw new AssertionError("Found no matching CloseBlock.");
-	}
-
-	/**
-	 * DEBUGGING: Prints each line of the current program to the console.
-	 */
-	static void printProgram() {
-		program.forEach(l -> System.out.println(l));
+		if (!line.startsWith(SLC))
+			return SLC + " " + line.stripLeading();
+		return line;
 	}
 }

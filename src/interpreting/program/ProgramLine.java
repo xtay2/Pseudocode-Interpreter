@@ -48,8 +48,7 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Reads the line and constructs an object-expression-notation from the
-	 * information.
+	 * Reads the line and constructs an object-expression-notation from the information.
 	 */
 	void construct() {
 		String current = "";
@@ -84,7 +83,7 @@ public class ProgramLine {
 		}
 		if (inString)
 			throw new IllegalCodeFormatException(orgLine, "String has to be closed.");
-		if (!current.strip().isEmpty())// Wenn noch ein einzelnes Zeichen am Zeilenende steht.
+		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			expressions.add(StringConverter.create(current.strip(), expectedTypes, this));
 		if (expressions.isEmpty())
 			throw new AssertionError("Line has to contain atleast one Expression.");
@@ -125,8 +124,8 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Recursivly searches for the next {@link Definition} above this line. Gets
-	 * used while building the {@link ReturnStatement}.
+	 * Recursivly searches for the next {@link Definition} above this line. Gets used while building the
+	 * {@link ReturnStatement}.
 	 */
 	private Definition searchForFunc() {
 		if (main instanceof Definition def)

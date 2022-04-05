@@ -5,6 +5,7 @@ import static building.types.specific.BuilderType.TO;
 import static building.types.specific.KeywordType.*;
 import static building.types.specific.operators.InfixOpType.*;
 import static building.types.specific.operators.PrefixOpType.NOT;
+import static misc.helper.ProgramHelper.replaceAllIfRunnable;
 import static runtime.datatypes.BoolValue.FALSE;
 import static runtime.datatypes.BoolValue.TRUE;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
@@ -13,8 +14,8 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.util.List;
 
 /**
- * Everything should get executed after {@link FormatterLvl2#format()} and
- * {@link FormatterLvl5}, if activated.
+ * Everything should get executed after {@link FormatterLvl2#format()} and {@link FormatterLvl5}, if
+ * activated.
  * 
  * <pre>
  * For each line:
@@ -35,8 +36,7 @@ public final class FormatterLvl4 extends Formatter {
 		(x, y) -> correctNrConsts(x, y),
 		(x, y) -> simplifyMisc(x, y),
 		(x, y) -> swapCondLoops(x, y),
-		(x, y) -> simplifyInfLoops(x, y),
-		(x, y) -> mergeStringLiterals(x, y)
+		(x, y) -> simplifyInfLoops(x, y)
 		));
 	//@formatter:on
 	}
@@ -58,8 +58,7 @@ public final class FormatterLvl4 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that removes redundant boolean
-	 * literals/operators.
+	 * A {@link LineFormatterFunc} that removes redundant boolean literals/operators.
 	 */
 	static String shortenBools(String line, boolean isFullyRunnable) {
 		int lineL = line.length();
@@ -113,8 +112,7 @@ public final class FormatterLvl4 extends Formatter {
 	}
 
 	/**
-	 * A {@link LineFormatterFunc} that swaps "while not" with "until", and "until
-	 * not" with "while".
+	 * A {@link LineFormatterFunc} that swaps "while not" with "until", and "until not" with "while".
 	 */
 	static String swapCondLoops(String line, boolean isFullyRunnable) {
 		line = replaceAllIfRunnable(line, WHILE + " " + NOT, UNTIL.toString(), isFullyRunnable);
@@ -122,13 +120,4 @@ public final class FormatterLvl4 extends Formatter {
 		return line;
 	}
 
-	/**
-	 * A {@link LineFormatterFunc} that merges all {@link String}-literals that are
-	 * connected with the concat-operator.
-	 * 
-	 * TODO: Happens even in comments.
-	 */
-	static String mergeStringLiterals(String line, boolean isFullyRunnable) {
-		return isFullyRunnable ? line : line.replaceAll("(?<!\\\\)\" \\+ \"", "");
-	}
 }
