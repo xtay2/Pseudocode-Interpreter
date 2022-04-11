@@ -12,8 +12,8 @@ import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
-import building.types.specific.DataType;
 import building.types.specific.FlagType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -72,7 +72,7 @@ public abstract class Loop extends ScopeHolder {
 	 * @param cntName is the pre-defined countername "i"-"p".
 	 */
 	private void initCounter(NumberValue i, Name cntName) {
-		new Variable(lineIdentifier, getScope(), DataType.NUMBER, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
+		new Variable(lineIdentifier, getScope(), SingleType.NUMBER, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
 	}
 
 	/**

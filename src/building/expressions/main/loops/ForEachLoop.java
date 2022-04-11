@@ -7,8 +7,8 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
-import building.types.specific.DataType;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -50,7 +50,7 @@ public class ForEachLoop extends Loop {
 		if (iteration.isGreaterEq(NumberValue.create(BigInteger.valueOf(array.length()))))
 			return false;
 		// Variable
-		new Variable(lineIdentifier, getScope(), DataType.VAR, elementName, array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), SingleType.VAR, elementName, array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

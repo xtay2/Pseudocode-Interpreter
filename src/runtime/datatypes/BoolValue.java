@@ -1,8 +1,11 @@
 package runtime.datatypes;
 
-import static building.types.specific.DataType.BOOL;
+import static building.types.specific.datatypes.SingleType.BOOL;
+import static building.types.specific.datatypes.SingleType.NUMBER;
+import static building.types.specific.datatypes.SingleType.TEXT;
+import static building.types.specific.datatypes.SingleType.VAR;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
@@ -46,12 +49,12 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public boolean canCastTo(DataType type) {
+	public boolean canCastTo(SingleType type) {
 		return switch (type) {
-		case VAR, BOOL -> true; // Returns this
-		case NUMBER, INT -> true; // Returns 0 or 1
-		case TEXT -> true; // Text-Representation.
-		default -> false;
+			case VAR, BOOL -> true; // Returns this
+			case NUMBER, INT -> true; // Returns 0 or 1
+			case TEXT -> true; // Text-Representation.
+			default -> false;
 		};
 	}
 

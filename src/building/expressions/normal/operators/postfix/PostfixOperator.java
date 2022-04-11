@@ -9,8 +9,8 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.operators.infix.InfixOperator;
 import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.multicall.MultiCall;
-import building.expressions.possible.multicall.MultiCallable;
-import building.types.specific.DataType;
+import building.expressions.possible.multicall.MultiCallableValueHolder;
+import building.types.specific.datatypes.ArrayType;
 import building.types.specific.operators.PostfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
@@ -20,7 +20,7 @@ import runtime.datatypes.array.ArrayValue;
  * @see PrefixOperator
  * @see InfixOperator
  */
-public class PostfixOperator extends PossibleMainExpression implements MultiCallable {
+public class PostfixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
 
 	private final ValueHolder content;
 
@@ -43,7 +43,7 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = evaluate(content[i]);
-		return new ArrayValue(DataType.VAR_ARRAY, res);
+		return new ArrayValue(ArrayType.VAR_ARRAY, res);
 	}
 
 	private Value evaluate(ValueHolder val) {

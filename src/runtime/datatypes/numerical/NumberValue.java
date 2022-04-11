@@ -1,18 +1,19 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.DataType.INT;
-import static building.types.specific.DataType.NUMBER;
+import static building.types.specific.datatypes.SingleType.INT;
+import static building.types.specific.datatypes.SingleType.NUMBER;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.UnexpectedTypeError;
@@ -21,6 +22,7 @@ public abstract class NumberValue extends Value {
 
 	/** Total count of digits in an integer or num/denom in a fraction. */
 	public static final int MAX_LENGTH = 100;
+	public static final MathContext PRECISION = new MathContext(MAX_LENGTH);
 
 	// FINITE CONSTANTS
 	public static final IntValue ONE = new IntValue(BigInteger.ONE);
@@ -176,12 +178,7 @@ public abstract class NumberValue extends Value {
 	}
 
 	@Override
-	public final ArrayValue asVarArray() {
-		return asNumberArray();
-	}
-
-	@Override
-	public final boolean canCastTo(DataType type) {
+	public final boolean canCastTo(SingleType type) {
 		return switch (type) {
 			case VAR, NUMBER -> true; // Returns this
 			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.

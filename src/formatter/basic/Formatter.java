@@ -59,7 +59,6 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 			String s = program.get(i);
 			if (containsRunnable(s, CBR))
 				brack--;
-			System.out.println(brack + " " + program.get(i));
 			program.set(i, "\t".repeat(brack) + s.stripIndent());
 			if (containsRunnable(s, OBR))
 				brack++;
@@ -161,7 +160,7 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 
 	/** Returns the same {@link String} with a prepended SLC if it doesn't already start with one. */
 	static String comment(String line) {
-		if (!line.startsWith(SLC))
+		if (!line.startsWith(SLC) && !line.isBlank())
 			return SLC + " " + line.stripLeading();
 		return line;
 	}

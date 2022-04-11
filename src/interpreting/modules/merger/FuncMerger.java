@@ -1,8 +1,8 @@
 package interpreting.modules.merger;
 
+import static building.types.specific.BuilderType.ARROW_R;
 import static building.types.specific.BuilderType.CLOSE_BRACKET;
 import static building.types.specific.BuilderType.COMMA;
-import static building.types.specific.BuilderType.ARROW_R;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,7 +15,8 @@ import building.expressions.main.functions.NativeFunction;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.SuperType;
-import building.types.specific.DataType;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 
 public abstract class FuncMerger extends SuperMerger {
 
@@ -54,7 +55,7 @@ public abstract class FuncMerger extends SuperMerger {
 			if (line.get(0).is(SuperType.DATA_TYPE))
 				pT = buildExpType();
 			else
-				pT = DataType.VAR;
+				pT = SingleType.VAR;
 			params.put(buildName(), pT);
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		return params;

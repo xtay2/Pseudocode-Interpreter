@@ -18,6 +18,12 @@ public class CollectionHelper {
 		return merged;
 	}
 
+	public static int[] merge(int[] arr1, int[] arr2) {
+		int[] merged = Arrays.copyOf(arr1, arr1.length + arr2.length);
+		System.arraycopy(arr2, 0, merged, arr1.length, arr2.length);
+		return merged;
+	}
+
 	/**
 	 * Finds an element in a {@link Collection} thats identifieable by a predicate.
 	 * 

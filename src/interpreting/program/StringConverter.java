@@ -59,6 +59,8 @@ public abstract class StringConverter {
 	 * Returns true if just the current part is a {@link Value} and next is a valid delimiter.
 	 */
 	private static boolean isValuePart(String current, char next) {
+		if (next == '.') // Special case for decimal numbers
+			return false;
 		return ValueBuilder.isLiteral(current) && !ValueBuilder.isLiteral(current + next);
 	}
 

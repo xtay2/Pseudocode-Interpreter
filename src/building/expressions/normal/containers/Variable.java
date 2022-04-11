@@ -12,8 +12,8 @@ import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.abstractions.interfaces.ValueChanger;
-import building.types.specific.DataType;
 import building.types.specific.FlagType;
+import building.types.specific.datatypes.DataType;
 import runtime.datatypes.Value;
 import runtime.datatypes.object.NullValue;
 import runtime.exceptions.CastingException;
@@ -69,13 +69,15 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 	 * @throws CastingException if this is a TypedVar and the types don't match.
 	 */
 	@Override
-	public void setValue(Value val) throws CastingException {
+	public Value setValue(Value val) throws CastingException {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
 		if (hasFlag(FINAL) || hasFlag(CONSTANT) && value != null)
 			throw new DeclarationException(getOriginalLine(),
 					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
+		Value previous = value;
 		value = val.as((DataType) type);
+		return previous;
 	}
 
 	@Override

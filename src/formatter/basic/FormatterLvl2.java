@@ -12,9 +12,9 @@ import building.expressions.normal.containers.Name;
 import building.types.abstractions.SpecificType;
 import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
-import building.types.specific.DataType;
 import building.types.specific.DynamicType;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.InfixOpType;
 import building.types.specific.operators.PrefixOpType;
 
@@ -88,7 +88,7 @@ public final class FormatterLvl2 extends Formatter {
 			PrefixOpType.DEC, 		// "-" in --
 			PrefixOpType.NEG,		// "-" in -6
 			BuilderType.ARROW_R,	// "-" in ->
-			DataType.INT, 			// "in" in int or int[]
+			SingleType.INT, 		// "in" in int
 			KeywordType.FOR,		// "or" in for
 			KeywordType.IMPORT		// "or" in import
 		}; //@formatter:on

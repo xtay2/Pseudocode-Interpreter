@@ -4,7 +4,7 @@ import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.Operatable;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.operators.Operation;
-import building.expressions.possible.multicall.MultiCallable;
+import building.expressions.possible.multicall.MultiCallableOperation;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
@@ -19,7 +19,7 @@ import runtime.datatypes.Value;
  * 
  * @see InfixOpType
  */
-public abstract class InfixOperator extends Expression implements Operatable, MultiCallable {
+public abstract class InfixOperator extends Expression implements Operatable, MultiCallableOperation {
 
 	public enum Associativity {
 		LEFT, RIGHT;
@@ -48,17 +48,6 @@ public abstract class InfixOperator extends Expression implements Operatable, Mu
 	}
 
 	public abstract Value perform(ValueHolder a, ValueHolder b);
-
-	@Override
-	public final Value getValue() {
-		throw new UnsupportedOperationException("Use perform on a " + getClass().getSimpleName() + " instead.");
-	}
-
-	@Override
-	public final Value executeFor(ValueHolder[] content) {
-		throw new UnsupportedOperationException(
-				"Use one of the other versions of executeFor that support operands instead for " + getClass().getSimpleName() + ".");
-	}
 
 	@Override
 	public Value executeFor(ValueHolder operand, ValueHolder[] content) {

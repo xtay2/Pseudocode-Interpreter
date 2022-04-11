@@ -1,9 +1,9 @@
 package formatter.basic;
 
-import static building.types.specific.DataType.VAR;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.KeywordType.*;
+import static building.types.specific.datatypes.SingleType.VAR;
 import static misc.helper.ProgramHelper.*;
 import static misc.helper.StringHelper.removeCharAt;
 import static runtime.datatypes.BoolValue.FALSE;
@@ -126,14 +126,15 @@ public final class FormatterLvl5 extends Formatter {
 				if (lineEndsWith(line, MCS))
 					continue;
 				// For all lines between return and next CloseBlock
-				for (int j = i + 1; j < program.size(); j++) {
-					String lnAfterRet = program.get(j);
-					if (!lnAfterRet.isBlank()) {
-						if (containsRunnable(lnAfterRet, CBR)) {
-							i = j;
+				for (int j = i - 1; j >= 0; j--) {
+					String lnBeforeRet = program.get(j);
+					if (!lnBeforeRet.isBlank()) {
+						if (containsRunnable(lnBeforeRet, OBR)) {
+							int idxOfCB = findMatchingBrack(program, j, indexOfRunnable(lnBeforeRet, OBR))[0];
+							commentRange(i + 1, idxOfCB - 1);
+							i = idxOfCB;
 							break;
 						}
-						comment(j);
 					}
 				}
 			}

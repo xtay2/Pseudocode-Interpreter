@@ -2,7 +2,7 @@ package runtime.datatypes.object;
 
 import static runtime.datatypes.numerical.NumberValue.ZERO;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.ConceptualNrValue;
@@ -44,7 +44,7 @@ public final class NullValue extends ObjectValue {
 	}
 
 	@Override
-	public boolean canCastTo(DataType type) {
+	public boolean canCastTo(SingleType type) {
 		return switch (type) {
 			case VAR, OBJECT -> true; // Always returns NULL
 			case BOOL -> true; // Always returns false
@@ -62,5 +62,10 @@ public final class NullValue extends ObjectValue {
 	@Override
 	public Object raw() {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return txt;
 	}
 }

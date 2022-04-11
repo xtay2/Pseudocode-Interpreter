@@ -13,6 +13,12 @@ import runtime.datatypes.Value;
  */
 public interface ValueChanger extends ValueHolder, NameHolder {
 
-	public void setValue(Value val);
+	/**
+	 * Changes the value of the underlying {@link ValueHolder}.
+	 * 
+	 * @param val is the new {@link Value}.
+	 * @return the old {@link Value}.
+	 */
+	public Value setValue(Value val);
 
 }

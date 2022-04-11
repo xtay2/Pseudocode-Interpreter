@@ -11,8 +11,8 @@ import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
-import building.types.specific.DataType;
 import building.types.specific.FlagType;
+import building.types.specific.datatypes.DataType;
 import interpreting.modules.merger.ExpressionMerger;
 import runtime.datatypes.Value;
 

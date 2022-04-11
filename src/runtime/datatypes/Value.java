@@ -5,7 +5,9 @@ import java.math.BigInteger;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.Castable;
-import building.types.specific.DataType;
+import building.types.specific.datatypes.ArrayType;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.ConceptualNrValue;
 import runtime.datatypes.numerical.DecimalValue;
@@ -51,8 +53,18 @@ public abstract class Value extends Expression implements Castable {
 	 * Default: True for charwise-, text-, numeric-, representation.
 	 */
 	@Override
-	public boolean canCastTo(DataType type) {
-		return type == DataType.TEXT || type == DataType.NUMBER || type == DataType.CHAR_ARRAY;
+	public boolean canCastTo(SingleType type) {
+		return type == SingleType.TEXT || type == SingleType.NUMBER;
+	}
+
+	/**
+	 * Tells, if this Value can always be safely casted to the suggested {@link ArrayType}.
+	 * 
+	 * Default: false for anything except {@link ArrayValue}s.
+	 */
+	@Override
+	public boolean canCastTo(ArrayType type) {
+		return false;
 	}
 
 	/**

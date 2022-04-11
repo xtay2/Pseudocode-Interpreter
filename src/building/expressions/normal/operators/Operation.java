@@ -29,7 +29,7 @@ import runtime.datatypes.Value;
 /**
  * Consist of n Operators and n + 1 ValueHolders.
  */
-public final class Operation extends Expression implements MultiCallable {
+public final class Operation extends Expression implements MultiCallable, ValueHolder {
 
 	private final List<Operatable> operation;
 

@@ -11,14 +11,14 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
-import building.expressions.possible.multicall.MultiCallable;
-import building.types.specific.DataType;
+import building.expressions.possible.multicall.MultiCallableValueHolder;
+import building.types.specific.datatypes.ArrayType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.defmanager.DefManager;
 
-public class Call extends PossibleMainExpression implements MultiCallable, NameHolder {
+public class Call extends PossibleMainExpression implements MultiCallableValueHolder, NameHolder {
 
 	private final Name calledFunc;
 	private final ValueHolder[] parameters;
@@ -76,7 +76,7 @@ public class Call extends PossibleMainExpression implements MultiCallable, NameH
 		}
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
-			return new ArrayValue(DataType.VAR_ARRAY, returnArr);
+			return new ArrayValue(ArrayType.VAR_ARRAY, returnArr);
 		// If not, dont return anything.
 		return null;
 	}

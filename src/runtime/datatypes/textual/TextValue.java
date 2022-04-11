@@ -1,7 +1,7 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.DataType.TEXT;
-import static building.types.specific.DataType.TEXT_ARRAY;
+import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
+import static building.types.specific.datatypes.SingleType.*;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
@@ -9,7 +9,7 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -103,7 +103,7 @@ public final class TextValue extends Value {
 	}
 
 	@Override
-	public boolean canCastTo(DataType type) {
+	public boolean canCastTo(SingleType type) {
 		return switch (type) {
 			case VAR, TEXT -> true; // Returns this
 			case NUMBER, INT -> true; // The number or NAN if its just text.

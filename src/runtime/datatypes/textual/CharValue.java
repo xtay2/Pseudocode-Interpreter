@@ -1,10 +1,13 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.DataType.CHAR;
+import static building.types.specific.datatypes.SingleType.CHAR;
+import static building.types.specific.datatypes.SingleType.NUMBER;
+import static building.types.specific.datatypes.SingleType.TEXT;
+import static building.types.specific.datatypes.SingleType.VAR;
 
 import java.math.BigInteger;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -29,7 +32,7 @@ public class CharValue extends Value {
 	}
 
 	@Override
-	public boolean canCastTo(DataType type) {
+	public boolean canCastTo(SingleType type) {
 		return switch (type) {
 			case VAR, CHAR -> true; // Returns self
 			case TEXT -> true; // Returns text-representation

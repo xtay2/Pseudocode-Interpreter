@@ -1,9 +1,9 @@
 package building.expressions.normal.operators.infix;
 
-import static building.types.specific.DataType.NUMBER;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
+import static building.types.specific.datatypes.SingleType.NUMBER;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.DataType;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -38,7 +38,7 @@ public class ArithmeticOperator extends InfixOperator {
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(operand, content[i]);
-		return new ArrayValue(DataType.VAR_ARRAY, res);
+		return new ArrayValue(VAR_ARRAY, res);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ArithmeticOperator extends InfixOperator {
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(content[i], operand);
-		return new ArrayValue(DataType.VAR_ARRAY, res);
+		return new ArrayValue(VAR_ARRAY, res);
 	}
 
 	/**

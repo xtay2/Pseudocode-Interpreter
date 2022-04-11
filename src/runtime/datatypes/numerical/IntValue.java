@@ -1,13 +1,15 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.DataType.INT;
+import static building.types.specific.datatypes.SingleType.INT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.DataType;
+import building.types.specific.datatypes.DataType;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * An Integer-Value with up to 100 digits.
@@ -86,12 +88,12 @@ public final class IntValue extends NumberValue {
 
 	@Override
 	public NumberValue mod(NumberValue v) {
-		if (equals(ZERO) || v == NAN || v.isInfinite())
+		if (v.equals(ZERO) || v == NAN || v.isInfinite())
 			return NAN;
-//		if (v instanceof DecimalValue d)
-//			TODO
+		if (v instanceof DecimalValue d)
+			return create(new BigDecimal(value).remainder(d.raw()));
 		if (v instanceof IntValue i)
-			return create(value.mod(i.value));
+			return create(value.remainder(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
 
@@ -105,26 +107,30 @@ public final class IntValue extends NumberValue {
 			return ZERO;
 		if (v == POS_INF)
 			return isPositive() ? POS_INF : NAN;
-//		if (v instanceof DecimalValue d)
-//			TODO
-//		if (v instanceof IntValue i)
-//			TODO
+		if (v instanceof DecimalValue d)
+			create(BigDecimalMath.pow(new BigDecimal(value), d.raw(), PRECISION));
+		if (v instanceof IntValue i)
+			return create(BigDecimalMath.pow(new BigDecimal(value), new BigDecimal(i.value), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
 
+	/**
+	 * Calculates the n'th root from v. (this = n)
+	 */
 	@Override
 	public NumberValue root(NumberValue v) {
-//		if (v == NAN || v.isInfinite())
-//			TODO
-		// 0^0 = NaN and x^0 = 1
-		if (v.valueCompare(ZERO))
-			return this.valueCompare(ZERO) ? NAN : ONE;
-		if (v.valueCompare(ONE))
-			return this;
-//		if (v instanceof DecimalValue d)
-//			TODO
-//		if (v instanceof IntValue i)
-//			TODO
+		if (v == NAN || v.isInfinite())
+			return NAN;
+		if (v.equals(ZERO))
+			return ZERO;
+		if (equals(ZERO))
+			return v.equals(ONE) ? NAN : POS_INF;
+		if (equals(ONE))
+			return v;
+		if (v instanceof DecimalValue d)
+			return create(BigDecimalMath.root(d.raw(), new BigDecimal(value), PRECISION));
+		if (v instanceof IntValue i)
+			return create(BigDecimalMath.root(new BigDecimal(i.value), new BigDecimal(value), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
 

@@ -1,7 +1,9 @@
 package interpreting.modules.merger;
 
 import static building.types.specific.BuilderType.ARRAY_START;
-import static building.types.specific.DataType.VAR_ARRAY;
+import static building.types.specific.DynamicType.LITERAL;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
+import static building.types.specific.operators.PrefixOpType.NOT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,16 +15,19 @@ import building.expressions.normal.brackets.BracketedExpression;
 import building.expressions.normal.casting.ExplicitCast;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;
+import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.Call;
+import building.expressions.possible.allocating.ArrayDeclaration;
 import building.expressions.possible.allocating.Assignment;
 import building.expressions.possible.allocating.Declaration;
 import building.expressions.possible.multicall.MultiCall;
-import building.types.abstractions.SuperType;
 import building.types.specific.AssignmentType;
-import building.types.specific.DataType;
+import building.types.specific.datatypes.ArrayType;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.array.ArrayValue;
-import runtime.exceptions.UnexpectedTypeError;
+import runtime.exceptions.ShouldBeNaturalNrException;
 
 /**
  * Every merged {@link ValueHolder}.
@@ -66,9 +71,13 @@ public abstract class ValueMerger extends SuperMerger {
 		return b;
 	}
 
-	/** [IS] [EXPECTED_TYPE] */
-	public static IsStatement buildIsStatement(ValueHolder val) {
+	/** [IS] [?NOT] [EXPECTED_TYPE] */
+	public static ValueHolder buildIsStatement(ValueHolder val) {
 		line.remove(0); // Is
+		if (line.get(0).is(NOT)) {
+			line.remove(0); // Not
+			return new PrefixOperator(lineID, NOT, new IsStatement(lineID, val, buildExpType()));
+		}
 		return new IsStatement(lineID, val, buildExpType());
 	}
 
@@ -82,23 +91,43 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	public static Declaration buildDeclaration() {
-		DataType type = (DataType) line.remove(0).type;
-		ValueChanger target;
-		if (type.is(SuperType.ARRAY_TYPE))
-			target = buildArrayAccess();
-		else if (type.is(SuperType.DATA_TYPE))
-			target = buildName();
-		else
-			throw new UnexpectedTypeError(orgLine, type);
-		if (line.size() > 0) {
-			if (line.get(0).is(AssignmentType.NORMAL)) {
-				line.remove(0); // Assignment
-				return new Declaration(lineID, type, target, buildVal());
-			} else if (line.get(0).is(SuperType.ASSIGNMENT_TYPE))
-				throw new IllegalCodeFormatException(orgLine,
-						"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
+		DataType type = buildArrayDimensions((SingleType) line.remove(0).type);
+		Name name = buildName();
+		AssignmentType assignOp = line.isEmpty() ? null : (AssignmentType) line.remove(0).type;
+		ValueHolder vH = line.isEmpty() ? type.stdVal() : buildVal();
+		if (assignOp != null && assignOp != AssignmentType.NORMAL) {
+			throw new IllegalCodeFormatException(orgLine,
+					"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
 		}
-		return new Declaration(lineID, type, target, type.stdVal());
+		if (type instanceof ArrayType at)
+			return new ArrayDeclaration(lineID, at, name, vH);
+		return new Declaration(lineID, type, name, vH);
+	}
+
+	/** [(INT?)] ([(INT?)]?) ([(INT?)]?)... */
+	private static DataType buildArrayDimensions(SingleType type) {
+		if (line.size() > 1 && line.get(0).is(ARRAY_START)) {
+			if (line.get(1).is(LITERAL)) { // Array with fixed length
+				List<Integer> dims = new ArrayList<>(1);
+				do {
+					line.remove(0);
+					dims.add(Integer.valueOf(line.remove(0).value));
+					line.remove(0);
+					if (dims.get(dims.size() - 1) < 1)
+						throw new ShouldBeNaturalNrException(orgLine, "An array cannot be limited to have less than one entry.");
+				} while (line.size() > 1 && line.get(0).is(ARRAY_START));
+				return new ArrayType(type, dims.stream().mapToInt(i -> i).toArray());
+			} else {
+				int dims = 0;
+				do {
+					line.remove(0);
+					line.remove(0);
+					dims++;
+				} while (line.size() > 1 && line.get(0).is(ARRAY_START));
+				return new ArrayType(type, dims);
+			}
+		}
+		return type;
 	}
 
 	/** [(] [TYPE] [)] [VALUE_HOLDER] */

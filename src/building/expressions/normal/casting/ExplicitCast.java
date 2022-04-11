@@ -4,7 +4,7 @@ import static building.types.abstractions.SpecificType.MERGED;
 
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.DataType;
+import building.types.specific.datatypes.DataType;
 import runtime.datatypes.Value;
 import runtime.exceptions.CastingException;
 

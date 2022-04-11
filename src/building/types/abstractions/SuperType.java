@@ -4,10 +4,10 @@ import static building.types.specific.BuilderType.*;
 
 import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
-import building.types.specific.DataType;
 import building.types.specific.DynamicType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.InfixOpType;
 import building.types.specific.operators.PostfixOpType;
 import building.types.specific.operators.PrefixOpType;
@@ -31,10 +31,9 @@ public enum SuperType implements UnspecificType {
 
 	ASSIGNMENT_TYPE(AssignmentType.values()),
 
-	DATA_TYPE(DataType.values()),
+	DATA_TYPE(SingleType.values()),
 
 	// Groups
-	ARRAY_TYPE(DataType.arrayValues()),
 
 	VAL_HOLDER_TYPE(ARRAY_START, OPEN_BRACKET, DATA_TYPE, DYNAMIC_TYPE, PREFIX_OP_TYPE, MULTI_CALL_START),
 

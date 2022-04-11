@@ -4,6 +4,7 @@ import static building.types.abstractions.SuperType.DATA_TYPE;
 import static building.types.abstractions.SuperType.VAL_HOLDER_TYPE;
 import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.DynamicType.NAME;
+import static building.types.specific.operators.PrefixOpType.NOT;
 
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
@@ -64,7 +65,7 @@ public enum KeywordType implements SpecificType {
 			case ANY -> new AbstractType[] { OPEN_BLOCK, IF };
 			case ELSE, MAIN -> new AbstractType[] { OPEN_BLOCK };
 			case FOR, FUNC -> new AbstractType[] { NAME };
-			case IS -> new AbstractType[] { DATA_TYPE };
+			case IS -> new AbstractType[] { DATA_TYPE, NOT };
 			case IMPORT -> throw new UnsupportedOperationException("An import Statement cannot be build.");
 		};
 	}

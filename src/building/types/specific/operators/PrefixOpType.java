@@ -25,7 +25,10 @@ public enum PrefixOpType implements SpecificType {
 
 	@Override
 	public AbstractType[] abstractExpected() {
-		return new AbstractType[] { VAL_HOLDER_TYPE };
+		return switch (this) {
+			case NOT -> new AbstractType[] { VAL_HOLDER_TYPE };
+			default -> new AbstractType[] { VAL_HOLDER_TYPE };
+		};
 	}
 
 	@Override

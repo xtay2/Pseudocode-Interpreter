@@ -3,20 +3,25 @@ package building.expressions.possible.allocating;
 import java.util.HashSet;
 import java.util.Set;
 
+import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.Flaggable;
-import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
+import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
-import building.types.specific.DataType;
 import building.types.specific.FlagType;
+import building.types.specific.datatypes.DataType;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
 
+/**
+ * The {@link Expression} in code, that initialises {@link Variable}s.
+ * 
+ * {@link ArrayVariable}s are getting inititlised by {@link ArrayDeclaration}s.
+ */
 public class Declaration extends Allocating implements Flaggable {
 
-	private final Set<FlagType> flags = new HashSet<>();
+	protected final Set<FlagType> flags = new HashSet<>();
 
 	/**
 	 * Creates an {@link Declaration}.
@@ -25,7 +30,7 @@ public class Declaration extends Allocating implements Flaggable {
 	 * @param target shouldn't be null.
 	 * @param val    shouldn't be null.
 	 */
-	public Declaration(int lineID, DataType type, ValueChanger target, ValueHolder val) {
+	public Declaration(int lineID, DataType type, Name target, ValueHolder val) {
 		super(lineID, type, target, val);
 	}
 
@@ -37,9 +42,7 @@ public class Declaration extends Allocating implements Flaggable {
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		if (v instanceof ArrayValue av)
-			av.init();
-		new Variable(lineIdentifier, getScope(), (DataType) type, target.getName(), v).addFlags(flags);
+		new Variable(lineIdentifier, getScope(), (DataType) type, (Name) target, v).addFlags(flags);
 		return v;
 	}
 

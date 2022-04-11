@@ -2,13 +2,13 @@ package interpreting.modules.merger;
 
 import static building.types.abstractions.SuperType.*;
 import static building.types.specific.BuilderType.*;
-import static building.types.specific.DataType.VAR;
 import static building.types.specific.DynamicType.NAME;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
 import static building.types.specific.FlagType.NATIVE;
 import static building.types.specific.KeywordType.FUNC;
 import static building.types.specific.KeywordType.IS;
+import static building.types.specific.datatypes.SingleType.VAR;
 import static interpreting.modules.merger.ValueMerger.buildAssignment;
 
 import java.util.ArrayList;
@@ -27,10 +27,10 @@ import building.expressions.normal.containers.Name;
 import building.types.abstractions.AbstractType;
 import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
-import building.types.specific.DataType;
 import building.types.specific.DynamicType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.DataType;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
@@ -66,7 +66,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 					case NAME:
 						if (sec != null) {
 							if (sec.is(OPEN_BRACKET))
-								yield ValueMerger.buildCall();
+								yield (ValueHolder) ValueMerger.buildCall();
 							if (sec.is(ARRAY_START)) {
 								ArrayAccess acc = ValueMerger.buildArrayAccess();
 								if (!line.isEmpty() && line.get(0).is(ASSIGNMENT_TYPE))

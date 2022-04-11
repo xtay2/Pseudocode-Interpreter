@@ -1,11 +1,11 @@
 package runtime.datatypes.object;
 
-import static building.types.specific.DataType.*;
+import static building.types.specific.datatypes.SingleType.*;
 import static runtime.datatypes.object.NullValue.NULL;
 
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.normal.containers.Name;
-import building.types.specific.DataType;
+import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
@@ -35,7 +35,7 @@ public class ObjectValue extends Value implements NameHolder {
 	}
 
 	@Override
-	public boolean canCastTo(DataType type) {
+	public boolean canCastTo(SingleType type) {
 		return switch (type) {
 			case VAR, OBJECT -> true; // Returns this
 			case BOOL -> true; // Returns true if not null
