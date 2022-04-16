@@ -15,6 +15,7 @@ import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.object.NullValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
+import runtime.exceptions.ComparisonException;
 import runtime.exceptions.UnexpectedTypeError;
 
 public abstract class Value extends Expression implements Castable {
@@ -73,10 +74,10 @@ public abstract class Value extends Expression implements Castable {
 	 * @param v is the value its checked against.
 	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
 	 */
-	public abstract boolean valueCompare(Value v) throws UnexpectedTypeError;
+	public abstract boolean valueCompare(Value v) throws ComparisonException;
 
 	@Override
-	public final Value getValue() {
+	public Value getValue() {
 		return this;
 	}
 

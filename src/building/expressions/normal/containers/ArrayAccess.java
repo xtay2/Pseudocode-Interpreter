@@ -12,6 +12,7 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueChanger;
 import interpreting.exceptions.IllegalCodeFormatException;
+import misc.helper.MathHelper;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.exceptions.ArrayAccessException;
@@ -48,9 +49,9 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 	}
 
 	private Value getValue(List<ValueHolder> idxs) {
-		Value v = name.getValue().asVarArray();
+		Value v = name.getValue().as(VAR_ARRAY);
 		for (ValueHolder index : idxs)
-			v = read((ArrayValue) v, index);
+			v = ((ArrayValue) v).get(MathHelper.valToInt(index));
 		return v;
 	}
 
@@ -71,32 +72,22 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 		if (indices.size() == 1 && indices.get(0) instanceof MultiCall mc)
 			return writeFor(val, mc.content);
 		try {
-			return setValue(val, indices);
+			return ((ArrayValue) var.getValue()).set(val, indices.toArray(new ValueHolder[indices.size()]));
 		} catch (ClassCastException e) {
 			throw new ArrayAccessException(getOriginalLine(),
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
 		}
 	}
 
-	private Value setValue(Value val, List<ValueHolder> idxs) {
-		Variable var = name.getScope().getVar(name.getNameString(), getOriginalLine());
-		return ((ArrayValue) var.getValue()).set(val, idxs);
-	}
-
 	@Override
 	public ArrayValue writeFor(Value val, ValueHolder[] content) {
-		ValueHolder[] res = new ValueHolder[content.length];
-		for (int i = 0; i < content.length; i++)
-			res[i] = setValue(val, List.of(content[i]));
-		return new ArrayValue(VAR_ARRAY, res);
-	}
-
-	private static Value read(ArrayValue arr, ValueHolder idx) {
-		return arr.get(idx.getValue().asInt().raw().intValueExact());
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public Name getName() {
 		return name;
 	}
+
 }

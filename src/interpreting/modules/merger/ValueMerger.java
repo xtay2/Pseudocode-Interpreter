@@ -1,6 +1,7 @@
 package interpreting.modules.merger;
 
 import static building.types.specific.BuilderType.ARRAY_START;
+import static building.types.specific.BuilderType.RANGE;
 import static building.types.specific.DynamicType.LITERAL;
 import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.operators.PrefixOpType.NOT;
@@ -8,6 +9,7 @@ import static building.types.specific.operators.PrefixOpType.NOT;
 import java.util.ArrayList;
 import java.util.List;
 
+import building.expressions.abstractions.Range;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.IsStatement;
@@ -26,8 +28,8 @@ import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import interpreting.exceptions.IllegalCodeFormatException;
+import misc.helper.MathHelper;
 import runtime.datatypes.array.ArrayValue;
-import runtime.exceptions.ShouldBeNaturalNrException;
 
 /**
  * Every merged {@link ValueHolder}.
@@ -107,27 +109,34 @@ public abstract class ValueMerger extends SuperMerger {
 	/** [(INT?)] ([(INT?)]?) ([(INT?)]?)... */
 	private static DataType buildArrayDimensions(SingleType type) {
 		if (line.size() > 1 && line.get(0).is(ARRAY_START)) {
-			if (line.get(1).is(LITERAL)) { // Array with fixed length
-				List<Integer> dims = new ArrayList<>(1);
-				do {
-					line.remove(0);
-					dims.add(Integer.valueOf(line.remove(0).value));
-					line.remove(0);
-					if (dims.get(dims.size() - 1) < 1)
-						throw new ShouldBeNaturalNrException(orgLine, "An array cannot be limited to have less than one entry.");
-				} while (line.size() > 1 && line.get(0).is(ARRAY_START));
-				return new ArrayType(type, dims.stream().mapToInt(i -> i).toArray());
-			} else {
-				int dims = 0;
-				do {
-					line.remove(0);
-					line.remove(0);
-					dims++;
-				} while (line.size() > 1 && line.get(0).is(ARRAY_START));
-				return new ArrayType(type, dims);
-			}
+			List<Range> dims = new ArrayList<>(1);
+			do {
+				line.remove(0);
+				dims.add(buildRange());
+				line.remove(0);
+			} while (line.size() > 1 && line.get(0).is(ARRAY_START));
+			return new ArrayType(type, dims.toArray(new Range[dims.size()]));
 		}
 		return type;
+	}
+
+	private static Range buildRange() {
+		if (line.get(0).is(LITERAL)) {
+			int lower = MathHelper.valToInt(buildVal());
+			if (line.get(0).is(RANGE)) {
+				line.remove(0);
+				if (line.get(0).is(LITERAL))
+					return Range.intervalBound(lower, MathHelper.valToInt(buildVal()));
+				return Range.lowerBound(lower);
+			}
+			return Range.exact(lower);
+		} else if (line.get(0).is(RANGE)) {
+			line.remove(0);
+			if (line.get(0).is(LITERAL))
+				return Range.upperBound(MathHelper.valToInt(buildVal()));
+			throw new IllegalCodeFormatException(orgLine, "Range-Symbol \"..\" has to be surrounded by atleast one integer-literal.");
+		}
+		return Range.UNBOUNDED;
 	}
 
 	/** [(] [TYPE] [)] [VALUE_HOLDER] */

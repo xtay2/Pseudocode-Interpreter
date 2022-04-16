@@ -1,6 +1,7 @@
 package building.types.specific;
 
 import static building.types.abstractions.SuperType.*;
+import static building.types.specific.DynamicType.LITERAL;
 import static building.types.specific.DynamicType.NAME;
 
 import building.expressions.abstractions.ScopeHolder;
@@ -52,6 +53,9 @@ public enum BuilderType implements SpecificType {
 
 	MULTI_CALL_END("|"),
 
+	/** Integer-Range Operator */
+	RANGE(".."),
+
 	/** Part of the {@link IntervalLoop}. */
 	TO("to"),
 
@@ -82,7 +86,7 @@ public enum BuilderType implements SpecificType {
 	@Override
 	public AbstractType[] abstractExpected() {
 		return switch (this) {
-			case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END };
+			case ARRAY_START -> new AbstractType[] { VAL_HOLDER_TYPE, ARRAY_END, RANGE };
 			case ARRAY_END -> new AbstractType[] { ARRAY_START, AFTER_VALUE_TYPE, ASSIGNMENT_TYPE, NAME };
 			case OPEN_BRACKET -> new AbstractType[] { VAL_HOLDER_TYPE, CLOSE_BRACKET };
 			case CLOSE_BRACKET -> new AbstractType[] { ARRAY_START, OPEN_BRACKET, DYNAMIC_TYPE, AFTER_VALUE_TYPE, ARROW_R };
@@ -90,6 +94,7 @@ public enum BuilderType implements SpecificType {
 			case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case MULTI_CALL_START -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case MULTI_CALL_END -> new AbstractType[] { AFTER_VALUE_TYPE };
+			case RANGE -> new AbstractType[] { LITERAL };
 			case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case OPEN_BLOCK, CLOSE_BLOCK, MULTI_CLOSE_SCOPE, SINGLE_LINE_COMMENT -> new AbstractType[] {};
 		};

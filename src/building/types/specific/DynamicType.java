@@ -4,6 +4,7 @@ import static building.types.abstractions.SuperType.AFTER_VALUE_TYPE;
 import static building.types.abstractions.SuperType.ASSIGNMENT_TYPE;
 import static building.types.specific.BuilderType.ARRAY_START;
 import static building.types.specific.BuilderType.OPEN_BRACKET;
+import static building.types.specific.BuilderType.RANGE;
 
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.containers.Name;
@@ -34,7 +35,7 @@ public enum DynamicType implements SpecificType {
 	public AbstractType[] abstractExpected() {
 		return switch (this) {
 			case NAME -> new AbstractType[] { AFTER_VALUE_TYPE, ASSIGNMENT_TYPE, OPEN_BRACKET, ARRAY_START };
-			case LITERAL -> new AbstractType[] { AFTER_VALUE_TYPE };
+			case LITERAL -> new AbstractType[] { AFTER_VALUE_TYPE, RANGE };
 		};
 	}
 

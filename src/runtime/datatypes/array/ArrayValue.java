@@ -1,13 +1,17 @@
 package runtime.datatypes.array;
 
-import static building.types.specific.datatypes.ArrayType.*;
+import static building.types.specific.datatypes.ArrayType.NUMBER_ARRAY;
+import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import building.expressions.abstractions.Range;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.possible.allocating.Allocating;
@@ -15,13 +19,14 @@ import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import misc.helper.CollectionHelper;
+import misc.helper.MathHelper;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.ArrayAccessException;
 import runtime.exceptions.CastingException;
+import runtime.exceptions.ComparisonException;
 import runtime.exceptions.ShouldBeNaturalNrException;
 import runtime.exceptions.UnexpectedTypeError;
 
@@ -29,8 +34,7 @@ import runtime.exceptions.UnexpectedTypeError;
  * <pre>
  * This is any value of the type Array.
  * 
- * -It gets defined as a {@link Literal}.
- */
+ * -It gets defined as a {@link Literal}. */
 public final class ArrayValue extends Value implements Iterable<Value> {
 
 	private Value[] container;
@@ -51,46 +55,52 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	}
 
 	/** This gets called by every {@link Allocating} Expression. */
-	public void init() {
+	private void init() {
 		if (preInit == null && container == null)
 			throw new IllegalStateException("Array cannot be unitialised and initialised at the same time.");
 		// Already initialised
 		if (preInit == null)
 			return;
+		Range r = getType().ranges[0];
+		if (r.lowerBound > preInit.length)
+			throw new ArrayIndexOutOfBoundsException(
+					preInit.length + " is an invalid length. This array has a lower bound of " + r.lowerBound);
+		if (preInit.length > r.upperBound)
+			throw new ArrayIndexOutOfBoundsException(
+					preInit.length + " is an invalid length. This array has a upper bound of " + r.upperBound);
 		// Init
 		container = new Value[preInit.length];
 		for (int i = 0; i < preInit.length; i++)
 			set(preInit[i].getValue(), i);
 		preInit = null;
-		ArrayType.isInDimensions(this, getType().lengths, 0);
 	}
 
 	// CASTING--------------------------------------------------
 
 	@Override
-	@Deprecated
-	public Value as(DataType t) throws CastingException {
-		if (t.equals(getType()))
-			return this;
-		if (t instanceof ArrayType at && at.dimensions > 1) {
-			Value[] content = Arrays.stream(container).map(e -> e.as(new ArrayType(at.dataType, at.dimensions - 1))).toArray(Value[]::new);
-			System.out.println(Arrays.toString(content));
-			return new ArrayValue(at, content);
+	public Value as(DataType t) {
+		if (t instanceof SingleType st) {
+			return switch (st) {
+				case VAR -> this;
+				case BOOL -> asBool();
+				case CHAR -> asChar();
+				case INT -> asInt();
+				case NUMBER -> asNumber();
+				case TEXT -> asText();
+				default -> throw new UnexpectedTypeError(st);
+			};
 		}
-		System.out.println("Caste " + this + " zu " + t);
-		return super.as(t);
+		return asTypedArray((ArrayType) t);
 	}
 
 	/** Acts as a isEmpty-Function */
 	@Override
 	public BoolValue asBool() {
-		init();
 		return BoolValue.valueOf(length() != 0);
 	}
 
 	@Override
 	public TextValue asText() {
-		init();
 		StringBuilder b = new StringBuilder();
 		b.append('[');
 		for (int i = 0; i < length(); i++) {
@@ -104,7 +114,6 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	@Override
 	public IntValue asInt() {
-		init();
 		return NumberValue.create(BigInteger.valueOf(length()));
 	}
 
@@ -114,41 +123,8 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return asInt();
 	}
 
-	@Override
-	public ArrayValue asVarArray() {
-		return asTypedArray(VAR_ARRAY);
-	}
-
-	@Override
-	public ArrayValue asNumberArray() {
-		return asTypedArray(NUMBER_ARRAY);
-	}
-
-	@Override
-	public ArrayValue asBoolArray() {
-		return asTypedArray(BOOL_ARRAY);
-	}
-
-	@Override
-	public ArrayValue asTextArray() {
-		return asTypedArray(TEXT_ARRAY);
-	}
-
-	@Override
-	public ArrayValue asIntArray() {
-		return asTypedArray(INT_ARRAY);
-	}
-
-	@Override
-	public ArrayValue asCharArray() {
-		return asTypedArray(CHAR_ARRAY);
-	}
-
-	/**
-	 * Lazily casts every value in this Array to the specified type.
-	 */
-	private ArrayValue asTypedArray(ArrayType t) {
-		init();
+	/** Casts this array to the passed type. */
+	public ArrayValue asTypedArray(ArrayType t) {
 		return new ArrayValue(t, container);
 	}
 
@@ -168,113 +144,98 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	@Override
 	public boolean canCastTo(ArrayType type) {
-		if (type.dimensions > 1) {
-			return Arrays.stream(container)
-					.allMatch(e -> e instanceof ArrayValue av && av.canCastTo(new ArrayType(type.dataType, type.dimensions - 1)));
-		}
 		if (type.equals(VAR_ARRAY) || type.equals(TEXT_ARRAY) || type.equals(NUMBER_ARRAY))
 			return true;
-		return everyElementIs(type.dataType);
+		return everyElementIs(type.type);
 	}
 
-	/**
-	 * Checks, if every element in this array can get casted to the passed type.
-	 */
+	/** Checks, if every element in this array can get casted to the passed type. */
 	private boolean everyElementIs(SingleType t) {
 		return Arrays.stream(container).allMatch(v -> v.canCastTo(t));
 	}
 
-	/**
-	 * Returns a single value from this array.
+	/** Returns a single value from this array.
 	 * 
-	 * @see {@link ArrayAccess#getValue()}
-	 */
+	 * @see {@link ArrayAccess#getValue()} */
 	public Value get(int i) {
 		return container[i];
 	}
 
-	/**
-	 * Changes a value in this array.
+	/** Sets a value in this array and casts it to the expected type.
 	 * 
-	 * @param val  is the new value.
-	 * @param idxs is the n-dimensional index of the change.
-	 */
-	public Value set(Value val, List<ValueHolder> idxs) {
-		if (val == null)
-			throw new AssertionError("Value cannot be null.");
-		if (!val.canCastTo(getType().dataType))
-			throw new CastingException("Tried to insert a " + val.type + " into a " + type + ".");
-		init();
-		if (idxs.size() == 1)
-			return set(val, saveToInt(idxs.get(0)));
-		idxs.remove(0);
-		if (container[saveToInt(idxs.get(0))] instanceof ArrayValue av) {
-			return av.set(val, new ArrayList<>(idxs));
-		}
-		throw new ArrayAccessException(getOriginalLine(),
-				"Something went wrong while setting the value of the (sub)-array " + asText().raw());
+	 * @param val is the new value.
+	 * @param idxs is the n-dimensional index of the change. */
+	public Value set(Value val, ValueHolder[] idxs) {
+		return set(val, Arrays.stream(idxs).map(MathHelper::valToInt).collect(Collectors.toList()));
 	}
 
-	@Deprecated
+	/** Changes a value in possibly multiple dimensions. */
+	private Value set(Value val, List<Integer> idxs) {
+		int idx = idxs.remove(0);
+		if (idxs.isEmpty()) // Change in this dim
+			return set(val, idx);
+		// Change underlying value
+		return ((ArrayValue) container[idx]).set(val, new ArrayList<>(idxs));
+	}
+
+	/** Sets a value in the first dimension and returns the previous value. */
 	private Value set(Value val, int idx) {
-		Value old = container[idx];
-		if (getType().dimensions > 1)
-			container[idx] = val.as(new ArrayType(getType().dataType, getType().dimensions - 1));
-		else
-			container[idx] = val.as(getType());
-		return old;
-	}
-
-	private static int saveToInt(ValueHolder vh) {
-		return vh.getValue().asInt().raw().intValueExact();
+		Value prev = container[idx];
+		if (getType().getDims() == 1)
+			container[idx] = val.as(getType().type);
+		else {
+			if (getType().ranges.length == 0)
+				container[idx] = val;
+			else
+				container[idx] = val.as(new ArrayType(getType().type, Arrays.copyOfRange(getType().ranges, 1, getType().ranges.length)));
+		}
+		return prev;
 	}
 
 	@Override
 	public ArrayType getType() {
-		return (ArrayType) super.getType();
+		return (ArrayType) type;
 	}
 
-	/**
-	 * Simply returns the number of entries.
-	 */
+	/** Simply returns the number of entries. */
 	public int length() {
 		return container.length;
 	}
 
+	/** Returns a copy of the elements in this {@link ArrayValue}. */
 	@Override
 	public Value[] raw() {
 		return Arrays.copyOf(container, length());
 	}
 
-	/**
-	 * Recursivly compares all values of this array and the specified one.
+	/** Recursivly compares all values of this array and the specified one.
 	 * 
-	 * @return false if there is even one slight difference.
-	 */
+	 * @return false if there is even one slight difference. */
 	@Override
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof ArrayValue a) {
 			if (length() != a.length())
 				return false;
-			try {
-				for (int i = 0; i < length(); i++) {
-					if (!Value.eq(this, a).value)
-						return false;
-				}
-			} catch (UnexpectedTypeError e) {
-				return false;
+			for (int i = 0; i < length(); i++) {
+				if (!Value.eq(get(i), a.get(i)).value)
+					return false;
 			}
 			return true;
 		}
-		throw new AssertionError("Tried to compare " + this + " to " + v + ".");
+		throw new ComparisonException(this, v);
+	}
+
+	/** Initialises and returns this {@link ArrayValue}. */
+	@Override
+	public Value getValue() {
+		init();
+		return this;
 	}
 
 	// Operations
 
 	/** Merges this {@link ArrayValue} with another one. */
 	public ArrayValue concat(ArrayValue a, int executedInLine) {
-		init();
-		a.init();
 		if (!this.canCastTo(a.getType()) || !a.canCastTo(getType()))
 			throw new CastingException(executedInLine,
 					"Only two arrays of the same type can be concatenated. Tried " + type + " and " + a.type);
@@ -284,7 +245,6 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	/** Multiplies this {@link ArrayValue} n times */
 	public ArrayValue multiply(int n, int executedInLine) {
-		init();
 		if (n < 0)
 			throw new ShouldBeNaturalNrException(executedInLine, "Array cannot be multiplied with negative numbers.");
 		final int orgL = length();
@@ -295,11 +255,8 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return new ArrayValue(getType(), content);
 	}
 
-	/**
-	 * Returns {@link BoolValue#TRUE} if this array contains the specified element.
-	 */
+	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
 	public BoolValue contains(Value element) {
-		init();
 		for (int i = 0; i < length(); i++) {
 			if (Value.eq(get(i), element).value)
 				return BoolValue.TRUE;
@@ -307,14 +264,11 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return BoolValue.FALSE;
 	}
 
-	/**
-	 * Appends a value at the end of this {@link ArrayValue}.
+	/** Appends a value at the end of this {@link ArrayValue}.
 	 * 
-	 * @throws CastingException if the {@link DataType}s didn't match.
-	 */
+	 * @throws CastingException if the {@link DataType}s didn't match. */
 	public ArrayValue append(Value val, int executedInLine) throws CastingException {
-		init();
-		if (!val.canCastTo(getType().dataType))
+		if (!val.canCastTo(getType().type))
 			throw new CastingException(executedInLine, "Trying to append " + val + " to " + this + ".");
 		// Create
 		Value[] content = new Value[length() + 1];
@@ -324,14 +278,11 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return new ArrayValue(getType(), content);
 	}
 
-	/**
-	 * Prepend a value at the front of this {@link ArrayValue}.
+	/** Prepend a value at the front of this {@link ArrayValue}.
 	 * 
-	 * @throws CastingException if the {@link DataType}s didn't match.
-	 */
+	 * @throws CastingException if the {@link DataType}s didn't match. */
 	public ArrayValue prepend(Value val, int executedInLine) throws CastingException {
-		init();
-		if (!val.canCastTo(getType().dataType))
+		if (!val.canCastTo(getType().type))
 			throw new CastingException(executedInLine, "Trying to prepend " + val + " to " + this + ".");
 		// Create
 		Value[] content = new Value[length() + 1];
@@ -361,9 +312,6 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	@Override
 	public String toString() {
-		String res = asText().raw();
-		if (res.length() > 25)
-			return res.substring(0, 20) + "...]";
-		return res;
+		return asText().raw();
 	}
 }

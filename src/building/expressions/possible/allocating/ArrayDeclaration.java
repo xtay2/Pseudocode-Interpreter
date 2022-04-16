@@ -11,15 +11,13 @@ import runtime.datatypes.array.ArrayValue;
 
 public class ArrayDeclaration extends Declaration {
 
-	/**
-	 * Declaration for an array
+	/** Declaration for an array
 	 * 
-	 * @param type       any {@link SuperType#ARRAY_TYPE}.
+	 * @param type any {@link SuperType#ARRAY_TYPE}.
 	 * @param maxLengths can optionally be null if no bounds are given. Tells the dimensions and maximum
-	 *                   bounds.
-	 * @param target     should be non null
-	 * @param val        should be non null
-	 */
+	 * bounds.
+	 * @param target should be non null
+	 * @param val should be non null */
 	public ArrayDeclaration(int lineID, ArrayType type, Name target, ValueHolder val) {
 		super(lineID, type, target, val);
 	}
@@ -27,8 +25,6 @@ public class ArrayDeclaration extends Declaration {
 	@Override
 	public Value getValue() {
 		ArrayValue v = (ArrayValue) val.getValue();
-		v.init();
-		ArrayType.isInDimensions(v, ((ArrayType) type).lengths, 0);
 		new Variable(lineIdentifier, getScope(), (DataType) type, target.getName(), v).addFlags(flags);
 		return v;
 	}

@@ -1,7 +1,6 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
-import static building.types.specific.datatypes.SingleType.*;
+import static building.types.specific.datatypes.SingleType.TEXT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
@@ -12,7 +11,6 @@ import java.math.BigInteger;
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.CastingException;
@@ -32,9 +30,9 @@ public final class TextValue extends Value {
 
 	@Override
 	public BoolValue asBool() throws CastingException {
-		if ("true".equals(value))
+		if (BoolValue.TRUE.toString().equals(value))
 			return BoolValue.valueOf(true);
-		if ("false".equals(value))
+		if (BoolValue.FALSE.toString().equals(value))
 			return BoolValue.valueOf(false);
 		throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool. \nWas: \"" + raw() + "\"");
 	}
@@ -87,19 +85,6 @@ public final class TextValue extends Value {
 			return new CharValue(value.charAt(0));
 		throw new CastingException("The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
 				+ "\" consists of multiple chars, and therefore cannot be casted to one.");
-	}
-
-	@Override
-	public ArrayValue asCharArray() {
-		CharValue[] chars = new CharValue[value.length()];
-		for (int i = 0; i < value.length(); i++)
-			chars[i] = (new CharValue(value.charAt(i)));
-		return new ArrayValue(TEXT_ARRAY, chars);
-	}
-
-	@Override
-	public ArrayValue asVarArray() throws CastingException {
-		return asCharArray().asVarArray();
 	}
 
 	@Override

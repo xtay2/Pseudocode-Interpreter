@@ -1,9 +1,6 @@
 package runtime.datatypes;
 
 import static building.types.specific.datatypes.SingleType.BOOL;
-import static building.types.specific.datatypes.SingleType.NUMBER;
-import static building.types.specific.datatypes.SingleType.TEXT;
-import static building.types.specific.datatypes.SingleType.VAR;
 
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.numerical.IntValue;

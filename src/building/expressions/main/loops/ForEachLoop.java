@@ -1,5 +1,7 @@
 package building.expressions.main.loops;
 
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
+
 import java.math.BigInteger;
 
 import building.expressions.abstractions.ScopeHolder;
@@ -14,7 +16,7 @@ import runtime.datatypes.numerical.NumberValue;
 
 public class ForEachLoop extends Loop {
 
-	/** The {@link ValueHolder} that gets called at the start of ervy new iteration. */
+	/** The {@link ValueHolder} that gets called at the start of every new iteration. */
 	private final ValueHolder arrayHolder;
 
 	/** The temporary value that gets reset for every iteration. */
@@ -42,7 +44,7 @@ public class ForEachLoop extends Loop {
 	@Override
 	protected void initLoop() {
 		super.initLoop();
-		array = arrayHolder.getValue().asVarArray();
+		array = (ArrayValue) arrayHolder.getValue().as(VAR_ARRAY);
 	}
 
 	@Override

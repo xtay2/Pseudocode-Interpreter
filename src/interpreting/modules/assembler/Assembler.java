@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import building.expressions.main.CloseBlock;
+import building.types.specific.BuilderType;
 import formatter.basic.Formatter;
 import interpreting.modules.parser.Parser.IdxLine;
 import misc.helper.ProgramHelper;
@@ -26,6 +27,7 @@ public class Assembler {
 		// Strip all
 		lines = new ArrayList<>(program.stream().map(e -> new IdxLine(e.line().strip(), e.index())).toList());
 		removeEmptyAndComments();
+		padRangeOperators();
 		splitCloseBlocks();
 		splitFullOneLiners();
 		splitPartialOneLiners();
@@ -43,6 +45,17 @@ public class Assembler {
 			// Remove partial comments
 			else if (l.contains(SLC))
 				lines.set(i, new IdxLine(l.substring(0, l.indexOf(SLC)).stripTrailing(), index));
+		}
+	}
+
+	/**
+	 * Adds padding around all {@link BuilderType#RANGE}-Operators, so that they get distinguished from
+	 * dots in decimal numbers.
+	 */
+	private static void padRangeOperators() {
+		for (int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i).line();
+			lines.set(i, new IdxLine(ProgramHelper.replaceAllIfRunnable(line, "\\.\\.", " .. ", false), i));
 		}
 	}
 

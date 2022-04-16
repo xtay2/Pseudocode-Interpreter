@@ -1,6 +1,5 @@
 package building.expressions.abstractions.interfaces;
 
-import static building.types.specific.datatypes.ArrayType.*;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 
 import building.types.specific.datatypes.ArrayType;
@@ -14,6 +13,7 @@ import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
+import runtime.exceptions.InvalidDimensionException;
 import runtime.exceptions.UnexpectedTypeError;
 
 /**
@@ -52,21 +52,13 @@ public interface Castable extends ValueHolder {
 			};
 		}
 		if (t instanceof ArrayType at) {
-			if (at.equals(VAR_ARRAY))
-				return asVarArray();
-			if (at.dimensions != 1)
-				throw new CastingException(
-						"Its only possible to cast to one-dimensional arrays. Tried to cast " + getType() + " to: " + at);
-			if (at.equals(BOOL_ARRAY))
-				return asBoolArray();
-			if (at.equals(INT_ARRAY))
-				return asIntArray();
-			if (at.equals(NUMBER_ARRAY))
-				return asNumberArray();
-			if (at.equals(TEXT_ARRAY))
-				return asTextArray();
-			if (at.equals(CHAR_ARRAY))
-				return asCharArray();
+			if (getType() instanceof ArrayType tat) {
+				if (tat.getDims() != at.getDims())
+					throw new InvalidDimensionException(
+							"Tried cast an array type (" + tat + ") to another one (" + at + ") with different dimensions.");
+				return ((ArrayValue) this).asTypedArray(at);
+			}
+			throw new CastingException("Cannot cast a non-arraytype (" + getType() + ") to an arraytype (" + at + ").");
 		}
 		throw new UnexpectedTypeError(t);
 	}
@@ -89,35 +81,5 @@ public interface Castable extends ValueHolder {
 
 	public default CharValue asChar() throws CastingException {
 		throw new CastingException(getType() + " cannot be casted to a CharValue.");
-	}
-
-	/** Returns a characterwise textrepresentation for default. */
-	public default ArrayValue asVarArray() {
-		return asText().asVarArray();
-	}
-
-	public default ArrayValue asBoolArray() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a BoolArray.");
-	}
-
-	public default ArrayValue asNumberArray() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a NumberArray.");
-	}
-
-	public default ArrayValue asIntArray() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a IntArray.");
-	}
-
-	public default ArrayValue asTextArray() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a TextArray.");
-	}
-
-	/** Returns a characterwise textrepresentation for default. */
-	public default ArrayValue asCharArray() {
-		return asText().asCharArray();
-	}
-
-	public default ArrayValue asDefArray() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a DefArray.");
 	}
 }
