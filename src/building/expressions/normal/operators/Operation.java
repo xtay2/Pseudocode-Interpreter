@@ -5,6 +5,7 @@ import static building.types.specific.operators.InfixOpType.AND;
 import static building.types.specific.operators.InfixOpType.NAND;
 import static building.types.specific.operators.InfixOpType.NOR;
 import static building.types.specific.operators.InfixOpType.OR;
+import static runtime.datatypes.MaybeValue.NULL;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 
 import java.util.ArrayList;
@@ -23,12 +24,12 @@ import building.expressions.possible.multicall.MultiCallable;
 import building.types.specific.operators.InfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.merger.SuperMerger;
+import misc.helper.StringHelper;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
+import runtime.exceptions.NullNotAllowedException;
 
-/**
- * Consist of n Operators and n + 1 ValueHolders.
- */
+/** Consist of n Operators and n + 1 ValueHolders. */
 public final class Operation extends Expression implements MultiCallable, ValueHolder {
 
 	private final List<Operatable> operation;
@@ -39,6 +40,9 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		if (op.size() < 3)
 			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + op);
 		this.operation = format(op);
+		if (op.contains(NULL))
+			throw new NullNotAllowedException(getOriginalLine(), "Null isn't allowed to be in an operation.\n"
+					+ StringHelper.pointUnderline(toString(), toString().indexOf(NULL.toString()), NULL.toString().length()));
 	}
 
 	/** Converts multiple ComparativeOperators */
@@ -58,13 +62,11 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		return recValue(new ArrayList<>(operation));
 	}
 
-	/**
-	 * Recursivly evaluates the result from this {@link Operation}, by performing single operations and
+	/** Recursivly evaluates the result from this {@link Operation}, by performing single operations and
 	 * replacing them with their result in the big {@link List}.
 	 * 
 	 * @param op should be a mutable copy of {@link #operation}.
-	 * @return the result of this operation.
-	 */
+	 * @return the result of this operation. */
 	private Value recValue(List<Operatable> op) {
 		ValueHolder a = (ValueHolder) op.get(0);
 		InfixOperator o = (InfixOperator) op.get(1);
@@ -93,8 +95,7 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		throw new AssertionError(getOriginalLine() + "Operation-Check failed. Illegal Operation: " + op + ", \noriginally: " + operation);
 	}
 
-	/**
-	 * Sometimes the outcome of a operation can get evaluated without looking at the whole operation.
+	/** Sometimes the outcome of a operation can get evaluated without looking at the whole operation.
 	 * 
 	 * <pre>
 	 * Examples are:
@@ -108,8 +109,7 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 	 * 
 	 * @param a
 	 * @param o
-	 * @return
-	 */
+	 * @return */
 	private Value isSpecialCase(Value a, InfixOperator o) {
 		if (a instanceof BoolValue b) {
 			if (b.raw()) {
@@ -129,13 +129,11 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		return null;
 	}
 
-	/**
-	 * Evaluates a part of an equation.
+	/** Evaluates a part of an equation.
 	 * 
-	 * @param op      is the current state of the whole operation.
+	 * @param op is the current state of the whole operation.
 	 * @param evalPos should be 1 or 3.
-	 * @return the modified whole operation after the small operation got evaluated.
-	 */
+	 * @return the modified whole operation after the small operation got evaluated. */
 	private List<Operatable> evaluate(List<Operatable> op, int evalPos) {
 		List<Operatable> res = new ArrayList<>(op);
 		ValueHolder a = (ValueHolder) op.get(evalPos - 1);
@@ -148,12 +146,10 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		return res;
 	}
 
-	/**
-	 * Performs a single infix-operation, that contains two operands (of which one might be a
+	/** Performs a single infix-operation, that contains two operands (of which one might be a
 	 * {@link MultiCall}) and an operator.
 	 * 
-	 * @return the result of the equation.
-	 */
+	 * @return the result of the equation. */
 	private Value perform(ValueHolder a, InfixOperator o, ValueHolder b) {
 		if (a instanceof MultiCall && b instanceof MultiCall)
 			throw new IllegalCodeFormatException(getOriginalLine(), "At most one operand of an infix operation can be a multicall.");

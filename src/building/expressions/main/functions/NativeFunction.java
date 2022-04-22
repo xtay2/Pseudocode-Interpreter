@@ -20,30 +20,24 @@ import runtime.exceptions.DeclarationException;
 import runtime.exceptions.IllegalCallException;
 import runtime.natives.SystemFunctions;
 
-/**
- * This is the class for a native Function-Declaration.
+/** This is the class for a native Function-Declaration.
  * 
  * If a {@link NativeFunction} called, this happens through the {@link Call}-Class and
- * {@link Interpreter#call}.
- */
+ * {@link Interpreter#call}. */
 public class NativeFunction extends Definition {
 
 	private final List<DataType> params;
 
-	/**
-	 * Defines and registers a {@link NativeFunction}.
+	/** Defines and registers a {@link NativeFunction}.
 	 * 
-	 * @param name       is the unique {@link Name} of this {@link Definition}. shouldn't be null
-	 * @param params     shouldn't be null.
+	 * @param name is the unique {@link Name} of this {@link Definition}. shouldn't be null
+	 * @param params shouldn't be null.
 	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a void.
-	 * @param flags      are optional {@link FlagType}s.
-	 */
-	public NativeFunction(int lineID, Name name, List<DataType> params, DataType returnType) {
-		super(lineID, name, null);
-		if (params == null)
-			throw new AssertionError("Params cannot be null.");
+	 * @param flags are optional {@link FlagType}s. */
+	public NativeFunction(int lineID, Name name, List<DataType> params, DataType returnType, boolean allowsNullAsReturn) {
+		super(lineID, name, returnType, allowsNullAsReturn, null);
+		assert params != null : "Params cannot be null.";
 		this.params = params;
-		this.returnType = returnType;
 		if (!Arrays.stream(SystemFunctions.SYSTEM_FUNCTION.values())
 				.anyMatch(f -> f.name.equals(name.getNameString()) && f.args == params.size())) {
 			throw new DeclarationException(getOriginalLine(),

@@ -1,7 +1,7 @@
 package runtime.datatypes.object;
 
-import static building.types.specific.datatypes.SingleType.*;
-import static runtime.datatypes.object.NullValue.NULL;
+import static building.types.specific.datatypes.SingleType.OBJECT;
+import static runtime.datatypes.MaybeValue.NULL;
 
 import building.expressions.abstractions.interfaces.NameHolder;
 import building.expressions.normal.containers.Name;
@@ -12,9 +12,7 @@ import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.UnexpectedTypeError;
 
-/**
- * @deprecated WIP: Don't use this, its only implemented here.
- */
+/** @deprecated WIP: Don't use this, its only implemented here. */
 @Deprecated
 public class ObjectValue extends Value implements NameHolder {
 

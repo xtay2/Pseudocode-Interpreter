@@ -16,10 +16,8 @@ import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
-/**
- * @see PrefixOperator
- * @see InfixOperator
- */
+/** @see PrefixOperator
+ * @see InfixOperator */
 public class PostfixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
 
 	private final ValueHolder content;
@@ -43,7 +41,7 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = evaluate(content[i]);
-		return new ArrayValue(ArrayType.VAR_ARRAY, res);
+		return new ArrayValue(ArrayType.VAR_ARRAY, false, res);
 	}
 
 	private Value evaluate(ValueHolder val) {

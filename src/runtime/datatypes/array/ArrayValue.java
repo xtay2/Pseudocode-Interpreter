@@ -3,6 +3,7 @@ package runtime.datatypes.array;
 import static building.types.specific.datatypes.ArrayType.NUMBER_ARRAY;
 import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
 import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
+import static runtime.datatypes.MaybeValue.NULL;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.ComparisonException;
+import runtime.exceptions.NullNotAllowedException;
 import runtime.exceptions.ShouldBeNaturalNrException;
 import runtime.exceptions.UnexpectedTypeError;
 
@@ -39,18 +41,19 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	private Value[] container;
 	private ValueHolder[] preInit;
+	public final boolean allowNull;
 
 	/** Strict Constructor. Should always get used for spontaneous cases. */
-	public ArrayValue(ArrayType type, Value... container) {
-		this(type, (ValueHolder[]) container);
+	public ArrayValue(ArrayType type, boolean allowNull, Value... container) {
+		this(type, allowNull, (ValueHolder[]) container);
 		init();
 	}
 
 	/** Lazy Constructor that waits for an {@link Allocating} to initialise this. */
-	public ArrayValue(ArrayType type, ValueHolder... preInit) {
+	public ArrayValue(ArrayType type, boolean allowNull, ValueHolder... preInit) {
 		super(type);
-		if (preInit == null)
-			throw new AssertionError("Arraycontent cannot be null.");
+		assert preInit != null : "Arraycontent cannot be null.";
+		this.allowNull = allowNull;
 		this.preInit = preInit;
 	}
 
@@ -70,8 +73,12 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 					preInit.length + " is an invalid length. This array has a upper bound of " + r.upperBound);
 		// Init
 		container = new Value[preInit.length];
-		for (int i = 0; i < preInit.length; i++)
-			set(preInit[i].getValue(), i);
+		for (int i = 0; i < preInit.length; i++) {
+			Value e = preInit[i].getValue();
+			if (!allowNull && e instanceof ArrayValue av)
+				e = av.unnullify();
+			set(e, i);
+		}
 		preInit = null;
 	}
 
@@ -125,7 +132,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	/** Casts this array to the passed type. */
 	public ArrayValue asTypedArray(ArrayType t) {
-		return new ArrayValue(t, container);
+		return new ArrayValue(t, allowNull, container);
 	}
 
 	// Non-Static Methods-----------------------------------------------------------
@@ -180,6 +187,8 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 	/** Sets a value in the first dimension and returns the previous value. */
 	private Value set(Value val, int idx) {
+		if (!allowNull && val == NULL)
+			throw new NullNotAllowedException(-1, "This array doesn't accept null as content.");
 		Value prev = container[idx];
 		if (getType().getDims() == 1)
 			container[idx] = val.as(getType().type);
@@ -240,7 +249,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			throw new CastingException(executedInLine,
 					"Only two arrays of the same type can be concatenated. Tried " + type + " and " + a.type);
 		Value[] content = CollectionHelper.merge(raw(), a.raw());
-		return new ArrayValue(getType(), content);
+		return new ArrayValue(getType(), allowNull && a.allowNull, content);
 	}
 
 	/** Multiplies this {@link ArrayValue} n times */
@@ -252,7 +261,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		Value[] content = new Value[orgL * n];
 		for (int i = 0; i < n; i++)
 			System.arraycopy(raw(), 0, content, i * orgL, orgL);
-		return new ArrayValue(getType(), content);
+		return new ArrayValue(getType(), allowNull, content);
 	}
 
 	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
@@ -275,7 +284,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		// Insert
 		System.arraycopy(container, 0, content, 0, length());
 		content[length()] = val;
-		return new ArrayValue(getType(), content);
+		return new ArrayValue(getType(), allowNull, content);
 	}
 
 	/** Prepend a value at the front of this {@link ArrayValue}.
@@ -289,7 +298,22 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		// Insert
 		System.arraycopy(container, 0, content, 1, length());
 		content[0] = val;
-		return new ArrayValue(getType(), content);
+		return new ArrayValue(getType(), allowNull, content);
+	}
+
+	/** Returns a copy of this array that allows null. */
+	public ArrayValue nullify() {
+		if (allowNull)
+			return this;
+		return new ArrayValue(getType(), true, container);
+	}
+
+	/** Returns a copy of this array that doesn't allow null. If one of the elements in this array is
+	 * null, a {@link NullNotAllowedException} gets thrown. */
+	public ArrayValue unnullify() {
+		if (!allowNull)
+			return this;
+		return new ArrayValue(getType(), false, container);
 	}
 
 	@Override

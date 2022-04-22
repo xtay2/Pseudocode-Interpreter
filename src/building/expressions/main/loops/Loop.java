@@ -17,15 +17,13 @@ import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
 
-/**
- * A loop is a Scope that gets called repeatedly, while or until a condition is true. This gets
+/** A loop is a Scope that gets called repeatedly, while or until a condition is true. This gets
  * testet by {@link Loop#doContinue()}.
  * 
  * @see ConditionalLoop
  * @see ForEachLoop
  * @see FromToLoop
- * @see RepeatLoop
- */
+ * @see RepeatLoop */
 public abstract class Loop extends ScopeHolder {
 
 	// These should get initialised at merge
@@ -41,11 +39,9 @@ public abstract class Loop extends ScopeHolder {
 		super(lineID, myType, os);
 	}
 
-	/**
-	 * Executes this loop as long as its run-condition is satisfied.
+	/** Executes this loop as long as its run-condition is satisfied.
 	 * 
-	 * This method calls {@link Loop#doContinue()} for every iteration.
-	 */
+	 * This method calls {@link Loop#doContinue()} for every iteration. */
 	@Override
 	public final boolean execute() {
 		initLoop();
@@ -65,30 +61,24 @@ public abstract class Loop extends ScopeHolder {
 		return callNextLine();
 	}
 
-	/**
-	 * Sets the immutable counter for this iteration.
+	/** Sets the immutable counter for this iteration.
 	 * 
-	 * @param i       is the {@link NumberValue} of the counter
-	 * @param cntName is the pre-defined countername "i"-"p".
-	 */
+	 * @param i is the {@link NumberValue} of the counter
+	 * @param cntName is the pre-defined countername "i"-"p". */
 	private void initCounter(NumberValue i, Name cntName) {
-		new Variable(lineIdentifier, getScope(), SingleType.NUMBER, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
+		new Variable(lineIdentifier, getScope(), SingleType.NUMBER, false, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
 	}
 
-	/**
-	 * Only gets called by {@link Loop#execute()} before a loop gets executed.
+	/** Only gets called by {@link Loop#execute()} before a loop gets executed.
 	 * 
-	 * Set {@link #start} and {@link #inc} here.
-	 */
+	 * Set {@link #start} and {@link #inc} here. */
 	protected void initLoop() {
 		start = startHolder.getValue().asNumber();
 		inc = incHolder.getValue().asNumber();
 	}
 
-	/**
-	 * Only gets called by {@link Loop#execute()}.
+	/** Only gets called by {@link Loop#execute()}.
 	 * 
-	 * @param iteration is the current iteration, starting at {@link DecimalValue#ZERO}.
-	 */
+	 * @param iteration is the current iteration, starting at {@link DecimalValue#ZERO}. */
 	protected abstract boolean doContinue(NumberValue iteration);
 }

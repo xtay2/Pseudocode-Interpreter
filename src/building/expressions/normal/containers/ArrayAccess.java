@@ -60,7 +60,7 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = getValue(List.of(content[i]));
-		return new ArrayValue(VAR_ARRAY, res);
+		return new ArrayValue(VAR_ARRAY, false, res);
 	}
 
 	@Override

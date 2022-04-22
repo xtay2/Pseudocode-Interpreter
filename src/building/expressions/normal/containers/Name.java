@@ -14,10 +14,8 @@ import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.exceptions.DeclarationException;
 
-/**
- * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
- * (Wrapper-{@link Expression} for {@link String}s).
- */
+/** Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
+ * (Wrapper-{@link Expression} for {@link String}s). */
 public class Name extends Expression implements ValueChanger {
 
 	private final String name;
@@ -26,8 +24,7 @@ public class Name extends Expression implements ValueChanger {
 	public Name(int lineID, String name) {
 		super(lineID, NAME);
 		this.name = name;
-		if (name == null)
-			throw new AssertionError("Name cannot be null.");
+		assert name != null : "Name cannot be null.";
 		if (!isName(name) && !KeywordType.MAIN.toString().equals(name))
 			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
 	}
@@ -44,9 +41,7 @@ public class Name extends Expression implements ValueChanger {
 		return getScope().getVar(name, getOriginalLine()).setValue(val);
 	}
 
-	/**
-	 * Arg is valid name if alphanumerical with underscores. (Atleast one character.)
-	 */
+	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
 	public static boolean isName(String arg) {
 		return arg.matches("\\w*([a-zäöüßA-ZÄÖÜ])+\\w*") && !isAlphaNumKeyword(arg);
 	}
@@ -61,11 +56,9 @@ public class Name extends Expression implements ValueChanger {
 		//@formatter:on
 	}
 
-	/**
-	 * Returns the String-Representation of this {@link Name}.
+	/** Returns the String-Representation of this {@link Name}.
 	 * 
-	 * This is the base for all instances of {@link NameHolder#getNameString()}.
-	 */
+	 * This is the base for all instances of {@link NameHolder#getNameString()}. */
 	@Override
 	public final String getNameString() {
 		return name;

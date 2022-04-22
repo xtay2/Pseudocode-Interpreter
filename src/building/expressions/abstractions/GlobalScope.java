@@ -6,10 +6,8 @@ import building.types.specific.KeywordType;
 import runtime.exceptions.DeclarationException;
 import runtime.exceptions.DefNotFoundException;
 
-/**
- * This is the basic {@link Scope} in which all other Scopes, Classes, Definitions and Variables may
- * get declared.
- */
+/** This is the basic {@link Scope} in which all other Scopes, Classes, Definitions and Variables
+ * may get declared. */
 public class GlobalScope extends Scope {
 
 	public static final String NAME = "global";
@@ -18,14 +16,11 @@ public class GlobalScope extends Scope {
 
 	/** This should only get called once */
 	private GlobalScope() {
-		if (GLOBAL != null)
-			throw new AssertionError("This constructor should only get called once by the constant.");
+		assert GLOBAL == null : "This constructor should only get called once by the constant.";
 	}
 
-	/**
-	 * Returns the {@link MainFunction}, and removes it from the {@link Scope} afterwards. If it was
-	 * defined in an inner {@link Scope}, a {@link DefNotFoundException} gets thrown.
-	 */
+	/** Returns the {@link MainFunction}, and removes it from the {@link Scope} afterwards. If it was
+	 * defined in an inner {@link Scope}, a {@link DefNotFoundException} gets thrown. */
 	public MainFunction getMain() {
 		Registerable r = get(KeywordType.MAIN.toString());
 		if (r == null)

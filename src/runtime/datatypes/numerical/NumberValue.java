@@ -41,9 +41,7 @@ public abstract class NumberValue extends Value {
 		return create(val.multiply(new BigDecimal(denom)).toBigIntegerExact(), denom);
 	}
 
-	/**
-	 * Creates a {@link NumberValue} from a fracional, possibly reduced rational.
-	 */
+	/** Creates a {@link NumberValue} from a fracional, possibly reduced rational. */
 	public static NumberValue create(BigInteger num, BigInteger denom) {
 		// Reduction
 		BigInteger gcd = num.gcd(denom);
@@ -60,14 +58,11 @@ public abstract class NumberValue extends Value {
 		return new DecimalValue(num, denom);
 	}
 
-	/**
-	 * Sets the type. {@link DecimalValue} has the type{@link DataType#NUMBER} and {@link IntValue} is a
-	 * {@link DataType#INT}.
-	 */
+	/** Sets the type. {@link DecimalValue} has the type{@link DataType#NUMBER} and {@link IntValue} is
+	 * a {@link DataType#INT}. */
 	protected NumberValue(DataType dataType) {
 		super(dataType);
-		if (dataType != INT && dataType != NUMBER)
-			throw new AssertionError("DataType has to be INT or NUMBER.");
+		assert dataType == INT || dataType == NUMBER : "DataType has to be INT or NUMBER.";
 	}
 
 	// PUBLIC FINAL
@@ -196,9 +191,7 @@ public abstract class NumberValue extends Value {
 		return equals(v);
 	}
 
-	/**
-	 * Value-comparison between this {@link NumberValue} and a {@link Value} or a {@link Number}.
-	 */
+	/** Value-comparison between this {@link NumberValue} and a {@link Value} or a {@link Number}. */
 	@Override
 	public final boolean equals(Object obj) {
 		// Fast case for (conceptual) constants.

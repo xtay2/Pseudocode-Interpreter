@@ -29,15 +29,13 @@ public abstract class DefManager {
 					+ "\" and " + (def.expectedParams() == 1 ? "one parameter." : def.expectedParams() + "params."));
 	}
 
-	/**
-	 * Find a {@link Definition}.
+	/** Find a {@link Definition}.
 	 * 
 	 * @param defName is the name of the {@link Definition}.
-	 * @param params  is the number of parameters.
+	 * @param params is the number of parameters.
 	 * @param orgLine is the original line of the {@link Call}. (Error-Handling)
 	 * 
-	 * @throws DefNotFoundException if the {@link Definition} wasn't found.
-	 */
+	 * @throws DefNotFoundException if the {@link Definition} wasn't found. */
 	public static Definition get(String defName, int params, int orgLine) throws DefNotFoundException {
 		Definition def = find(memory, e -> e.getNameString().equals(defName) && e.expectedParams() == params);
 		if (def == null) {
@@ -60,15 +58,12 @@ public abstract class DefManager {
 		return def;
 	}
 
-	/**
-	 * If a {@link Definition} thats declared as final gets called, it hereby gets erased from the
+	/** If a {@link Definition} thats declared as final gets called, it hereby gets erased from the
 	 * active memory, to reduce redundancy.
 	 * 
 	 * Gets called in {@link Definition#call(ValueHolder...)}
 	 * 
-	 * @param def the definition should pass itself.
-	 * 
-	 */
+	 * @param def the definition should pass itself. */
 	public static void finalize(Definition def) {
 		if (!memory.remove(def))
 			throw new AssertionError(def + " couldn't get finalized, as it wasn't in memory.");

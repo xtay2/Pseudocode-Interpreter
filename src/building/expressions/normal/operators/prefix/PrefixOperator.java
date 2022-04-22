@@ -14,10 +14,8 @@ import building.types.specific.operators.PrefixOpType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
-/**
- * @see PostfixOperator
- * @see InfixOperator
- */
+/** @see PostfixOperator
+ * @see InfixOperator */
 public class PrefixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
 
 	private final ValueHolder content;
@@ -41,7 +39,7 @@ public class PrefixOperator extends PossibleMainExpression implements MultiCalla
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = evaluate(content[i]);
-		return new ArrayValue(ArrayType.VAR_ARRAY, res);
+		return new ArrayValue(ArrayType.VAR_ARRAY, false, res);
 	}
 
 	private Value evaluate(ValueHolder val) {

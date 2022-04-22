@@ -38,14 +38,14 @@ public class Function extends Definition {
 	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a void.
 	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
 	 * @param flags are optional {@link FlagType}s. */
-	public Function(int lineID, Name name, LinkedHashMap<Name, DataType> params, DataType returnType, OpenBlock os) {
-		super(lineID, name, os);
+	public Function(int lineID, Name name, LinkedHashMap<Name, DataType> params, DataType returnType, boolean allowsNullAsReturn,
+			OpenBlock os) {
+		super(lineID, name, returnType, allowsNullAsReturn, os);
 		if (params == null)
 			throw new AssertionError("Params cannot be null.");
 		if (name.getNameString().equals(KeywordType.MAIN.toString()))
 			throw new IllegalCodeFormatException("An ordinary function cannot be called main.");
 		this.paramBlueprint = params;
-		this.returnType = returnType;
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class Function extends Definition {
 		int i = 0;
 		for (Entry<Name, DataType> param : paramBlueprint.entrySet()) {
 			Value v = params[i++].getValue();
-			new Variable(lineIdentifier, getScope(), param.getValue(), param.getKey(), v);
+			new Variable(lineIdentifier, getScope(), param.getValue(), true, param.getKey(), v);
 		}
 		callFirstLine();
 		getScope().clear();

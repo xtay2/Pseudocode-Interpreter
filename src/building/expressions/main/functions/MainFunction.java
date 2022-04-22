@@ -15,14 +15,11 @@ import runtime.datatypes.Value;
 
 public class MainFunction extends Definition implements Registerable {
 
-	/**
-	 * Creates a {@link MainFunction} and registers it in the outer {@link Scope}.
+	/** Creates a {@link MainFunction} and registers it in the outer {@link Scope}.
 	 * 
-	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be
-	 *           null.
-	 */
+	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null. */
 	public MainFunction(int lineID, OpenBlock os) {
-		super(lineID, new Name(lineID, KeywordType.MAIN.toString()), os);
+		super(lineID, new Name(lineID, KeywordType.MAIN.toString()), null, false, os);
 		addFlags(Set.of(FINAL));
 	}
 

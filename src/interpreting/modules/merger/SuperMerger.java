@@ -215,4 +215,14 @@ public abstract class SuperMerger extends ExpressionMerger {
 		f.addFlags(flags);
 		return f;
 	}
+	
+	/**
+	 * Checks if the next {@link Expression} is a [?]. If yes it gets removed and true is returned.
+	 */
+	protected static boolean checkIfNullAllowed() {
+		boolean res = !line.isEmpty() && line.get(0).is(MAYBE);
+		if(res)
+			line.remove(0);
+		return res;
+	}
 }

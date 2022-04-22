@@ -40,8 +40,7 @@ public class Types {
 				System.out.println(findDuplicates(Arrays.asList(st.expected())) + " in " + t);
 				throw new AssertionError("Duplicate expected in " + t);
 			}
-			if (exp.contains(null))
-				throw new AssertionError("Expected types for " + t + " contain null.");
+			assert !exp.contains(null) : "Expected types for " + t + " contain null.";
 		}
 	}
 

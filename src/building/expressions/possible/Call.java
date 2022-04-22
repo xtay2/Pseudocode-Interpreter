@@ -28,12 +28,10 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 
 	private int idxOfMultiCall = -1;
 
-	/**
-	 * Creates a {@link Call}.
+	/** Creates a {@link Call}.
 	 * 
 	 * @param calledFunc shouldn't be null.
-	 * @param parameters shouldn't be null.
-	 */
+	 * @param parameters shouldn't be null. */
 	public Call(int lineID, Name calledFunc, ValueHolder... parameters) {
 		super(lineID, MERGED);
 		if (calledFunc == null || parameters == null)
@@ -76,14 +74,12 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 		}
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
-			return new ArrayValue(ArrayType.VAR_ARRAY, returnArr);
+			return new ArrayValue(ArrayType.VAR_ARRAY, false, returnArr);
 		// If not, dont return anything.
 		return null;
 	}
 
-	/**
-	 * Finds target-{@link Definition}, calls it with the params and returns the return-values.
-	 */
+	/** Finds target-{@link Definition}, calls it with the params and returns the return-values. */
 	private Value callTarget(ValueHolder... params) {
 		// Find target
 		Definition target = DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());

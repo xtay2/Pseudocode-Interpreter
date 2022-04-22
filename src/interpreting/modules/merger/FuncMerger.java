@@ -27,9 +27,9 @@ public abstract class FuncMerger extends SuperMerger {
 		line.remove(0); // OpenBrack
 		// PARAMETERS
 		if (isNative)
-			return new NativeFunction(lineID, name, buildNativeParams(), buildReturnType());
+			return new NativeFunction(lineID, name, buildNativeParams(), buildReturnType(), checkIfNullAllowed());
 		else
-			return new Function(lineID, name, buildFuncParams(), buildReturnType(), (OpenBlock) build());
+			return new Function(lineID, name, buildFuncParams(), buildReturnType(), checkIfNullAllowed(), (OpenBlock) build());
 	}
 
 	private static List<DataType> buildNativeParams() {

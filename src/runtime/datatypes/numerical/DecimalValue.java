@@ -17,8 +17,7 @@ import runtime.natives.SystemFunctions;
 /** An arbitrary Decimal Number with 100 digits of precision. */
 public final class DecimalValue extends NumberValue {
 
-	/**
-	 * The Numerator
+	/** The Numerator
 	 * 
 	 * <pre>
 	 * Special case:
@@ -29,8 +28,7 @@ public final class DecimalValue extends NumberValue {
 	 */
 	protected final BigInteger num;
 
-	/**
-	 * The Denominator
+	/** The Denominator
 	 * 
 	 * <pre>
 	 * Special cases:
@@ -48,12 +46,9 @@ public final class DecimalValue extends NumberValue {
 	protected DecimalValue(BigInteger numerator, BigInteger denominator) {
 		super(NUMBER);
 		// Assertions
-		if (denominator.equals(BigInteger.ZERO))
-			throw new AssertionError("Denominator cannot be zero, use NaN instead.");
-		if (numerator.equals(BigInteger.ZERO))
-			throw new AssertionError("Nominator cannot be zero, use ZERO instead.");
-		if (denominator.equals(BigInteger.ONE))
-			throw new AssertionError("Denominator cannot be one, use an IntValue instead.");
+		assert !denominator.equals(BigInteger.ZERO) : "Denominator cannot be zero, use NaN instead.";
+		assert !numerator.equals(BigInteger.ZERO) : "Nominator cannot be zero, use ZERO instead.";
+		assert !denominator.equals(BigInteger.ONE) : "Denominator cannot be one, use an IntValue instead.";
 		// Length check
 		if (getDigitCount(numerator) > MAX_LENGTH || getDigitCount(denominator) > MAX_LENGTH)
 			throw new ArithmeticException("Numbers cannot extend 100 digits.");
@@ -71,8 +66,7 @@ public final class DecimalValue extends NumberValue {
 		this.denom = denominator;
 	}
 
-	/**
-	 * Turns this into a String.
+	/** Turns this into a String.
 	 * 
 	 * <pre>
 	 * Example 1: n = 1, d = 2 Output: "0.5"
@@ -83,8 +77,7 @@ public final class DecimalValue extends NumberValue {
 	 * </pre>
 	 * 
 	 * @param n numerator
-	 * @param d denominator
-	 */
+	 * @param d denominator */
 	protected String fractionToDecimal() {
 		StringBuilder sb = new StringBuilder();
 		if (isNegative())
@@ -110,11 +103,9 @@ public final class DecimalValue extends NumberValue {
 		return sb.toString();
 	}
 
-	/**
-	 * Returns this Number as a fractional text-representation.
+	/** Returns this Number as a fractional text-representation.
 	 * 
-	 * Gets used in {@link SystemFunctions}.
-	 */
+	 * Gets used in {@link SystemFunctions}. */
 	public String asRational() {
 		return num + "/" + denom;
 	}
@@ -188,9 +179,7 @@ public final class DecimalValue extends NumberValue {
 		throw new AssertionError("Unimplemented Case.");
 	}
 
-	/**
-	 * Calculates the n'th root from v. (this = n)
-	 */
+	/** Calculates the n'th root from v. (this = n) */
 	@Override
 	public NumberValue root(NumberValue v) {
 		if (v == NAN || v.isInfinite())

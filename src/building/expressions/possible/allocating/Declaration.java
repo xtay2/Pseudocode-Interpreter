@@ -14,35 +14,31 @@ import building.types.specific.datatypes.DataType;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
 
-/**
- * The {@link Expression} in code, that initialises {@link Variable}s.
+/** The {@link Expression} in code, that initialises {@link Variable}s.
  * 
- * {@link ArrayVariable}s are getting inititlised by {@link ArrayDeclaration}s.
- */
+ * {@link ArrayVariable}s are getting inititlised by {@link ArrayDeclaration}s. */
 public class Declaration extends Allocating implements Flaggable {
 
 	protected final Set<FlagType> flags = new HashSet<>();
+	protected final boolean allowsNull;
 
-	/**
-	 * Creates an {@link Declaration}.
+	/** Creates an {@link Declaration}.
 	 * 
-	 * @param type   shouldn't be null.
+	 * @param type shouldn't be null.
 	 * @param target shouldn't be null.
-	 * @param val    shouldn't be null.
-	 */
-	public Declaration(int lineID, DataType type, Name target, ValueHolder val) {
+	 * @param val shouldn't be null. */
+	public Declaration(int lineID, DataType type, boolean allowsNull, Name target, ValueHolder val) {
 		super(lineID, type, target, val);
+		this.allowsNull = allowsNull;
 	}
 
-	/**
-	 * Initialises the {@link Variable} with its value and registers it in its {@link Scope}.
+	/** Initialises the {@link Variable} with its value and registers it in its {@link Scope}.
 	 * 
-	 * Gets called by {@link Interpreter#registerGlobalVars}
-	 */
+	 * Gets called by {@link Interpreter#registerGlobalVars} */
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		new Variable(lineIdentifier, getScope(), (DataType) type, (Name) target, v).addFlags(flags);
+		new Variable(lineIdentifier, getScope(), (DataType) type, allowsNull, (Name) target, v).addFlags(flags);
 		return v;
 	}
 

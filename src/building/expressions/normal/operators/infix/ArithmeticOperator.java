@@ -38,7 +38,7 @@ public class ArithmeticOperator extends InfixOperator {
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(operand, content[i]);
-		return new ArrayValue(VAR_ARRAY, res);
+		return new ArrayValue(VAR_ARRAY, false, res);
 	}
 
 	@Override
@@ -46,13 +46,11 @@ public class ArithmeticOperator extends InfixOperator {
 		ValueHolder[] res = new ValueHolder[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(content[i], operand);
-		return new ArrayValue(VAR_ARRAY, res);
+		return new ArrayValue(VAR_ARRAY, false, res);
 	}
 
-	/**
-	 * {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
-	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
-	 */
+	/** {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
+	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays. */
 	private Value add(Value a, Value b) {
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
@@ -72,11 +70,9 @@ public class ArithmeticOperator extends InfixOperator {
 		return a.asText().concat(b.asText());
 	}
 
-	/**
-	 * Subtract numbers.
+	/** Subtract numbers.
 	 * 
-	 * @see {@link NumberValue#sub}
-	 */
+	 * @see {@link NumberValue#sub} */
 	private Value sub(Value a, Value b) {
 		return a.asNumber().sub(b.asNumber());
 	}
@@ -105,38 +101,30 @@ public class ArithmeticOperator extends InfixOperator {
 		return a.asNumber().mult(b.asNumber());
 	}
 
-	/**
-	 * Divide numbers.
+	/** Divide numbers.
 	 * 
-	 * @see {@link NumberValue#div}
-	 */
+	 * @see {@link NumberValue#div} */
 	private Value div(Value a, Value b) {
 		return a.asNumber().div(b.asNumber());
 	}
 
-	/**
-	 * Modulate numbers.
+	/** Modulate numbers.
 	 * 
-	 * @see {@link NumberValue#mod}
-	 */
+	 * @see {@link NumberValue#mod} */
 	private Value mod(Value a, Value b) {
 		return a.asNumber().mod(b.asNumber());
 	}
 
-	/**
-	 * Potentiate numbers.
+	/** Potentiate numbers.
 	 * 
-	 * @see {@link NumberValue#pow}
-	 */
+	 * @see {@link NumberValue#pow} */
 	private Value pow(Value a, Value b) {
 		return a.asNumber().pow(b.asNumber());
 	}
 
-	/**
-	 * Extract root from numbers.
+	/** Extract root from numbers.
 	 * 
-	 * @see {@link NumberValue#root}
-	 */
+	 * @see {@link NumberValue#root} */
 	private Value root(Value a, Value b) {
 		return a.asNumber().root(b.asNumber());
 	}

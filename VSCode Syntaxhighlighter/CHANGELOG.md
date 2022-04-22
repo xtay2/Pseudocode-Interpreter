@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.4
+Added the "maybe"-type-extension `?` (keyword). 
+
 ### Update 0.4.3
 There is now a difference between the `in` operator and the `in` keyword.
 

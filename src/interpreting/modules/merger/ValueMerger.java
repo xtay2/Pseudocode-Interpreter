@@ -19,7 +19,6 @@ import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.Call;
-import building.expressions.possible.allocating.ArrayDeclaration;
 import building.expressions.possible.allocating.Assignment;
 import building.expressions.possible.allocating.Declaration;
 import building.expressions.possible.multicall.MultiCall;
@@ -31,9 +30,7 @@ import interpreting.exceptions.IllegalCodeFormatException;
 import misc.helper.MathHelper;
 import runtime.datatypes.array.ArrayValue;
 
-/**
- * Every merged {@link ValueHolder}.
- */
+/** Every merged {@link ValueHolder}. */
 public abstract class ValueMerger extends SuperMerger {
 
 	/** [|] [VALUE_HOLDER] [,] [VALUE_HOLDER]... [|] */
@@ -48,12 +45,10 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/* [OPEN_SQUARE] [?PARAM] [?COMMA] [?PARAM] [CLOSE_SQUARE] */
 	public static ArrayValue buildArrayLiteral() {
-		return new ArrayValue(VAR_ARRAY, buildParts());
+		return new ArrayValue(VAR_ARRAY, true, buildParts());
 	}
 
-	/**
-	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])...
-	 */
+	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */
 	public static ArrayAccess buildArrayAccess() {
 		Name target = buildName();
 		List<ValueHolder> parts = new ArrayList<>();
@@ -93,17 +88,17 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	public static Declaration buildDeclaration() {
-		DataType type = buildArrayDimensions((SingleType) line.remove(0).type);
+		DataType type = (SingleType) line.remove(0).type;
+		boolean allowsNull = checkIfNullAllowed();
+		type = buildArrayDimensions((SingleType) type);
 		Name name = buildName();
 		AssignmentType assignOp = line.isEmpty() ? null : (AssignmentType) line.remove(0).type;
-		ValueHolder vH = line.isEmpty() ? type.stdVal() : buildVal();
+		ValueHolder vH = line.isEmpty() ? type.stdVal(allowsNull) : buildVal();
 		if (assignOp != null && assignOp != AssignmentType.NORMAL) {
 			throw new IllegalCodeFormatException(orgLine,
 					"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
 		}
-		if (type instanceof ArrayType at)
-			return new ArrayDeclaration(lineID, at, name, vH);
-		return new Declaration(lineID, type, name, vH);
+		return new Declaration(lineID, type, allowsNull, name, vH);
 	}
 
 	/** [(INT?)] ([(INT?)]?) ([(INT?)]?)... */
@@ -120,6 +115,7 @@ public abstract class ValueMerger extends SuperMerger {
 		return type;
 	}
 
+	/** [INT?] [..?] [INT?] */
 	private static Range buildRange() {
 		if (line.get(0).is(LITERAL)) {
 			int lower = MathHelper.valToInt(buildVal());

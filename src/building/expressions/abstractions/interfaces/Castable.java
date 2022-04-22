@@ -6,6 +6,7 @@ import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.BoolValue;
+import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.IntValue;
@@ -16,11 +17,9 @@ import runtime.exceptions.CastingException;
 import runtime.exceptions.InvalidDimensionException;
 import runtime.exceptions.UnexpectedTypeError;
 
-/**
- * An Interface for everything that can get casted.
+/** An Interface for everything that can get casted.
  * 
- * @see Value
- */
+ * @see Value */
 public interface Castable extends ValueHolder {
 
 	/** Returns the {@link DataType} of this {@link Castable}. */
@@ -32,11 +31,10 @@ public interface Castable extends ValueHolder {
 	/** Tells, if this Value can always be safely casted to the suggested {@link ArrayType}. */
 	public boolean canCastTo(ArrayType type);
 
-	/**
-	 * Cast this {@link Castable} to the passed {@link DataType}.
+	/** Cast this {@link Castable} to the passed {@link DataType}.
 	 * 
-	 * @throws CastingException Can result in a {@link CastingException}, if the cast is not supported.
-	 */
+	 * @throws CastingException Can result in a {@link CastingException}, if the cast is not
+	 * supported. */
 	public default Value as(DataType t) throws CastingException {
 		if (t.equals(getType()))
 			return getValue();
@@ -64,7 +62,7 @@ public interface Castable extends ValueHolder {
 	}
 
 	public default BoolValue asBool() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a BoolValue.");
+		throw new CastingException(getType() + " cannot be casted to a bool.");
 	}
 
 	/** Everything can be casted to a number or NaN */
@@ -73,13 +71,15 @@ public interface Castable extends ValueHolder {
 	}
 
 	public default IntValue asInt() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a IntValue.");
+		throw new CastingException(getType() + " cannot be casted to a int.");
 	}
 
-	/** Everything should have a text-representation. */
-	public TextValue asText();
+	/** Everything except {@link MaybeValue#NULL} should have a text-representation. */
+	public default TextValue asText() throws CastingException {
+		throw new CastingException(getType() + " cannot be casted to a text.");
+	}
 
 	public default CharValue asChar() throws CastingException {
-		throw new CastingException(getType() + " cannot be casted to a CharValue.");
+		throw new CastingException(getType() + " cannot be casted to a char.");
 	}
 }

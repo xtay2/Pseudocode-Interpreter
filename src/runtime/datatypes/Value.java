@@ -12,7 +12,6 @@ import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.ConceptualNrValue;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.object.NullValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.ComparisonException;
@@ -20,9 +19,7 @@ import runtime.exceptions.UnexpectedTypeError;
 
 public abstract class Value extends Expression implements Castable {
 
-	/**
-	 * Creates a new {@link Value}. The lineID is -1 because this has no position.
-	 */
+	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
 	public Value(DataType dataType) {
 		super(dataType);
 	}
@@ -42,38 +39,32 @@ public abstract class Value extends Expression implements Castable {
 	 * -Numbers with textual booleans/anything
 	 * </pre>
 	 * 
-	 * @throws UnexpectedTypeError if the types aren't comparable.
-	 */
+	 * @throws UnexpectedTypeError if the types aren't comparable. */
 	public static final BoolValue eq(Value a, Value b) {
 		return a.type == b.type ? BoolValue.valueOf(a.valueCompare(b)) : BoolValue.FALSE;
 	}
 
-	/**
-	 * Tells, if this Value can always be safely casted to the suggested {@link DataType}.
+	/** Tells, if this Value can always be safely casted to the suggested {@link DataType}.
 	 * 
-	 * Default: True for charwise-, text-, numeric-, representation.
-	 */
+	 * Default: True for charwise-, text-, numeric-, representation. */
 	@Override
 	public boolean canCastTo(SingleType type) {
 		return type == SingleType.TEXT || type == SingleType.NUMBER;
 	}
 
-	/**
-	 * Tells, if this Value can always be safely casted to the suggested {@link ArrayType}.
+	/** Tells, if this Value can always be safely casted to the suggested {@link ArrayType}.
 	 * 
-	 * Default: false for anything except {@link ArrayValue}s.
-	 */
+	 * Default: false for anything except {@link ArrayValue}s. */
 	@Override
 	public boolean canCastTo(ArrayType type) {
 		return false;
 	}
 
-	/**
-	 * Should get implemented by all Classes that inherit this class (Value).
+	/** Should get implemented by all Classes that inherit this class (Value).
 	 * 
 	 * @param v is the value its checked against.
-	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
-	 */
+	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed
+	 * on. */
 	public abstract boolean valueCompare(Value v) throws ComparisonException;
 
 	@Override
@@ -86,8 +77,7 @@ public abstract class Value extends Expression implements Castable {
 		return (DataType) type;
 	}
 
-	/**
-	 * Returns the {@link Object} that this {@link Value} holds.
+	/** Returns the {@link Object} that this {@link Value} holds.
 	 * 
 	 * <pre>
 	 * The return-type is:

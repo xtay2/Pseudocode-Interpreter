@@ -33,7 +33,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pseudocode",
-				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|for|native|final|const|public|is|null)\\b|(\\|)|((?<=for\\s\\S+\\s)in)"
+				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|for|native|final|const|public|is|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
 			}]
 		},
 		"return_statements": {
