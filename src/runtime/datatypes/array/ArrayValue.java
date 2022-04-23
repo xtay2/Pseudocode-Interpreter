@@ -21,23 +21,21 @@ import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import misc.helper.CollectionHelper;
 import misc.helper.MathHelper;
+import runtime.datatypes.ArrayCastable;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
-import runtime.exceptions.ComparisonException;
-import runtime.exceptions.NullNotAllowedException;
-import runtime.exceptions.ShouldBeNaturalNrException;
-import runtime.exceptions.UnexpectedTypeError;
+import runtime.exceptions.*;
 
 /**
  * <pre>
  * This is any value of the type Array.
  * 
- * -It gets defined as a {@link Literal}. */
-public final class ArrayValue extends Value implements Iterable<Value> {
+ * -It gets defined as a {@link Literal}.
+ */
+public final class ArrayValue extends Value implements Iterable<Value>, ArrayCastable {
 
 	private Value[] container;
 	private ValueHolder[] preInit;
@@ -98,6 +96,15 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			};
 		}
 		return asTypedArray((ArrayType) t);
+	}
+
+	@Override
+	public ArrayValue asArray(ArrayType at) {
+		if (getType().getDims() != at.getDims()) {
+			throw new InvalidDimensionException(
+					"Tried cast an array type (" + getType() + ") to another one (" + at + ") with different dimensions.");
+		}
+		return asTypedArray(at);
 	}
 
 	/** Acts as a isEmpty-Function */
@@ -161,17 +168,21 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return Arrays.stream(container).allMatch(v -> v.canCastTo(t));
 	}
 
-	/** Returns a single value from this array.
+	/**
+	 * Returns a single value from this array.
 	 * 
-	 * @see {@link ArrayAccess#getValue()} */
+	 * @see {@link ArrayAccess#getValue()}
+	 */
 	public Value get(int i) {
 		return container[i];
 	}
 
-	/** Sets a value in this array and casts it to the expected type.
+	/**
+	 * Sets a value in this array and casts it to the expected type.
 	 * 
-	 * @param val is the new value.
-	 * @param idxs is the n-dimensional index of the change. */
+	 * @param val  is the new value.
+	 * @param idxs is the n-dimensional index of the change.
+	 */
 	public Value set(Value val, ValueHolder[] idxs) {
 		return set(val, Arrays.stream(idxs).map(MathHelper::valToInt).collect(Collectors.toList()));
 	}
@@ -217,9 +228,11 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return Arrays.copyOf(container, length());
 	}
 
-	/** Recursivly compares all values of this array and the specified one.
+	/**
+	 * Recursivly compares all values of this array and the specified one.
 	 * 
-	 * @return false if there is even one slight difference. */
+	 * @return false if there is even one slight difference.
+	 */
 	@Override
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof ArrayValue a) {
@@ -264,7 +277,9 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return new ArrayValue(getType(), allowNull, content);
 	}
 
-	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
+	/**
+	 * Returns {@link BoolValue#TRUE} if this array contains the specified element.
+	 */
 	public BoolValue contains(Value element) {
 		for (int i = 0; i < length(); i++) {
 			if (Value.eq(get(i), element).value)
@@ -273,9 +288,11 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return BoolValue.FALSE;
 	}
 
-	/** Appends a value at the end of this {@link ArrayValue}.
+	/**
+	 * Appends a value at the end of this {@link ArrayValue}.
 	 * 
-	 * @throws CastingException if the {@link DataType}s didn't match. */
+	 * @throws CastingException if the {@link DataType}s didn't match.
+	 */
 	public ArrayValue append(Value val, int executedInLine) throws CastingException {
 		if (!val.canCastTo(getType().type))
 			throw new CastingException(executedInLine, "Trying to append " + val + " to " + this + ".");
@@ -287,9 +304,11 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return new ArrayValue(getType(), allowNull, content);
 	}
 
-	/** Prepend a value at the front of this {@link ArrayValue}.
+	/**
+	 * Prepend a value at the front of this {@link ArrayValue}.
 	 * 
-	 * @throws CastingException if the {@link DataType}s didn't match. */
+	 * @throws CastingException if the {@link DataType}s didn't match.
+	 */
 	public ArrayValue prepend(Value val, int executedInLine) throws CastingException {
 		if (!val.canCastTo(getType().type))
 			throw new CastingException(executedInLine, "Trying to prepend " + val + " to " + this + ".");
@@ -308,8 +327,10 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		return new ArrayValue(getType(), true, container);
 	}
 
-	/** Returns a copy of this array that doesn't allow null. If one of the elements in this array is
-	 * null, a {@link NullNotAllowedException} gets thrown. */
+	/**
+	 * Returns a copy of this array that doesn't allow null. If one of the elements
+	 * in this array is null, a {@link NullNotAllowedException} gets thrown.
+	 */
 	public ArrayValue unnullify() {
 		if (!allowNull)
 			return this;

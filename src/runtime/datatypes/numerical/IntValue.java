@@ -1,5 +1,8 @@
 package runtime.datatypes.numerical;
 
+import static building.types.specific.datatypes.ArrayType.INT_ARRAY;
+import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.datatypes.SingleType.INT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
@@ -8,17 +11,26 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import ch.obermuhlner.math.big.BigDecimalMath;
+import runtime.datatypes.ArrayCastable;
+import runtime.datatypes.array.ArrayValue;
+import runtime.exceptions.CastingException;
 
 /**
  * An Integer-Value with up to 100 digits.
  * 
  * @see DataType#INT
  */
-public final class IntValue extends NumberValue {
+public final class IntValue extends NumberValue implements ArrayCastable {
 
 	public final BigInteger value;
+
+	/** Produces a {@link IntValue} from a {@link Long}. */
+	protected IntValue(long value) {
+		this(BigInteger.valueOf(value));
+	}
 
 	/** Produces a {@link IntValue} from a {@link BigInteger}. */
 	protected IntValue(BigInteger value) {
@@ -34,6 +46,18 @@ public final class IntValue extends NumberValue {
 	/** Returns true if this number is odd. */
 	public final boolean isOdd() {
 		return value.testBit(0);
+	}
+
+	@Override
+	public ArrayValue asArray(ArrayType at) {
+		if (at.equals(VAR_ARRAY) || at.equals(INT_ARRAY) || at.equals(TEXT_ARRAY)) {
+			final String line = value.toString();
+			IntValue[] intArray = new IntValue[line.length()];
+			for (int i = 0; i < intArray.length; i++)
+				intArray[i] = new IntValue(Character.getNumericValue(line.charAt(i)));
+			return new ArrayValue(at, false, intArray);
+		}
+		throw new CastingException("Cannot cast int to " + at + ".");
 	}
 
 	/** This should only get called in debugging scenarios. */

@@ -1,5 +1,8 @@
 package runtime.datatypes.textual;
 
+import static building.types.specific.datatypes.ArrayType.CHAR_ARRAY;
+import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.datatypes.SingleType.TEXT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
@@ -8,15 +11,18 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.SingleType;
+import runtime.datatypes.ArrayCastable;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
+import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.ShouldBeNaturalNrException;
 
-public final class TextValue extends Value {
+public final class TextValue extends Value implements ArrayCastable {
 
 	public final String value;
 
@@ -96,6 +102,17 @@ public final class TextValue extends Value {
 			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
 			default -> false;
 		};
+	}
+
+	@Override
+	public ArrayValue asArray(ArrayType at) {
+		if (at.equals(VAR_ARRAY) || at.equals(CHAR_ARRAY) || at.equals(TEXT_ARRAY)) {
+			CharValue[] charArray = new CharValue[value.length()];
+			for (int i = 0; i < charArray.length; i++)
+				charArray[i] = new CharValue(value.charAt(i));
+			return new ArrayValue(at, false, charArray);
+		}
+		throw new CastingException("Cannot cast text to " + at + ".");
 	}
 
 	@Override

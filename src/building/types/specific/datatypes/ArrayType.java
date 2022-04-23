@@ -43,9 +43,7 @@ public final class ArrayType implements DataType {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ArrayType at)
-			return type == at.type && ranges.equals(at.ranges);
-		return false;
+		return obj instanceof ArrayType at && type == at.type && Arrays.equals(ranges, at.ranges);
 	}
 
 	/** Return the amount of dimensions this {@link ArrayType} contains. */

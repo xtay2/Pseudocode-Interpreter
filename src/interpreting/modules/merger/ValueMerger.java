@@ -1,9 +1,10 @@
 package interpreting.modules.merger;
 
+import static building.types.specific.BuilderType.ARRAY_END;
 import static building.types.specific.BuilderType.ARRAY_START;
 import static building.types.specific.BuilderType.RANGE;
 import static building.types.specific.DynamicType.LITERAL;
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
+import static building.types.specific.datatypes.ArrayType.*;
 import static building.types.specific.operators.PrefixOpType.NOT;
 
 import java.util.ArrayList;
@@ -48,7 +49,10 @@ public abstract class ValueMerger extends SuperMerger {
 		return new ArrayValue(VAR_ARRAY, true, buildParts());
 	}
 
-	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */
+	/**
+	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER]
+	 * [ARRAY_END])...
+	 */
 	public static ArrayAccess buildArrayAccess() {
 		Name target = buildName();
 		List<ValueHolder> parts = new ArrayList<>();
@@ -139,7 +143,18 @@ public abstract class ValueMerger extends SuperMerger {
 	public static ExplicitCast buildExplicitCast() {
 		line.remove(0);
 		DataType t = buildExpType();
-		line.remove(0);
+		if (line.remove(0).is(ARRAY_START) && line.remove(0).is(ARRAY_END)) {
+			t = switch ((SingleType) t) {
+				case VAR -> VAR_ARRAY;
+				case BOOL -> BOOL_ARRAY;
+				case CHAR -> CHAR_ARRAY;
+				case INT -> INT_ARRAY;
+				case NUMBER -> NUMBER_ARRAY;
+				case TEXT -> TEXT_ARRAY;
+				case OBJECT -> OBJECT_ARRAY;
+			};
+			line.remove(0);
+		} // For else: Close bracket gets removed in if.
 		return new ExplicitCast(lineID, t, buildVal());
 	}
 }
