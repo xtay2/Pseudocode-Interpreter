@@ -183,7 +183,7 @@ public final class ArrayValue extends Value implements Iterable<Value>, ArrayCas
 	 * @param val  is the new value.
 	 * @param idxs is the n-dimensional index of the change.
 	 */
-	public Value set(Value val, ValueHolder[] idxs) {
+	public Value set(Value val, ValueHolder... idxs) {
 		return set(val, Arrays.stream(idxs).map(MathHelper::valToInt).collect(Collectors.toList()));
 	}
 

@@ -48,7 +48,8 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Reads the line and constructs an object-expression-notation from the information.
+	 * Reads the line and constructs an object-expression-notation from the
+	 * information.
 	 */
 	void construct() {
 		String current = "";
@@ -63,7 +64,6 @@ public class ProgramLine {
 				i++;
 				continue;
 			}
-
 			// Neue Expression wenn c ' ', ',' oder '(' ist.
 			if (!current.isBlank() && !inString) {
 				BuilderExpression be = StringConverter.find(current, c, expectedTypes, this);
@@ -123,8 +123,8 @@ public class ProgramLine {
 	}
 
 	/**
-	 * Recursivly searches for the next {@link Definition} above this line. Gets used while building the
-	 * {@link ReturnStatement}.
+	 * Recursivly searches for the next {@link Definition} above this line. Gets
+	 * used while building the {@link ReturnStatement}.
 	 */
 	private Definition searchForFunc() {
 		if (main instanceof Definition def)

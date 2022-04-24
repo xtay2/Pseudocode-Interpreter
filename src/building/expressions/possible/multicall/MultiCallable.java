@@ -5,7 +5,8 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 /**
  * Target for any {@link MultiCall}.
  * 
- * A {@link MultiCallable} should allways returns a value, and is ideally a {@link ValueHolder}.
+ * A {@link MultiCallable} should always returns a value, and is ideally a
+ * {@link ValueHolder}.
  * 
  * @see MultiCallableOperation
  * @see MultiCallableValueHolder

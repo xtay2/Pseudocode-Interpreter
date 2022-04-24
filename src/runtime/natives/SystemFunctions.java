@@ -36,7 +36,10 @@ public final class SystemFunctions {
 		RAND_NR("randNr", 2),
 
 		/** Returns a random {@link IntValue} in a specified range. */
-		RAND_INT("randInt", 2);
+		RAND_INT("randInt", 2),
+
+		/** Returns a timestamp of the current system clock in nanoseconds. */
+		TIMESTAMP("timestamp", 0);
 
 		public final String name;
 		public final int args;
@@ -55,6 +58,7 @@ public final class SystemFunctions {
 			case AS_RATIONAL -> asRational(params);
 			case RAND_NR -> randNr(params);
 			case RAND_INT -> randInt(params);
+			case TIMESTAMP -> timestamp(params);
 		};
 	}
 
@@ -115,5 +119,10 @@ public final class SystemFunctions {
 			randomNumber = new BigInteger(upperLimit.bitLength(), new Random());
 		} while (randomNumber.compareTo(upperLimit) >= 0);
 		return min.add(NumberValue.create(randomNumber)).asInt();
+	}
+
+	/** Implementation: native func timestamp() -> int */
+	private static IntValue timestamp(ValueHolder[] params) {
+		return new IntValue(System.nanoTime());
 	}
 }

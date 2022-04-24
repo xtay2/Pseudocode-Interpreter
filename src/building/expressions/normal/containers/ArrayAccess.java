@@ -81,8 +81,11 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 
 	@Override
 	public ArrayValue writeFor(Value val, ValueHolder[] content) {
-		// TODO Auto-generated method stub
-		return null;
+		Variable var = name.getScope().getVar(name.getNameString(), getOriginalLine());
+		Value[] previous = new Value[content.length];
+		for (int i = 0; i < content.length; i++)
+			previous[i] = ((ArrayValue) var.getValue()).set(val, content[i]);
+		return new ArrayValue(VAR_ARRAY, true, previous);
 	}
 
 	@Override

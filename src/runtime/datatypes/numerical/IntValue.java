@@ -28,7 +28,7 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 	public final BigInteger value;
 
 	/** Produces a {@link IntValue} from a {@link Long}. */
-	protected IntValue(long value) {
+	public IntValue(long value) {
 		this(BigInteger.valueOf(value));
 	}
 
