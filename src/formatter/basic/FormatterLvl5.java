@@ -14,8 +14,7 @@ import java.util.List;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.AssignmentType;
 
-/**
- * Everything should get executed after {@link FormatterLvl2#format()}.
+/** Everything should get executed after {@link FormatterLvl2#format()}.
  * 
  * <pre>
  * For the whole file:
@@ -29,8 +28,7 @@ import building.types.specific.AssignmentType;
  * {@link #simplifyImmutables(String, boolean)}
  * </pre>
  *
- * @see Formatter
- */
+ * @see Formatter */
 public final class FormatterLvl5 extends Formatter {
 
 	protected static void format() {
@@ -48,8 +46,7 @@ public final class FormatterLvl5 extends Formatter {
 		//@formatter:on
 	}
 
-	/**
-	 * Comments out each of the following dead conditionals:
+	/** Comments out each of the following dead conditionals:
 	 * 
 	 * <pre>
 	 * -elif false
@@ -60,8 +57,7 @@ public final class FormatterLvl5 extends Formatter {
 	 * </pre>
 	 * 
 	 * (This doesn't include the "if false"-statement, as it could be followed by another conditional
-	 * and thereby have an impact on the behavior.)
-	 */
+	 * and thereby have an impact on the behavior.) */
 	static void commentDeadScopes() {
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i);
@@ -84,22 +80,17 @@ public final class FormatterLvl5 extends Formatter {
 		}
 	}
 
-	/**
-	 * Comments out all variable-declarations that dont get used.
-	 */
+	/** Comments out all variable-declarations that dont get used. */
 	static void commentDeadVars() {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * Comments out all definition-declarations that dont get called.
-	 */
+	/** Comments out all definition-declarations that dont get called. */
 	static void commentDeadDefs() {
 		// TODO Auto-generated method stub
 	}
 
-	/**
-	 * Splits a line that starts with a CB and something behind that into two lines.
+	/** Splits a line that starts with a CB and something behind that into two lines.
 	 * 
 	 * <pre>
 	 * } else
@@ -108,8 +99,7 @@ public final class FormatterLvl5 extends Formatter {
 	 * else
 	 * </pre>
 	 * 
-	 * @param lineIdx is the index of the line in {@link Formatter#program}
-	 */
+	 * @param lineIdx is the index of the line in {@link Formatter#program} */
 	private static void splitCBLineStart(int lineIdx) {
 		String line = program.get(lineIdx);
 		if (line.length() > 1 && line.startsWith(CB)) {
@@ -141,9 +131,7 @@ public final class FormatterLvl5 extends Formatter {
 		}
 	}
 
-	/**
-	 * A {@link LineFormatterFunc} that removes multiple brackets that enclose the same thing.
-	 */
+	/** A {@link LineFormatterFunc} that removes multiple brackets that enclose the same thing. */
 	static String removeDoubleBrackets(String line, boolean isFullyRunnable) {
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -155,18 +143,15 @@ public final class FormatterLvl5 extends Formatter {
 						line = removeCharAt(nextMatch, line);
 						line = removeCharAt(i + 1, line);
 						match--;
-					} else {
-						i--;
+					} else
 						break;
-					}
 				}
 			}
 		}
 		return line;
 	}
 
-	/**
-	 * List of expression that expect a {@link ValueHolder}.
+	/** List of expression that expect a {@link ValueHolder}.
 	 * 
 	 * <pre>
 	 * Gets used in: 
@@ -177,8 +162,7 @@ public final class FormatterLvl5 extends Formatter {
 	static List<String> expectedStart = List.of(//
 			IF.toString(), ELIF.toString(), ANY + " " + IF, WHILE.toString(), UNTIL.toString(), REPEAT.toString());
 
-	/**
-	 * A {@link LineFormatterFunc} that brackets that enclose the whole expression.
+	/** A {@link LineFormatterFunc} that brackets that enclose the whole expression.
 	 * 
 	 * <pre>
 	 * exp (...) { 	-> exp a + b {
@@ -187,8 +171,7 @@ public final class FormatterLvl5 extends Formatter {
 	 * 
 	 * TODO: Make this work for any kind of {@link AssignmentType}
 	 * 
-	 * @see #expectedStart
-	 */
+	 * @see #expectedStart */
 	static String removeOuterBrackets(String line, boolean isFullyRunnable) {
 		for (String start : expectedStart) {
 			if (containsRunnable(line, start + " \\(.+\\)" + OSR)) {
@@ -206,16 +189,14 @@ public final class FormatterLvl5 extends Formatter {
 		return line;
 	}
 
-	/**
-	 * A {@link LineFormatterFunc} that aggressively removes redundant parts from boolean-expressions.
-	 */
+	/** A {@link LineFormatterFunc} that aggressively removes redundant parts from
+	 * boolean-expressions. */
 	static String simplifyBools(String line, boolean isFullyRunnable) {
 		// TODO Implement me!
 		return null;
 	}
 
-	/**
-	 * A {@link LineFormatterFunc} that replaces:
+	/** A {@link LineFormatterFunc} that replaces:
 	 * 
 	 * <pre>
 	 * -const var with const 

@@ -34,23 +34,18 @@ public class ProgramLine {
 
 	private MainExpression main;
 
-	/**
-	 * Save a line of code and build its object-expression-representation.
+	/** Save a line of code and build its object-expression-representation.
 	 *
-	 * @param line    is the content of this line of code.
-	 * @param lineID  is the unique identifier.
-	 * @param orgLine is the line from the users editor.
-	 */
+	 * @param line is the content of this line of code.
+	 * @param lineID is the unique identifier.
+	 * @param orgLine is the line from the users editor. */
 	public ProgramLine(String line, int lineID, int orgLine) {
 		this.line = line;
 		this.lineID = lineID;
 		this.orgLine = orgLine;
 	}
 
-	/**
-	 * Reads the line and constructs an object-expression-notation from the
-	 * information.
-	 */
+	/** Reads the line and constructs an object-expression-notation from the information. */
 	void construct() {
 		String current = "";
 		// Erwartete Ausdrücke am Zeilenanfang
@@ -105,9 +100,7 @@ public class ProgramLine {
 		return Main.PROGRAM.getLine(lineID - 1).findLastIf();
 	}
 
-	/**
-	 * Merges the {@link MainExpression} from the constructed {@link #expressions}.
-	 */
+	/** Merges the {@link MainExpression} from the constructed {@link #expressions}. */
 	void merge() {
 		main = ExpressionMerger.merge(this);
 		expressions.clear();
@@ -122,10 +115,8 @@ public class ProgramLine {
 		}
 	}
 
-	/**
-	 * Recursivly searches for the next {@link Definition} above this line. Gets
-	 * used while building the {@link ReturnStatement}.
-	 */
+	/** Recursivly searches for the next {@link Definition} above this line. Gets used while building
+	 * the {@link ReturnStatement}. */
 	private Definition searchForFunc() {
 		if (main instanceof Definition def)
 			return def;

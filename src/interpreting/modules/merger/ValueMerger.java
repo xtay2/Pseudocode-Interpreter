@@ -49,10 +49,7 @@ public abstract class ValueMerger extends SuperMerger {
 		return new ArrayValue(VAR_ARRAY, true, buildParts());
 	}
 
-	/**
-	 * [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER]
-	 * [ARRAY_END])...
-	 */
+	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */
 	public static ArrayAccess buildArrayAccess() {
 		Name target = buildName();
 		List<ValueHolder> parts = new ArrayList<>();

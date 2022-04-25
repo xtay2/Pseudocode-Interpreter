@@ -12,7 +12,6 @@ import java.math.MathContext;
 
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
-import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
@@ -134,12 +133,6 @@ public abstract class NumberValue extends Value {
 
 	// Casting
 
-	/** Returns false if this value is NaN or true if it has a value. */
-	@Override
-	public final BoolValue asBool() {
-		return BoolValue.valueOf(NAN != this);
-	}
-
 	@Override
 	public final TextValue asText() {
 		if (this == NAN)
@@ -177,7 +170,6 @@ public abstract class NumberValue extends Value {
 		return switch (type) {
 			case VAR, NUMBER -> true; // Returns this
 			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
-			case BOOL -> true; // Returns false for NaN and true for everything else
 			case TEXT -> true; // Text or CharArray-Representation
 			default -> false;
 		};
