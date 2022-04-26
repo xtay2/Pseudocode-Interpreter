@@ -2,9 +2,7 @@ package building.expressions.abstractions;
 
 import building.types.specific.BuilderType;
 
-/**
- * A range-helper class for array-lengths.
- */
+/** A range-helper class for array-lengths. */
 public class Range {
 
 	/** An array with "unlimited" size. */
@@ -16,38 +14,30 @@ public class Range {
 		return UNBOUNDED;
 	}
 
-	/**
-	 * Creates an Range that should contain a minimum of n items.
+	/** Creates an Range that should contain a minimum of n items.
 	 * 
-	 * var[n..]
-	 */
+	 * var[n..] */
 	public static Range lowerBound(int bound) {
 		return new Range(bound, Integer.MAX_VALUE);
 	}
 
-	/**
-	 * Creates an Range that should contain a maximum of n items.
+	/** Creates an Range that should contain a maximum of n items.
 	 * 
-	 * var[..n]
-	 */
+	 * var[..n] */
 	public static Range upperBound(int bound) {
 		return new Range(0, bound);
 	}
 
-	/**
-	 * Creates an Range that should exactly n items.
+	/** Creates an Range that should exactly n items.
 	 * 
-	 * var[n]
-	 */
+	 * var[n] */
 	public static Range exact(int exact) {
 		return new Range(exact, exact);
 	}
 
-	/**
-	 * Creates an Range that should contain between n and m items.
+	/** Creates an Range that should contain between n and m items.
 	 * 
-	 * var[n..m]
-	 */
+	 * var[n..m] */
 	public static Range intervalBound(int lowerBound, int upperBound) {
 		return new Range(lowerBound, upperBound);
 	}
@@ -57,6 +47,11 @@ public class Range {
 			throw new IllegalArgumentException("The upper bound has to be higher than the upper bound.");
 		this.lowerBound = lower;
 		this.upperBound = upper;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj != null && obj instanceof Range r && lowerBound == r.lowerBound && upperBound == r.upperBound;
 	}
 
 	@Override

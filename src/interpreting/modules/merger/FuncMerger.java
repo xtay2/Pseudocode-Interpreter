@@ -1,13 +1,14 @@
 package interpreting.modules.merger;
 
-import static building.types.specific.BuilderType.ARROW_R;
-import static building.types.specific.BuilderType.CLOSE_BRACKET;
-import static building.types.specific.BuilderType.COMMA;
+import static building.types.specific.BuilderType.*;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
+import building.expressions.abstractions.Range;
 import building.expressions.main.functions.Definition;
 import building.expressions.main.functions.Function;
 import building.expressions.main.functions.MainFunction;
@@ -15,6 +16,7 @@ import building.expressions.main.functions.NativeFunction;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.SuperType;
+import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 
@@ -44,19 +46,29 @@ public abstract class FuncMerger extends SuperMerger {
 		return params;
 	}
 
-	private static LinkedHashMap<Name, DataType> buildFuncParams() {
-		LinkedHashMap<Name, DataType> params = new LinkedHashMap<>();
+	private static LinkedHashMap<Name, Entry<DataType, Boolean>> buildFuncParams() {
+		LinkedHashMap<Name, Entry<DataType, Boolean>> params = new LinkedHashMap<>();
 		if (line.get(0).is(CLOSE_BRACKET)) {
 			line.remove(0); // Closebrack
 			return params;
 		}
 		do {
 			DataType pT = null;
-			if (line.get(0).is(SuperType.DATA_TYPE))
+			boolean allowNull = false;
+			if (line.get(0).is(SuperType.DATA_TYPE)) {
 				pT = buildExpType();
-			else
+				if (line.get(0).is(MAYBE)) {
+					line.remove(0);
+					allowNull = true;
+				}
+				if (line.get(0).is(ARRAY_START) && line.get(1).is(ARRAY_END)) {
+					line.remove(0);
+					line.remove(0);
+					pT = ArrayType.create((SingleType) pT, Range.UNBOUNDED);
+				}
+			} else
 				pT = SingleType.VAR;
-			params.put(buildName(), pT);
+			params.put(buildName(), new SimpleEntry<>(pT, allowNull));
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		return params;
 	}

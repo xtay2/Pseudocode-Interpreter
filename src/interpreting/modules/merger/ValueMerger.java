@@ -4,7 +4,7 @@ import static building.types.specific.BuilderType.ARRAY_END;
 import static building.types.specific.BuilderType.ARRAY_START;
 import static building.types.specific.BuilderType.RANGE;
 import static building.types.specific.DynamicType.LITERAL;
-import static building.types.specific.datatypes.ArrayType.*;
+import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.operators.PrefixOpType.NOT;
 
 import java.util.ArrayList;
@@ -111,7 +111,7 @@ public abstract class ValueMerger extends SuperMerger {
 				dims.add(buildRange());
 				line.remove(0);
 			} while (line.size() > 1 && line.get(0).is(ARRAY_START));
-			return new ArrayType(type, dims.toArray(new Range[dims.size()]));
+			return ArrayType.create(type, dims.toArray(new Range[dims.size()]));
 		}
 		return type;
 	}
@@ -141,15 +141,7 @@ public abstract class ValueMerger extends SuperMerger {
 		line.remove(0);
 		DataType t = buildExpType();
 		if (line.remove(0).is(ARRAY_START) && line.remove(0).is(ARRAY_END)) {
-			t = switch ((SingleType) t) {
-				case VAR -> VAR_ARRAY;
-				case BOOL -> BOOL_ARRAY;
-				case CHAR -> CHAR_ARRAY;
-				case INT -> INT_ARRAY;
-				case NUMBER -> NUMBER_ARRAY;
-				case TEXT -> TEXT_ARRAY;
-				case OBJECT -> OBJECT_ARRAY;
-			};
+			t = ArrayType.create((SingleType) t, Range.UNBOUNDED);
 			line.remove(0);
 		} // For else: Close bracket gets removed in if.
 		return new ExplicitCast(lineID, t, buildVal());

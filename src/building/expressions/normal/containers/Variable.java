@@ -12,7 +12,6 @@ import building.expressions.abstractions.Scope;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.abstractions.interfaces.ValueChanger;
-import building.types.specific.AssignmentType;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
@@ -74,8 +73,8 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 			throw new DeclarationException(getOriginalLine(),
 					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
 		if (!allowsNull && val == NULL)
-			throw new NullNotAllowedException(getOriginalLine(), "This variable doesn't allow null. To change that, write:\n" + type + ""
-					+ BuilderType.MAYBE + " " + AssignmentType.NORMAL + " ...");
+			throw new NullNotAllowedException(getOriginalLine(),
+					"This variable doesn't allow null. To change that, write:\n" + type + "" + BuilderType.MAYBE + " ...");
 		if (val instanceof ArrayValue av && !allowsNull && av.allowNull)
 			val = allowsNull ? av.nullify() : av.unnullify();
 		value = new MaybeValue(val);

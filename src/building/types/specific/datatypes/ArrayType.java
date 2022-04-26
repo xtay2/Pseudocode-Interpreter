@@ -29,7 +29,25 @@ public final class ArrayType implements DataType {
 	/** The enforced lengths of the elements. */
 	public final Range[] ranges;
 
-	public ArrayType(SingleType type, Range... ranges) {
+	/** Creates a {@link ArrayType}.
+	 * 
+	 * @param ranges should be non null and not empty. */
+	public static ArrayType create(SingleType type, Range... ranges) {
+		if (ranges.length == 1 && ranges[0].equals(Range.UNBOUNDED)) {
+			return switch (type) {
+				case VAR -> VAR_ARRAY;
+				case BOOL -> BOOL_ARRAY;
+				case CHAR -> CHAR_ARRAY;
+				case INT -> INT_ARRAY;
+				case NUMBER -> NUMBER_ARRAY;
+				case TEXT -> TEXT_ARRAY;
+				case OBJECT -> OBJECT_ARRAY;
+			};
+		}
+		return new ArrayType(type, ranges);
+	}
+
+	private ArrayType(SingleType type, Range... ranges) {
 		if (ranges.length == 0)
 			throw new AssertionError("An array cannot be zero-dimensional.");
 		this.type = type;

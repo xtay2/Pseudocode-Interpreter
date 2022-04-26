@@ -28,7 +28,7 @@ import runtime.exceptions.IllegalReturnException;
 public class Function extends Definition {
 
 	/** All expected parameters. */
-	private final LinkedHashMap<Name, DataType> paramBlueprint;
+	private final LinkedHashMap<Name, Entry<DataType, Boolean>> paramBlueprint;
 
 	/** Defines and registers a {@link Function}.
 	 * 
@@ -38,8 +38,8 @@ public class Function extends Definition {
 	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a void.
 	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
 	 * @param flags are optional {@link FlagType}s. */
-	public Function(int lineID, Name name, LinkedHashMap<Name, DataType> params, DataType returnType, boolean allowsNullAsReturn,
-			OpenBlock os) {
+	public Function(int lineID, Name name, LinkedHashMap<Name, Entry<DataType, Boolean>> params, DataType returnType,
+			boolean allowsNullAsReturn, OpenBlock os) {
 		super(lineID, name, returnType, allowsNullAsReturn, os);
 		if (params == null)
 			throw new AssertionError("Params cannot be null.");
@@ -59,9 +59,9 @@ public class Function extends Definition {
 			DefManager.finalize(this);
 		// Init Params
 		int i = 0;
-		for (Entry<Name, DataType> param : paramBlueprint.entrySet()) {
+		for (Entry<Name, Entry<DataType, Boolean>> param : paramBlueprint.entrySet()) {
 			Value v = params[i++].getValue();
-			new Variable(lineIdentifier, getScope(), param.getValue(), true, param.getKey(), v);
+			new Variable(lineIdentifier, getScope(), param.getValue().getKey(), param.getValue().getValue(), param.getKey(), v);
 		}
 		callFirstLine();
 		getScope().clear();
