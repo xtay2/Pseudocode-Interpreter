@@ -7,6 +7,7 @@ import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.normal.brackets.OpenBlock;
+import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
 import interpreting.program.ProgramLine;
 import runtime.datatypes.numerical.NumberValue;
@@ -26,10 +27,10 @@ public final class ConditionalLoop extends Loop {
 	 * 
 	 * @param lineID is the identifier of the matching {@link ProgramLine}.
 	 * @param myType is the identifying Type, eiter {@link KeywordType#WHILE} or
-	 *               {@link KeywordType#UNTIL}.
+	 * {@link KeywordType#UNTIL}.
 	 */
-	public ConditionalLoop(int lineID, KeywordType myType, ValueHolder condition, OpenBlock os) {
-		super(lineID, myType, os);
+	public ConditionalLoop(int lineID, KeywordType myType, ValueHolder condition, Name alias, OpenBlock os) {
+		super(lineID, myType, alias, os);
 		if (myType != WHILE && myType != UNTIL)
 			throw new AssertionError("Type has to be while or until.");
 		if (condition == null)

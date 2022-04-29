@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.5
+Added the `as` keyword. This gets used to set a specific name for a loop-counter-variable.  
+
 ### Update 0.4.4
 Added the "maybe"-type-extension `?` (keyword). 
 

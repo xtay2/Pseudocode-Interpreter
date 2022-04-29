@@ -10,10 +10,8 @@ import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.UnexpectedTypeError;
 
-/**
- * A {@link CharValue} is just a single {@link Character}. It can allways be casted to a text and
- * back.
- */
+/** A {@link CharValue} is just a single {@link Character}. It can allways be casted to a text and
+ * back. */
 public class CharValue extends Value {
 
 	private final char value;
@@ -52,10 +50,8 @@ public class CharValue extends Value {
 	public boolean valueCompare(Value v) throws UnexpectedTypeError {
 		if (v instanceof CharValue ch)
 			return value == ch.value;
-		if (v instanceof TextValue txt) {
-			String s = txt.raw();
-			return s.length() == 1 && s.charAt(0) == value;
-		}
+		if (v instanceof TextValue txt)
+			return txt.valueCompare(this);
 		return false;
 	}
 

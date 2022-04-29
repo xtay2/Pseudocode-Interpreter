@@ -117,9 +117,7 @@ public final class TextValue extends Value implements ArrayCastable {
 
 	@Override
 	public boolean valueCompare(Value v) {
-		if (v instanceof TextValue n)
-			return value.equals(n.value);
-		throw new AssertionError("Tried to compare " + this + " to " + v + ".");
+		return v.raw().toString().equals(value);
 	}
 
 	// OPERATIONS

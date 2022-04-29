@@ -6,6 +6,7 @@ import static runtime.datatypes.numerical.NumberValue.ONE;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
+import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.ShouldBeNaturalNrException;
@@ -23,10 +24,10 @@ public class IntervalLoop extends Loop {
 	/** Should get initialised at {@link #initLoop()}. */
 	private NumberValue end;
 
-	public IntervalLoop(int lineID, KeywordType loopType, ValueHolder startH, ValueHolder endH, ValueHolder incH, OpenBlock os) {
-		super(lineID, loopType, os);
-		if (type != KeywordType.FROM && type != KeywordType.REPEAT)
-			throw new AssertionError("LoopType has to be either from or repeat.");
+	public IntervalLoop(int lineID, KeywordType loopType, ValueHolder startH, ValueHolder endH, ValueHolder incH, Name alias,
+			OpenBlock os) {
+		super(lineID, loopType, alias, os);
+		assert type == KeywordType.FROM || type == KeywordType.REPEAT : "LoopType has to be either from or repeat.";
 		startHolder = startH;
 		endHolder = endH;
 		incHolder = incH;

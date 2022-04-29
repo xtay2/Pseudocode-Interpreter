@@ -67,8 +67,8 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 			throw new AssertionError("Function \"" + name + "\" already has a return value.");
 		if (val == NULL && !allowsNullAsReturn)
 			throw new NullNotAllowedException(getOriginalLine(), "The " + type + " \"" + getNameString() + "\" tries to return null.");
-		returnVal = val != NULL && val.type != returnType ? val.as(returnType) : val;
-
+		if (returnType != null)
+			returnVal = val != NULL && val.type != returnType ? val.as(returnType) : val;
 	}
 
 	/** Returns the amount of expected parameters. */

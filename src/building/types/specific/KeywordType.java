@@ -49,9 +49,9 @@ public enum KeywordType implements SpecificType {
 	/**
 	 * Defines a BuilderType
 	 * 
-	 * @param id       is the unique identifying symbol from the code.
+	 * @param id is the unique identifying symbol from the code.
 	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
-	 *                 followups.
+	 * followups.
 	 */
 	private KeywordType(String keyword) {
 		symbol = keyword;

@@ -6,14 +6,17 @@ import static building.types.specific.DynamicType.NAME;
 
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.main.loops.IntervalLoop;
+import building.expressions.main.loops.Loop;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.brackets.BracketedExpression;
 import building.expressions.possible.Call;
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
 
-/** Because no {@link BuilderExpression} has its own class, they, and all their expected followers
- * are defined here. */
+/**
+ * Because no {@link BuilderExpression} has its own class, they, and all their expected followers
+ * are defined here.
+ */
 public enum BuilderType implements SpecificType {
 
 	/** Opened Array-Bracket [ */
@@ -57,6 +60,9 @@ public enum BuilderType implements SpecificType {
 	/** Part of the {@link IntervalLoop}. */
 	STEP("step"),
 
+	/** Optional part of any {@link Loop}. */
+	AS("as"),
+
 	// Not used in code
 
 	/** Ending character for multiple scopes in one line. */
@@ -67,11 +73,13 @@ public enum BuilderType implements SpecificType {
 
 	final String symbol;
 
-	/** Defines a BuilderType
+	/**
+	 * Defines a BuilderType
 	 * 
 	 * @param id is the unique identifying symbol from the code.
 	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
-	 * followups. */
+	 * followups.
+	 */
 	BuilderType(String id) {
 		this.symbol = id;
 	}
@@ -90,6 +98,7 @@ public enum BuilderType implements SpecificType {
 			case MAYBE -> new AbstractType[] { NAME, OPEN_BLOCK, ARRAY_START };
 			case RANGE -> new AbstractType[] { LITERAL };
 			case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
+			case AS -> new AbstractType[] { NAME };
 			case OPEN_BLOCK, CLOSE_BLOCK, MULTI_CLOSE_SCOPE, SINGLE_LINE_COMMENT -> new AbstractType[] {};
 		};
 	}

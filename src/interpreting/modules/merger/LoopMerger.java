@@ -1,5 +1,6 @@
 package interpreting.modules.merger;
 
+import static building.types.specific.BuilderType.AS;
 import static building.types.specific.BuilderType.OPEN_BLOCK;
 import static building.types.specific.BuilderType.STEP;
 import static building.types.specific.BuilderType.TO;
@@ -14,6 +15,7 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.loops.ConditionalLoop;
 import building.expressions.main.loops.ForEachLoop;
 import building.expressions.main.loops.IntervalLoop;
+import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
 import interpreting.exceptions.IllegalCodeFormatException;
 
@@ -21,7 +23,7 @@ public abstract class LoopMerger extends SuperMerger {
 
 	public static ConditionalLoop buildConditional(KeywordType type) {
 		line.remove(0);
-		return new ConditionalLoop(lineID, type, buildVal(), buildOpenBlock());
+		return new ConditionalLoop(lineID, type, buildVal(), buildAlias(), buildOpenBlock());
 	}
 
 	/** [FOR] [NAME] [IN] [CONTAINER] [OPEN_SCOPE] */
@@ -36,7 +38,7 @@ public abstract class LoopMerger extends SuperMerger {
 	public static IntervalLoop buildRepeat() {
 		line.remove(0);
 		ValueHolder end = line.get(0).is(OPEN_BLOCK) ? POS_INF : buildVal();
-		return new IntervalLoop(lineID, REPEAT, ZERO, end, ONE, buildOpenBlock());
+		return new IntervalLoop(lineID, REPEAT, ZERO, end, ONE, buildAlias(), buildOpenBlock());
 	}
 
 	/** [FROM] [NUMBER] [TO] [NUMBER] (?[STEP] [INTERVALL]) */
@@ -46,10 +48,20 @@ public abstract class LoopMerger extends SuperMerger {
 		if (!line.remove(0).is(TO)) // To-Keyword
 			throw new IllegalCodeFormatException(orgLine, "Missing \"to\"-Keyword in from-to-loop.");
 		ValueHolder end = buildVal();
+		ValueHolder step = ONE;
 		if (line.get(0).is(STEP)) {
-			line.remove(0); // LoopConnector
-			return new IntervalLoop(lineID, FROM, start, end, buildVal(), buildOpenBlock());
-		} else
-			return new IntervalLoop(lineID, FROM, start, end, ONE, buildOpenBlock());
+			line.remove(0); // Step-Keyword
+			step = buildVal();
+		}
+		return new IntervalLoop(lineID, FROM, start, end, step, buildAlias(), buildOpenBlock());
+	}
+
+	/** [AS] [NAME] */
+	private static Name buildAlias() {
+		if (line.get(0).is(AS)) {
+			line.remove(0);
+			return buildName();
+		}
+		return null;
 	}
 }

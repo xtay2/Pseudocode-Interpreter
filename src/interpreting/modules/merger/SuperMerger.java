@@ -11,12 +11,15 @@ import static building.types.specific.KeywordType.IS;
 import static building.types.specific.datatypes.SingleType.VAR;
 import static interpreting.modules.merger.ValueMerger.buildAssignment;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import building.expressions.abstractions.Expression;
+import building.expressions.abstractions.Range;
 import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.CloseBlock;
@@ -30,7 +33,9 @@ import building.types.specific.BuilderType;
 import building.types.specific.DynamicType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
@@ -214,6 +219,18 @@ public abstract class SuperMerger extends ExpressionMerger {
 			throw new UnexpectedTypeError(line.get(0).type);
 		f.addFlags(flags);
 		return f;
+	}
+	
+	/** [TYPE] [?] [ARRAY_START] [ARRAY_END] */
+	protected static Entry<DataType, Boolean> buildCastEntry() {
+		DataType t = line.get(0).is(DATA_TYPE) ? buildExpType() : null;
+		boolean allowsNull = checkIfNullAllowed();
+		if(t != null && line.size() >= 2 && line.get(0).is(ARRAY_START) && line.get(1).is(ARRAY_END)) {
+			line.remove(0);
+			line.remove(0);
+			t = ArrayType.create((SingleType) t, Range.UNBOUNDED);
+		}
+		return new AbstractMap.SimpleEntry<DataType, Boolean>(t, allowsNull);
 	}
 	
 	/**

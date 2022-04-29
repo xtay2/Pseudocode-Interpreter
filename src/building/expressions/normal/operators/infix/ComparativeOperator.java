@@ -16,7 +16,7 @@ public final class ComparativeOperator extends InfixOperator {
 	@Override
 	public final BoolValue perform(ValueHolder a, ValueHolder b) {
 		Value aVal = a.getValue();
-		Value bVal = a.getValue();
+		Value bVal = b.getValue();
 		return switch (op) {
 			case EQUALS -> Value.eq(aVal, bVal);
 			case NOT_EQUALS -> Value.eq(aVal, bVal).not();

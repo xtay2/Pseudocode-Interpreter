@@ -2,8 +2,6 @@ package building.expressions.main.loops;
 
 import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 
-import java.math.BigInteger;
-
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
@@ -22,21 +20,19 @@ public class ForEachLoop extends Loop {
 	/** The temporary value that gets reset for every iteration. */
 	private ArrayValue array;
 
-	/** The name of the running element. */
-	private final Name elementName;
-
-	/** Creates a {@link ForEachLoop}.
+	/**
+	 * Creates a {@link ForEachLoop}.
 	 * 
 	 * @param elementName is the {@link Name} of the running element. Shouldn't be null.
 	 * @param arrayH is the Wrapper for the {@link ArrayValue} that later gets iterated over. Shouldn't
 	 * be null.
-	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null. */
-	public ForEachLoop(int lineID, Name elementName, ValueHolder arrayH, OpenBlock os) {
-		super(lineID, KeywordType.FOR, os);
-		this.elementName = elementName;
+	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
+	 */
+	public ForEachLoop(int lineID, Name alias, ValueHolder arrayH, OpenBlock os) {
+		super(lineID, KeywordType.FOR, alias, os);
+		assert alias != null : "Alias cannot be null.";
+		assert arrayH != null : "ArrayHolder cannot be null.";
 		this.arrayHolder = arrayH;
-		if (elementName == null || arrayHolder == null)
-			throw new AssertionError("ElementName and ArrayHolder cannot be null.");
 	}
 
 	@Override
@@ -46,11 +42,12 @@ public class ForEachLoop extends Loop {
 	}
 
 	@Override
+	@SuppressWarnings("unlikely-arg-type")
 	protected boolean doContinue(NumberValue iteration) {
-		if (iteration.isGreaterEq(NumberValue.create(BigInteger.valueOf(array.length()))))
+		if (iteration.equals(array.length()))
 			return false;
 		// Variable
-		new Variable(lineIdentifier, getScope(), SingleType.VAR, true, elementName, array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), SingleType.VAR, true, alias, array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

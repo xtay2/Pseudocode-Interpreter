@@ -29,7 +29,7 @@ public enum SingleType implements DataType {
 
 	final String symbol;
 
-	SingleType(String type) {
+	private SingleType(String type) {
 		this.symbol = type;
 	}
 

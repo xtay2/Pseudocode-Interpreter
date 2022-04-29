@@ -15,7 +15,6 @@ import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
-import runtime.exceptions.UnexpectedTypeError;
 
 public abstract class NumberValue extends Value {
 
@@ -57,8 +56,10 @@ public abstract class NumberValue extends Value {
 		return new DecimalValue(num, denom);
 	}
 
-	/** Sets the type. {@link DecimalValue} has the type{@link DataType#NUMBER} and {@link IntValue} is
-	 * a {@link DataType#INT}. */
+	/**
+	 * Sets the type. {@link DecimalValue} has the type{@link DataType#NUMBER} and {@link IntValue} is a
+	 * {@link DataType#INT}.
+	 */
 	protected NumberValue(DataType dataType) {
 		super(dataType);
 		assert dataType == INT || dataType == NUMBER : "DataType has to be INT or NUMBER.";
@@ -178,9 +179,11 @@ public abstract class NumberValue extends Value {
 	/** Value-comparison between this {@link NumberValue} and a {@link Value}. */
 	@Override
 	public final boolean valueCompare(Value v) {
-		if (!(v instanceof NumberValue))
-			throw new UnexpectedTypeError(v.type);
-		return equals(v);
+		if (v instanceof NumberValue)
+			return equals(v);
+		if (v instanceof TextValue txt)
+			return txt.valueCompare(this);
+		return false;
 	}
 
 	/** Value-comparison between this {@link NumberValue} and a {@link Value} or a {@link Number}. */
@@ -189,16 +192,13 @@ public abstract class NumberValue extends Value {
 		// Fast case for (conceptual) constants.
 		if (this == obj)
 			return true;
-		// Slow, shouldn't get used.
-		if (obj instanceof Number nr)
+		if (obj instanceof Number nr) // This is important.
 			obj = create(new BigDecimal(nr.toString()));
-		if (obj instanceof TextValue t)
-			obj = t.asNumber();
 		if (obj instanceof NumberValue n) {
-			if (this instanceof IntValue x && obj instanceof IntValue y)
+			if (this instanceof IntValue x && n instanceof IntValue y)
 				return x.value.equals(y.value);
 			// Turn to common denom then compare
-			if (this instanceof DecimalValue x && obj instanceof DecimalValue y)
+			if (this instanceof DecimalValue x && n instanceof DecimalValue y)
 				return x.num.multiply(y.denom).equals(y.num.multiply(x.denom));
 		}
 		return false;

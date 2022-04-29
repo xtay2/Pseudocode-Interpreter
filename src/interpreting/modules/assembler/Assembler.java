@@ -16,9 +16,7 @@ import formatter.basic.Formatter;
 import interpreting.modules.parser.Parser.IdxLine;
 import misc.helper.ProgramHelper;
 
-/**
- * Does all the invisible but necessary formatting that is not done by the {@link Formatter}.
- */
+/** Does all the invisible but necessary formatting that is not done by the {@link Formatter}. */
 public class Assembler {
 
 	private static List<IdxLine> lines;
@@ -48,10 +46,8 @@ public class Assembler {
 		}
 	}
 
-	/**
-	 * Adds padding around all {@link BuilderType#RANGE}-Operators, so that they get distinguished from
-	 * dots in decimal numbers.
-	 */
+	/** Adds padding around all {@link BuilderType#RANGE}-Operators, so that they get distinguished from
+	 * dots in decimal numbers. */
 	private static void padRangeOperators() {
 		for (int i = 0; i < lines.size(); i++) {
 			String line = lines.get(i).line();
@@ -59,8 +55,7 @@ public class Assembler {
 		}
 	}
 
-	/**
-	 * If a line contains something except a {@link CloseBlock}, it gets split into two lines.
+	/** If a line contains something except a {@link CloseBlock}, it gets split into two lines.
 	 * 
 	 * <pre>
 	 * if ... {
@@ -77,8 +72,7 @@ public class Assembler {
 	 * else {
 	 * </pre>
 	 * 
-	 * An exeption is the partial one-line-statement, that ends with "};", and doesn't get split.
-	 */
+	 * An exeption is the partial one-line-statement, that ends with "};", and doesn't get split. */
 	private static void splitCloseBlocks() {
 		for (int i = 0; i < lines.size(); i++) {
 			final String l = lines.get(i).line();
@@ -97,8 +91,7 @@ public class Assembler {
 		}
 	}
 
-	/**
-	 * Splits up all one-line-statements and removes the semicolon.
+	/** Splits up all one-line-statements and removes the semicolon.
 	 * 
 	 * <pre>
 	 * if true: print("Hi");
@@ -130,8 +123,7 @@ public class Assembler {
 		}
 	}
 
-	/**
-	 * Splits up all partial one-line-statements and removes the semicolon.
+	/** Splits up all partial one-line-statements and removes the semicolon.
 	 * 
 	 * <pre>
 	 * for e in [1, 2, 3]: if e % 2 == 0 {

@@ -41,7 +41,7 @@ public abstract class Value extends Expression implements Castable {
 	 * 
 	 * @throws UnexpectedTypeError if the types aren't comparable. */
 	public static final BoolValue eq(Value a, Value b) {
-		return a.type == b.type ? BoolValue.valueOf(a.valueCompare(b)) : BoolValue.FALSE;
+		return BoolValue.valueOf(a.valueCompare(b));
 	}
 
 	/** Tells, if this Value can always be safely casted to the suggested {@link DataType}.

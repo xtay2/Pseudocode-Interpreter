@@ -116,15 +116,12 @@ public final class FormatterLvl5 extends Formatter {
 				if (lineEndsWith(line, MCS))
 					continue;
 				// For all lines between return and next CloseBlock
-				for (int j = i - 1; j >= 0; j--) {
-					String lnBeforeRet = program.get(j);
-					if (!lnBeforeRet.isBlank()) {
-						if (containsRunnable(lnBeforeRet, OBR)) {
-							int idxOfCB = findMatchingBrack(program, j, indexOfRunnable(lnBeforeRet, OBR))[0];
-							commentRange(i + 1, idxOfCB - 1);
-							i = idxOfCB;
-							break;
-						}
+				for (int j = i + 1; j < program.size(); j++) {
+					String lnAfterRet = program.get(j);
+					if (containsRunnable(lnAfterRet, CBR)) {
+						commentRange(i + 1, j - 1);
+						i = j + 1;
+						break;
 					}
 				}
 			}
