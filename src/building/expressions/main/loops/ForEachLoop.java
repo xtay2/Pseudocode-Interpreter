@@ -20,6 +20,9 @@ public class ForEachLoop extends Loop {
 	/** The temporary value that gets reset for every iteration. */
 	private ArrayValue array;
 
+	/** The name for the running element. */
+	private Name elemName;
+
 	/**
 	 * Creates a {@link ForEachLoop}.
 	 * 
@@ -28,10 +31,11 @@ public class ForEachLoop extends Loop {
 	 * be null.
 	 * @param os is the {@link OpenBlock} of this {@link ScopeHolder}. Shouldn't be null.
 	 */
-	public ForEachLoop(int lineID, Name alias, ValueHolder arrayH, OpenBlock os) {
-		super(lineID, KeywordType.FOR, alias, os);
-		assert alias != null : "Alias cannot be null.";
+	public ForEachLoop(int lineID, Name elemName, ValueHolder arrayH, OpenBlock os) {
+		super(lineID, KeywordType.FOR, null, os);
+		assert elemName != null : "ElemName cannot be null.";
 		assert arrayH != null : "ArrayHolder cannot be null.";
+		this.elemName = elemName;
 		this.arrayHolder = arrayH;
 	}
 
@@ -46,8 +50,7 @@ public class ForEachLoop extends Loop {
 	protected boolean doContinue(NumberValue iteration) {
 		if (iteration.equals(array.length()))
 			return false;
-		// Variable
-		new Variable(lineIdentifier, getScope(), SingleType.VAR, true, alias, array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), SingleType.VAR, true, elemName, array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

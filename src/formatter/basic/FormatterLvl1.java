@@ -42,7 +42,7 @@ public final class FormatterLvl1 extends Formatter {
 	 * (Mainly before {@link FormatterLvl2#format()})
 	 */
 	protected static void preFormatting() {
-		forEachLine(List.of((x, y) -> replaceOperators(x, y)));
+		forEachLine((x, y) -> replaceOperators(x, y));
 	}
 
 	/**
@@ -64,10 +64,11 @@ public final class FormatterLvl1 extends Formatter {
 		formatClosedScopes();
 		correctSemicolons();
 //		//@formatter:off
-		forEachLine(List.of(
+		forEachLine(
+				(x, y) -> correctFuncs(x, y),
 				(x, y) -> replaceElifs(x, y),
 				(x, y) -> orderFlags(x, y)
-				));
+				);
 		//@formatter:on
 	}
 
@@ -214,6 +215,18 @@ public final class FormatterLvl1 extends Formatter {
 			} else if (!containsRunnable(line, CBR))
 				program.set(i, replaceAllIfRunnable(line, MCS, "", isFullyRunnable(line)));
 		}
+	}
+
+	/**
+	 * A {@link LineFormatterFunc} that removes a space between the name of a function and its params.
+	 * 
+	 * <pre>
+	 * func function   (int x) {
+	 * func function(int x)
+	 * </pre>
+	 */
+	static String correctFuncs(String line, boolean isFullyRunnable) {
+		return replaceAllIfRunnable(line, "(?<=func\\s.+)\\s+(?=\\()", "", isFullyRunnable);
 	}
 
 	/**

@@ -30,7 +30,7 @@ public abstract class Loop extends ScopeHolder {
 	// These should get initialised at merge
 	protected ValueHolder startHolder = ZERO;
 	protected ValueHolder incHolder = ONE;
-	protected final Name alias;
+	private final Name alias;
 
 	// These should get initialised at init
 	protected NumberValue start;
@@ -100,7 +100,12 @@ public abstract class Loop extends ScopeHolder {
 	 */
 	protected abstract boolean doContinue(NumberValue iteration);
 
-	protected Name getLoopVarAlias() {
+	/**
+	 * Returns the name for the loop-counter.
+	 * 
+	 * @return {@link #alias} if existing, or the implicit countername, if not.
+	 */
+	protected final Name getLoopVarAlias() {
 		return alias != null ? alias : getScope().getCounterName(getOriginalLine());
 	}
 }

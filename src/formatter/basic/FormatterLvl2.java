@@ -1,10 +1,11 @@
 package formatter.basic;
 
+import static building.types.specific.BuilderType.ARROW_R;
 import static misc.helper.CollectionHelper.merge;
 import static misc.helper.ProgramHelper.isNotInString;
 import static misc.helper.ProgramHelper.replaceAllIfRunnable;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,7 @@ import building.types.specific.KeywordType;
 import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.InfixOpType;
 import building.types.specific.operators.PrefixOpType;
+import misc.helper.CollectionHelper;
 
 /**
  * This gets executed first!
@@ -36,14 +38,14 @@ public final class FormatterLvl2 extends Formatter {
 
 	protected static void format() {
 	//@formatter:off
-	forEachLine(List.of(
+	forEachLine(
 		(x, y) -> reduceSpaces(x, y),
 		(x, y) -> scopeHolderPadding(x, y),
 		(x, y) -> bracketPadding(x, y),
 		(x, y) -> assignmentPadding(x, y),
 		(x, y) -> miscPadding(x, y),
 		(x, y) -> infixOpPadding(x, y)
-		));
+		);
 	//@formatter:on
 	}
 
@@ -68,11 +70,17 @@ public final class FormatterLvl2 extends Formatter {
 	 * {@link AssignmentType} in the passed line.
 	 */
 	static String assignmentPadding(String line, boolean isFullyRunnable) {
+
+		final SpecificType[] opAssings = Arrays.stream(AssignmentType.values()).filter(e -> e.op != null).toArray(SpecificType[]::new);
+		line = typePadding(opAssings, new SpecificType[] {}, line, isFullyRunnable);
+
 		//@formatter:off
 		SpecificType[] container = {
 			InfixOpType.EQUALS 	// = in ==
 		}; //@formatter:on
-		return typePadding(AssignmentType.values(), container, line, isFullyRunnable);
+
+		container = CollectionHelper.merge(opAssings, container);
+		return typePadding(new SpecificType[] { AssignmentType.NORMAL }, container, line, isFullyRunnable);
 	}
 
 	/**
@@ -82,7 +90,7 @@ public final class FormatterLvl2 extends Formatter {
 	static String infixOpPadding(String line, boolean isFullyRunnable) {
 		//@formatter:off
 		SpecificType[] container = { 
-			DynamicType.NAME, 		// "and" in candy
+			DynamicType.NAME,		// "and" in candy
 			KeywordType.MAIN,		// "in" in main
 			PrefixOpType.INC, 		// "+" in ++
 			PrefixOpType.DEC, 		// "-" in --
@@ -99,10 +107,10 @@ public final class FormatterLvl2 extends Formatter {
 	/**
 	 * Surrounds every occurrence of any passed type in the line with whitespaces.
 	 * 
-	 * @param types           is an array of possible types.
-	 * @param container       is an array of types that could contain the target-types in their
-	 *                        {@link String}-representation.
-	 * @param line            is the line that gets evaluated.
+	 * @param types is an array of types that should get padded in this execution.
+	 * @param container is an array of types that could contain the target-types in their
+	 * {@link String}-representation.
+	 * @param line is the line that gets evaluated.
 	 * @param isFullyRunnable tells if the line contains comments or strings.
 	 * @return the line with optimal possible padding around the types.
 	 */
@@ -127,17 +135,18 @@ public final class FormatterLvl2 extends Formatter {
 	/**
 	 * Formats the next matched type with wrong padding.
 	 * 
-	 * @param line     is the line thats currently formatted.
+	 * @param line is the line thats currently formatted.
 	 * @param matchIdx is the index of the current match.
-	 * @param typeStr  is the string of the operator that was found.
+	 * @param typeStr is the string of the operator that was found.
 	 * @return the same line but with correct padding around the match.
 	 */
 	private static String formatNextMatch(String line, int matchIdx, String typeStr, SpecificType[] container) {
 		if (matchIdx + typeStr.length() + 1 > line.length())
 			return line;
 		// Check if the type is contained in another type
+		char prev = matchIdx == 0 ? ' ' : line.charAt(matchIdx - 1);
 		char next = line.charAt(matchIdx + typeStr.length());
-		if (isNotInContainer(typeStr, next, container)) {
+		if (isNotInContainer(typeStr, prev, next, container)) {
 			return line.substring(0, matchIdx).stripTrailing() //
 					+ " " + typeStr + " " // Correct padding
 					+ line.substring(matchIdx + typeStr.length()).stripLeading(); //
@@ -148,12 +157,12 @@ public final class FormatterLvl2 extends Formatter {
 	/**
 	 * Checks if the current type is contained in the {@link String}-representation of another type.
 	 * 
-	 * @param current   is a validated {@link String}-representation of a {@link SpecificType}.
-	 * @param next      is the character thats following the type.
+	 * @param current is a validated {@link String}-representation of a {@link SpecificType}.
+	 * @param next is the character thats following the type.
 	 * @param container is an array of types that could contain this type.
 	 * @return true if the passed type isn't part of another one.
 	 */
-	private static boolean isNotInContainer(String current, char next, SpecificType[] container) {
+	private static boolean isNotInContainer(String current, char prev, char next, SpecificType[] container) {
 		final String mrg = current + next;
 		for (SpecificType c : container) {
 			if (c == DynamicType.NAME) {
@@ -162,7 +171,7 @@ public final class FormatterLvl2 extends Formatter {
 					return false;
 			}
 			// If current is the end of another type, like the second + in ++
-			if (c.toString().endsWith(current))
+			if (c.toString().endsWith(prev + current))
 				return false;
 			// If current + next is part of another type or current is fully equal.
 			if (c.toString().contains(mrg) || c.toString().equals(current))
@@ -201,6 +210,9 @@ public final class FormatterLvl2 extends Formatter {
 	 * This should get executed after {@link #reduceSpaces(String, boolean)}
 	 */
 	static String miscPadding(String line, boolean isFullyRunnable) {
+		// Arrow
+		line = replaceAllIfRunnable(line, "(?<!\\s)" + ARROW_R, " " + ARROW_R, isFullyRunnable);
+		line = replaceAllIfRunnable(line, ARROW_R + "(?!\\s)", ARROW_R + " ", isFullyRunnable);
 		// Missing following space
 		line = replaceAllIfRunnable(line, ",(?=\\S)", ", ", isFullyRunnable);
 		line = replaceAllIfRunnable(line, ":(?=\\S)", ": ", isFullyRunnable);

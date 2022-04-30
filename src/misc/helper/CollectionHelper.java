@@ -28,8 +28,8 @@ public class CollectionHelper {
 	 * Finds an element in a {@link Collection} thats identifieable by a predicate.
 	 * 
 	 * @param <E> is the generic type of the content of the {@link Collection}.
-	 * @param c   is the {@link Collection} itself.
-	 * @param p   is the predicate that identifies the element.
+	 * @param c is the {@link Collection} itself.
+	 * @param p is the predicate that identifies the element.
 	 * @return the element or null if none was found.
 	 * @throws IllegalStateException if multiple elements matched the predicate.
 	 */

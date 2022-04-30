@@ -13,12 +13,14 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 
 	static List<String> program;
 
-	/** Formats a program dependent on the strength-level.
+	/**
+	 * Formats a program dependent on the strength-level.
 	 * 
 	 * @param rawProgram is the unformatted program.
 	 * @param level is the strength of the formatter.
 	 * @param isMain tells, if the formatted file is the Main.pc-file
-	 * @return the formatted program. */
+	 * @return the formatted program.
+	 */
 	public static final List<String> format(List<String> rawProgram, boolean isMain) {
 		int level = Main.getFormattingLvl();
 		if (level < 1 && level > 5)
@@ -57,6 +59,8 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 			String s = program.get(i);
 			if (containsRunnable(s, CBR))
 				brack--;
+			if (brack == -1)
+				throw new AssertionError("This shouldn't happen. Line " + i + " is broken:\n" + s);
 			program.set(i, "\t".repeat(brack) + s.stripIndent());
 			if (containsRunnable(s, OBR))
 				brack++;
@@ -100,20 +104,24 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
     
     //@formatter:on
 
-	/** Every formatting-function that only edits one line is a {@link LineFormatterFunc}. They all get
-	 * called in {@link Formatter#forEachLine(List)}. */
+	/**
+	 * Every formatting-function that only edits one line is a {@link LineFormatterFunc}. They all get
+	 * called in {@link Formatter#forEachLine(List)}.
+	 */
 	@FunctionalInterface
 	interface LineFormatterFunc {
-		/** A method that only edits one line.
+		/**
+		 * A method that only edits one line.
 		 * 
 		 * @param line the unedited line.
 		 * @param isFullyRunnable true if the line contains comments or string-literals.
-		 * @return the edited line. */
+		 * @return the edited line.
+		 */
 		String formatLine(String line, boolean isFullyRunnable);
 	}
 
 	/** Executes the formatting that can be done linewise, i.e is not dependent on other lines. */
-	static void forEachLine(List<LineFormatterFunc> functions) {
+	static void forEachLine(LineFormatterFunc... functions) {
 		for (int i = 0; i < program.size(); i++) {
 			String line = program.get(i);
 			if (line.isBlank() || line.startsWith(SLC))
@@ -131,17 +139,21 @@ public sealed abstract class Formatter permits FormattingPreChecks,FormatterLvl1
 		return !line.contains(SLC) && !line.contains("\"");
 	}
 
-	/** Comment out all uncommented lines between two indices in the {@link Formatter#program}.
+	/**
+	 * Comment out all uncommented lines between two indices in the {@link Formatter#program}.
 	 * 
 	 * @param start is the start-index (inclusive)
-	 * @param end is the end index (inclusive) */
+	 * @param end is the end index (inclusive)
+	 */
 	static void commentRange(int start, int end) {
 		for (int i = start; i <= end; i++)
 			comment(i);
 	}
 
-	/** Comments out the line at the specified index in {@link Formatter#program}, if its not already
-	 * done. */
+	/**
+	 * Comments out the line at the specified index in {@link Formatter#program}, if its not already
+	 * done.
+	 */
 	static void comment(int line) {
 		program.set(line, comment(program.get(line)));
 	}

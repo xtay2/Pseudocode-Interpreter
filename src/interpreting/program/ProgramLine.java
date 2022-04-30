@@ -34,11 +34,13 @@ public class ProgramLine {
 
 	private MainExpression main;
 
-	/** Save a line of code and build its object-expression-representation.
+	/**
+	 * Save a line of code and build its object-expression-representation.
 	 *
 	 * @param line is the content of this line of code.
 	 * @param lineID is the unique identifier.
-	 * @param orgLine is the line from the users editor. */
+	 * @param orgLine is the line from the users editor.
+	 */
 	public ProgramLine(String line, int lineID, int orgLine) {
 		this.line = line;
 		this.lineID = lineID;
@@ -115,8 +117,10 @@ public class ProgramLine {
 		}
 	}
 
-	/** Recursivly searches for the next {@link Definition} above this line. Gets used while building
-	 * the {@link ReturnStatement}. */
+	/**
+	 * Recursivly searches for the next {@link Definition} above this line. Gets used while building the
+	 * {@link ReturnStatement}.
+	 */
 	private Definition searchForFunc() {
 		if (main instanceof Definition def)
 			return def;

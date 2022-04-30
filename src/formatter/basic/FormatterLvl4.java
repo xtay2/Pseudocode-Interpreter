@@ -31,13 +31,13 @@ public final class FormatterLvl4 extends Formatter {
 
 	protected static void format() {
 	//@formatter:off
-	forEachLine(List.of(
+	forEachLine(
 		(x, y) -> shortenBools(x, y),
 		(x, y) -> correctNrConsts(x, y),
 		(x, y) -> simplifyMisc(x, y),
 		(x, y) -> swapCondLoops(x, y),
 		(x, y) -> simplifyInfLoops(x, y)
-		));
+		);
 	//@formatter:on
 	}
 

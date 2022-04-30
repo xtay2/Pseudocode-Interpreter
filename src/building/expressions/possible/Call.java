@@ -28,10 +28,12 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 
 	private int idxOfMultiCall = -1;
 
-	/** Creates a {@link Call}.
+	/**
+	 * Creates a {@link Call}.
 	 * 
 	 * @param calledFunc shouldn't be null.
-	 * @param parameters shouldn't be null. */
+	 * @param parameters shouldn't be null.
+	 */
 	public Call(int lineID, Name calledFunc, ValueHolder... parameters) {
 		super(lineID, MERGED);
 		if (calledFunc == null || parameters == null)
