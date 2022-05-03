@@ -32,6 +32,6 @@ public class MathHelper {
 	 * </pre>
 	 */
 	public static int valToInt(ValueHolder val) {
-		return val.getValue().asInt().raw().intValueExact();
+		return val.asInt().raw().intValueExact();
 	}
 }

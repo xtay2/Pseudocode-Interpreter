@@ -1,7 +1,5 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.SingleType.INT;
-import static building.types.specific.datatypes.SingleType.NUMBER;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
@@ -14,7 +12,6 @@ import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
 
 public abstract class NumberValue extends Value {
 
@@ -26,11 +23,6 @@ public abstract class NumberValue extends Value {
 	public static final IntValue ONE = new IntValue(BigInteger.ONE);
 	public static final IntValue ZERO = new IntValue(BigInteger.ZERO);
 	public static final IntValue NEG_ONE = new IntValue(BigInteger.valueOf(-1));
-
-	/** Creates a {@link IntValue} from a {@link BigInteger}. */
-	public static IntValue create(BigInteger v) {
-		return new IntValue(v);
-	}
 
 	/** Creates a {@link NumberValue} from a {@link BigDecimal}. */
 	public static NumberValue create(BigDecimal val) {
@@ -49,7 +41,7 @@ public abstract class NumberValue extends Value {
 		if (num.equals(BigInteger.ZERO))
 			return ZERO;
 		if (denom.equals(BigInteger.ONE))
-			return create(num);
+			return new IntValue(num);
 		if (denom.equals(BigInteger.ZERO))
 			return NAN;
 		// Fractional result
@@ -57,12 +49,12 @@ public abstract class NumberValue extends Value {
 	}
 
 	/**
-	 * Sets the type. {@link DecimalValue} has the type{@link DataType#NUMBER} and {@link IntValue} is a
+	 * Sets the type. {@link DecimalValue} has the type{@link DataType#NR} and {@link IntValue} is a
 	 * {@link DataType#INT}.
 	 */
-	protected NumberValue(DataType dataType) {
+	protected NumberValue(SingleType dataType) {
 		super(dataType);
-		assert dataType == INT || dataType == NUMBER : "DataType has to be INT or NUMBER.";
+		assert dataType == SingleType.INT || dataType == SingleType.NR : "DataType has to be INT or NUMBER.";
 	}
 
 	// PUBLIC FINAL
@@ -130,50 +122,6 @@ public abstract class NumberValue extends Value {
 	/** a1 >= a2 */
 	public final boolean isGreaterEq(NumberValue v) {
 		return v.isSmallerEq(this);
-	}
-
-	// Casting
-
-	@Override
-	public final TextValue asText() {
-		if (this == NAN)
-			return new TextValue("NaN");
-		if (this == POS_INF)
-			return new TextValue("INF");
-		if (this == NEG_INF)
-			return new TextValue("-INF");
-		if (this instanceof IntValue i)
-			return new TextValue(i.value.toString());
-		String s = ((DecimalValue) this).fractionToDecimal();
-		if (s.matches("(\\d+)\\.((([1-9]+)(0+$))|(0+$))"))
-			s = s.replaceAll("(\\.(0+)$|(0+)$)", "");
-		return new TextValue(s);
-	}
-
-	/** Returns this. */
-	@Override
-	public final NumberValue asNumber() {
-		return this;
-	}
-
-	/** Returns an {@link IntValue}-Representation. Floors, if necessary. */
-	@Override
-	public final IntValue asInt() {
-		if (this instanceof IntValue i)
-			return i;
-		if (this instanceof DecimalValue dec)
-			return create(dec.num.divide(dec.denom));
-		throw new CastingException("Cannot cast " + raw().toString() + " to an IntValue.");
-	}
-
-	@Override
-	public final boolean canCastTo(SingleType type) {
-		return switch (type) {
-			case VAR, NUMBER -> true; // Returns this
-			case INT -> !(this instanceof ConceptualNrValue); // Only if this isn't NAN or Infinite.
-			case TEXT -> true; // Text or CharArray-Representation
-			default -> false;
-		};
 	}
 
 	/** Value-comparison between this {@link NumberValue} and a {@link Value}. */

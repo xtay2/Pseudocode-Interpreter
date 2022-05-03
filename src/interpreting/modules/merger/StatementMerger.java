@@ -29,7 +29,7 @@ public abstract class StatementMerger extends SuperMerger {
 			case ELSE:
 				return new ConditionalStatement(lineID, type, null, buildOpenBlock());
 			default:
-				throw new UnexpectedTypeError(orgLine, type);
+				throw new UnexpectedTypeError(orgLine, type, ConditionalStatement.class);
 		}
 	}
 

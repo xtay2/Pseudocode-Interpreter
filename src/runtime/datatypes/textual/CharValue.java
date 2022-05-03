@@ -2,16 +2,16 @@ package runtime.datatypes.textual;
 
 import static building.types.specific.datatypes.SingleType.CHAR;
 
-import java.math.BigInteger;
-
-import building.types.specific.datatypes.SingleType;
+import building.types.specific.datatypes.DataType;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.numerical.NumberValue;
+import runtime.exceptions.CastingException;
 import runtime.exceptions.UnexpectedTypeError;
 
-/** A {@link CharValue} is just a single {@link Character}. It can allways be casted to a text and
- * back. */
+/**
+ * A {@link CharValue} is just a single {@link Character}. It can allways be casted to a text and
+ * back.
+ */
 public class CharValue extends Value {
 
 	private final char value;
@@ -22,28 +22,15 @@ public class CharValue extends Value {
 	}
 
 	@Override
-	public TextValue asText() {
-		return new TextValue(String.valueOf(value));
-	}
-
-	@Override
-	public boolean canCastTo(SingleType type) {
-		return switch (type) {
-			case VAR, CHAR -> true; // Returns self
-			case TEXT -> true; // Returns text-representation
-			case NUMBER, INT -> true; // Returns ASCII-Representation
-			default -> false;
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType())
+			throw new CastingException(this, t);
+		return switch (t.type) {
+			case VAR, CHAR -> this;
+			case NR, INT -> new IntValue(value);
+			case TEXT -> new TextValue(String.valueOf(value));
+			default -> throw new CastingException(this, t);
 		};
-	}
-
-	@Override
-	public NumberValue asNumber() {
-		return asInt();
-	}
-
-	@Override
-	public IntValue asInt() {
-		return NumberValue.create(BigInteger.valueOf(value));
 	}
 
 	@Override
@@ -58,6 +45,11 @@ public class CharValue extends Value {
 	@Override
 	public Character raw() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return "'" + value + "'";
 	}
 
 }

@@ -1,8 +1,5 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.ArrayType.INT_ARRAY;
-import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.datatypes.SingleType.INT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
@@ -11,19 +8,19 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import ch.obermuhlner.math.big.BigDecimalMath;
-import runtime.datatypes.ArrayCastable;
+import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
+import runtime.datatypes.textual.TextValue;
 import runtime.exceptions.CastingException;
 
 /**
  * An Integer-Value with up to 100 digits.
- * 
+ *
  * @see DataType#INT
  */
-public final class IntValue extends NumberValue implements ArrayCastable {
+public final class IntValue extends NumberValue {
 
 	public final BigInteger value;
 
@@ -33,7 +30,7 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 	}
 
 	/** Produces a {@link IntValue} from a {@link BigInteger}. */
-	protected IntValue(BigInteger value) {
+	public IntValue(BigInteger value) {
 		super(INT);
 		this.value = value;
 	}
@@ -49,15 +46,19 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 	}
 
 	@Override
-	public ArrayValue asArray(ArrayType at) {
-		if (at.equals(VAR_ARRAY) || at.equals(INT_ARRAY) || at.equals(TEXT_ARRAY)) {
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType()) {
 			final String line = value.toString();
 			IntValue[] intArray = new IntValue[line.length()];
 			for (int i = 0; i < intArray.length; i++)
 				intArray[i] = new IntValue(Character.getNumericValue(line.charAt(i)));
-			return new ArrayValue(at, false, intArray);
+			return new ArrayValue(t, intArray);
 		}
-		throw new CastingException("Cannot cast int to " + at + ".");
+		return switch (t.type) {
+			case VAR, INT, NR -> this;
+			case TEXT -> new TextValue(value.toString());
+			default -> throw new CastingException(this, t);
+		};
 	}
 
 	/** This should only get called in debugging scenarios. */
@@ -73,7 +74,7 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 		if (v instanceof DecimalValue d)
 			return create(value.multiply(d.denom).add(d.num), d.denom);
 		if (v instanceof IntValue i)
-			return create(value.add(i.value));
+			return new IntValue(value.add(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
 
@@ -93,7 +94,7 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 		if (v instanceof DecimalValue d)
 			return create(value.multiply(d.num), d.denom);
 		if (v instanceof IntValue i)
-			return create(value.multiply(i.value));
+			return new IntValue(value.multiply(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
 
@@ -117,7 +118,7 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 		if (v instanceof DecimalValue d)
 			return create(new BigDecimal(value).remainder(d.raw()));
 		if (v instanceof IntValue i)
-			return create(value.remainder(i.value));
+			return new IntValue(value.remainder(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
 
@@ -168,6 +169,6 @@ public final class IntValue extends NumberValue implements ArrayCastable {
 		BigInteger fac = BigInteger.ONE;
 		for (long i = value.longValueExact(); i > 0; i--)
 			fac = fac.multiply(BigInteger.valueOf(i));
-		return create(fac);
+		return new IntValue(fac);
 	}
 }

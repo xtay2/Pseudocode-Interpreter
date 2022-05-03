@@ -21,11 +21,11 @@ public final class ComparativeOperator extends InfixOperator {
 			case EQUALS -> Value.eq(aVal, bVal);
 			case NOT_EQUALS -> Value.eq(aVal, bVal).not();
 
-			case LESS -> valueOf(aVal.asNumber().isSmallerThan(bVal.asNumber()));
-			case LESS_EQ -> valueOf(aVal.asNumber().isSmallerEq(bVal.asNumber()));
+			case LESS -> valueOf(aVal.asNr().isSmallerThan(bVal.asNr()));
+			case LESS_EQ -> valueOf(aVal.asNr().isSmallerEq(bVal.asNr()));
 
-			case GREATER -> valueOf(aVal.asNumber().isGreaterThan(bVal.asNumber()));
-			case GREATER_EQ -> valueOf(aVal.asNumber().isGreaterEq(bVal.asNumber()));
+			case GREATER -> valueOf(aVal.asNr().isGreaterThan(bVal.asNr()));
+			case GREATER_EQ -> valueOf(aVal.asNr().isGreaterEq(bVal.asNr()));
 
 			default -> throw new IllegalArgumentException("Unexpected value: " + op);
 		};

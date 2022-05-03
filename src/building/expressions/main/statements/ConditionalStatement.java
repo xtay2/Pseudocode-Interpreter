@@ -16,7 +16,7 @@ import interpreting.program.ProgramLine;
 
 /**
  * If-, Elif- Any- or Else-Statement.
- * 
+ *
  * @see ScopeHolder
  * @see ConditionalLoop
  */
@@ -27,12 +27,12 @@ public final class ConditionalStatement extends ScopeHolder {
 
 	/**
 	 * Creates a {@link ConditionalStatement}, based on the passed {@link KeywordType}.
-	 * 
-	 * @param lineID    is the identifier of the matching {@link ProgramLine}.
-	 * @param myType    is the identifying Type, eiter {@link KeywordType#IF}, {@link KeywordType#ELIF}
-	 *                  {@link KeywordType#ANY} or {@link KeywordType#ELSE}.
+	 *
+	 * @param lineID is the identifier of the matching {@link ProgramLine}.
+	 * @param myType is the identifying Type, eiter {@link KeywordType#IF}, {@link KeywordType#ELIF}
+	 * {@link KeywordType#ANY} or {@link KeywordType#ELSE}.
 	 * @param condition can be null
-	 * @param os        shouldn't be null
+	 * @param os shouldn't be null
 	 */
 	public ConditionalStatement(int lineID, KeywordType myType, ValueHolder condition, OpenBlock os) {
 		super(lineID, myType, os);
@@ -57,12 +57,12 @@ public final class ConditionalStatement extends ScopeHolder {
 	@Override
 	public boolean execute() {
 		if (is(IF) || is(ELIF)) {
-			if (condition.getValue().asBool().value) // Execute after condition is true.
+			if (condition.asBool().value) // Execute after condition is true.
 				return executeBody() ? Interpreter.execute(findAnyCase()) : false; // Find any or end if successfull.
 			return Interpreter.execute(findElseCase()); // Find next else if not successfull.
 		} else if (is(ANY) && condition != null) {
 			// If any-if condition is true
-			if (condition.getValue().asBool().value) {
+			if (condition.asBool().value) {
 				if (!executeBody()) // ... and return got triggered
 					return false; // Return
 			}
@@ -73,9 +73,9 @@ public final class ConditionalStatement extends ScopeHolder {
 
 	/**
 	 * Execute the body of the current construct.
-	 * 
+	 *
 	 * @return true if the search for following blocks should procede and false if a
-	 *         {@link ReturnStatement} was triggered inside of this block.
+	 * {@link ReturnStatement} was triggered inside of this block.
 	 */
 	private boolean executeBody() {
 		if (!callFirstLine()) {

@@ -9,36 +9,43 @@ import building.expressions.abstractions.interfaces.Flaggable;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
+import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
 
-/** The {@link Expression} in code, that initialises {@link Variable}s.
- * 
- * {@link ArrayVariable}s are getting inititlised by {@link ArrayDeclaration}s. */
+/**
+ * The {@link Expression} in code, that initialises {@link Variable}s.
+ *
+ * {@link ArrayVariable}s are getting inititlised by {@link ArrayDeclaration}s.
+ */
 public class Declaration extends Allocating implements Flaggable {
 
 	protected final Set<FlagType> flags = new HashSet<>();
-	protected final boolean allowsNull;
+	private final DataType datatype;
 
-	/** Creates an {@link Declaration}.
-	 * 
+	/**
+	 * Creates an {@link Declaration}.
+	 *
 	 * @param type shouldn't be null.
 	 * @param target shouldn't be null.
-	 * @param val shouldn't be null. */
-	public Declaration(int lineID, DataType type, boolean allowsNull, Name target, ValueHolder val) {
-		super(lineID, type, target, val);
-		this.allowsNull = allowsNull;
+	 * @param val shouldn't be null.
+	 */
+	public Declaration(int lineID, DataType datatype, Name target, ValueHolder val) {
+		super(lineID, BuilderType.MERGED, target, val);
+		this.datatype = datatype;
 	}
 
-	/** Initialises the {@link Variable} with its value and registers it in its {@link Scope}.
-	 * 
-	 * Gets called by {@link Interpreter#registerGlobalVars} */
+	/**
+	 * Initialises the {@link Variable} with its value and registers it in its {@link Scope}.
+	 *
+	 * Gets called by {@link Interpreter#registerGlobalVars}
+	 */
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();
-		new Variable(lineIdentifier, getScope(), (DataType) type, allowsNull, (Name) target, v).addFlags(flags);
+		new Variable(lineIdentifier, getScope(), datatype, (Name) target, v).addFlags(flags);
 		return v;
 	}
 

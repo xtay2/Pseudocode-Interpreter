@@ -2,10 +2,10 @@ package runtime.datatypes;
 
 import static building.types.specific.datatypes.SingleType.BOOL;
 
-import building.types.specific.datatypes.SingleType;
-import runtime.datatypes.numerical.IntValue;
+import building.types.specific.datatypes.DataType;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
+import runtime.exceptions.CastingException;
 
 public class BoolValue extends Value {
 
@@ -26,38 +26,20 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public BoolValue asBool() {
-		return this;
-	}
-
-	@Override
-	public NumberValue asNumber() {
-		return asInt();
-	}
-
-	@Override
-	public IntValue asInt() {
-		return value ? NumberValue.ONE : NumberValue.ZERO;
-	}
-
-	@Override
-	public TextValue asText() {
-		return new TextValue(toString());
-	}
-
-	@Override
-	public boolean canCastTo(SingleType type) {
-		return switch (type) {
-			case VAR, BOOL -> true; // Returns this
-			case NUMBER, INT -> true; // Returns 0 or 1
-			case TEXT -> true; // Text-Representation.
-			default -> false;
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType())
+			throw new CastingException(this, t);
+		return switch (t.type) {
+			case VAR, BOOL -> this;
+			case NR, INT -> value ? NumberValue.ONE : NumberValue.ZERO;
+			case TEXT -> new TextValue(toString());
+			default -> throw new CastingException(this, t);
 		};
 	}
 
 	/**
 	 * Inverts this boolean value.
-	 * 
+	 *
 	 * If true, return false. If false, return true.
 	 */
 	public BoolValue not() {

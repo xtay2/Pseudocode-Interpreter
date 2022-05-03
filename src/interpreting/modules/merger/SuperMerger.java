@@ -2,6 +2,7 @@ package interpreting.modules.merger;
 
 import static building.types.abstractions.SuperType.*;
 import static building.types.specific.BuilderType.*;
+import static building.types.specific.DynamicType.LITERAL;
 import static building.types.specific.DynamicType.NAME;
 import static building.types.specific.FlagType.CONSTANT;
 import static building.types.specific.FlagType.FINAL;
@@ -11,11 +12,9 @@ import static building.types.specific.KeywordType.IS;
 import static building.types.specific.datatypes.SingleType.VAR;
 import static interpreting.modules.merger.ValueMerger.buildAssignment;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import building.expressions.abstractions.Expression;
@@ -26,6 +25,7 @@ import building.expressions.main.CloseBlock;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.ArrayAccess;
+import building.expressions.normal.containers.Literal;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.AbstractType;
 import building.types.specific.AssignmentType;
@@ -33,12 +33,12 @@ import building.types.specific.BuilderType;
 import building.types.specific.DynamicType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
-import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.PrefixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.program.ValueBuilder;
+import misc.helper.MathHelper;
 import runtime.exceptions.UnexpectedTypeError;
 
 /**
@@ -54,7 +54,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 	 */
 	protected static ValueHolder buildVal() {
 		return buildVal(false);
-	}
+	} 
 
 	/**
 	 * Constructs an {@link ValueHolder} from the {@link AbstractType} of the first
@@ -67,7 +67,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 			case DynamicType e:
 				yield switch (e) {
 					case LITERAL:
-						yield ValueBuilder.stringToLiteral(line.remove(0).value);
+						yield new Literal(orgLine, ValueBuilder.stringToLiteral(line.remove(0).value));
 					case NAME:
 						if (sec != null) {
 							if (sec.is(OPEN_BRACKET))
@@ -97,12 +97,12 @@ public abstract class SuperMerger extends ExpressionMerger {
 					default:
 						throw new IllegalCodeFormatException(orgLine, "Unexpected symbol: \"" + b + "\".");
 				};
-			case DataType e:
+			case SingleType e:
 				yield ValueMerger.buildDeclaration();
 			case PrefixOpType p:
 				yield OpMerger.buildPrefix();
 			default:
-				throw new UnexpectedTypeError(orgLine, fst.type);
+				throw new UnexpectedTypeError(orgLine, fst.type, ValueHolder.class);
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
@@ -130,7 +130,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 			// Complex BuilderTypes
 			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_START -> (Expression) buildVal();
 			// Decorative BuilderTypes
-			default -> throw new UnexpectedTypeError(orgLine, type);
+			default -> throw new UnexpectedTypeError(orgLine, type, BuilderType.class);
 		};
 	}
 
@@ -149,7 +149,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 			// Callables
 			case FUNC -> FuncMerger.buildFunc(false);
 			case MAIN -> FuncMerger.buildMain();
-			case IS, IMPORT -> throw new UnexpectedTypeError(orgLine, type);
+			case IS, IMPORT -> throw new UnexpectedTypeError(orgLine, type, KeywordType.class);
 		};
 	}
 
@@ -182,9 +182,44 @@ public abstract class SuperMerger extends ExpressionMerger {
 		return parts.toArray(new ValueHolder[parts.size()]);
 	}
 
-	/** [EXPECTED_TYPE] */
+	/** [EXPECTED_TYPE] [?] ([ARRAY_START] [RANGE] [ARRAY_END]) */
 	protected static DataType buildExpType() {
-		return (DataType) line.remove(0).type;
+		SingleType t = (SingleType) line.remove(0).type;
+		boolean allowsNull = false;
+		if (!line.isEmpty() && line.get(0).is(MAYBE)) {
+			line.remove(0);
+			allowsNull = true;
+		}
+		if (line.size() > 1 && line.get(0).is(ARRAY_START)) {
+			List<Range> dims = new ArrayList<>(1);
+			do {
+				line.remove(0);
+				dims.add(buildRange());
+				line.remove(0);
+			} while (line.size() > 1 && line.get(0).is(ARRAY_START));
+			return new DataType(t, allowsNull, dims.toArray(new Range[dims.size()]));
+		}
+		return new DataType(t, allowsNull);
+	}
+
+	/** [INT?] [..?] [INT?] */
+	private static Range buildRange() {
+		if (line.get(0).is(LITERAL)) {
+			int lower = MathHelper.valToInt(buildVal());
+			if (line.get(0).is(RANGE)) {
+				line.remove(0);
+				if (line.get(0).is(LITERAL))
+					return Range.intervalBound(lower, MathHelper.valToInt(buildVal()));
+				return Range.lowerBound(lower);
+			}
+			return Range.exact(lower);
+		} else if (line.get(0).is(RANGE)) {
+			line.remove(0);
+			if (line.get(0).is(LITERAL))
+				return Range.upperBound(MathHelper.valToInt(buildVal()));
+			throw new IllegalCodeFormatException(orgLine, "Range-Symbol \"..\" has to be surrounded by atleast one integer-literal.");
+		}
+		return Range.UNBOUNDED;
 	}
 
 	/**
@@ -200,7 +235,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		}
 		Flaggable f = null;
 		// Declaration with optional flags
-		if (line.get(0).type instanceof DataType)
+		if (line.get(0).is(DATA_TYPE))
 			f = ValueMerger.buildDeclaration();
 		// Declaration of a constant without type and optional flags
 		else if ((flags.contains(CONSTANT) || flags.contains(FINAL)) && line.get(0).is(NAME)) {
@@ -216,30 +251,8 @@ public abstract class SuperMerger extends ExpressionMerger {
 		else if (line.get(0).is(OPEN_BLOCK))
 			f = StatementMerger.buildFlagSpace();
 		else
-			throw new UnexpectedTypeError(line.get(0).type);
+			throw new UnexpectedTypeError(orgLine,line.get(0).type, Flaggable.class);
 		f.addFlags(flags);
 		return f;
-	}
-	
-	/** [TYPE] [?] [ARRAY_START] [ARRAY_END] */
-	protected static Entry<DataType, Boolean> buildCastEntry() {
-		DataType t = line.get(0).is(DATA_TYPE) ? buildExpType() : null;
-		boolean allowsNull = checkIfNullAllowed();
-		if(t != null && line.size() >= 2 && line.get(0).is(ARRAY_START) && line.get(1).is(ARRAY_END)) {
-			line.remove(0);
-			line.remove(0);
-			t = ArrayType.create((SingleType) t, Range.UNBOUNDED);
-		}
-		return new AbstractMap.SimpleEntry<DataType, Boolean>(t, allowsNull);
-	}
-	
-	/**
-	 * Checks if the next {@link Expression} is a [?]. If yes it gets removed and true is returned.
-	 */
-	protected static boolean checkIfNullAllowed() {
-		boolean res = !line.isEmpty() && line.get(0).is(MAYBE);
-		if(res)
-			line.remove(0);
-		return res;
 	}
 }

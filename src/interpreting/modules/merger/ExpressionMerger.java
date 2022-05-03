@@ -36,10 +36,12 @@ public abstract class ExpressionMerger {
 	protected static int orgLine;
 	protected static Scope outer;
 
-	/** Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
+	/**
+	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
 	 * {@link MainExpression}.
-	 * 
-	 * @param line */
+	 *
+	 * @param line
+	 */
 	public static MainExpression merge(ProgramLine pline) {
 		// Init
 		orgExp = Collections.unmodifiableList(pline.getExpressions());
@@ -77,22 +79,27 @@ public abstract class ExpressionMerger {
 		return main;
 	}
 
-	/** Checks if the passed {@link MainExpression} lies in the global scope and throws an
+	/**
+	 * Checks if the passed {@link MainExpression} lies in the {@link GlobalScope} and throws an
 	 * {@link IllegalCodeFormatException}. This method gets triggered immediatly after the merge in the
-	 * {@link ExpressionMerger} and should get overridden by everything that can lie in the globalscope.
-	 * 
-	 * Only {@link Allocating}, {@link MainFunction} and {@link Definition} can lie in the global
-	 * scope. */
+	 * {@link ExpressionMerger} and should get contain everything that can lie in the
+	 * {@link GlobalScope}. This is tied to {@link #initScopes(MainExpression)}
+	 *
+	 * Only {@link Allocating}, {@link MainFunction}, {@link Definition}, {@link FlagSpace} and the
+	 * corresponding {@link CloseBlock} can lie in the {@link GlobalScope}.
+	 */
 	private static void globalScopeCheck(MainExpression main) {
-		if (!(main instanceof Allocating) && !(main instanceof Definition) && !(main instanceof MainFunction)) {
+		if (!(main instanceof Allocating) && !(main instanceof Definition) && !(main instanceof MainFunction)
+				&& !(main instanceof FlagSpace) && !(main instanceof CloseBlock)) {
 			if ((main instanceof ScopeHolder sh && sh.getOuterScope() == GLOBAL) || main.getScope() == GLOBAL)
 				throw new IllegalCodeFormatException(orgLine,
 						main.toString() + " \"" + main.type + "\" shouldn't lie in the global-scope.");
 		}
 	}
 
-	/** This function:
-	 * 
+	/**
+	 * This function:
+	 *
 	 * <pre>
 	 * -Sets the {@link Scope} of the {@link MainExpression}.
 	 * -Registers the inner {@link Scope} if the main is a {@link ScopeHolder}.
@@ -115,8 +122,10 @@ public abstract class ExpressionMerger {
 			DefManager.register(r);
 	}
 
-	/** If the {@link MainExpression} is a {@link Flaggable}, and lies in a {@link FlagSpace}, it gets
-	 * all of the flags from that {@link FlagSpace}. */
+	/**
+	 * If the {@link MainExpression} is a {@link Flaggable}, and lies in a {@link FlagSpace}, it gets
+	 * all of the flags from that {@link FlagSpace}.
+	 */
 	private static void collectFlags(Flaggable main) {
 		for (int i = lineID - 1; i >= 0; i--) {
 			MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
@@ -139,8 +148,10 @@ public abstract class ExpressionMerger {
 		return GlobalScope.GLOBAL;
 	}
 
-	/** Constructs an {@link Expression} from the {@link AbstractType} of the first
-	 * {@link BuilderExpression}. */
+	/**
+	 * Constructs an {@link Expression} from the {@link AbstractType} of the first
+	 * {@link BuilderExpression}.
+	 */
 	protected static Expression build() {
 		BuilderExpression fst = line.get(0);
 		// Build the right MainExpression through recursive pattern matching.

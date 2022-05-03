@@ -1,8 +1,5 @@
 package building.expressions.normal.operators.infix;
 
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
-import static building.types.specific.datatypes.SingleType.NUMBER;
-
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
@@ -35,30 +32,32 @@ public class ArithmeticOperator extends InfixOperator {
 
 	@Override
 	public ArrayValue executeFor(ValueHolder operand, ValueHolder[] content) {
-		ValueHolder[] res = new ValueHolder[content.length];
+		Value[] res = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(operand, content[i]);
-		return new ArrayValue(VAR_ARRAY, false, res);
+		return new ArrayValue(res);
 	}
 
 	@Override
 	public ArrayValue executeFor(ValueHolder[] content, ValueHolder operand) {
-		ValueHolder[] res = new ValueHolder[content.length];
+		Value[] res = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = perform(content[i], operand);
-		return new ArrayValue(VAR_ARRAY, false, res);
+		return new ArrayValue(res);
 	}
 
-	/** {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
-	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays. */
+	/**
+	 * {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
+	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
+	 */
 	private Value add(Value a, Value b) {
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
 			return a1.concat(a2, getOriginalLine());
 
 		// Arithmetical Addition
-		if (a.is(NUMBER) && b.is(NUMBER))
-			return a.asNumber().add(b.asNumber());
+		if (a instanceof NumberValue n1 && b instanceof NumberValue n2)
+			return n1.add(n2);
 
 		// Array Addition End
 		if (a instanceof ArrayValue arr && !(b instanceof ArrayValue))
@@ -70,11 +69,13 @@ public class ArithmeticOperator extends InfixOperator {
 		return a.asText().concat(b.asText());
 	}
 
-	/** Subtract numbers.
-	 * 
-	 * @see {@link NumberValue#sub} */
+	/**
+	 * Subtract numbers.
+	 *
+	 * @see {@link NumberValue#sub}
+	 */
 	private Value sub(Value a, Value b) {
-		return a.asNumber().sub(b.asNumber());
+		return a.asNr().sub(b.asNr());
 	}
 
 	private Value mult(Value a, Value b) {
@@ -95,37 +96,42 @@ public class ArithmeticOperator extends InfixOperator {
 			return txt.multiply(i.value.intValueExact(), getOriginalLine());
 
 		// Arithmetical Addition
-		if (a.canCastTo(NUMBER) && b.canCastTo(NUMBER))
-			return a.asNumber().mult(b.asNumber());
-
-		return a.asNumber().mult(b.asNumber());
+		return a.asNr().mult(b.asNr());
 	}
 
-	/** Divide numbers.
-	 * 
-	 * @see {@link NumberValue#div} */
+	/**
+	 * Divide numbers.
+	 *
+	 * @see {@link NumberValue#div}
+	 */
 	private Value div(Value a, Value b) {
-		return a.asNumber().div(b.asNumber());
+		return a.asNr().div(b.asNr());
 	}
 
-	/** Modulate numbers.
-	 * 
-	 * @see {@link NumberValue#mod} */
+	/**
+	 * Modulate numbers.
+	 *
+	 * @see {@link NumberValue#mod}
+	 */
 	private Value mod(Value a, Value b) {
-		return a.asNumber().mod(b.asNumber());
+		return a.asNr().mod(b.asNr());
 	}
 
-	/** Potentiate numbers.
-	 * 
-	 * @see {@link NumberValue#pow} */
+	/**
+	 * Potentiate numbers.
+	 *
+	 * @see {@link NumberValue#pow}
+	 */
 	private Value pow(Value a, Value b) {
-		return a.asNumber().pow(b.asNumber());
+		return a.asNr().pow(b.asNr());
 	}
 
-	/** Extract root from numbers.
-	 * 
-	 * @see {@link NumberValue#root} */
+	/**
+	 * Extract root from numbers.
+	 *
+	 * @see {@link NumberValue#root}
+	 */
 	private Value root(Value a, Value b) {
-		return a.asNumber().root(b.asNumber());
+		return a.asNr().root(b.asNr());
 	}
 }

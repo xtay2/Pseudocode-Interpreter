@@ -14,8 +14,10 @@ import building.types.specific.operators.InfixOpType;
 import runtime.datatypes.Value;
 import runtime.exceptions.DeclarationException;
 
-/** Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
- * (Wrapper-{@link Expression} for {@link String}s). */
+/**
+ * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
+ * (Wrapper-{@link Expression} for {@link String}s).
+ */
 public class Name extends Expression implements ValueChanger {
 
 	private final String name;
@@ -49,16 +51,18 @@ public class Name extends Expression implements ValueChanger {
 	/** Returns true, if the passed string matches any alphanumerical keyword. */
 	public static boolean isAlphaNumKeyword(String arg) {
 		//@formatter:off
-		return SpecificType.equalsString(arg, KeywordType.class) 
+		return SpecificType.equalsString(arg, KeywordType.class)
 				|| SpecificType.equalsString(arg, SingleType.class)
 				|| SpecificType.equalsString(arg, FlagType.class)
 				|| SpecificType.equalsString(arg, InfixOpType.class);
 		//@formatter:on
 	}
 
-	/** Returns the String-Representation of this {@link Name}.
-	 * 
-	 * This is the base for all instances of {@link NameHolder#getNameString()}. */
+	/**
+	 * Returns the String-Representation of this {@link Name}.
+	 *
+	 * This is the base for all instances of {@link NameHolder#getNameString()}.
+	 */
 	@Override
 	public final String getNameString() {
 		return name;

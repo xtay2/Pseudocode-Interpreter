@@ -1,18 +1,21 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.SingleType.NUMBER;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
+import runtime.datatypes.Value;
+import runtime.exceptions.CastingException;
 
 /**
  * This class contains the conceptual constants {@link ConceptualNrValue#POS_INF},
  * {@link ConceptualNrValue#NEG_INF} and {@link ConceptualNrValue#NAN}.
- * 
+ *
  * Both infinite-values can be checked with {@link NumberValue#isInfinite()}. They each represent
  * the concept of an infinitly big or small number with nothing more extrem following after. This
  * means, even when multiplied or added to, infinity is always the same infinite value.
- * 
+ *
  * Everything that has to do with limes is not a number (NaN), because it is in the finite range,
  * but neither display- or countable.
- * 
+ *
  * For example: 1 / INF != 0
  */
 public abstract class ConceptualNrValue extends NumberValue {
@@ -23,11 +26,11 @@ public abstract class ConceptualNrValue extends NumberValue {
 	/**
 	 * Private constructor for the constants {@link ConceptualNrValue#POS_INF},
 	 * {@link ConceptualNrValue#NEG_INF} and {@link ConceptualNrValue#NAN}.
-	 * 
+	 *
 	 * @param txt is their text-representation.
 	 */
 	private ConceptualNrValue(String txt) {
-		super(NUMBER);
+		super(SingleType.NR);
 		this.txt = txt;
 	}
 
@@ -142,7 +145,7 @@ public abstract class ConceptualNrValue extends NumberValue {
 	/**
 	 * Not a Number. Every limes-value or operation that fails or gets NaN as an input, should return
 	 * this.
-	 * 
+	 *
 	 * <pre>
 	 * x / 0 = NaN
 	 * x / INF = NaN
@@ -192,6 +195,16 @@ public abstract class ConceptualNrValue extends NumberValue {
 		}
 
 	};
+
+	@Override
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType())
+			throw new CastingException(this, t);
+		return switch (t.type) {
+			case VAR, NR -> this;
+			default -> throw new CastingException(this, t);
+		};
+	}
 
 	@Override
 	public final String toString() {

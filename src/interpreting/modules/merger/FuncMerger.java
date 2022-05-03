@@ -1,14 +1,13 @@
 package interpreting.modules.merger;
 
+import static building.types.abstractions.SuperType.DATA_TYPE;
 import static building.types.specific.BuilderType.ARROW_R;
 import static building.types.specific.BuilderType.CLOSE_BRACKET;
 import static building.types.specific.BuilderType.COMMA;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import building.expressions.main.functions.Definition;
 import building.expressions.main.functions.Function;
@@ -30,54 +29,52 @@ public abstract class FuncMerger extends SuperMerger {
 		// PARAMETERS
 		if (isNative) {
 			List<DataType> params = buildNativeParams();
-			Entry<DataType, Boolean> returnType = buildReturnType();
-			return new NativeFunction(lineID, name, params, returnType.getKey(), returnType.getValue());
+			DataType returnType = buildReturnType();
+			return new NativeFunction(lineID, name, params, returnType);
 		}
-		LinkedHashMap<Name, Entry<DataType, Boolean>> params = buildFuncParams();
-		Entry<DataType, Boolean> returnType = buildReturnType();
-		return new Function(lineID, name, params, returnType.getKey(), returnType.getValue(), (OpenBlock) build());
+		LinkedHashMap<Name, DataType> params = buildFuncParams();
+		DataType returnType = buildReturnType();
+		return new Function(lineID, name, params, returnType, (OpenBlock) build());
 
 	}
 
+	/** [->] [TYPE] */
+	private static DataType buildReturnType() {
+		if (!line.isEmpty() && line.get(0).is(ARROW_R)) {
+			line.remove(0);
+			return buildExpType();
+		}
+		return null;
+	}
+
+	/* [TYPE]? [,]? ... */
 	private static List<DataType> buildNativeParams() {
 		List<DataType> params = new ArrayList<>();
-		while (line.get(0).type instanceof DataType || line.get(0).is(COMMA)) {
-			if (line.get(0).type instanceof DataType)
+		while (line.get(0).type.is(DATA_TYPE)) {
+			if (line.get(0).type.is(DATA_TYPE))
 				params.add(buildExpType());
-			else
+			if (line.get(0).type.is(COMMA))
 				line.remove(0);
 		}
 		line.remove(0); // Closebrack
 		return params;
 	}
 
-	private static LinkedHashMap<Name, Entry<DataType, Boolean>> buildFuncParams() {
-		LinkedHashMap<Name, Entry<DataType, Boolean>> params = new LinkedHashMap<>();
+	private static LinkedHashMap<Name, DataType> buildFuncParams() {
+		LinkedHashMap<Name, DataType> params = new LinkedHashMap<>();
 		if (line.get(0).is(CLOSE_BRACKET)) {
 			line.remove(0); // Closebrack
 			return params;
 		}
 		do {
 			DataType pT = null;
-			boolean allowNull = false;
 			if (line.get(0).is(SuperType.DATA_TYPE)) {
-				Entry<DataType, Boolean> paramType = buildCastEntry();
-				pT = paramType.getKey();
-				allowNull = paramType.getValue();
+				pT = buildExpType();
 			} else
-				pT = SingleType.VAR;
-			params.put(buildName(), new SimpleEntry<>(pT, allowNull));
+				pT = new DataType(SingleType.VAR, true);
+			params.put(buildName(), pT);
 		} while (line.remove(0).is(COMMA)); // Removes Comma / Closebrack
 		return params;
-	}
-
-	/** ([->] [TYPE])? */
-	private static Entry<DataType, Boolean> buildReturnType() {
-		if (!line.isEmpty() && line.get(0).is(ARROW_R)) {
-			line.remove(0); // Arrow
-			return buildCastEntry();
-		}
-		return new SimpleEntry<DataType, Boolean>(null, false);
 	}
 
 	/** [MAIN] [{] */

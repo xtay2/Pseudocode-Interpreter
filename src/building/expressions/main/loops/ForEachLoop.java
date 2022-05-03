@@ -1,13 +1,12 @@
 package building.expressions.main.loops;
 
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
-
 import building.expressions.abstractions.ScopeHolder;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.specific.KeywordType;
+import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -25,7 +24,7 @@ public class ForEachLoop extends Loop {
 
 	/**
 	 * Creates a {@link ForEachLoop}.
-	 * 
+	 *
 	 * @param elementName is the {@link Name} of the running element. Shouldn't be null.
 	 * @param arrayH is the Wrapper for the {@link ArrayValue} that later gets iterated over. Shouldn't
 	 * be null.
@@ -42,7 +41,7 @@ public class ForEachLoop extends Loop {
 	@Override
 	protected void initLoop() {
 		super.initLoop();
-		array = (ArrayValue) arrayHolder.getValue().as(VAR_ARRAY);
+		array = (ArrayValue) arrayHolder.as(new DataType(SingleType.VAR, true));
 	}
 
 	@Override
@@ -50,7 +49,8 @@ public class ForEachLoop extends Loop {
 	protected boolean doContinue(NumberValue iteration) {
 		if (iteration.equals(array.length()))
 			return false;
-		new Variable(lineIdentifier, getScope(), SingleType.VAR, true, elemName, array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), new DataType(SingleType.VAR, true), elemName,
+				array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

@@ -13,7 +13,7 @@ import runtime.exceptions.ShouldBeNaturalNrException;
 
 /**
  * Formerly FromTo- / Repeat-Loop.
- * 
+ *
  * Iterates in steps from one number-value to another.
  */
 public class IntervalLoop extends Loop {
@@ -35,8 +35,8 @@ public class IntervalLoop extends Loop {
 
 	@Override
 	protected void initLoop() {
-		start = startHolder.getValue().asNumber();
-		end = endHolder.getValue().asNumber();
+		start = startHolder.asNr();
+		end = endHolder.asNr();
 		if (is(REPEAT) && end != POS_INF) {
 			end = end.sub(ONE).asInt();
 			if (end.isNegative())
@@ -44,9 +44,9 @@ public class IntervalLoop extends Loop {
 		}
 
 		if (start.isSmallerEq(end))
-			inc = incHolder.getValue().asNumber().abs();
+			inc = incHolder.asNr().abs();
 		else
-			inc = incHolder.getValue().asNumber().abs().negate();
+			inc = incHolder.asNr().abs().negate();
 	}
 
 	@Override

@@ -21,50 +21,56 @@ import runtime.datatypes.array.ArrayValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.DeclarationException;
 import runtime.exceptions.NullNotAllowedException;
+import runtime.exceptions.UnexpectedDataType;
 
-/** Has a Name and a Value. The Name has a scope.
+/**
+ * Has a Name and a Value. The Name has a scope.
  *
  * Gets created by keywords like var, bool, nr, text, obj or as a parameter in a function through
  * the {@link DataType}.
  *
- * Gets saved in its {@link Scope} and should only get accessed by it. */
+ * Gets saved in its {@link Scope} and should only get accessed by it.
+ */
 public class Variable extends Expression implements Registerable, ValueChanger, Flaggable {
 
 	// DATA
 	private final Name name;
 	private MaybeValue value;
-	private final boolean allowsNull;
-
+	public final DataType dataType;
 	// FLAGS
 	private final Set<FlagType> flags = new HashSet<>();
 
-	/** Creates and registers a {@link Variable}.
-	 * 
+	/**
+	 * Creates and registers a {@link Variable}.
+	 *
 	 * @param outer is the outer Scope in which this {@link Registerable} lies.
 	 * @param type is the {@link DataType} of this {@link Variable}.
-	 * @param allowsNull tells, if this var allows null as a value.
 	 * @param name is the unique {@link Name} of this {@link Variable}.
-	 * @param val is an optional {@link Variable}. Input null if no value is wanted. */
-	public Variable(int lineID, Scope outer, DataType type, boolean allowsNull, Name name, Value val) {
-		super(lineID, type);
-		if (type == null)
-			throw new AssertionError("The type cannot be null.");
-		this.allowsNull = allowsNull;
+	 * @param val is an optional {@link Variable}. Input null if no value is wanted.
+	 */
+	public Variable(int lineID, Scope outer, DataType dataType, Name name, Value val) {
+		super(lineID, BuilderType.MERGED);
+		assert dataType != null : "The type of a variable cannot be null.";
+		assert name != null : "The name of a variable cannot be null.";
+		this.dataType = dataType;
 		this.name = name;
 		outer.register(this);
 		setValue(val);
 	}
 
-	/** Returns the {@link Value} of this variable or {@link NullValue#NULL} if it isn't initialised
-	 * yet. */
+	/**
+	 * Returns the {@link Value} of this variable or {@link NullValue#NULL} if it isn't initialised yet.
+	 */
 	@Override
 	public Value getValue() {
 		return value.getValue();
 	}
 
-	/** Should get identified through {@link Scope#get()}.
-	 * 
-	 * @throws CastingException if this is a TypedVar and the types don't match. */
+	/**
+	 * Should get identified through {@link Scope#get()}.
+	 *
+	 * @throws CastingException if this is a TypedVar and the types don't match.
+	 */
 	@Override
 	public Value setValue(Value val) throws CastingException {
 		if (val == null)
@@ -72,14 +78,20 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 		if (hasFlag(FINAL) || hasFlag(CONSTANT) && value != null)
 			throw new DeclarationException(getOriginalLine(),
 					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
-		if (!allowsNull && val == NULL)
+		if (!allowsNull() && val == NULL)
 			throw new NullNotAllowedException(getOriginalLine(),
-					"This variable doesn't allow null. To change that, write:\n" + type + "" + BuilderType.MAYBE + " ...");
-		if (val instanceof ArrayValue av && !allowsNull && av.allowNull)
-			val = allowsNull ? av.nullify() : av.unnullify();
+					"This variable doesn't allow null. To change that, write:\n" + dataType + "" + BuilderType.MAYBE + " ...");
+		if (!val.matches(dataType)) {
+			String passedType = (val instanceof ArrayValue at ? at.getRules() : val.dataType).toString();
+			throw new UnexpectedDataType(getOriginalLine(), "Variable \"" + getNameString() + "\" only expects values of type " + dataType
+					+ ", but this was passed instead:\nValue: " + val + "\nType: " + passedType);
+		}
 		value = new MaybeValue(val);
-		value.castTo((DataType) type);
 		return getValue();
+	}
+
+	public boolean allowsNull() {
+		return dataType.allowsNull;
 	}
 
 	@Override

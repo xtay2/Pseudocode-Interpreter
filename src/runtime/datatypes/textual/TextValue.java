@@ -1,8 +1,5 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.datatypes.ArrayType.CHAR_ARRAY;
-import static building.types.specific.datatypes.ArrayType.TEXT_ARRAY;
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.datatypes.SingleType.TEXT;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
@@ -11,9 +8,7 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import building.types.specific.datatypes.ArrayType;
-import building.types.specific.datatypes.SingleType;
-import runtime.datatypes.ArrayCastable;
+import building.types.specific.datatypes.DataType;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -22,9 +17,15 @@ import runtime.datatypes.numerical.NumberValue;
 import runtime.exceptions.CastingException;
 import runtime.exceptions.ShouldBeNaturalNrException;
 
-public final class TextValue extends Value implements ArrayCastable {
+public final class TextValue extends Value {
 
 	public final String value;
+
+	/** Creates a {@link TextValue} from a {@link Character}. */
+	public TextValue(char val) {
+		super(TEXT);
+		value = String.valueOf(val);
+	}
 
 	/** Creates a {@link TextValue} from a {@link String}. */
 	public TextValue(String val) {
@@ -32,7 +33,23 @@ public final class TextValue extends Value implements ArrayCastable {
 		value = val;
 	}
 
-	// Casting
+	@Override
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType()) {
+			TextValue[] charArray = new TextValue[value.length()];
+			for (int i = 0; i < charArray.length; i++)
+				charArray[i] = new TextValue(value.charAt(i));
+			return new ArrayValue(t, charArray);
+		}
+		return switch (t.type) {
+			case VAR, TEXT -> this;
+			case BOOL -> asBool();
+			case CHAR -> asChar();
+			case INT -> asNr().asInt();
+			case NR -> asNr();
+			default -> throw new CastingException(this, t);
+		};
+	}
 
 	@Override
 	public BoolValue asBool() throws CastingException {
@@ -40,11 +57,11 @@ public final class TextValue extends Value implements ArrayCastable {
 			return BoolValue.valueOf(true);
 		if (BoolValue.FALSE.toString().equals(value))
 			return BoolValue.valueOf(false);
-		throw new CastingException("Only boolean literals and 1 and 0 can be casted from text to bool. \nWas: \"" + raw() + "\"");
+		throw new CastingException("Only \"true\" & \"false\" can be casted from text to bool. \nWas: \"" + raw() + "\"");
 	}
 
 	@Override
-	public NumberValue asNumber() throws CastingException {
+	public NumberValue asNr() throws CastingException {
 		String t = value.strip();
 		if (!t.contains("/")) {
 			if (t.equals(POS_INF.txt))
@@ -52,7 +69,7 @@ public final class TextValue extends Value implements ArrayCastable {
 			if (t.equals(NEG_INF.txt))
 				return NEG_INF;
 			if (t.matches("-?\\d+")) // Integer 1, -1, 10, 100, -100, 010
-				return NumberValue.create(new BigInteger(t));
+				return new IntValue(new BigInteger(t));
 			if (t.matches("-?\\d+.\\d+")) // Decimal
 				return NumberValue.create(new BigDecimal(t));
 			if (t.matches("-?\\d+.\\d*\\(\\d+\\)")) { // Periodic to fraction
@@ -62,8 +79,8 @@ public final class TextValue extends Value implements ArrayCastable {
 				boolean isNeg = t.startsWith("-");
 				NumberValue n = NumberValue.create(new BigDecimal(t.substring(isNeg ? 1 : 0, ps)))
 						.add(NumberValue.create(BigInteger.ONE, BigInteger.TEN.pow(d))
-								.mult(NumberValue.create(new BigInteger(t.substring(ps + 1, pe))))
-								.div(NumberValue.create(new BigInteger("9".repeat(pLength)))));
+								.mult(new IntValue(new BigInteger(t.substring(ps + 1, pe))))
+								.div(new IntValue(new BigInteger("9".repeat(pLength)))));
 
 				return isNeg ? n.negate() : n;
 			}
@@ -72,17 +89,7 @@ public final class TextValue extends Value implements ArrayCastable {
 		String[] parts = t.split("/");
 		if (parts.length != 2)
 			return NAN;
-		return new TextValue(parts[0]).asNumber().div(new TextValue(parts[1]).asNumber());
-	}
-
-	@Override
-	public IntValue asInt() {
-		return asNumber().asInt();
-	}
-
-	@Override
-	public TextValue asText() {
-		return this;
+		return new TextValue(parts[0]).asNr().div(new TextValue(parts[1]).asNr());
 	}
 
 	@Override
@@ -91,28 +98,6 @@ public final class TextValue extends Value implements ArrayCastable {
 			return new CharValue(value.charAt(0));
 		throw new CastingException("The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
 				+ "\" consists of multiple chars, and therefore cannot be casted to one.");
-	}
-
-	@Override
-	public boolean canCastTo(SingleType type) {
-		return switch (type) {
-			case VAR, TEXT -> true; // Returns this
-			case NUMBER, INT -> true; // The number or NAN if its just text.
-			case CHAR -> value.length() == 1; // Only if its just one character
-			case BOOL -> value.equals("true") || value.equals("false"); // Only if its a boolean literal
-			default -> false;
-		};
-	}
-
-	@Override
-	public ArrayValue asArray(ArrayType at) {
-		if (at.equals(VAR_ARRAY) || at.equals(CHAR_ARRAY) || at.equals(TEXT_ARRAY)) {
-			CharValue[] charArray = new CharValue[value.length()];
-			for (int i = 0; i < charArray.length; i++)
-				charArray[i] = new CharValue(value.charAt(i));
-			return new ArrayValue(at, false, charArray);
-		}
-		throw new CastingException("Cannot cast text to " + at + ".");
 	}
 
 	@Override
@@ -142,5 +127,10 @@ public final class TextValue extends Value implements ArrayCastable {
 	@Override
 	public String raw() {
 		return new String(value);
+	}
+
+	@Override
+	public String toString() {
+		return "\"" + raw() + "\"";
 	}
 }

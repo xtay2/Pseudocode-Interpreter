@@ -184,9 +184,10 @@
 			}
 		},
 		{
-			"name": "String, Symbols, Inherited Class, Markup Heading",
+			"name": "String, Chars, Symbols, Inherited Class, Markup Heading",
 			"scope": [
 				"string",
+				"constant.character.escape.pseudocode",
 				"constant.other.symbol",
 				"constant.other.key",
 				"entity.other.inherited-class",

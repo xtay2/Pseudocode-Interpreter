@@ -10,14 +10,15 @@ import building.expressions.normal.operators.infix.InfixOperator;
 import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueHolder;
-import building.types.specific.datatypes.ArrayType;
 import building.types.specific.operators.PostfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
-/** @see PrefixOperator
- * @see InfixOperator */
+/**
+ * @see PrefixOperator
+ * @see InfixOperator
+ */
 public class PostfixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
 
 	private final ValueHolder content;
@@ -38,10 +39,10 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 
 	@Override
 	public Value executeFor(ValueHolder[] content) {
-		ValueHolder[] res = new ValueHolder[content.length];
+		Value[] res = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = evaluate(content[i]);
-		return new ArrayValue(ArrayType.VAR_ARRAY, false, res);
+		return new ArrayValue(res);
 	}
 
 	private Value evaluate(ValueHolder val) {
@@ -49,13 +50,13 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 		switch ((PostfixOpType) type) {
 			case INC:
 				if (val instanceof ValueChanger incVar)
-					incVar.setValue(v.asNumber().add(ONE));
+					incVar.setValue(v.asNr().add(ONE));
 				else
 					throw new IllegalCodeFormatException(getOriginalLine(), "You cannot post-increment a " + ((Expression) val).type + ".");
 				break;
 			case DEC:
 				if (val instanceof ValueChanger decVar)
-					decVar.setValue(v.asNumber().sub(ONE));
+					decVar.setValue(v.asNr().sub(ONE));
 				else
 					throw new IllegalCodeFormatException(getOriginalLine(), "You cannot post-decrement a " + ((Expression) val).type + ".");
 				break;

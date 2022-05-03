@@ -75,7 +75,7 @@ public enum BuilderType implements SpecificType {
 
 	/**
 	 * Defines a BuilderType
-	 * 
+	 *
 	 * @param id is the unique identifying symbol from the code.
 	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
 	 * followups.
@@ -95,7 +95,7 @@ public enum BuilderType implements SpecificType {
 			case COMMA -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case MULTI_CALL_START -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case MULTI_CALL_END -> new AbstractType[] { AFTER_VALUE_TYPE };
-			case MAYBE -> new AbstractType[] { NAME, OPEN_BLOCK, ARRAY_START };
+			case MAYBE -> new AbstractType[] { NAME, OPEN_BLOCK, ARRAY_START, CLOSE_BRACKET };
 			case RANGE -> new AbstractType[] { LITERAL };
 			case TO, STEP -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case AS -> new AbstractType[] { NAME };

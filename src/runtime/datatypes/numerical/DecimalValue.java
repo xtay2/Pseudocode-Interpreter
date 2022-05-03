@@ -1,6 +1,6 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.SingleType.NUMBER;
+import static building.types.specific.datatypes.SingleType.NR;
 import static misc.helper.MathHelper.getDigitCount;
 import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
@@ -10,33 +10,39 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 
+import building.types.specific.datatypes.DataType;
 import ch.obermuhlner.math.big.BigDecimalMath;
 import misc.supporting.Output;
+import runtime.datatypes.Value;
+import runtime.datatypes.textual.TextValue;
+import runtime.exceptions.CastingException;
 import runtime.natives.SystemFunctions;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */
 public final class DecimalValue extends NumberValue {
 
-	/** The Numerator
-	 * 
+	/**
+	 * The Numerator
+	 *
 	 * <pre>
 	 * Special case:
-	 * 
-	 * - Can never be {@link BigInteger#ZERO}, 
+	 *
+	 * - Can never be {@link BigInteger#ZERO},
 	 *   because then it would be {@link NumberValue#ZERO}.
 	 * </pre>
 	 */
 	protected final BigInteger num;
 
-	/** The Denominator
-	 * 
+	/**
+	 * The Denominator
+	 *
 	 * <pre>
 	 * Special cases:
-	 * 
-	 * - Can never be {@link BigInteger#ONE}, 
+	 *
+	 * - Can never be {@link BigInteger#ONE},
 	 *   because then it would be an {@link IntValue}.
-	 *   
-	 * - Can never be {@link BigInteger#ZERO}, 
+	 *
+	 * - Can never be {@link BigInteger#ZERO},
 	 *   because then it would be {@link ConceptualNrValue#NAN}.
 	 * </pre>
 	 */
@@ -44,7 +50,7 @@ public final class DecimalValue extends NumberValue {
 
 	/** Produces a rational Number. This fraction has to be already reduced. */
 	protected DecimalValue(BigInteger numerator, BigInteger denominator) {
-		super(NUMBER);
+		super(NR);
 		// Assertions
 		assert !denominator.equals(BigInteger.ZERO) : "Denominator cannot be zero, use NaN instead.";
 		assert !numerator.equals(BigInteger.ZERO) : "Nominator cannot be zero, use ZERO instead.";
@@ -66,18 +72,20 @@ public final class DecimalValue extends NumberValue {
 		this.denom = denominator;
 	}
 
-	/** Turns this into a String.
-	 * 
+	/**
+	 * Turns this into a String.
+	 *
 	 * <pre>
 	 * Example 1: n = 1, d = 2 Output: "0.5"
-	 * 
+	 *
 	 * Example 2: n = 2, d = 3 Output: "0.(6)"
-	 *  
+	 *
 	 * used in {@link #toString()} and {@link #asText()}
 	 * </pre>
-	 * 
+	 *
 	 * @param n numerator
-	 * @param d denominator */
+	 * @param d denominator
+	 */
 	protected String fractionToDecimal() {
 		StringBuilder sb = new StringBuilder();
 		if (isNegative())
@@ -103,11 +111,32 @@ public final class DecimalValue extends NumberValue {
 		return sb.toString();
 	}
 
-	/** Returns this Number as a fractional text-representation.
-	 * 
-	 * Gets used in {@link SystemFunctions}. */
+	/**
+	 * Returns this Number as a fractional text-representation.
+	 *
+	 * Gets used in {@link SystemFunctions}.
+	 */
 	public String asRational() {
 		return num + "/" + denom;
+	}
+
+	@Override
+	public Value as(DataType t) throws CastingException {
+		if (t.isArrayType())
+			throw new CastingException(this, t);
+		return switch (t.type) {
+			case VAR, NR:
+				yield this;
+			case INT:
+				yield new IntValue(num.divide(denom));
+			case TEXT:
+				String s = fractionToDecimal();
+				if (s.matches("(\\d+)\\.((([1-9]+)(0+$))|(0+$))"))
+					s = s.replaceAll("(\\.(0+)$|(0+)$)", "");
+				yield new TextValue(s);
+			default:
+				throw new CastingException(this, t);
+		};
 	}
 
 	/** This should only get called in debugging scenarios. */

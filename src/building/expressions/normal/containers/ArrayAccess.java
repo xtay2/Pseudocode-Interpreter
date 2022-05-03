@@ -2,7 +2,6 @@ package building.expressions.normal.containers;
 
 import static building.types.abstractions.SpecificType.MERGED;
 import static building.types.specific.FlagType.CONSTANT;
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +10,7 @@ import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueChanger;
+import building.types.specific.datatypes.TypeConstants;
 import interpreting.exceptions.IllegalCodeFormatException;
 import misc.helper.MathHelper;
 import runtime.datatypes.Value;
@@ -49,7 +49,7 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 	}
 
 	private Value getValue(List<ValueHolder> idxs) {
-		Value v = name.getValue().as(VAR_ARRAY);
+		Value v = name.as(TypeConstants.VAR_ARR);
 		for (ValueHolder index : idxs)
 			v = ((ArrayValue) v).get(MathHelper.valToInt(index));
 		return v;
@@ -57,10 +57,10 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 
 	@Override
 	public Value executeFor(ValueHolder[] content) {
-		ValueHolder[] res = new ValueHolder[content.length];
+		Value[] res = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = getValue(List.of(content[i]));
-		return new ArrayValue(VAR_ARRAY, false, res);
+		return new ArrayValue(res);
 	}
 
 	@Override
@@ -72,7 +72,8 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 		if (indices.size() == 1 && indices.get(0) instanceof MultiCall mc)
 			return writeFor(val, mc.content);
 		try {
-			return ((ArrayValue) var.getValue()).set(val, indices.toArray(new ValueHolder[indices.size()]));
+			return ((ArrayValue) var.getValue()).set(val, var.getNameString(), getOriginalLine(),
+					indices.toArray(new ValueHolder[indices.size()]));
 		} catch (ClassCastException e) {
 			throw new ArrayAccessException(getOriginalLine(),
 					"The specified Array \"" + name.getName() + "\" doesn't contain another array at index " + indices);
@@ -84,8 +85,8 @@ public class ArrayAccess extends Expression implements MultiCallableValueChanger
 		Variable var = name.getScope().getVar(name.getNameString(), getOriginalLine());
 		Value[] previous = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
-			previous[i] = ((ArrayValue) var.getValue()).set(val, content[i]);
-		return new ArrayValue(VAR_ARRAY, true, previous);
+			previous[i] = ((ArrayValue) var.getValue()).set(val, var.getNameString(), getOriginalLine(), content[i]);
+		return new ArrayValue(previous);
 	}
 
 	@Override

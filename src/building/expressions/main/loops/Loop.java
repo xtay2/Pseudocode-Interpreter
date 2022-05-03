@@ -12,6 +12,7 @@ import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.abstractions.SpecificType;
 import building.types.specific.FlagType;
+import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
@@ -19,7 +20,7 @@ import runtime.datatypes.numerical.NumberValue;
 /**
  * A loop is a Scope that gets called repeatedly, while or until a condition is true. This gets
  * testet by {@link Loop#doContinue()}.
- * 
+ *
  * @see ConditionalLoop
  * @see ForEachLoop
  * @see IntervalLoop
@@ -38,7 +39,7 @@ public abstract class Loop extends ScopeHolder {
 
 	/**
 	 * Constructor for an abstract {@link Loop}.
-	 * 
+	 *
 	 * @param lineID
 	 * @param myType
 	 * @param alias is an optional name for a loopcounter. (Can be null)
@@ -51,7 +52,7 @@ public abstract class Loop extends ScopeHolder {
 
 	/**
 	 * Executes this loop as long as its run-condition is satisfied.
-	 * 
+	 *
 	 * This method calls {@link Loop#doContinue()} for every iteration.
 	 */
 	@Override
@@ -75,34 +76,34 @@ public abstract class Loop extends ScopeHolder {
 
 	/**
 	 * Sets the immutable counter for this iteration.
-	 * 
+	 *
 	 * @param i is the {@link NumberValue} of the counter
 	 * @param cntName is the pre-defined countername "i"-"p".
 	 */
 	private void initCounter(NumberValue i, Name cntName) {
-		new Variable(lineIdentifier, getScope(), SingleType.NUMBER, false, cntName, i).addFlags(Set.of(FlagType.CONSTANT));
+		new Variable(lineIdentifier, getScope(), new DataType(SingleType.NR, false), cntName, i).addFlags(Set.of(FlagType.CONSTANT));
 	}
 
 	/**
 	 * Only gets called by {@link Loop#execute()} before a loop gets executed.
-	 * 
+	 *
 	 * Set {@link #start} and {@link #inc} here.
 	 */
 	protected void initLoop() {
-		start = startHolder.getValue().asNumber();
-		inc = incHolder.getValue().asNumber();
+		start = startHolder.asNr();
+		inc = incHolder.asNr();
 	}
 
 	/**
 	 * Only gets called by {@link Loop#execute()}.
-	 * 
+	 *
 	 * @param iteration is the current iteration, starting at {@link DecimalValue#ZERO}.
 	 */
 	protected abstract boolean doContinue(NumberValue iteration);
 
 	/**
 	 * Returns the name for the loop-counter.
-	 * 
+	 *
 	 * @return {@link #alias} if existing, or the implicit countername, if not.
 	 */
 	protected final Name getLoopVarAlias() {

@@ -61,7 +61,6 @@ public class ProgramLine {
 				i++;
 				continue;
 			}
-			// Neue Expression wenn c ' ', ',' oder '(' ist.
 			if (!current.isBlank() && !inString) {
 				BuilderExpression be = StringConverter.find(current, c, expectedTypes, this);
 				if (be != null) {
@@ -72,8 +71,8 @@ public class ProgramLine {
 				if (c == ' ')
 					continue;
 			}
-			// Teste nach Stringgrenzen
-			if (c == '"')
+			// Teste nach String- und Chargrenzen
+			if (c == '"' || c == '\'')
 				inString = !inString;
 			current += c;
 		}

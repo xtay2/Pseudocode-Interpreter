@@ -22,26 +22,28 @@ public final class ProgramHelper {
 
 	/**
 	 * Tells, if a char at a specified index is in an executable area.
-	 * 
+	 *
 	 * @return true if the index is runnable and false if its either out of bounds, in a string or in a
-	 *         comment.
+	 * comment.
 	 */
 	public static boolean isRunnableCode(int index, String line) {
 		return isNotInComment(index, line) && isNotInString(index, line);
 	}
 
 	/**
-	 * Tells, if a char at a specified index is not in the string boundaries.
-	 * 
+	 * Tells, if a char at a specified index is not in the string and char boundaries.
+	 *
 	 * <pre>
-	 * The symbol " itself is considered "in a string". (Returns false)
-	 * If the index is out of bounds for line, its also considered as "in a string", 
+	 * The symbols ' and " themselves are considered "in a string". (Returns false)
+	 * If the index is out of bounds for line, its also considered as "in a string",
 	 * because that means "don't execute this".
 	 * </pre>
-	 * 
+	 *
 	 * @return true if the index is not in a string.
 	 */
 	public static boolean isNotInString(int index, String line) {
+		if (index < 0 && index >= line.length())
+			return false;
 		boolean inString = false;
 		for (int i = 0; i < index; i++) {
 			if (inString && line.charAt(i) == '\\')
@@ -51,18 +53,37 @@ public final class ProgramHelper {
 			else if (SLC.equals(String.valueOf(line.charAt(i))))
 				break;
 		}
-		return !inString && index >= 0 && index < line.length();
+		return !inString && isNotAChar(index, line);
+	}
+
+	/**
+	 * Tells, if a char at a specified index is not directly enclosed in char quotes.
+	 *
+	 * <pre>
+	 * The symbols ' itself is considered "in a char". (Returns false)
+	 * If the index is out of bounds for line, its also considered as "in a char",
+	 * because that means "don't execute this".
+	 * </pre>
+	 *
+	 * @return true if the index is not in a string.
+	 */
+	public static boolean isNotAChar(int index, String line) {
+		if (index < 0 || index >= line.length())
+			return false;
+		if (index - 1 >= 0 && index + 1 < line.length())
+			return line.charAt(index) != '\'' && !line.substring(index - 1, index + 2).matches("'.'");
+		return line.charAt(index) != '\'';
 	}
 
 	/**
 	 * Tells, if a char at a specified index is not in a comment.
-	 * 
+	 *
 	 * <pre>
 	 * The symbol # itself is considered "in a comment". (Returns false)
-	 * If the index is out of bounds for line, its also considered as "in a comment", 
+	 * If the index is out of bounds for line, its also considered as "in a comment",
 	 * because that means "don't execute this".
 	 * </pre>
-	 * 
+	 *
 	 * @return true if the index is not in a comment.
 	 */
 	private static boolean isNotInComment(int index, String line) {
@@ -72,12 +93,12 @@ public final class ProgramHelper {
 
 	/**
 	 * Replaces all matches of the regex in the line with the replacement, if they are runnable code.
-	 * 
-	 * @param line            is the input line that gets tested
-	 * @param regex           is the pattern
-	 * @param replacement     is the replacement of the matches
+	 *
+	 * @param line is the input line that gets tested
+	 * @param regex is the pattern
+	 * @param replacement is the replacement of the matches
 	 * @param isFullyRunnable if the line was tested as fully runnable, the
-	 *                        {@link String#replaceAll(String, String)} method gets chosen instead.
+	 * {@link String#replaceAll(String, String)} method gets chosen instead.
 	 * @return the formatted string
 	 */
 	public static String replaceAllIfRunnable(String line, String regex, String replacement, boolean isFullyRunnable) {
@@ -94,12 +115,21 @@ public final class ProgramHelper {
 		return line;
 	}
 
-	/** Works like line += suffix, but takes slcs into account. */
+	/**
+	 * Works like line += suffix, but if the line ends with a {@link Formatter#SLC}, the last spaces get
+	 * stripped as well.
+	 *
+	 * <pre>
+	 * line: burg #Comment
+	 * suffix: er
+	 * result: burger #Comment
+	 * </pre>
+	 */
 	public static String appendRunnable(String line, String suffix) {
 		int idxOfEnd = indexOfSLC(line);
-		if (idxOfEnd != -1)
-			return line.substring(0, idxOfEnd) + suffix + (idxOfEnd == -1 ? "" : line.substring(idxOfEnd));
-		return line + suffix;
+		if (idxOfEnd == -1)
+			return line + suffix;
+		return line.substring(0, idxOfEnd).stripTrailing() + suffix + " " + line.substring(idxOfEnd);
 	}
 
 	/** Returns the index of a single-line-comment, or -1 if there is none in this line. */
@@ -113,10 +143,9 @@ public final class ProgramHelper {
 
 	/**
 	 * Finds the matching bracket in a program.
-	 * 
-	 * @param program       is a list of lines (Strings).
-	 * @param startLine     is the index of the line that contains the bracket that searches its
-	 *                      partner.
+	 *
+	 * @param program is a list of lines (Strings).
+	 * @param startLine is the index of the line that contains the bracket that searches its partner.
 	 * @param idxOfFstBrack is the index of the character of the bracket, that searches its partner.
 	 * @return a tuple with the following structure [lineIdxOfTarget, charIdxOfTarget]
 	 * @throws IllegalStateException if the program doesn't contain a matching bracket.
@@ -128,12 +157,11 @@ public final class ProgramHelper {
 
 	/**
 	 * Finds the matching opened bracket in a program.
-	 * 
-	 * @param program       is a list of lines (Strings).
-	 * @param startLine     is the index of the line that contains the bracket that searches its
-	 *                      partner.
+	 *
+	 * @param program is a list of lines (Strings).
+	 * @param startLine is the index of the line that contains the bracket that searches its partner.
 	 * @param idxOfFstBrack is the index of the character of the closed bracket, ") ] }" that searches
-	 *                      its partner. "( [ {"
+	 * its partner. "( [ {"
 	 * @return a tuple with the following structure [lineIdxOfTarget, charIdxOfTarget]
 	 * @throws IllegalStateException if the program doesn't contain a matching bracket.
 	 */
@@ -163,12 +191,11 @@ public final class ProgramHelper {
 
 	/**
 	 * Finds the matching closed bracket in a program.
-	 * 
-	 * @param program       is a list of lines (Strings).
-	 * @param startLine     is the index of the line that contains the bracket that searches its
-	 *                      partner.
+	 *
+	 * @param program is a list of lines (Strings).
+	 * @param startLine is the index of the line that contains the bracket that searches its partner.
 	 * @param idxOfFstBrack is the index of the character of the closed bracket, "( [ { :" that searches
-	 *                      its partner. ") ] } ;"
+	 * its partner. ") ] } ;"
 	 * @return a tuple with the following structure [lineIdxOfTarget, charIdxOfTarget]
 	 * @throws IllegalStateException if the program doesn't contain a matching bracket.
 	 */
@@ -200,8 +227,8 @@ public final class ProgramHelper {
 
 	/**
 	 * Finds the matching multi-close-scope symbol for a open-scope.
-	 * 
-	 * @param program   is a list of lines (Strings).
+	 *
+	 * @param program is a list of lines (Strings).
 	 * @param startLine is the line that contains the
 	 * @return a tuple with the following structure [lineIdxOfTarget, charIdxOfTarget]
 	 */
@@ -222,13 +249,13 @@ public final class ProgramHelper {
 
 	/**
 	 * Returns the index of the matching bracket in the same line.
-	 * 
-	 * @param fstIdx          is the index of the first bracket.
-	 * @param line            is the whole line.
+	 *
+	 * @param fstIdx is the index of the first bracket.
+	 * @param line is the whole line.
 	 * @param isFullyRunnable should be true if the line contains no literal strings or comments.
-	 *                        Default: false
+	 * Default: false
 	 * @return the index of the matching bracket or -1 if none was found.
-	 * 
+	 *
 	 * @throws AssertionError if the first index doesn't point to a bracket.
 	 */
 	public static int findMatchingBrackInLine(int fstIdx, String line, boolean isFullyRunnable) {
@@ -254,8 +281,8 @@ public final class ProgramHelper {
 
 	/**
 	 * This function tells, if there is any match of the regex in the line, that is also runnable.
-	 * 
-	 * @param line  is the whole line.
+	 *
+	 * @param line is the whole line.
 	 * @param regex is the regular expression that gets matched.
 	 * @return true if the line contains that runnable expression.
 	 */
@@ -266,30 +293,30 @@ public final class ProgramHelper {
 	/**
 	 * Works like {@link String#endsWith(String)}, but if there is comment at the end of the line, it
 	 * gets ignored.
-	 * 
+	 *
 	 * <pre>
 	 * false for suffix "burger" in line:
 	 * I like #burger
-	 * 
+	 *
 	 * true for suffix "like" in line:
 	 * I like #burger
 	 * </pre>
-	 * 
-	 * @param line   is the whole line.
+	 *
+	 * @param line is the whole line.
 	 * @param suffix is the part that the end of the line gets checked against.
 	 */
 	public static boolean lineEndsWith(String line, String suffix) {
 		int idxOfSLC = indexOfSLC(line);
 		if (idxOfSLC == -1)
 			return line.endsWith(suffix);
-		return line.substring(0, idxOfSLC).endsWith(suffix);
+		return line.substring(0, idxOfSLC).stripTrailing().endsWith(suffix);
 	}
 
 	/**
 	 * This function returns the first index of a match of the regex, in the line, that is also
 	 * runnable.
-	 * 
-	 * @param line  is the whole line.
+	 *
+	 * @param line is the whole line.
 	 * @param regex is the regular expression that gets matched.
 	 * @return the index of the start of the match.
 	 */

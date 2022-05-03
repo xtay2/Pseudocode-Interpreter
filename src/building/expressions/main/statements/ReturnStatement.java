@@ -1,7 +1,6 @@
 package building.expressions.main.statements;
 
 import static building.types.specific.KeywordType.RETURN;
-import static misc.supporting.Output.print;
 
 import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.ValueHolder;
@@ -17,7 +16,7 @@ public class ReturnStatement extends MainExpression {
 
 	/**
 	 * Creates a {@link ReturnStatement}.
-	 * 
+	 *
 	 * @param val can be null.
 	 */
 	public ReturnStatement(int lineID, ValueHolder val) {
@@ -30,7 +29,6 @@ public class ReturnStatement extends MainExpression {
 	public boolean execute() {
 		if (val != null) {
 			Value r = val.getValue();
-			print("Returning: " + r);
 			myFunc.setValue(r);
 		}
 		return false;

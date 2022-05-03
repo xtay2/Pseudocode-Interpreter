@@ -72,7 +72,7 @@ public final class SystemFunctions {
 
 	/** native func exit(text) */
 	private static Value exit(ValueHolder[] params) {
-		String exitMsg = params[0].getValue().asText().value;
+		String exitMsg = params[0].asText().value;
 		System.err.println(exitMsg);
 		System.exit(0);
 		return null;
@@ -80,7 +80,7 @@ public final class SystemFunctions {
 
 	/** native func read(text) */
 	private static Value print(ValueHolder[] params) {
-		System.out.println((Output.debugMode ? "Printing: " : "") + (params[0].getValue().asText().value));
+		System.out.println((Output.debugMode ? "Printing: " : "") + (params[0].asText().value));
 		return null;
 	}
 
@@ -96,7 +96,7 @@ public final class SystemFunctions {
 
 	/** Implementation: native func asRational(nr) -> text */
 	private static Value asRational(ValueHolder[] params) {
-		NumberValue n = params[0].getValue().asNumber();
+		NumberValue n = params[0].asNr();
 		if (n instanceof DecimalValue d)
 			return new TextValue(d.asRational());
 		return n instanceof IntValue i ? new TextValue(i.value.toString() + "/1") : n.asText();
@@ -109,8 +109,8 @@ public final class SystemFunctions {
 
 	/** Implementation: native func randInt(int, int) -> int */
 	private static IntValue randInt(ValueHolder[] params) {
-		IntValue min = params[0].getValue().asInt();
-		IntValue max = params[1].getValue().asInt().add(NumberValue.ONE).asInt();
+		IntValue min = params[0].asInt();
+		IntValue max = params[1].asInt().add(NumberValue.ONE).asInt();
 		if (min.isGreaterThan(max))
 			throw new IllegalArgumentException("Then minimum cannot be greater than the maximum.");
 		BigInteger upperLimit = max.sub(min).asInt().raw();
@@ -118,7 +118,7 @@ public final class SystemFunctions {
 		do {
 			randomNumber = new BigInteger(upperLimit.bitLength(), new Random());
 		} while (randomNumber.compareTo(upperLimit) >= 0);
-		return min.add(NumberValue.create(randomNumber)).asInt();
+		return min.add(new IntValue(randomNumber)).asInt();
 	}
 
 	/** Implementation: native func timestamp() -> int */

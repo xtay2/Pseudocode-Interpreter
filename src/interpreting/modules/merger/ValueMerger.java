@@ -1,22 +1,18 @@
 package interpreting.modules.merger;
 
-import static building.types.specific.BuilderType.ARRAY_END;
 import static building.types.specific.BuilderType.ARRAY_START;
-import static building.types.specific.BuilderType.RANGE;
-import static building.types.specific.DynamicType.LITERAL;
-import static building.types.specific.datatypes.ArrayType.VAR_ARRAY;
 import static building.types.specific.operators.PrefixOpType.NOT;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import building.expressions.abstractions.Range;
 import building.expressions.abstractions.interfaces.ValueChanger;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.statements.IsStatement;
 import building.expressions.normal.brackets.BracketedExpression;
 import building.expressions.normal.casting.ExplicitCast;
 import building.expressions.normal.containers.ArrayAccess;
+import building.expressions.normal.containers.Literal;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.Call;
@@ -24,12 +20,8 @@ import building.expressions.possible.allocating.Assignment;
 import building.expressions.possible.allocating.Declaration;
 import building.expressions.possible.multicall.MultiCall;
 import building.types.specific.AssignmentType;
-import building.types.specific.datatypes.ArrayType;
 import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
 import interpreting.exceptions.IllegalCodeFormatException;
-import misc.helper.MathHelper;
-import runtime.datatypes.array.ArrayValue;
 
 /** Every merged {@link ValueHolder}. */
 public abstract class ValueMerger extends SuperMerger {
@@ -45,8 +37,8 @@ public abstract class ValueMerger extends SuperMerger {
 	}
 
 	/* [OPEN_SQUARE] [?PARAM] [?COMMA] [?PARAM] [CLOSE_SQUARE] */
-	public static ArrayValue buildArrayLiteral() {
-		return new ArrayValue(VAR_ARRAY, true, buildParts());
+	public static Literal buildArrayLiteral() {
+		return new Literal(lineID, buildParts());
 	}
 
 	/** [NAME] [ARRAY_START] [VAL_HOLDER] [ARRAY_END] ?([ARRAY_START] [VAL_HOLDER] [ARRAY_END])... */
@@ -89,61 +81,22 @@ public abstract class ValueMerger extends SuperMerger {
 
 	/** [EXPECTED_TYPE] [NAME] [ASSIGNMENT] [VALUE_HOLDER] */
 	public static Declaration buildDeclaration() {
-		DataType type = (SingleType) line.remove(0).type;
-		boolean allowsNull = checkIfNullAllowed();
-		type = buildArrayDimensions((SingleType) type);
+		DataType type = buildExpType();
 		Name name = buildName();
 		AssignmentType assignOp = line.isEmpty() ? null : (AssignmentType) line.remove(0).type;
-		ValueHolder vH = line.isEmpty() ? type.stdVal(allowsNull) : buildVal();
+		ValueHolder vH = line.isEmpty() ? type.stdVal() : buildVal();
 		if (assignOp != null && assignOp != AssignmentType.NORMAL) {
 			throw new IllegalCodeFormatException(orgLine,
 					"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
 		}
-		return new Declaration(lineID, type, allowsNull, name, vH);
-	}
-
-	/** [(INT?)] ([(INT?)]?) ([(INT?)]?)... */
-	private static DataType buildArrayDimensions(SingleType type) {
-		if (line.size() > 1 && line.get(0).is(ARRAY_START)) {
-			List<Range> dims = new ArrayList<>(1);
-			do {
-				line.remove(0);
-				dims.add(buildRange());
-				line.remove(0);
-			} while (line.size() > 1 && line.get(0).is(ARRAY_START));
-			return ArrayType.create(type, dims.toArray(new Range[dims.size()]));
-		}
-		return type;
-	}
-
-	/** [INT?] [..?] [INT?] */
-	private static Range buildRange() {
-		if (line.get(0).is(LITERAL)) {
-			int lower = MathHelper.valToInt(buildVal());
-			if (line.get(0).is(RANGE)) {
-				line.remove(0);
-				if (line.get(0).is(LITERAL))
-					return Range.intervalBound(lower, MathHelper.valToInt(buildVal()));
-				return Range.lowerBound(lower);
-			}
-			return Range.exact(lower);
-		} else if (line.get(0).is(RANGE)) {
-			line.remove(0);
-			if (line.get(0).is(LITERAL))
-				return Range.upperBound(MathHelper.valToInt(buildVal()));
-			throw new IllegalCodeFormatException(orgLine, "Range-Symbol \"..\" has to be surrounded by atleast one integer-literal.");
-		}
-		return Range.UNBOUNDED;
+		return new Declaration(lineID, type, name, vH);
 	}
 
 	/** [(] [TYPE] [)] [VALUE_HOLDER] */
 	public static ExplicitCast buildExplicitCast() {
 		line.remove(0);
 		DataType t = buildExpType();
-		if (line.remove(0).is(ARRAY_START) && line.remove(0).is(ARRAY_END)) {
-			t = ArrayType.create((SingleType) t, Range.UNBOUNDED);
-			line.remove(0);
-		} // For else: Close bracket gets removed in if.
+		line.remove(0);
 		return new ExplicitCast(lineID, t, buildVal());
 	}
 }

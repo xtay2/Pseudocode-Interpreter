@@ -12,7 +12,6 @@ import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueHolder;
-import building.types.specific.datatypes.ArrayType;
 import interpreting.exceptions.IllegalCodeFormatException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -30,7 +29,7 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 
 	/**
 	 * Creates a {@link Call}.
-	 * 
+	 *
 	 * @param calledFunc shouldn't be null.
 	 * @param parameters shouldn't be null.
 	 */
@@ -76,7 +75,7 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 		}
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
-			return new ArrayValue(ArrayType.VAR_ARRAY, false, returnArr);
+			return new ArrayValue(returnArr);
 		// If not, dont return anything.
 		return null;
 	}

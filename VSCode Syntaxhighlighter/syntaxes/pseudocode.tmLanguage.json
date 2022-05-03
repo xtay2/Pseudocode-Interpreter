@@ -12,6 +12,8 @@
 		
 		{"include": "#true_literal"},
 		{"include": "#false_literal"},
+
+		{"include": "#chars"},
 		{"include": "#strings"},
 
 		{"include": "#operators"},
@@ -84,6 +86,12 @@
 				"match": "\\b(false)\\b"
 			}]
 		},
+		"chars": {
+			"patterns": [{
+				"name": "constant.character.escape.pseudocode",
+				"match": "'.'"
+			}]
+		}, 
 		"strings": {
 			"name": "string.quoted.double.pseudocode",
 			"begin": "\"",

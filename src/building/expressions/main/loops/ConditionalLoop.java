@@ -14,7 +14,7 @@ import runtime.datatypes.numerical.NumberValue;
 
 /**
  * While/Until Loop.
- * 
+ *
  * @see ScopeHolder
  * @see ConditionalStatement
  */
@@ -24,7 +24,7 @@ public final class ConditionalLoop extends Loop {
 
 	/**
 	 * Creates a {@link ConditionalLoop}, based on the passed {@link KeywordType}.
-	 * 
+	 *
 	 * @param lineID is the identifier of the matching {@link ProgramLine}.
 	 * @param myType is the identifying Type, eiter {@link KeywordType#WHILE} or
 	 * {@link KeywordType#UNTIL}.
@@ -40,7 +40,7 @@ public final class ConditionalLoop extends Loop {
 
 	/**
 	 * Returns true when:
-	 * 
+	 *
 	 * <pre>
 	 * while && cond == true
 	 * or
@@ -49,6 +49,6 @@ public final class ConditionalLoop extends Loop {
 	 */
 	@Override
 	protected boolean doContinue(NumberValue iteration) {
-		return condition.getValue().asBool().value == is(WHILE);
+		return condition.asBool().value == is(WHILE);
 	}
 }

@@ -1,22 +1,19 @@
 package runtime.exceptions;
 
 import building.types.abstractions.AbstractType;
+import interpreting.modules.merger.ExpressionMerger;
 
-/**
- * Gets thrown when trying to operate on a castable with an unexpected type.
- * 
- * Should be used as a kind of Assertion.
- */
 @SuppressWarnings("serial")
-public class UnexpectedTypeError extends AssertionError {
+public class UnexpectedTypeError extends Error {
 
-	public UnexpectedTypeError(AbstractType type) {
-		this(-1, type);
+	/**
+	 * Gets thrown for unexpected {@link AbstractType}s (mostly in default cases in any)
+	 * {@link ExpressionMerger}.
+	 *
+	 * @param type is the unexpected {@link AbstractType}.
+	 * @param target is the {@link Class} of the object that was meant to be build.
+	 */
+	public UnexpectedTypeError(int orgLine, AbstractType type, Class<?> target) {
+		super(type + " is an unexpected type for a " + target.getSimpleName());
 	}
-
-	public UnexpectedTypeError(int orgLine, AbstractType type) {
-		super("Unexpected type " + type + (orgLine != -1 ? "in line " + orgLine : ""));
-		System.err.println("This shouldn't get thrown. Maybe there is a bug in the Interpreter.");
-	}
-
 }
