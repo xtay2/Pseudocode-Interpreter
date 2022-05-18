@@ -5,7 +5,7 @@ Pseudocode is a dynamically typed, imperative programming language that focuses 
 
 ## Download
 You can find the repository for all installers [here](https://github.com/xtay2/Pseudocode-Installer/).
- - [pseudocode-preAlpha](https://github.com/xtay2/Pseudocode-Installer/blob/main/pseudocode-win-installer.zip?raw=true) for Windows
+ - [pseudocode-preAlpha](https://github.com/xtay2/Pseudocode-Installer/blob/main/pseudocode-win-installer.exe?raw=true) for Windows
 
 ### Execution (Windows)
  - Download the interpreter-package. (zip-Archive)
