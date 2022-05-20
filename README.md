@@ -1,5 +1,5 @@
 # Pseudocode
-
+![logo](https://github.com/xtay2/Pseudocode/blob/main/VSCode%20Syntaxhighlighter/logo.png)
 ### About
 Pseudocode is an imperative programming language (that will also support object-orientation in the future). 
 This repository contains the latest public version of the language-interpreter.
