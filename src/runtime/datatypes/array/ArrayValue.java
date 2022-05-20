@@ -14,7 +14,7 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Literal;
 import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.TypeConstants;
+import misc.constants.TypeConstants;
 import misc.helper.CollectionHelper;
 import misc.helper.MathHelper;
 import runtime.datatypes.BoolValue;
@@ -304,7 +304,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 
 			@Override
 			public Value next() {
-				return get(i);
+				return get(i++);
 			}
 		};
 	}

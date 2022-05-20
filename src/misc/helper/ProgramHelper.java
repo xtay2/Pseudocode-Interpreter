@@ -328,4 +328,32 @@ public final class ProgramHelper {
 		//@formatter:on
 		return match == null ? -1 : match.start();
 	}
+
+	/**
+	 * This function returns the first runnable {@link String}-match of the regex, in the line.
+	 *
+	 * @param line is the whole line.
+	 * @param regex is the regular expression that gets matched.
+	 * @return the first match.
+	 */
+	public static String getFirstRunnable(String line, String regex) {
+		//@formatter:off
+		MatchResult match = Pattern.compile(regex).matcher(line).results()
+				.filter(mRes -> isRunnableCode(mRes.start(), line))
+				.findFirst().orElseGet(() -> null);
+		//@formatter:on
+		return match == null ? null : match.group();
+	}
+
+	/**
+	 * This function returns number of runnable occurences of the regex, in the line.
+	 *
+	 * @param line is the whole line.
+	 * @param regex is the regular expression that gets matched.
+	 * @return the number of runnable matches.
+	 */
+	public static int runnableMatches(String line, String regex) {
+		return (int) Pattern.compile(regex).matcher(line).results() //
+				.filter(mRes -> isRunnableCode(mRes.start(), line)).count();
+	}
 }

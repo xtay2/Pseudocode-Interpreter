@@ -15,22 +15,22 @@ import misc.supporting.Output;
 
 /**
  * The starting point for the Interpreter.
- * 
+ *
  * Takes the execution command and possible flags, and starts the program accordingly.
  */
 public abstract class Main {
 
 	public static final Program PROGRAM = new Program();
-	private static String libPath;
-	private static String launchPath;
+
+	public static String libPath, launchPath;
 	private static boolean jStacktrace = false;
 	private static int formatterLvl = 5;
 
 	public static void main(String[] args) {
 		//@formatter:off
 		if (args.length < 3) {
-			throw new IllegalArgumentException("The Interpreter has to get launched with following arguments:" 
-				+ "\n-The library-path" + (args.length >= 1 ? "\t Was: " + args[0] : "")			
+			throw new IllegalArgumentException("The Interpreter has to get launched with following arguments:"
+				+ "\n-The library-path" + (args.length >= 1 ? "\t Was: " + args[0] : "")
 				+ "\n-The project-path" + (args.length >= 2 ? "\t Was: " + args[1] : "")
 				+ "\n-An execution-command"
 				+ "\n-Optional flags");
@@ -59,8 +59,8 @@ public abstract class Main {
 
 	/**
 	 * Starts the formatting and the execution.
-	 * 
-	 * @param execFlags      are optional execution-flags.
+	 *
+	 * @param execFlags are optional execution-flags.
 	 * @param justFormatting is true, if the program should only get formatted and not interpreted.
 	 */
 	private static void exec(String[] execFlags, boolean justFormatting) {
@@ -82,7 +82,7 @@ public abstract class Main {
 		// Save execution
 		try {
 			print("Formatting...");
-			Parser.parse(Path.of(libPath), findMainFile(launchPath.replace("\"", "")), force);
+			Parser.parse(findMainFile(launchPath.replace("\"", "")), force);
 			if (!justFormatting) {
 				print("Interpreting...");
 				Interpreter.interpret();
@@ -100,7 +100,7 @@ public abstract class Main {
 
 	/**
 	 * Finds the Main.pc file in the specified path.
-	 * 
+	 *
 	 * @param srcPath is a top-directory of Main.pc
 	 * @return the direct path of the Main.pc
 	 * @throws FileNotFoundException if no main was found.
@@ -114,7 +114,7 @@ public abstract class Main {
 
 	/**
 	 * Returns the strength of the formatter.
-	 * 
+	 *
 	 * Default: 5
 	 */
 	public static int getFormattingLvl() {

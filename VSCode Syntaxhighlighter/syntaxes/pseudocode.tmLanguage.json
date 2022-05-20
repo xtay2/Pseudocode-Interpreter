@@ -65,7 +65,7 @@
 		"numeric_constants": {
 			"patterns": [{
 				"name": "constant.numeric.pseudocode",
-				"match": "(?i)INF|NaN"
+				"match": "(?i)\\b(INF|NaN)\\b"
 			}]
 		},
 		"number_literals": {

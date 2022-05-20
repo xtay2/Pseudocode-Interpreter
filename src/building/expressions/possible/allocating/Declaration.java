@@ -51,7 +51,7 @@ public class Declaration extends Allocating implements Flaggable {
 
 	@Override
 	public void addFlags(Set<FlagType> flags) {
-		this.flags.addAll(flags);
+		flags.addAll(flags);
 	}
 
 	@Override

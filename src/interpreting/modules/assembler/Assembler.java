@@ -59,22 +59,22 @@ public class Assembler {
 
 	/**
 	 * If a line contains something except a {@link CloseBlock}, it gets split into two lines.
-	 * 
+	 *
 	 * <pre>
 	 * if ... {
 	 *     if ... {...}
 	 * } else {
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * if ... {
 	 *     if ... {
 	 *         ...
 	 * }
-	 * } 
+	 * }
 	 * else {
 	 * </pre>
-	 * 
+	 *
 	 * An exeption is the partial one-line-statement, that ends with "};", and doesn't get split.
 	 */
 	private static void splitCloseBlocks() {
@@ -97,12 +97,12 @@ public class Assembler {
 
 	/**
 	 * Splits up all one-line-statements and removes the semicolon.
-	 * 
+	 *
 	 * <pre>
 	 * if true: print("Hi");
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * if true {
 	 * print("Hi")
 	 * }
@@ -130,14 +130,14 @@ public class Assembler {
 
 	/**
 	 * Splits up all partial one-line-statements and removes the semicolon.
-	 * 
+	 *
 	 * <pre>
 	 * for e in [1, 2, 3]: if e % 2 == 0 {
 	 * print(e)
 	 * };
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * for e in [1, 2, 3] {
 	 * if e % 2 == 0 {
 	 * print(e)

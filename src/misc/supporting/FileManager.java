@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 
+import importing.filedata.paths.FilePath;
+
 public final class FileManager {
 
 	/**
@@ -65,7 +67,7 @@ public final class FileManager {
 	 * Write a List of lines into the textfile.
 	 *
 	 * @param content is the string.
-	 * @param path    is the relative path, where the file is stored.
+	 * @param path is the relative path, where the file is stored.
 	 */
 	public static void writeFile(List<String> content, Path path) {
 		String res = "";
@@ -78,7 +80,7 @@ public final class FileManager {
 	 * Write a string into the textfile.
 	 *
 	 * @param content is the string.
-	 * @param path    is the relative path, where the file is stored.
+	 * @param path is the relative path, where the file is stored.
 	 */
 	public static void writeFile(String content, Path path) {
 		BufferedWriter writer;
@@ -93,8 +95,8 @@ public final class FileManager {
 
 	/**
 	 * Finds a {@link File} in a specified directory.
-	 * 
-	 * @param dir    has to be the parent directory.
+	 *
+	 * @param dir has to be the parent directory.
 	 * @param target is the name of the quested {@link File}.
 	 * @return the quested {@link File} or null if nothing was found.
 	 */
@@ -113,11 +115,35 @@ public final class FileManager {
 		return null;
 	}
 
+	public static String findPath(String subfolder, String name) {
+		System.out.println(subfolder + " " + name);
+		File current = new File(subfolder);
+		String target = null;
+		if (current.isDirectory()) {
+			for (File f : current.listFiles()) {
+				target = findPath(f.getAbsolutePath(), name);
+				if (target != null)
+					return target;
+			}
+			return null;
+		} else if (current.isFile() && current.getName().equals(name)) {
+			String res = current.toString();
+			return res.substring(res.lastIndexOf(subfolder)).replace('\\', '.');
+		}
+		System.out.println(current.getName());
+		return null;
+	}
+
+	public static List<String> readFile(FilePath path) {
+		// TODO Implement me!
+		return null;
+	}
+
 	/**
 	 * Write a Array of lines into the textfile.
 	 *
 	 * @param content is the string.
-	 * @param path    is the relative path, where the file is stored.
+	 * @param path is the relative path, where the file is stored.
 	 */
 //	public static void writeFile(String[] content, String path) {
 //		String res = "";

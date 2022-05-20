@@ -8,7 +8,6 @@ import static building.types.specific.operators.PrefixOpType.NOT;
 import static misc.helper.ProgramHelper.replaceAllIfRunnable;
 import static runtime.datatypes.BoolValue.FALSE;
 import static runtime.datatypes.BoolValue.TRUE;
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
 /**
  * Everything should get executed after {@link FormatterLvl2#format()} and {@link FormatterLvl5}, if
  * activated.
- * 
+ *
  * <pre>
  * For each line:
  * {@link #simplifyInfLoops(String, boolean)}
@@ -33,19 +32,11 @@ public final class FormatterLvl4 extends Formatter {
 	//@formatter:off
 	forEachLine(
 		(x, y) -> shortenBools(x, y),
-		(x, y) -> correctNrConsts(x, y),
 		(x, y) -> simplifyMisc(x, y),
 		(x, y) -> swapCondLoops(x, y),
 		(x, y) -> simplifyInfLoops(x, y)
 		);
 	//@formatter:on
-	}
-
-	/** A {@link LineFormatterFunc} that corrects the case of number-constants. */
-	static String correctNrConsts(String line, boolean isFullyRunnable) {
-		line = replaceAllIfRunnable(line, "(?i)" + NAN, NAN.txt, isFullyRunnable);
-		line = replaceAllIfRunnable(line, "(?i)" + POS_INF, POS_INF.txt, isFullyRunnable);
-		return line;
 	}
 
 	/** A {@link LineFormatterFunc} that simplifies/removes redundant terms. */
@@ -68,19 +59,19 @@ public final class FormatterLvl4 extends Formatter {
 		//All bool-expressions that are redundant and can be deleted @formatter:off
 		line = List.of(
 			NOT + " " + NOT,
-			
-			NOT_EQUALS + " " + FALSE, 
+
+			NOT_EQUALS + " " + FALSE,
 			FALSE + " " + NOT_EQUALS,
-			
-			EQUALS + " " + TRUE, 
+
+			EQUALS + " " + TRUE,
 			TRUE + " " + EQUALS,
-			
-			AND + " " + TRUE, 
+
+			AND + " " + TRUE,
 			TRUE + " " + AND,
-			
-			OR + " " + FALSE, 
+
+			OR + " " + FALSE,
 			FALSE + " " + OR,
-			
+
 			XOR + " " + FALSE,
 			FALSE + " " + XOR
 		).stream().reduce(line, (l, exp) -> replaceAllIfRunnable(l, exp, "", isFullyRunnable));
@@ -95,7 +86,7 @@ public final class FormatterLvl4 extends Formatter {
 
 	/**
 	 * A {@link LineFormatterFunc} that simplifies endless loops with "repeat {".
-	 * 
+	 *
 	 * Should get executed after {@link #shortenBools(String, boolean)}
 	 */
 	static String simplifyInfLoops(String line, boolean isFullyRunnable) {

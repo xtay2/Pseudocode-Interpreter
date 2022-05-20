@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.7
+Fixed the detection for `INF` and `NaN`. 
+
 ### Update 0.4.6
 Added highlighting for char-quotes `'`.  
 

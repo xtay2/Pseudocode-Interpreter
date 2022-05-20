@@ -4,6 +4,8 @@ import static building.types.abstractions.SpecificType.equalsString;
 import static building.types.specific.KeywordType.*;
 import static java.lang.String.valueOf;
 import static misc.helper.ProgramHelper.*;
+import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
+import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,35 +16,40 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import building.types.specific.operators.InfixOpType;
+import misc.constants.GreekSymbol;
 
 /**
  * Everything should get executed after {@link FormatterLvl2#format()}.
- * 
+ *
  * <pre>
  * For the whole file:
- * {@link #addMissingMain()} 
+ * {@link #addMissingMain()}
  * {@link #moveImportsUp()}
  * {@link #formatOpenScopes()}
  * {@link #formatClosedScopes()}
- * 
+ *
  * For each line:
  * {@link #correctSemicolons(String, boolean)}
  * {@link #replaceElifs(String, boolean)}
  * {@link #orderFlags(String, boolean)}
  * {@link #replaceOperators(String, boolean)}
  * </pre>
- * 
+ *
  * @see Formatter
  */
 public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * Gets executed before everything else.
-	 * 
+	 *
 	 * (Mainly before {@link FormatterLvl2#format()})
 	 */
 	protected static void preFormatting() {
-		forEachLine((x, y) -> replaceOperators(x, y));
+		//@formatter:off
+		forEachLine((x, y) -> replaceOperators(x, y),
+				    (x, y) -> replaceSymbols(x, y),
+				    (x, y) -> correctNrConsts(x, y));
+		//@formatter:on
 	}
 
 	/**
@@ -53,6 +60,33 @@ public final class FormatterLvl1 extends Formatter {
 		line = replaceAllIfRunnable(line, "!=", InfixOpType.NOT_EQUALS.toString(), isFullyRunnable);
 		line = replaceAllIfRunnable(line, "<=", InfixOpType.LESS_EQ.toString(), isFullyRunnable);
 		line = replaceAllIfRunnable(line, ">=", InfixOpType.GREATER_EQ.toString(), isFullyRunnable);
+		return line;
+	}
+
+	/**
+	 * A {@link LineFormatterFunc} that replaces all escaped text-versions with greek characters.
+	 */
+	static String replaceSymbols(String line, boolean isFullyRunnable) {
+		for (int i = 0; i < line.length(); i++) {
+			if (line.charAt(i) == '\\' && (isFullyRunnable || isRunnableCode(i, line))) {
+				for (int wordEnd = i + 1; wordEnd < line.length(); wordEnd++) {
+					char c = line.charAt(wordEnd);
+					if (c == ' ' || c == '(' || c == ')' || c == '[' || c == ']' || wordEnd == line.length()) {
+						String word = line.substring(i, wordEnd);
+						Character greek = GreekSymbol.fromString(word);
+						if (greek != null)
+							line = line.substring(0, i) + greek + line.substring(wordEnd);
+					}
+				}
+			}
+		}
+		return line;
+	}
+
+	/** A {@link LineFormatterFunc} that corrects the case of number-constants. */
+	static String correctNrConsts(String line, boolean isFullyRunnable) {
+		line = replaceAllIfRunnable(line, "(?i)\\b" + NAN + "\\b", NAN.txt, isFullyRunnable);
+		line = replaceAllIfRunnable(line, "(?i)\\b" + POS_INF + "\\b", POS_INF.txt, isFullyRunnable);
 		return line;
 	}
 
@@ -87,7 +121,7 @@ public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * Move all import statements to the top of the file.
-	 * 
+	 *
 	 * This should get executed after {@link #addMissingMain()}
 	 */
 	static void moveImportsUp() {
@@ -101,17 +135,17 @@ public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * Formats {@link OpenBlock} Brackets.
-	 * 
+	 *
 	 * Move everything behind a {@link OpenBlock}-Bracket into the next line and connect the bracket to
 	 * the statement.
-	 * 
+	 *
 	 * <pre>
-	 * if false 
-	 * 
+	 * if false
+	 *
 	 * {print("hi")
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * if false {
 	 *     print("hi")
 	 * </pre>
@@ -145,20 +179,20 @@ public final class FormatterLvl1 extends Formatter {
 	/**
 	 * If something stands in front of a {@link CloseBlock} the, CB and everything behind it gets moved
 	 * to the next line.
-	 * 
+	 *
 	 * <pre>
-	 * 
+	 *
 	 * }} else {...}
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * }
 	 * } else {...}
 	 * -----------------------------------
 	 * };}
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * };
 	 * }
 	 * </pre>
@@ -190,15 +224,15 @@ public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * Adds missing semicolons and removes unnecessary ones.
-	 * 
+	 *
 	 * <pre>
 	 * Lines where semicolons get added:
 	 * if a: return true
-	 * 
+	 *
 	 * if b: repeat {
 	 * 	...
 	 * }
-	 * 
+	 *
 	 * All other semicolons get removed.
 	 * </pre>
 	 */
@@ -219,19 +253,19 @@ public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * A {@link LineFormatterFunc} that removes a space between the name of a function and its params.
-	 * 
+	 *
 	 * <pre>
 	 * func function   (int x) {
 	 * func function(int x)
 	 * </pre>
 	 */
 	static String correctFuncs(String line, boolean isFullyRunnable) {
-		return replaceAllIfRunnable(line, "(?<=func\\s.+)\\s+(?=\\()", "", isFullyRunnable);
+		return replaceAllIfRunnable(line, "(?<=func\\s\\w+)\\s+(?=\\()", "", isFullyRunnable);
 	}
 
 	/**
 	 * A {@link LineFormatterFunc} that replaces wrong spellings of {@link KeywordType#ELIF}.
-	 * 
+	 *
 	 * If level2 is active, this should get executed after
 	 * {@link FormatterLvl2#miscPadding(String, boolean)}
 	 */
@@ -241,9 +275,9 @@ public final class FormatterLvl1 extends Formatter {
 
 	/**
 	 * A {@link LineFormatterFunc} that:
-	 * 
+	 *
 	 * <pre>
-	 * Sets the order of Flags. 
+	 * Sets the order of Flags.
 	 * Removes unnecessary flags.
 	 * Removes unnecessary {@value #OLS} in a one-line {@link FlagSpace}.
 	 * </pre>

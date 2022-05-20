@@ -1,7 +1,7 @@
 package building.expressions.abstractions.interfaces;
 
 import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.TypeConstants;
+import misc.constants.TypeConstants;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.numerical.IntValue;

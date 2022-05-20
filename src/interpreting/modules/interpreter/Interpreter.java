@@ -16,11 +16,11 @@ import launching.Main;
 public final class Interpreter {
 
 	/**
-	 * Registeres every {@link Variable} and {@link Definition} and starts the
-	 * interpreting-process by calling the {@link MainFunction}.
-	 * 
+	 * Registeres every {@link Variable} and {@link Definition} and starts the interpreting-process by
+	 * calling the {@link MainFunction}.
+	 *
 	 * @param program is the program that gets interpreted.
-	 * 
+	 *
 	 * @see Main#main
 	 */
 	public static void interpret() {
@@ -35,11 +35,11 @@ public final class Interpreter {
 	/**
 	 * Executes a MainExpression.
 	 *
-	 * @param i      the line of the MainExpression.
+	 * @param i the line of the MainExpression.
 	 * @param params are the passed parameters
-	 * 
+	 *
 	 * @return false if this function shouldn't call any other functions afterwards.
-	 *         {@link ReturnStatement#execute}
+	 * {@link ReturnStatement#execute}
 	 */
 	public static boolean execute(int i) {
 		MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
@@ -49,9 +49,9 @@ public final class Interpreter {
 
 	/**
 	 * Registers and initialises all static Variables in the global scope.
-	 * 
+	 *
 	 * (Outside of functions).
-	 * 
+	 *
 	 * @see ProgramLine
 	 * @see Declaration
 	 */

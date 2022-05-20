@@ -11,6 +11,7 @@ import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.InfixOpType;
+import formatter.basic.Formatter;
 import runtime.datatypes.Value;
 import runtime.exceptions.DeclarationException;
 
@@ -45,7 +46,7 @@ public class Name extends Expression implements ValueChanger {
 
 	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
 	public static boolean isName(String arg) {
-		return arg.matches("\\w*([a-zäöüßA-ZÄÖÜ])+\\w*") && !isAlphaNumKeyword(arg);
+		return arg.matches(Formatter.WR) && !isAlphaNumKeyword(arg);
 	}
 
 	/** Returns true, if the passed string matches any alphanumerical keyword. */

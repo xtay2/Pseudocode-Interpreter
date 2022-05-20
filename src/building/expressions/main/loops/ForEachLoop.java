@@ -6,8 +6,7 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.specific.KeywordType;
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
+import misc.constants.TypeConstants;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -41,7 +40,7 @@ public class ForEachLoop extends Loop {
 	@Override
 	protected void initLoop() {
 		super.initLoop();
-		array = (ArrayValue) arrayHolder.as(new DataType(SingleType.VAR, true));
+		array = (ArrayValue) arrayHolder.as(TypeConstants.VAR_ARR);
 	}
 
 	@Override
@@ -49,8 +48,7 @@ public class ForEachLoop extends Loop {
 	protected boolean doContinue(NumberValue iteration) {
 		if (iteration.equals(array.length()))
 			return false;
-		new Variable(lineIdentifier, getScope(), new DataType(SingleType.VAR, true), elemName,
-				array.get(iteration.asInt().value.intValueExact()));
+		new Variable(lineIdentifier, getScope(), TypeConstants.VAR, elemName, array.get(iteration.asInt().value.intValueExact()));
 		return true;
 	}
 }

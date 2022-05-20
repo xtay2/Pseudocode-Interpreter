@@ -1,6 +1,8 @@
-package building.types.specific.datatypes;
+package misc.constants;
 
 import building.expressions.abstractions.Range;
+import building.types.specific.datatypes.DataType;
+import building.types.specific.datatypes.SingleType;
 
 /**
  * A collection of constants, used for basic casting.

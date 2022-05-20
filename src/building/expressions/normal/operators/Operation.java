@@ -13,6 +13,7 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.operators.infix.ComparativeOperator;
 import building.expressions.normal.operators.infix.InfixOperator;
 import building.expressions.normal.operators.infix.LogicalOperator;
+import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallable;
 import building.types.specific.operators.InfixOpType;
 import interpreting.exceptions.IllegalCodeFormatException;
@@ -55,9 +56,16 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 	}
 
 	private Value recValue(List<Operatable> op) {
-		Value a = ((ValueHolder) op.remove(0)).getValue();
+		ValueHolder a = (ValueHolder) op.remove(0);
 		InfixOperator o = (InfixOperator) op.remove(0);
 		ValueHolder b = (ValueHolder) op.remove(0);
+		if (a instanceof MultiCall mc)
+			return o.executeFor(mc.content, b); // <- internal b call
+		else {
+			a = a.getValue(); // <- a call only here
+			if (b instanceof MultiCall mc)
+				return o.executeFor(a, mc.content); // <- internal a call
+		}
 		while (!op.isEmpty()) {
 			InfixOperator n = (InfixOperator) op.remove(0);
 			ValueHolder c = (ValueHolder) op.remove(0);

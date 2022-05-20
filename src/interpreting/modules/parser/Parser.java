@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import formatter.basic.Formatter;
+import importing.Importer;
 import interpreting.modules.disassembler.Disassembler;
 import launching.Main;
 import misc.supporting.FileManager;
@@ -18,8 +19,8 @@ public final class Parser {
 
 	/**
 	 * An indexed line is a String with the orgLineNr attached.
-	 * 
-	 * @param line  is the text.
+	 *
+	 * @param line is the text.
 	 * @param index is the lineNr from the editor.
 	 */
 	public record IdxLine(String line, int index) {
@@ -58,8 +59,10 @@ public final class Parser {
 	 * @param lineArray
 	 * @return
 	 */
-	public static void parse(Path libPath, Path mainFilePath, boolean forceFormat) {
+	public static void parse(Path mainFilePath, boolean forceFormat) {
+		// TODO Format only relevant files
 		List<IdxLine> lines = indexLines(format(mainFilePath));
+		Importer.test();
 
 		lines = Disassembler.dissassemble(lines);
 

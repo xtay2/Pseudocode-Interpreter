@@ -22,7 +22,7 @@ import misc.helper.CollectionHelper;
 
 /**
  * This gets executed first!
- * 
+ *
  * <pre>
  * For each line:
  * {@link #reduceSpaces(String, boolean)}
@@ -31,7 +31,7 @@ import misc.helper.CollectionHelper;
  * {@link #miscPadding(String, boolean)}
  * {@link #infixOpPadding(String, boolean)}
  * </pre>
- * 
+ *
  * @see Formatter
  */
 public final class FormatterLvl2 extends Formatter {
@@ -89,7 +89,7 @@ public final class FormatterLvl2 extends Formatter {
 	 */
 	static String infixOpPadding(String line, boolean isFullyRunnable) {
 		//@formatter:off
-		SpecificType[] container = { 
+		SpecificType[] container = {
 			DynamicType.NAME,		// "and" in candy
 			KeywordType.MAIN,		// "in" in main
 			PrefixOpType.INC, 		// "+" in ++
@@ -106,7 +106,7 @@ public final class FormatterLvl2 extends Formatter {
 
 	/**
 	 * Surrounds every occurrence of any passed type in the line with whitespaces.
-	 * 
+	 *
 	 * @param types is an array of types that should get padded in this execution.
 	 * @param container is an array of types that could contain the target-types in their
 	 * {@link String}-representation.
@@ -134,7 +134,7 @@ public final class FormatterLvl2 extends Formatter {
 
 	/**
 	 * Formats the next matched type with wrong padding.
-	 * 
+	 *
 	 * @param line is the line thats currently formatted.
 	 * @param matchIdx is the index of the current match.
 	 * @param typeStr is the string of the operator that was found.
@@ -156,7 +156,7 @@ public final class FormatterLvl2 extends Formatter {
 
 	/**
 	 * Checks if the current type is contained in the {@link String}-representation of another type.
-	 * 
+	 *
 	 * @param current is a validated {@link String}-representation of a {@link SpecificType}.
 	 * @param next is the character thats following the type.
 	 * @param container is an array of types that could contain this type.
@@ -182,12 +182,12 @@ public final class FormatterLvl2 extends Formatter {
 
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding for three types of brackets: (), [], {}.
-	 * 
+	 *
 	 * This should get executed after {@link #reduceSpaces(String, boolean)}
 	 */
 	static String bracketPadding(String line, boolean isFullyRunnable) {
 		// ... in front of open scopes. (Not for functions or array-initializers)
-		line = replaceAllIfRunnable(line, "(?<=\\w)\\{", " {", isFullyRunnable);
+		line = replaceAllIfRunnable(line, "(?<=" + ALPHANUM + ")\\{", " {", isFullyRunnable);
 		// ...after open brackets
 		line = replaceAllIfRunnable(line, "\\(\\s", "(", isFullyRunnable);
 		line = replaceAllIfRunnable(line, "\\[\\s", "[", isFullyRunnable);
@@ -198,15 +198,15 @@ public final class FormatterLvl2 extends Formatter {
 		line = replaceAllIfRunnable(line, "\\s\\]", "]", isFullyRunnable);
 		line = replaceAllIfRunnable(line, "\\s\\}", "}", isFullyRunnable);
 		// ... after closing brackets
-		line = replaceAllIfRunnable(line, "\\)(?=\\w)", ") ", isFullyRunnable);
-		line = replaceAllIfRunnable(line, "\\](?=\\w)", "] ", isFullyRunnable);
-		line = replaceAllIfRunnable(line, "\\}(?=\\w)", "} ", isFullyRunnable);
+		line = replaceAllIfRunnable(line, "\\)(?=" + ALPHANUM + ")", ") ", isFullyRunnable);
+		line = replaceAllIfRunnable(line, "\\](?=" + ALPHANUM + ")", "] ", isFullyRunnable);
+		line = replaceAllIfRunnable(line, "\\}(?=" + ALPHANUM + ")", "} ", isFullyRunnable);
 		return line;
 	}
 
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding for commas, colons and semicolons.
-	 * 
+	 *
 	 * This should get executed after {@link #reduceSpaces(String, boolean)}
 	 */
 	static String miscPadding(String line, boolean isFullyRunnable) {

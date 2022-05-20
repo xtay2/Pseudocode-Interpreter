@@ -7,14 +7,18 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.ArrayAccess;
 import building.expressions.normal.containers.Variable;
 import building.expressions.normal.operators.Operation;
-import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.infix.ArithmeticOperator;
+import building.expressions.normal.operators.infix.ComparativeOperator;
+import building.expressions.normal.operators.infix.InOperator;
+import building.expressions.normal.operators.infix.InfixOperator;
+import building.expressions.normal.operators.infix.LogicalOperator;
 import building.types.specific.AssignmentType;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
 /**
- * Assigns a value to a {@link Variable} thats already initialised, and returns
- * the {@link Value} afterwards.
+ * Assigns a value to a {@link Variable} thats already initialised, and returns the {@link Value}
+ * afterwards.
  */
 public class Assignment extends Allocating {
 
@@ -22,10 +26,10 @@ public class Assignment extends Allocating {
 
 	/**
 	 * Creates an {@link Assignment}.
-	 * 
-	 * @param type   shouldn't be null.
+	 *
+	 * @param type shouldn't be null.
 	 * @param target shouldn't be null.
-	 * @param val    shouldn't be null.
+	 * @param val shouldn't be null.
 	 */
 	public Assignment(int lineID, AssignmentType type, ValueChanger target, ValueHolder val) {
 		super(lineID, type, target, val);
@@ -47,10 +51,10 @@ public class Assignment extends Allocating {
 
 	/**
 	 * Changes the value of {@link Allocating#target} to {@link Allocating#val}.
-	 * 
-	 * If the target is an {@link ArrayAccess}, the previous {@link Value} in that
-	 * {@link ArrayValue} gets returned.
-	 * 
+	 *
+	 * If the target is an {@link ArrayAccess}, the previous {@link Value} in that {@link ArrayValue}
+	 * gets returned.
+	 *
 	 * If the target is a {@link Variable}, the new {@link Value} gets returned.
 	 */
 	@Override
@@ -59,7 +63,7 @@ public class Assignment extends Allocating {
 		if (target instanceof ArrayAccess aac)
 			return aac.setValue(value);
 		if (op != null)
-			value = new Operation(lineIdentifier, List.of(target.getValue(), op, val.getValue())).getValue();
+			value = new Operation(lineIdentifier, List.of(target.getValue(), op, value)).getValue();
 		target.setValue(value);
 		return value;
 	}
