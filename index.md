@@ -19,7 +19,7 @@ You can find the repository for all installers [here](https://github.com/xtay2/P
 ## Important Sidenotes
  - Please report any bug or unexpected behaviour by filling out [this](https://github.com/xtay2/Pseudocode-II/issues/new/choose) short form. It helps a lot!
  - If you alter the standard-library (stdlib) in any way, the interpreter is no longer usable.
- - The interpreter requires atleast java [jdk 17.0.2](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) and will ask the user to install it, if the version is too old or not accessible.
+ - The interpreter requires atleast java [jdk 18.0.1.1](https://www.oracle.com/java/technologies/javase/jdk18-archive-downloads.html) and will ask the user to install it, if the version is too old or not accessible.
 
 
 ## Github
