@@ -18,9 +18,9 @@ import runtime.exceptions.VarNotFoundException;
 
 /**
  * A Scope is a Block that limits the visibility of variables.
- * 
+ *
  * Every {@link ScopeHolder} contains a Scope.
- * 
+ *
  * @see OpenBlock
  * @see CloseBlock
  */
@@ -51,7 +51,7 @@ public class Scope {
 
 	/**
 	 * Constructs a Scope and connects both Scope-Brackets.
-	 * 
+	 *
 	 * @param scopeName is the name of this scope. This class adds the lineIDs to make it unique.
 	 * @param os is the {@link OpenBlock} bracket. If null, the scope gets reduced to the lineID.
 	 * @param cs is the matching {@link CloseBlock}.
@@ -81,9 +81,10 @@ public class Scope {
 		String regName = reg.getNameString();
 		if (!contains(regName, tos)) {
 			memory.add(new UVID(regName, tos, reg));
-		} else
+		} else {
 			throw new IllegalCodeFormatException(reg.getOriginalLine(),
 					regName + " is already defined in line " + get(reg.getNameString()).getOriginalLine());
+		}
 	}
 
 	/** Returns true, if this, or any underlying Scope contains the quested {@link Registerable}. */
@@ -134,7 +135,7 @@ public class Scope {
 
 	/**
 	 * Searches all underlying Scopes for the quested name.
-	 * 
+	 *
 	 * @return the {@link Registerable} if found, or null if not.
 	 */
 	protected final Registerable get(String target) {

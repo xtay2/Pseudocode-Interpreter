@@ -1,9 +1,11 @@
 package building.expressions.abstractions;
 
+import building.expressions.abstractions.interfaces.AbstractExpression;
 import building.expressions.normal.BuilderExpression;
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
 import building.types.specific.KeywordType;
+import importing.filedata.paths.DataPath;
 import interpreting.modules.merger.SuperMerger;
 import interpreting.program.ProgramLine;
 import launching.Main;
@@ -17,19 +19,13 @@ import launching.Main;
  * @see BuilderExpression
  * @see ExpressionType
  */
-public abstract class Expression {
+public abstract class Expression implements AbstractExpression {
 
 	/** The line in which this Expression is defined. */
 	public final Integer lineIdentifier;
 
 	/** The Type of this Expression. */
 	public final SpecificType type;
-
-	/** Constructor for all Expressions that don't necessarily have a {@link Scope}. */
-	public Expression(SpecificType myType) {
-		this.type = myType;
-		this.lineIdentifier = null;
-	}
 
 	/**
 	 * Builds an Expression.
@@ -47,6 +43,7 @@ public abstract class Expression {
 	}
 
 	/** Returns the corresponding line, shown in the text-editor of the user. */
+	@Deprecated(forRemoval = true)
 	public final int getOriginalLine() {
 		return Main.PROGRAM.getLine(lineIdentifier).orgLine;
 	}
@@ -55,6 +52,7 @@ public abstract class Expression {
 	 * Used mostly in the {@link SuperMerger} for any {@link BuilderExpression} to assure, that this
 	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
 	 */
+	@Override
 	public final boolean is(AbstractType type) {
 		return this.type.is(type);
 	}
@@ -75,8 +73,14 @@ public abstract class Expression {
 	/**
 	 * Returns false for Expressions. Gets Overridden in {@link MainExpression#isDefiniteMainExpression}
 	 */
+	@Override
 	public boolean isDefiniteMainExpression() {
 		return false;
+	}
+
+	@Override
+	public DataPath getDataPath() {
+		return Main.PROGRAM.getLine(lineIdentifier).dataPath;
 	}
 
 	/**

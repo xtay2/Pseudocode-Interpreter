@@ -7,6 +7,7 @@ import static misc.helper.StringHelper.pointUnderline;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +32,8 @@ public final class ProgramHelper {
 	}
 
 	/**
-	 * Tells, if a char at a specified index is not in the string and char boundaries.
+	 * Tells, if a char at a specified index is not in the string and char boundaries. If index points
+	 * into a comment true gets returned.
 	 *
 	 * <pre>
 	 * The symbols ' and " themselves are considered "in a string". (Returns false)
@@ -50,7 +52,7 @@ public final class ProgramHelper {
 				i++;
 			else if (line.charAt(i) == '"')
 				inString = !inString;
-			else if (SLC.equals(String.valueOf(line.charAt(i))))
+			else if (!inString && SLC.equals(String.valueOf(line.charAt(i))))
 				break;
 		}
 		return !inString && isNotAChar(index, line);
@@ -132,13 +134,20 @@ public final class ProgramHelper {
 		return line.substring(0, idxOfEnd).stripTrailing() + suffix + " " + line.substring(idxOfEnd);
 	}
 
+	/**
+	 * This function detects a {@link Formatter#SLC} and safely removes it from a line.
+	 */
+	public static String lineWithoutSLC(String line) {
+		int idxOfSLC = indexOfSLC(line);
+		return idxOfSLC == -1 ? line : line.substring(0, idxOfSLC).stripTrailing();
+	}
+
 	/** Returns the index of a single-line-comment, or -1 if there is none in this line. */
 	public static int indexOfSLC(String line) {
-		int idxOfEnd = -1;
-		do {
-			idxOfEnd = line.indexOf(SLC, idxOfEnd + 1);
-		} while (!isNotInString(idxOfEnd, line) && idxOfEnd != -1);
-		return idxOfEnd;
+		MatchResult m = Pattern.compile(SLC).matcher(line).results()//
+				.filter(e -> isNotInString(e.start(), line))//
+				.findFirst().orElse(null);
+		return m == null ? -1 : m.start();
 	}
 
 	/**
@@ -151,8 +160,25 @@ public final class ProgramHelper {
 	 * @throws IllegalStateException if the program doesn't contain a matching bracket.
 	 */
 	public static int[] findMatchingBrack(List<String> program, int startLine, int idxOfFstBrack) throws IllegalStateException {
-		int[] result = findMatchingOpened(program, startLine, idxOfFstBrack);
-		return result == null ? findMatchingClosed(program, startLine, idxOfFstBrack) : result;
+		if (startLine == -1 || idxOfFstBrack == -1) {
+			throw new IllegalArgumentException("Invalid input: startLine=" + startLine + ", idxOfFstBrack=" + idxOfFstBrack + "\n"
+					+ StringHelper.enumerateIndexed(program) //
+			);
+		}
+		try {
+			int[] result = findMatchingOpened(program, startLine, idxOfFstBrack);
+			return result == null ? findMatchingClosed(program, startLine, idxOfFstBrack) : result;
+		} catch (Exception e) {
+			if (startLine >= 0 && startLine < program.size()) {
+				throw new IllegalStateException(
+						"Tried to search for bracket: \n" + StringHelper.pointUnderline(program.get(startLine), idxOfFstBrack) //
+				);
+			} else {
+				throw new IllegalStateException(
+						"Tried to find a bracket in line " + startLine + " in a program that only has " + program.size() + " lines."//
+				);
+			}
+		}
 	}
 
 	/**
@@ -330,19 +356,49 @@ public final class ProgramHelper {
 	}
 
 	/**
-	 * This function returns the first runnable {@link String}-match of the regex, in the line.
+	 * This function returns the first runnable {@link String}-match of the regex, in the line. If the
+	 * match contains a string, or ends in a comment it still counts as runnable.
 	 *
 	 * @param line is the whole line.
 	 * @param regex is the regular expression that gets matched.
 	 * @return the first match.
 	 */
 	public static String getFirstRunnable(String line, String regex) {
-		//@formatter:off
-		MatchResult match = Pattern.compile(regex).matcher(line).results()
-				.filter(mRes -> isRunnableCode(mRes.start(), line))
-				.findFirst().orElseGet(() -> null);
-		//@formatter:on
-		return match == null ? null : match.group();
+		MatchResult m = Pattern.compile(regex).matcher(line).results().filter(mRes -> isRunnableCode(mRes.start(), line)).findFirst()
+				.orElse(null);
+		return m == null ? null : m.group();
+	}
+
+	/**
+	 * This function returns an immutable {@link List} of all runnable {@link String}-matches of the
+	 * regex, in the line. If the match contains a string, or ends in a comment it still counts as
+	 * runnable.
+	 *
+	 * @param line is the whole line.
+	 * @param regex is the regular expression that gets matched.
+	 * @return the first match.
+	 */
+	public static Set<String> getAllRunnable(String line, String regex) {
+		Pattern p = Pattern.compile(regex);
+		Set<String> matches = p.matcher(line).results().filter(mRes -> isRunnableCode(mRes.start(), line)).map(e -> e.group())
+				.collect(Collectors.toSet());
+		return matches;
+	}
+
+	/**
+	 * Returns a set of (probably nested) calls from a line.
+	 *
+	 * <pre>
+	 * line: 	"foo(bar(), buzz())"
+	 * returns:	[foo(bar(), buzz()), bar(), buzz()] (any order)
+	 * </pre>
+	 */
+	public static Set<String> getAllCallsInLine(String line) {
+		Pattern p = Pattern.compile("(?<!func\\s)\\b" + Formatter.WR + "\\(");
+		return p.matcher(line).results().filter(mRes -> isRunnableCode(mRes.start(), line)).map(e -> {
+			int end = findMatchingBrackInLine(e.end() - 1, line, false);
+			return line.substring(e.start(), end + 1);
+		}).collect(Collectors.toSet());
 	}
 
 	/**
@@ -353,7 +409,6 @@ public final class ProgramHelper {
 	 * @return the number of runnable matches.
 	 */
 	public static int runnableMatches(String line, String regex) {
-		return (int) Pattern.compile(regex).matcher(line).results() //
-				.filter(mRes -> isRunnableCode(mRes.start(), line)).count();
+		return getAllRunnable(line, regex).size();
 	}
 }

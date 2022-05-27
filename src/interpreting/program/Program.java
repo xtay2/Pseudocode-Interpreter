@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import importing.filedata.paths.DataPath;
 import interpreting.modules.interpreter.Interpreter;
 
 public final class Program implements Iterable<ProgramLine> {
@@ -17,15 +18,15 @@ public final class Program implements Iterable<ProgramLine> {
 	 * Adds/Replaces a specified, stripped line of code in this datastructure.
 	 *
 	 * @param content is the code in this line
-	 * @param line    is the original line-index
+	 * @param line is the original line-index
 	 * @return {@code true} if the line was changed.
 	 */
-	public void appendLine(String content, int line) {
+	public void appendLine(String content, DataPath dataPath) {
 		if (constructed)
 			throw new AssertionError("This program already got constructed.");
 		if (content == null)
 			throw new NullPointerException("Line can be empty, but not null.");
-		program.add(new ProgramLine(content, program.size(), line)); // Line was added.
+		program.add(new ProgramLine(content, program.size(), dataPath)); // Line was added.
 	}
 
 	/**

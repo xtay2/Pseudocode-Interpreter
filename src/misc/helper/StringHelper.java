@@ -1,10 +1,7 @@
 package misc.helper;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import interpreting.modules.parser.Parser.IdxLine;
 
 /**
  * Abstract Helperclass that contains all functions that get used all over the project.
@@ -17,14 +14,14 @@ public final class StringHelper {
 
 	/**
 	 * Points to a char in a string.
-	 * 
+	 *
 	 * <pre>
 	 * pointUnderline("Hello", 2) produces:
 	 * Hello
 	 *   ^
 	 * </pre>
-	 * 
-	 * @param line    is the full line
+	 *
+	 * @param line is the full line
 	 * @param pointer is the index of the char that gets pointed at.
 	 */
 	public static String pointUnderline(String line, int pointer) {
@@ -33,15 +30,15 @@ public final class StringHelper {
 
 	/**
 	 * Points to a section in a string.
-	 * 
+	 *
 	 * <pre>
 	 * pointUnderline("Hello", 2, 2) produces:
 	 * Hello
 	 *   ^^
 	 * </pre>
-	 * 
-	 * @param line          is the full line
-	 * @param pointer       is the index of the char that gets pointed at.
+	 *
+	 * @param line is the full line
+	 * @param pointer is the index of the char that gets pointed at.
 	 * @param pointerLength is the length of the pointed section.
 	 */
 	public static String pointUnderline(String line, int pointer, int pointerLength) {
@@ -58,7 +55,7 @@ public final class StringHelper {
 
 	/**
 	 * An alternative toString() method for every {@link Collection}.
-	 * 
+	 *
 	 * <pre>
 	 * For example [1, 2, 3] becomes:
 	 * -1
@@ -67,28 +64,26 @@ public final class StringHelper {
 	 * </pre>
 	 */
 	public static String enumerate(Collection<?> collection) {
+		if (collection.isEmpty())
+			return "<none>";
 		return collection.stream().map(e -> e.toString()).reduce("", (acc, e) -> acc + "\n-" + e);
 	}
 
 	/**
-	 * Takes a program and adds an incrementing index to each line.
-	 * 
-	 * @see IdxLine
+	 * An alternative toString() method for every {@link List}.
+	 *
+	 * <pre>
+	 * For example [1, 2, 3] becomes:
+	 * 0: 1
+	 * 1: 2
+	 * 2: 3
+	 * </pre>
 	 */
-	public static List<IdxLine> indexLines(List<String> lines) {
-		List<IdxLine> indexedLines = new ArrayList<>();
-		for (int i = 0; i < lines.size(); i++)
-			indexedLines.add(new IdxLine(lines.get(i), i + 1));
-		return indexedLines;
+	public static String enumerateIndexed(List<?> list) {
+		String res = "";
+		for (int i = 0; i < list.size(); i++)
+			res += i + ": " + list.get(i) + (i == list.size() - 1 ? "" : "\n");
+		return res;
 	}
 
-	/**
-	 * Takes an indexed program and simplifies it back to just the strings.
-	 * 
-	 * The returned {@link List} is immutable, because information is lost on the way, and it should
-	 * only get used for analyzing purposes.
-	 */
-	public static List<String> unIndexLines(List<IdxLine> lines) {
-		return lines.stream().map(e -> e.line()).toList();
-	}
 }

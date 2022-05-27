@@ -7,12 +7,12 @@ import building.expressions.normal.containers.Variable;
 
 /**
  * Everything that has a {@link Name}.
- * 
+ *
  * @see Name
  * @see Variable
  * @see Definition
  */
-public interface NameHolder {
+public interface NameHolder extends AbstractExpression {
 
 	/** Returns the {@link Name} object of this {@link Expression}. */
 	public Name getName();

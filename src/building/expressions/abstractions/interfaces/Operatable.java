@@ -4,7 +4,7 @@ import building.expressions.normal.operators.infix.InfixOperator;
 
 /**
  * Everything that can be part of an operation.
- * 
+ *
  * @see InfixOperator
  * @see ValueHolder
  */

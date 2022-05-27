@@ -17,6 +17,7 @@ import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.BuilderExpression;
 import building.types.abstractions.SpecificType;
+import importing.filedata.paths.DataPath;
 import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.merger.ExpressionMerger;
 import launching.Main;
@@ -27,7 +28,10 @@ public class ProgramLine {
 	final String line;
 
 	/** The original line from the users editor. */
+	@Deprecated
 	public final int orgLine;
+
+	public final DataPath dataPath;
 
 	/** The unique lineID that this program generated. */
 	public final int lineID;
@@ -41,16 +45,17 @@ public class ProgramLine {
 	 * @param lineID is the unique identifier.
 	 * @param orgLine is the line from the users editor.
 	 */
-	public ProgramLine(String line, int lineID, int orgLine) {
+	public ProgramLine(String line, int lineID, DataPath dataPath) {
 		this.line = line;
 		this.lineID = lineID;
-		this.orgLine = orgLine;
+		this.orgLine = dataPath.orgLine;
+		this.dataPath = dataPath;
 	}
 
 	/** Reads the line and constructs an object-expression-notation from the information. */
 	void construct() {
 		String current = "";
-		// Erwartete Ausdrücke am Zeilenanfang
+		// Erwartete Ausdrï¿½cke am Zeilenanfang
 		SpecificType expectedTypes[] = START_OF_LINE_TYPE.subValues();
 		boolean inString = false;
 		for (int i = 0; i < line.length(); i++) {
@@ -147,5 +152,4 @@ public class ProgramLine {
 	public String toString() {
 		return lineID + "\t" + line;
 	}
-
 }

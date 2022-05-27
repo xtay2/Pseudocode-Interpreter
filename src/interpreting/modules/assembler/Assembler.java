@@ -1,29 +1,25 @@
 package interpreting.modules.assembler;
 
 import static formatter.basic.Formatter.*;
-import static misc.helper.ProgramHelper.containsRunnable;
-import static misc.helper.ProgramHelper.indexOfRunnable;
-import static misc.helper.ProgramHelper.lineEndsWith;
+import static misc.helper.ProgramHelper.*;
 import static misc.helper.StringHelper.removeCharAt;
-import static misc.helper.StringHelper.unIndexLines;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import building.expressions.main.CloseBlock;
 import building.types.specific.BuilderType;
 import formatter.basic.Formatter;
-import interpreting.modules.parser.Parser.IdxLine;
-import misc.helper.ProgramHelper;
+import importing.filedata.paths.DataPath;
+import misc.util.Tuple;
 
 /** Does all the invisible but necessary formatting that is not done by the {@link Formatter}. */
 public class Assembler {
 
-	private static List<IdxLine> lines;
+	private static List<Tuple<DataPath, String>> lines;
 
-	public static List<IdxLine> assemble(List<IdxLine> program) {
+	public static List<Tuple<DataPath, String>> assemble(List<Tuple<DataPath, String>> program) {
 		// Strip all
-		lines = new ArrayList<>(program.stream().map(e -> new IdxLine(e.line().strip(), e.index())).toList());
+		lines = program;
 		removeEmptyAndComments();
 		padRangeOperators();
 		splitCloseBlocks();
@@ -35,14 +31,15 @@ public class Assembler {
 	/** Remove all lines without content and single line comments. */
 	private static void removeEmptyAndComments() {
 		for (int i = lines.size() - 1; i >= 0; i--) {
-			final String l = lines.get(i).line();
-			final int index = lines.get(i).index();
+			String l = lines.get(i).val2.strip();
 			// Remove empty or fully commented
-			if (l.isBlank() || l.startsWith(SLC))
+			if (l.isBlank() || l.startsWith(SLC)) {
 				lines.remove(i);
+				continue;
+			}
 			// Remove partial comments
-			else if (l.contains(SLC))
-				lines.set(i, new IdxLine(l.substring(0, l.indexOf(SLC)).stripTrailing(), index));
+			l = lineWithoutSLC(l);
+			lines.set(i, new Tuple<DataPath, String>(lines.get(i).val1, l));
 		}
 	}
 
@@ -52,8 +49,8 @@ public class Assembler {
 	 */
 	private static void padRangeOperators() {
 		for (int i = 0; i < lines.size(); i++) {
-			String line = lines.get(i).line();
-			lines.set(i, new IdxLine(ProgramHelper.replaceAllIfRunnable(line, "\\.\\.", " .. ", false), lines.get(i).index()));
+			String line = lines.get(i).val2;
+			lines.set(i, new Tuple<DataPath, String>(lines.get(i).val1, replaceAllIfRunnable(line, "\\.\\.", " .. ", false)));
 		}
 	}
 
@@ -79,8 +76,7 @@ public class Assembler {
 	 */
 	private static void splitCloseBlocks() {
 		for (int i = 0; i < lines.size(); i++) {
-			final String l = lines.get(i).line();
-			final int index = lines.get(i).index();
+			final String l = lines.get(i).val2;
 			if (containsRunnable(l, CB) && l.length() > 1 && !l.equals(CB + MCS)) {
 				// Remove original
 				lines.remove(i);
@@ -88,7 +84,7 @@ public class Assembler {
 				final String[] line = l.split("((?<=" + CB + ")|(?=" + CB + "))");
 				// Write the segments back
 				for (int seg = 0; seg < line.length; seg++)
-					lines.add(i + seg, new IdxLine(line[seg].strip(), index));
+					lines.add(i + seg, new Tuple<DataPath, String>(lines.get(i).val1, line[seg].strip()));
 				// Jump over the new lines
 				i += line.length - 1;
 			}
@@ -110,19 +106,19 @@ public class Assembler {
 	 */
 	private static void splitFullOneLiners() {
 		for (int i = 0; i < lines.size(); i++) {
-			final String line = lines.get(i).line();
-			final int orgLine = lines.get(i).index();
+			final DataPath path = lines.get(i).val1;
+			final String line = lines.get(i).val2;
 			int idxOfFstOLS = indexOfRunnable(line, String.valueOf(OLS));
 			if (idxOfFstOLS != -1) {
 				if (lineEndsWith(line, MCS)) {
-					lines.set(i, new IdxLine(line.substring(0, idxOfFstOLS) + " " + OB, orgLine));
+					lines.set(i, new Tuple<DataPath, String>(path, line.substring(0, idxOfFstOLS) + " " + OB));
 					// SUBLINE
 					String subLine = line.substring(idxOfFstOLS + 2);
 					if (!containsRunnable(subLine, String.valueOf(OLS)))
 						subLine = removeCharAt(indexOfRunnable(subLine, MCS), subLine);
-					lines.add(i + 1, new IdxLine(subLine, orgLine));
+					lines.add(i + 1, new Tuple<DataPath, String>(path, subLine));
 					// CLOSE-BLOCK
-					lines.add(i + 2, new IdxLine(CB, orgLine));
+					lines.add(i + 2, new Tuple<DataPath, String>(path, CB));
 				}
 			}
 		}
@@ -147,16 +143,16 @@ public class Assembler {
 	 */
 	private static void splitPartialOneLiners() {
 		for (int i = 0; i < lines.size(); i++) {
-			final String line = lines.get(i).line();
-			final int orgLine = lines.get(i).index();
+			final DataPath path = lines.get(i).val1;
+			final String line = lines.get(i).val2;
 			int idxOfFstOLS = indexOfRunnable(line, String.valueOf(OLS));
 			if (idxOfFstOLS != -1) {
 				if (lineEndsWith(line, OB)) {
 					// CLOSE-BLOCK
-					int idxOfMSC = ProgramHelper.findMatchingBrack(unIndexLines(lines), i, idxOfFstOLS)[0];
-					lines.add(idxOfMSC + 1, new IdxLine(CB, lines.get(idxOfMSC).index()));
-					lines.set(i, new IdxLine(line.substring(0, idxOfFstOLS) + " " + OB, orgLine));
-					lines.add(i + 1, new IdxLine(line.substring(idxOfFstOLS + 2), orgLine));
+					int idxOfMSC = findMatchingBrack(lines.stream().map(e -> e.val2).toList(), i, idxOfFstOLS)[0];
+					lines.add(idxOfMSC + 1, new Tuple<DataPath, String>(lines.get(idxOfMSC).val1, CB));
+					lines.set(i, new Tuple<DataPath, String>(path, line.substring(0, idxOfFstOLS) + " " + OB));
+					lines.add(i + 1, new Tuple<DataPath, String>(path, line.substring(idxOfFstOLS + 2)));
 				} else {
 					//@formatter:off
 					throw new AssertionError( // The error-msg exists in this method, because it gets called after #splitFullOneLiners
@@ -164,7 +160,7 @@ public class Assembler {
 							+ "\nThis should get handled by FormatterLvl1.\nLine was: " + line);
 				} //@formatter:on
 			} else if (line.equals(CB + MCS))
-				lines.set(i, new IdxLine(CB, orgLine));
+				lines.set(i, new Tuple<DataPath, String>(path, CB));
 		}
 	}
 }

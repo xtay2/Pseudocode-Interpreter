@@ -1,6 +1,5 @@
 package interpreting.modules.parser;
 
-import static misc.helper.StringHelper.indexLines;
 import static misc.supporting.Output.print;
 
 import java.io.IOException;
@@ -11,9 +10,12 @@ import java.util.List;
 
 import formatter.basic.Formatter;
 import importing.Importer;
-import interpreting.modules.disassembler.Disassembler;
+import importing.filedata.paths.DataPath;
+import interpreting.modules.assembler.Assembler;
 import launching.Main;
+import misc.helper.StringHelper;
 import misc.supporting.FileManager;
+import misc.util.Tuple;
 
 public final class Parser {
 
@@ -23,18 +25,19 @@ public final class Parser {
 	 * @param line is the text.
 	 * @param index is the lineNr from the editor.
 	 */
+	@Deprecated
 	public record IdxLine(String line, int index) {
 
 		@Override
 		public String toString() {
 			return index + ": " + line;
 		}
-
 	}
 
 	/**
 	 * Formats the file and returns the result.
 	 */
+	@Deprecated
 	private static List<String> format(Path mainFilePath) {
 		List<String> lines;
 		try {
@@ -61,20 +64,20 @@ public final class Parser {
 	 */
 	public static void parse(Path mainFilePath, boolean forceFormat) {
 		// TODO Format only relevant files
-		List<IdxLine> lines = indexLines(format(mainFilePath));
-		Importer.test();
+		// List<IdxLine> lines = indexLines(format(mainFilePath));
+		List<Tuple<DataPath, String>> lines = Importer.getLines();
 
-		lines = Disassembler.dissassemble(lines);
+		System.out.println(StringHelper.enumerate(lines));
+
+		lines = Assembler.assemble(lines);
 
 		// At this point, all lines are stripped.
-		lines.stream().forEach(e -> print(e));
-
-		print("-".repeat(70));
+		print(StringHelper.enumerate(lines));
 
 		// Index all newly written and formatted lines correctly, as this is the code
 		// that the user sees.
-		for (IdxLine line : lines)
-			Main.PROGRAM.appendLine(line.line(), line.index());
+		for (Tuple<DataPath, String> line : lines)
+			Main.PROGRAM.appendLine(line.val2, line.val1);
 		Main.PROGRAM.constructAndMerge();
 	}
 }

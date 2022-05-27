@@ -36,8 +36,8 @@ public abstract class Main {
 				+ "\n-Optional flags");
 		}
 		//@formatter:on
-		libPath = args[0].strip();
-		launchPath = args[1].strip();
+		libPath = args[0].strip().replace('\\', '/');
+		launchPath = args[1].strip().replace('\\', '/');
 		String execCommand = args[2].strip();
 		String[] execFlags = Arrays.copyOfRange(args, 3, args.length);
 		execute(execCommand, execFlags);
@@ -82,7 +82,7 @@ public abstract class Main {
 		// Save execution
 		try {
 			print("Formatting...");
-			Parser.parse(findMainFile(launchPath.replace("\"", "")), force);
+			Parser.parse(findMainFile(launchPath), force);
 			if (!justFormatting) {
 				print("Interpreting...");
 				Interpreter.interpret();

@@ -5,63 +5,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import importing.filedata.paths.FilePath;
+import interpreting.exceptions.ImportingException;
 
 public final class FileManager {
-
-	/**
-	 * Count the number of lines in a textfile.
-	 *
-	 * @param path is the relative path, where the file is stored.
-	 * @return the linecount as int
-	 */
-//	public static int countLinesInFile(String path) {
-//		try (FileReader input = new FileReader(path); LineNumberReader count = new LineNumberReader(input);) {
-//			count.skip(Long.MAX_VALUE);
-//			return count.getLineNumber();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return -1;
-//	}
-
-	/**
-	 * Convert a textfile to an array of string.
-	 *
-	 * @param path is the relative path, where the file is stored.
-	 * @return the content of the file, line by line, as a string array.
-	 */
-//	public static String[] fileToLineArray(String path) {
-//		String[] programm = new String[countLinesInFile(path)];
-//		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//			for (int i = 0; i < programm.length; i++)
-//				programm[i] = br.readLine();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return programm;
-//	}
-
-	/**
-	 * Convert a textfile to a string.
-	 *
-	 * @param path is the relative path, where the file is stored.
-	 * @return the content of the file as a string.
-	 */
-//	public static String readFile(String path) {
-//		String out = "";
-//		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//			out = br.readLine();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return out;
-//	}
 
 	/**
 	 * Write a List of lines into the textfile.
@@ -115,40 +67,41 @@ public final class FileManager {
 		return null;
 	}
 
-	public static String findPath(String subfolder, String name) {
-		System.out.println(subfolder + " " + name);
-		File current = new File(subfolder);
-		String target = null;
-		if (current.isDirectory()) {
-			for (File f : current.listFiles()) {
-				target = findPath(f.getAbsolutePath(), name);
-				if (target != null)
-					return target;
-			}
-			return null;
-		} else if (current.isFile() && current.getName().equals(name)) {
-			String res = current.toString();
-			return res.substring(res.lastIndexOf(subfolder)).replace('\\', '.');
+	/**
+	 * Tries to find a File, when a bit of the path is missing.
+	 *
+	 * <pre>
+	 * subfolder: "C:\Users\Pseudocode\MyProject"
+	 * target: "Main.pc"
+	 * returns: "package\subPackage"
+	 * full path: "C:\Users\Pseudocode\MyProject\package\subPackage\Main.pc"
+	 * </pre>
+	 *
+	 * @param subfolder is the starting point of the search. This has to be an absolute Path.
+	 * @param target is the name of the target File or Folder.
+	 * @return the path between subfolder and target
+	 */
+	public static String findPath(String subfolder, String target) {
+		List<Path> paths;
+		try {
+			paths = Files.walk(Path.of(subfolder)).filter(e -> e.endsWith(target)).toList();
+		} catch (IOException e) {
+			throw new ImportingException(-1, "Couldn't find file \"" + subfolder + ".." + target + "\"");
 		}
-		System.out.println(current.getName());
-		return null;
+		if (paths.size() == 1) {
+			String path = paths.get(0).toString().replace('\\', '/');
+			path = path.substring(subfolder.length(), path.lastIndexOf(target));
+			return path.replace('/', '.');
+		}
+		throw new ImportingException(-1, "There are multiple matches for the file:\n\"" + subfolder + ".." + target + "\"");
 	}
 
 	public static List<String> readFile(FilePath path) {
-		// TODO Implement me!
-		return null;
+		try {
+			return Files.readAllLines(Paths.get(path.getAbsPath()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
-
-	/**
-	 * Write a Array of lines into the textfile.
-	 *
-	 * @param content is the string.
-	 * @param path is the relative path, where the file is stored.
-	 */
-//	public static void writeFile(String[] content, String path) {
-//		String res = "";
-//		for (String line : content)
-//			res += line + "\n";
-//		writeFile(res.stripTrailing(), path);
-//	}
 }
