@@ -2,7 +2,7 @@
 name: Error-message suggestion
 about: Propose a new error-message or a change to an existing one.
 title: ''
-labels: ''
+labels: 'enhancement'
 assignees: 'xtay2'
 ---
 **Cause**
