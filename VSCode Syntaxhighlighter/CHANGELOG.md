@@ -1,5 +1,11 @@
 # Public Change Log
 
+### Update 0.4.9
+Added highlighting for the keyword `enum`. 
+
+### Update 0.4.8
+Added highlighting for `class`, `static`, `try`, `catch`, `break`, `continue` and `goto`. 
+
 ### Update 0.4.7
 Fixed the detection for `INF` and `NaN`. 
 

@@ -3,8 +3,11 @@
 	"patterns": [
 		{"include": "#comments"},
 
+		{"include": "#func_declarations"},
+		{"include": "#var_types"},
+
 		{"include": "#keywords"},
-		{"include": "#return_statements"},
+		{"include": "#jump_statements"},
 
 		{"include": "#import_statements"},
 		{"include": "#import_lines"},
@@ -17,9 +20,6 @@
 		{"include": "#strings"},
 
 		{"include": "#operators"},
-
-		{"include": "#var_types"},
-		{"include": "#func_declarations"},
 
 		{"include": "#numeric_constants"},
 		{"include": "#names"},
@@ -35,13 +35,13 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pseudocode",
-				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|as|for|native|final|const|public|is|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
+				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|as|for|class|enum|is|try|catch|static|native|final|const|public|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
 			}]
 		},
-		"return_statements": {
+		"jump_statements": {
 			"patterns": [{
 				"name": "keyword.return.pseudocode",
-				"match": "\\b(return)\\b|(\\-\\>)"
+				"match": "\\b(return|break|continue|goto)\\b|(\\-\\>)"
 			}]
 		},
 		"import_statements": {
