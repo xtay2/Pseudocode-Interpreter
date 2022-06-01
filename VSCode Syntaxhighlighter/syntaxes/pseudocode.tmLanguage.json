@@ -22,6 +22,7 @@
 		{"include": "#operators"},
 
 		{"include": "#numeric_constants"},
+		{"include": "#constants"},
 		{"include": "#names"},
 		{"include": "#number_literals"}
 	],
@@ -54,6 +55,12 @@
 			"patterns": [{
 				"name": "comment.pseudocode",
 				"match": "(?<=import\\s)((\\w+)|(\\.))+"
+			}]
+		},
+		"constants": {
+			"patterns": [{
+				"name": "constant.language",
+				"match": "\\b([A-ZÄÖÜ_])+\\b"
 			}]
 		},
 		"names": {

@@ -3,9 +3,9 @@ package runtime.datatypes;
 import static building.types.specific.datatypes.SingleType.BOOL;
 
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
 
 public class BoolValue extends Value {
 
@@ -26,14 +26,14 @@ public class BoolValue extends Value {
 	}
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType())
-			throw new CastingException(this, t);
+			throw new NonExpressionException("Casting", "Cannot cast " + this + " to " + t + ".");
 		return switch (t.type) {
 			case VAR, BOOL -> this;
 			case NR, INT -> value ? NumberValue.ONE : NumberValue.ZERO;
 			case TEXT -> new TextValue(toString());
-			default -> throw new CastingException(this, t);
+			default -> throw new NonExpressionException("Casting", "Cannot cast " + this + " to " + t + ".");
 		};
 	}
 

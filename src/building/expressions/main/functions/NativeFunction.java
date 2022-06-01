@@ -12,17 +12,16 @@ import building.expressions.normal.containers.Name;
 import building.expressions.possible.Call;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
 import runtime.defmanager.DefManager;
-import runtime.exceptions.DeclarationException;
-import runtime.exceptions.IllegalCallException;
 import runtime.natives.SystemFunctions;
 
 /**
  * This is the class for a native Function-Declaration.
- * 
+ *
  * If a {@link NativeFunction} called, this happens through the {@link Call}-Class and
  * {@link Interpreter#call}.
  */
@@ -32,7 +31,7 @@ public class NativeFunction extends Definition {
 
 	/**
 	 * Defines and registers a {@link NativeFunction}.
-	 * 
+	 *
 	 * @param name is the unique {@link Name} of this {@link Definition}. shouldn't be null
 	 * @param params shouldn't be null.
 	 * @param returnType is the {@link DataType} of the return value. Should be null if this is a void.
@@ -43,9 +42,10 @@ public class NativeFunction extends Definition {
 		assert params != null : "Params cannot be null.";
 		this.params = params;
 		if (!Arrays.stream(SystemFunctions.SYSTEM_FUNCTION.values())
-				.anyMatch(f -> f.name.equals(name.getNameString()) && f.args == params.size())) {
-			throw new DeclarationException(getOriginalLine(),
-					"Internally, there is no native function \"" + name + "<" + params.size() + ">\".");
+				.anyMatch(f -> f.name.equals(name.getNameString()) && f.argTypes.length == params.size())) {
+			throw new PseudocodeException("NativeDeclaration",
+					"Internally, there is no native function \"" + name + "<" + params.size() + ">\".", //
+					getDataPath());
 		}
 	}
 
@@ -60,17 +60,27 @@ public class NativeFunction extends Definition {
 			DefManager.finalize(this);
 		// Call to System-Functions
 		if (params.length != expectedParams())
-			throw new IllegalCallException(getOriginalLine(), "Illegal amount of params. Expected " + expectedParams());
-		returnVal = callSystemFunc(getSystemFunction(getNameString(), getOriginalLine()), params);
-		// The return-value is now set.
-		if (returnVal != null && returnType != null)
-			returnVal = returnVal.as(returnType);
-		else {
-			if (returnVal == null && returnType != null)
-				throw new IllegalCodeFormatException(getOriginalLine(),
-						getNameString() + " has speciefied the return-type " + returnType + " but had no return-value.");
-			if (returnVal != null && returnType == null)
-				throw new IllegalCodeFormatException(getOriginalLine(), getNameString() + " has to specify a return-type.");
+			throw new PseudocodeException("IllegalCall", "Illegal amount of params. Expected " + expectedParams(), getDataPath());
+		try {
+			returnVal = callSystemFunc(getSystemFunction(getName()), params);
+			// The return-value is now set.
+			if (returnVal != null && returnType != null)
+				returnVal = returnVal.as(returnType);
+			else {
+				if (returnVal == null && returnType != null) {
+					throw new PseudocodeException("MissingReturn", //
+							getNameString() + " has speciefied the return-type " + returnType + " but had no return-value.", //
+							getDataPath());
+				}
+				if (returnVal != null && returnType == null) {
+					throw new PseudocodeException("UnexpectedReturn", //
+							"The function " + getNameString() + " expected a return-value of type " + returnType //
+									+ " but returned the value " + returnVal + "instead.",
+							getDataPath());
+				}
+			}
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
 		}
 		Value temp = returnVal;
 		returnVal = null;

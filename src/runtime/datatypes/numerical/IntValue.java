@@ -8,12 +8,13 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.datatypes.DataType;
 import ch.obermuhlner.math.big.BigDecimalMath;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
 
 /**
  * An Integer-Value with up to 100 digits.
@@ -46,7 +47,7 @@ public final class IntValue extends NumberValue {
 	}
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType()) {
 			final String line = value.toString();
 			IntValue[] intArray = new IntValue[line.length()];
@@ -57,7 +58,7 @@ public final class IntValue extends NumberValue {
 		return switch (t.type) {
 			case VAR, INT, NR -> this;
 			case TEXT -> new TextValue(value.toString());
-			default -> throw new CastingException(this, t);
+			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
 

@@ -6,7 +6,7 @@ import building.expressions.abstractions.MainExpression;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.functions.Definition;
 import building.expressions.main.functions.Function;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.Value;
 
 public class ReturnStatement extends MainExpression {
@@ -41,9 +41,8 @@ public class ReturnStatement extends MainExpression {
 		if (def instanceof Function)
 			myFunc = def;
 		else if (val != null) {
-
-			throw new IllegalCodeFormatException(getOriginalLine(),
-					"Only return-statements that don't return values can be used in a " + def);
+			throw new PseudocodeException("InvalidReturn",
+					"Only return-statements that don't return values can be used in \"" + def + "\".", getDataPath());
 		}
 	}
 }

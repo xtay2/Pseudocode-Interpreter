@@ -17,7 +17,7 @@ import building.expressions.main.loops.ForEachLoop;
 import building.expressions.main.loops.IntervalLoop;
 import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 
 public abstract class LoopMerger extends SuperMerger {
 
@@ -30,7 +30,7 @@ public abstract class LoopMerger extends SuperMerger {
 	public static ForEachLoop buildForEach() {
 		line.remove(0);
 		if (!line.remove(1).is(IN))
-			throw new IllegalCodeFormatException(orgLine, "The For-Each-Loop has to contain the \"in\"-Keyword.");
+			throw new PseudocodeException("IncompleteLoop", "The for-each-loop has to contain the \"in\"-Keyword.", dataPath);
 		return new ForEachLoop(lineID, buildName(), buildVal(), buildOpenBlock());
 	}
 
@@ -46,7 +46,7 @@ public abstract class LoopMerger extends SuperMerger {
 		line.remove(0);
 		ValueHolder start = buildVal();
 		if (!line.remove(0).is(TO)) // To-Keyword
-			throw new IllegalCodeFormatException(orgLine, "Missing \"to\"-Keyword in from-to-loop.");
+			throw new PseudocodeException("IncompleteLoop", "Missing \"to\"-Keyword in from-to-loop.", dataPath);
 		ValueHolder end = buildVal();
 		ValueHolder step = ONE;
 		if (line.get(0).is(STEP)) {

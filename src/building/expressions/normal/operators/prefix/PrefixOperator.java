@@ -10,6 +10,8 @@ import building.expressions.normal.operators.postfix.PostfixOperator;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueHolder;
 import building.types.specific.operators.PrefixOpType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 
@@ -40,28 +42,32 @@ public class PrefixOperator extends PossibleMainExpression implements MultiCalla
 		Value[] res = new Value[content.length];
 		for (int i = 0; i < content.length; i++)
 			res[i] = evaluate(content[i]);
-		return new ArrayValue(res);
+		return ArrayValue.newInstance(res);
 	}
 
 	private Value evaluate(ValueHolder val) {
 		Value v = val.getValue();
-		switch ((PrefixOpType) type) {
-			case INC:
-				v = v.asNr().add(ONE);
-				if (val instanceof ValueChanger vc)
-					vc.setValue(v);
-				break;
-			case DEC:
-				v = v.asNr().sub(ONE);
-				if (val instanceof ValueChanger vc)
-					vc.setValue(v);
-				break;
-			case NEG:
-				v = v.asNr().negate();
-				break;
-			case NOT:
-				v = v.asBool().not();
-				break;
+		try {
+			switch ((PrefixOpType) type) {
+				case INC:
+					v = v.asNr().add(ONE);
+					if (val instanceof ValueChanger vc)
+						vc.setValue(v);
+					break;
+				case DEC:
+					v = v.asNr().sub(ONE);
+					if (val instanceof ValueChanger vc)
+						vc.setValue(v);
+					break;
+				case NEG:
+					v = v.asNr().negate();
+					break;
+				case NOT:
+					v = v.asBool().not();
+					break;
+			}
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
 		}
 		return v;
 	}

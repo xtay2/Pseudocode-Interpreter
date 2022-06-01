@@ -15,6 +15,11 @@ public class DataPath extends FilePath {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj) && orgLine == ((DataPath) obj).orgLine;
+	}
+
+	@Override
 	public String toString() {
 		return super.toString() + "(Line: " + orgLine + ")";
 	}

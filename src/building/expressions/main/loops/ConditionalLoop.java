@@ -9,6 +9,8 @@ import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.specific.KeywordType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import interpreting.program.ProgramLine;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -49,6 +51,10 @@ public final class ConditionalLoop extends Loop {
 	 */
 	@Override
 	protected boolean doContinue(NumberValue iteration) {
-		return condition.asBool().value == is(WHILE);
+		try {
+			return condition.asBool().value == is(WHILE);
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 }

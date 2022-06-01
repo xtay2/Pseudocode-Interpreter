@@ -2,11 +2,15 @@ package launching;
 
 import static misc.supporting.Output.print;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
+import errorhandeling.Errors;
+import errorhandeling.InitException;
+import importing.filedata.File;
 import interpreting.modules.interpreter.Interpreter;
 import interpreting.modules.parser.Parser;
 import interpreting.program.Program;
@@ -40,20 +44,57 @@ public abstract class Main {
 		launchPath = args[1].strip().replace('\\', '/');
 		String execCommand = args[2].strip();
 		String[] execFlags = Arrays.copyOfRange(args, 3, args.length);
-		execute(execCommand, execFlags);
+		try {
+			assert Files.exists(Path.of(libPath)) : "The passed library-path wasn't found:\n" + libPath;
+			assert Files.exists(Path.of(launchPath)) : "The passed launchPath-path wasn't found:\n" + launchPath;
+			execute(execCommand, execFlags);
+		} catch (Throwable t) {
+			Errors.handleError(t);
+		}
 	}
 
 	/** Executes with the specified configurations. */
 	private static void execute(String execCommand, String[] execFlags) {
 		switch (execCommand.toLowerCase()) {
 			case "run":
-				exec(execFlags, false);
+				exec(false, execFlags);
 				break;
 			case "format":
-				exec(execFlags, true);
+				exec(true, execFlags);
+				break;
+			case "project":
+				if (execFlags.length != 1 || execFlags[0].isBlank())
+					throw new IllegalArgumentException("The \"pseudocode project\"-command requires a name.");
+				createProject(execFlags[0]);
+				exec(false);
 				break;
 			default:
 				throw new IllegalArgumentException("Unexpected execution-command: " + execCommand);
+		}
+	}
+
+	/**
+	 * Creates a new project.
+	 *
+	 * @param projectName is a non-null/non-empty project-name.
+	 * @throws InitException if the project could not be created.
+	 */
+	private static void createProject(String projectName) throws InitException {
+		try {
+			launchPath = launchPath + "/" + projectName;
+			Files.createDirectory(Path.of(launchPath));
+			Path mainFilePath = Path.of(launchPath + "/" + File.MAIN_FILE + File.EXTENSION);
+		// @formatter:off
+		FileManager.writeFile(
+				List.of("import stdlib.lang.System",
+						"",
+						"main {",
+							"print(\"Hello World!\")",
+						"}"
+						), mainFilePath);
+		// @formatter:on
+		} catch (IOException e) {
+			throw new InitException("Project \"" + projectName + "\" couldn't get created.", e);
 		}
 	}
 
@@ -63,7 +104,7 @@ public abstract class Main {
 	 * @param execFlags are optional execution-flags.
 	 * @param justFormatting is true, if the program should only get formatted and not interpreted.
 	 */
-	private static void exec(String[] execFlags, boolean justFormatting) {
+	private static void exec(boolean justFormatting, String... execFlags) {
 		// Set flags
 		boolean force = false;
 		for (String flag : execFlags) {
@@ -74,42 +115,18 @@ public abstract class Main {
 				jStacktrace = true;
 			else if (flag.matches("--formatter-lvl:\\d"))
 				formatterLvl = Character.getNumericValue(flag.charAt(flag.length() - 1));
-			else if ("--force-format".equals(flag))
+			else if (justFormatting && "--force".equals(flag))
 				force = true;
 			else
 				throw new IllegalArgumentException("Unexpected flag for format-command: " + flag);
 		}
 		// Save execution
-		try {
-			print("Formatting...");
-			Parser.parse(findMainFile(launchPath), force);
-			if (!justFormatting) {
-				print("Interpreting...");
-				Interpreter.interpret();
-			}
-		} catch (Exception e) {
-			if (jStacktrace)
-				e.printStackTrace();
-			else {
-				System.err.println("---" + e.getClass().getSimpleName() + "---");
-				System.err.println(e.getMessage());
-			}
-			System.exit(1);
+		print("Starting the formatter...");
+		Parser.parse(force);
+		if (!justFormatting) {
+			print("Interpreting...");
+			Interpreter.interpret();
 		}
-	}
-
-	/**
-	 * Finds the Main.pc file in the specified path.
-	 *
-	 * @param srcPath is a top-directory of Main.pc
-	 * @return the direct path of the Main.pc
-	 * @throws FileNotFoundException if no main was found.
-	 */
-	private static Path findMainFile(String srcPath) throws FileNotFoundException {
-		File f = FileManager.findFileDir(new File(srcPath), "Main.pc");
-		if (f == null)
-			throw new FileNotFoundException("There has to be a main-file (Main.pc) present in the src directory. (" + srcPath + ")");
-		return f.toPath();
 	}
 
 	/**

@@ -11,10 +11,10 @@ import static runtime.datatypes.numerical.NumberValue.ZERO;
 
 import building.types.abstractions.AbstractType;
 import building.types.abstractions.SpecificType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.DeclarationException;
 
 /**
  * The base type for a {@link DataType}.
@@ -34,14 +34,17 @@ public enum SingleType implements SpecificType {
 	 * Returns the default-value which can vary dependent null-allowance
 	 *
 	 * @param allowsNull
+	 * @throws NonExpressionException for when this type doesn't support a stdVal.
 	 */
-	public Value stdVal(boolean allowsNull) {
+	public Value stdVal(boolean allowsNull) throws NonExpressionException {
 		return switch (this) {
 			case VAR:
 				if (allowsNull)
 					yield NULL;
-				else
-					throw new DeclarationException(-1, "A variable with the var-type has to be initialised at its declaration.");
+				else {
+					throw new NonExpressionException("StandardValue",
+							"A variable with the var-type has to be initialised at its declaration.");
+				}
 			case BOOL:
 				yield FALSE;
 			case INT, NR:

@@ -14,14 +14,12 @@ import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.ComparisonException;
-import runtime.exceptions.UnexpectedTypeError;
 
 public abstract class Value implements ValueHolder {
 
 	public final SingleType dataType;
 
-	/** Creates a new {@link Value}. The lineID is -1 because this has no position. */
+	/** Creates a new {@link Value}. */
 	public Value(SingleType dataType) {
 		this.dataType = dataType;
 	}
@@ -51,9 +49,8 @@ public abstract class Value implements ValueHolder {
 	 * Should get implemented by all Classes that inherit this class (Value).
 	 *
 	 * @param v is the value its checked against.
-	 * @throws UnexpectedTypeError if isn't an instance of the same class this method gets executed on.
 	 */
-	public abstract boolean valueCompare(Value v) throws ComparisonException;
+	public abstract boolean valueCompare(Value v);
 
 	@Override
 	public final Value getValue() {

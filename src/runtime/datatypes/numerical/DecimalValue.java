@@ -10,12 +10,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 
+import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.datatypes.DataType;
 import ch.obermuhlner.math.big.BigDecimalMath;
+import errorhandeling.NonExpressionException;
 import misc.supporting.Output;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
 import runtime.natives.SystemFunctions;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */
@@ -121,9 +122,9 @@ public final class DecimalValue extends NumberValue {
 	}
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType())
-			throw new CastingException(this, t);
+			ValueHolder.throwCastingExc(this, t);
 		return switch (t.type) {
 			case VAR, NR:
 				yield this;
@@ -135,7 +136,7 @@ public final class DecimalValue extends NumberValue {
 					s = s.replaceAll("(\\.(0+)$|(0+)$)", "");
 				yield new TextValue(s);
 			default:
-				throw new CastingException(this, t);
+				yield ValueHolder.throwCastingExc(this, t);
 		};
 	}
 

@@ -2,7 +2,9 @@ package formatter.basic;
 
 import static misc.helper.ProgramHelper.isRunnableCode;
 
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
+import importing.filedata.paths.DataPath;
+import misc.helper.StringHelper;
 
 /**
  * This class checks, if the {@link Formatter#program} can get "safely" formatted. Formatting-errors
@@ -10,16 +12,16 @@ import interpreting.exceptions.IllegalCodeFormatException;
  */
 public final class FormattingPreChecks extends Formatter {
 
-	protected static void check() throws IllegalCodeFormatException {
+	protected static void check() {
 		checkForLonelyBrackets();
 	}
 
 	/**
 	 * Finds any occurrence of a bracket that has no match.
-	 * 
+	 *
 	 * @throws IllegalCodeFormatException if there are not equally many opened, as closed brackets.
 	 */
-	static void checkForLonelyBrackets() throws IllegalCodeFormatException {
+	static void checkForLonelyBrackets() {
 		int simple = 0, square = 0, curly = 0;
 		for (int i = 0; i < program.size(); i++) {
 			final String line = program.get(i);
@@ -37,17 +39,21 @@ public final class FormattingPreChecks extends Formatter {
 						case '}' -> curly--;
 					}
 					if (simple < 0 || square < 0 || curly < 0)
-						throw new IllegalCodeFormatException(i,
-								"The following bracket has no match:\n" + line + "\n" + " ".repeat(j) + "^");
+						throw new PseudocodeException("BracketMatch", //
+								StringHelper.pointUnderline("The following bracket has no match:\n" + line, j), //
+								new DataPath(filePath, i) //
+						);
 				}
 			}
 		}
 		if (simple != 0 || curly != 0 || square != 0) {
 			//@formatter:off
-			throw new IllegalCodeFormatException("There exists atleast one unclosed bracket." 
+			throw new PseudocodeException("BracketMatch",
+					"There exists atleast one unclosed bracket."
 					+ "\nUnclosed \"( )\" brackets: " + simple
 					+ "\nUnclosed \"[ ]\" brackets: " + square
-					+ "\nUnclosed \"{ }\" brackets: " + curly 
+					+ "\nUnclosed \"{ }\" brackets: " + curly,
+					filePath
 					);
 			//@formatter:on
 		}

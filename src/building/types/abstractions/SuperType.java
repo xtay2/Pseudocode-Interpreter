@@ -52,5 +52,4 @@ public enum SuperType implements UnspecificType {
 	public AbstractType[] directSubValues() {
 		return subValues;
 	}
-
 }

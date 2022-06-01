@@ -1,10 +1,19 @@
-package importing.filedata;
+package importing.filedata.interactable;
 
 import java.util.Comparator;
 
+import importing.filedata.paths.DataPath;
 import importing.filedata.paths.FilePath;
 
-public record CallInfo(FilePath targetFile, String targetName, int paramCount) {
+public record CallInfo(DataPath originPath, FilePath targetFile, String targetName, int paramCount) {
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof CallInfo ci //
+				&& targetFile.equals(ci.targetFile) //
+				&& targetName.equals(ci.targetName) //
+				&& paramCount == ci.paramCount;
+	}
 
 	public static Comparator<? super CallInfo> compareByFile() {
 		return new Comparator<CallInfo>() {

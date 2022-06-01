@@ -6,7 +6,10 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.types.specific.KeywordType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import misc.constants.TypeConstants;
+import misc.helper.MathHelper;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -40,15 +43,23 @@ public class ForEachLoop extends Loop {
 	@Override
 	protected void initLoop() {
 		super.initLoop();
-		array = (ArrayValue) arrayHolder.as(TypeConstants.VAR_ARR);
+		try {
+			array = (ArrayValue) arrayHolder.as(TypeConstants.VAR_ARR);
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 
 	@Override
 	@SuppressWarnings("unlikely-arg-type")
 	protected boolean doContinue(NumberValue iteration) {
-		if (iteration.equals(array.length()))
-			return false;
-		new Variable(lineIdentifier, getScope(), TypeConstants.VAR, elemName, array.get(iteration.asInt().value.intValueExact()));
-		return true;
+		try {
+			if (iteration.equals(array.length()))
+				return false;
+			new Variable(lineIdentifier, getScope(), TypeConstants.VAR, elemName, array.get(MathHelper.valToInt(iteration)));
+			return true;
+		} catch (ArithmeticException | NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 }

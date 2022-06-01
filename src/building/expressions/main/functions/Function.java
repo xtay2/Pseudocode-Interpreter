@@ -14,12 +14,10 @@ import building.expressions.possible.Call;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import building.types.specific.datatypes.DataType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.interpreter.Interpreter;
 import runtime.datatypes.Value;
 import runtime.defmanager.DefManager;
-import runtime.exceptions.IllegalCallException;
-import runtime.exceptions.IllegalReturnException;
 
 /**
  * This is the class for a Function-Declaration.
@@ -47,16 +45,18 @@ public class Function extends Definition {
 		if (params == null)
 			throw new AssertionError("Params cannot be null.");
 		if (name.getNameString().equals(KeywordType.MAIN.toString()))
-			throw new IllegalCodeFormatException("An ordinary function cannot be called main.");
+			throw new PseudocodeException("IllegalFuncName", "An ordinary function cannot be called main.", getDataPath());
 		this.paramBlueprint = params;
 	}
 
 	@Override
 	public Value call(ValueHolder... params) {
-		if (expectedParams() != params.length)
-			throw new IllegalCallException(getOriginalLine(),
-					"The function " + getNameString() + " is called with the wrong amount of params. \nWere: " + params.length
-							+ " but should have been " + expectedParams() + ".");
+		if (expectedParams() != params.length) {
+			throw new PseudocodeException("WrongParamCount",
+					"The function " + getNameString() + " is called with the wrong amount of params. " //
+							+ "\nWere: " + params.length + " but should have been " + expectedParams() + ".",
+					getDataPath());
+		}
 		// Check if this was already called.
 		if (hasFlag(FINAL))
 			DefManager.finalize(this);
@@ -70,8 +70,9 @@ public class Function extends Definition {
 		getScope().clear();
 		// The return-value is now set.
 		if (returnType != null && returnVal == null) {
-			throw new IllegalReturnException(getOriginalLine(),
-					getNameString() + " was defined to return a value of type: " + returnType + ", but returned nothing.");
+			throw new PseudocodeException("IllegalReturn", //
+					getNameString() + " was defined to return a value of type: " + returnType + ", but returned nothing.", //
+					getDataPath());
 		}
 		Value temp = returnVal;
 		returnVal = null;

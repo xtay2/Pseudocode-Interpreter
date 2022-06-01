@@ -3,14 +3,16 @@ package importing;
 import static building.types.specific.KeywordType.MAIN;
 import static importing.filedata.paths.Location.SRC;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import building.expressions.main.functions.MainFunction;
-import importing.filedata.CallInfo;
+import errorhandeling.InitException;
 import importing.filedata.File;
+import importing.filedata.interactable.CallInfo;
 import importing.filedata.paths.DataPath;
 import importing.filedata.paths.FilePath;
 import misc.util.Tuple;
@@ -25,19 +27,21 @@ import misc.util.Tuple;
  */
 public abstract class Importer {
 
-	private static Map<FilePath, File> allFiles = new HashMap<>();
+	private static final Map<FilePath, File> allFiles = new HashMap<>();
+
+	/** A {@link Map} of all public variables and constants in the global scope */
+	public static final Map<DataPath, String> globalVars = new HashMap<>();
 
 	/** The File Main.pc, that contains the {@link MainFunction}. */
-	private static File mainFile = getFile(new FilePath(SRC + "..Main"));
+	private static File mainFile;
 
 	static {
 		try {
-			// Start search with main in Main.pc
-			mainFile.findUsedDefs(new CallInfo(mainFile.path, MAIN.toString(), 0));
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new AssertionError("Couldn't detect main-function in Main.pc");
+			mainFile = getFile(new FilePath(SRC + "..Main"));
+		} catch (IOException e) {
+			throw new InitException("Main.pc should be known by now.", e);
 		}
+		mainFile.findUsedDefs(new CallInfo(null, mainFile.path, MAIN.toString(), 0));
 	}
 
 	/**

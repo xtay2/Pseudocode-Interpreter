@@ -2,6 +2,7 @@ package interpreting.program;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import importing.filedata.paths.DataPath;
@@ -50,10 +51,21 @@ public final class Program implements Iterable<ProgramLine> {
 	 * @return the ProgramLine at that index.
 	 */
 	public ProgramLine getLine(int i) {
+		constructedCheck();
 		try {
 			return program.get(i);
 		} catch (IndexOutOfBoundsException e) {
 			throw new AssertionError("Tried to read line " + i + " from PROGRAM in Main. Size: " + program.size());
+		}
+	}
+
+	/** Finds a line of code through the {@link DataPath}. */
+	public String find(DataPath location) {
+		constructedCheck();
+		try {
+			return stream().filter(e -> e.dataPath.equals(location)).findFirst().get().line;
+		} catch (NoSuchElementException e) {
+			throw new AssertionError("A valid datapath should link to a valid file.\nPath was: " + location, e);
 		}
 	}
 
@@ -68,6 +80,7 @@ public final class Program implements Iterable<ProgramLine> {
 	/** Gets used in the {@link Interpreter}. */
 	@Override
 	public Iterator<ProgramLine> iterator() {
+		constructedCheck();
 		return program.iterator();
 	}
 
@@ -80,6 +93,19 @@ public final class Program implements Iterable<ProgramLine> {
 	 * Returns a {@link Stream} of this program.
 	 */
 	public Stream<ProgramLine> stream() {
+		constructedCheck();
 		return program.stream();
+	}
+
+	public boolean isConstructed() {
+		return constructed;
+	}
+
+	/**
+	 * Throws an {@link AssertionError} if the program isn't {@link #constructed} yet. This should get
+	 * added to all major read operations.
+	 */
+	private void constructedCheck() {
+		assert constructed : "The program is not yet initialized and cannot be searched.";
 	}
 }

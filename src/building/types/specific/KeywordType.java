@@ -48,7 +48,7 @@ public enum KeywordType implements SpecificType {
 
 	/**
 	 * Defines a BuilderType
-	 * 
+	 *
 	 * @param id is the unique identifying symbol from the code.
 	 * @param expected are the expected following types. BuilderTypes allways expect themselves as
 	 * followups.
@@ -58,7 +58,7 @@ public enum KeywordType implements SpecificType {
 	}
 
 	@Override
-	public AbstractType[] abstractExpected() {
+	public AbstractType[] abstractExpected() throws UnsupportedOperationException {
 		return switch (this) {
 			case FROM, UNTIL, WHILE, IF, ELIF, RETURN -> new AbstractType[] { VAL_HOLDER_TYPE };
 			case REPEAT -> new AbstractType[] { VAL_HOLDER_TYPE, OPEN_BLOCK };

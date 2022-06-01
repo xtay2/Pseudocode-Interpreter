@@ -17,19 +17,16 @@ import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.ReturnStatement;
 import building.expressions.normal.BuilderExpression;
 import building.types.abstractions.SpecificType;
+import errorhandeling.PseudocodeException;
 import importing.filedata.paths.DataPath;
-import interpreting.exceptions.IllegalCodeFormatException;
 import interpreting.modules.merger.ExpressionMerger;
 import launching.Main;
 
 public class ProgramLine {
 
 	final List<BuilderExpression> expressions = new ArrayList<>();
-	final String line;
 
-	/** The original line from the users editor. */
-	@Deprecated
-	public final int orgLine;
+	public final String line;
 
 	public final DataPath dataPath;
 
@@ -48,7 +45,6 @@ public class ProgramLine {
 	public ProgramLine(String line, int lineID, DataPath dataPath) {
 		this.line = line;
 		this.lineID = lineID;
-		this.orgLine = dataPath.orgLine;
 		this.dataPath = dataPath;
 	}
 
@@ -81,8 +77,7 @@ public class ProgramLine {
 				inString = !inString;
 			current += c;
 		}
-		if (inString)
-			throw new IllegalCodeFormatException(orgLine, "String has to be closed.");
+		assert !inString : "String has to be closed.";
 		if (!current.strip().isEmpty()) // Wenn noch ein einzelnes Zeichen am Zeilenende steht.
 			expressions.add(StringConverter.create(current.strip(), expectedTypes, this));
 		if (expressions.isEmpty())
@@ -92,14 +87,16 @@ public class ProgramLine {
 					? "Expected " + Arrays.toString(expressions.get(expressions.size() - 2).getExpectedExpressions()) + "\nafter \""
 							+ expressions.get(expressions.size() - 2) + "\""
 					: "";
-			throw new IllegalCodeFormatException(orgLine, "State of line: \"" + line + "\".\n" + expressions + "\n" + exp);
+			throw new PseudocodeException("IllegalCodeFormat",
+					"The line couldn't be read completely. The following expressions were recognized: " + expressions + "\n" + exp,
+					dataPath);
 		}
 	}
 
 	/** Returns the last IfStatement or ElifStatement. */
 	private ConditionalStatement findLastIf() {
 		if (lineID == 0)
-			throw new IllegalCodeFormatException(orgLine, "An elif-, any- or else-statement needs a preceding IfStatement.");
+			throw new PseudocodeException("InvalidConstruct", "An elif-, any- or else-statement needs a preceding if-statement.", dataPath);
 		MainExpression previous = Main.PROGRAM.getLine(lineID - 1).getMainExpression();
 		if (previous.is(IF) || previous.is(ELIF) || previous.is(ANY))
 			return (ConditionalStatement) previous;
@@ -116,7 +113,9 @@ public class ProgramLine {
 		// Connect Conditional blocks.
 		else if (main.is(ELIF) || main.is(ANY) || main.is(ELSE)) {
 			if (lineID > 0 && !(Main.PROGRAM.getLine(lineID - 1).getMainExpression() instanceof CloseBlock))
-				throw new IllegalCodeFormatException(orgLine, main.type + " can only get placed after a closed scope.");
+				throw new PseudocodeException("MalformedConstruct", //
+						main.type + " can only get placed after a closed scope.", //
+						dataPath);
 			findLastIf().setNextBlock((ConditionalStatement) main);
 		}
 	}
@@ -129,7 +128,7 @@ public class ProgramLine {
 		if (main instanceof Definition def)
 			return def;
 		if (lineID == 0)
-			throw new IllegalCodeFormatException(orgLine, "Return-Statement has to be declared inside a function.");
+			throw new PseudocodeException("InvalidReturn", "Return-Statement has to be declared inside a function.", dataPath);
 		return Main.PROGRAM.getLine(lineID - 1).searchForFunc();
 	}
 
@@ -145,11 +144,12 @@ public class ProgramLine {
 	public MainExpression getMainExpression() {
 		if (main != null)
 			return main;
-		throw new AssertionError("MainExpression of line " + orgLine + " is null at this point.");
+		throw new AssertionError("MainExpression in " + dataPath + " is null at this point.");
 	}
 
 	@Override
 	public String toString() {
 		return lineID + "\t" + line;
 	}
+
 }

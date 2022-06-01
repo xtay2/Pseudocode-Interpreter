@@ -1,19 +1,17 @@
 package runtime.datatypes;
 
-import building.expressions.abstractions.interfaces.Castable;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.normal.containers.Variable;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
-import runtime.exceptions.ComparisonException;
 
 /**
  * A wrapper {@link ValueHolder} that either contains a value or {@link #NULL}. This should get only
  * used inside of {@link Variable}s and parameters.
  */
-public class MaybeValue implements ValueHolder, Castable {
+public class MaybeValue implements ValueHolder {
 
 	/** The one constant Null that gets referenced everytime there is "null" written in the code. */
 	public static final Value NULL = new Value(SingleType.VAR) {
@@ -21,18 +19,18 @@ public class MaybeValue implements ValueHolder, Castable {
 		public static final String txt = "null";
 
 		@Override
-		public boolean valueCompare(Value v) throws ComparisonException {
+		public boolean valueCompare(Value v) {
 			return NULL == v;
 		}
 
 		@Override
-		public Value as(DataType t) throws CastingException {
+		public Value as(DataType t) throws NonExpressionException {
 			if (t.isArrayType())
-				throw new CastingException(this, t);
+				throw new NonExpressionException("Casting", "Cannot cast " + this + " to " + t);
 			return switch (t.type) {
 				case VAR -> this;
 				case TEXT -> new TextValue(txt);
-				default -> throw new CastingException(this, t);
+				default -> throw new NonExpressionException("Casting", "Cannot cast " + this + " to " + t);
 			};
 		}
 
@@ -63,12 +61,16 @@ public class MaybeValue implements ValueHolder, Castable {
 	// CASTING-----------------------------------------------
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		return value == NULL ? NULL : value.as(t);
 	}
 
-	/** Changes the {@link DataType} of the wrapped value. Doesn't change {@link #NULL}. */
-	public void castTo(DataType type) {
+	/**
+	 * Changes the {@link DataType} of the wrapped value. Doesn't change {@link #NULL}.
+	 *
+	 * @throws NonExpressionException -> Casting
+	 */
+	public void castTo(DataType type) throws NonExpressionException {
 		if (value != NULL)
 			value = value.as(type);
 	}

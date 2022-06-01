@@ -3,29 +3,51 @@ package formatter.basic;
 import static misc.helper.ProgramHelper.containsRunnable;
 import static misc.supporting.Output.print;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import building.types.specific.BuilderType;
+import formatter.FileDataManagement;
+import importing.filedata.paths.FilePath;
 import launching.Main;
 import misc.constants.GreekSymbol;
+import misc.supporting.FileManager;
 
 public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl1, FormatterLvl2, FormatterLvl3, FormatterLvl4, FormatterLvl5 {
 
 	static List<String> program;
+	static FilePath filePath;
+	static final int level = Main.getFormattingLvl();
 
 	/**
-	 * Formats a program dependent on the strength-level.
+	 * Format all unformatted files.
+	 */
+	public static final void formatAll(boolean forceFormat) {
+		assert (level >= 1 && level <= 5) : "The level of the formatter has to be between 1 and 5. Was: " + level;
+		for (FilePath fp : FileDataManagement.getUnformattedFiles(forceFormat)) {
+			try {
+				Path p = Path.of(fp.getAbsPath());
+				FileManager.writeFile(formatFile(Files.readAllLines(p), fp), p);
+			} catch (IOException e) {
+				throw new AssertionError("Couldn't access previously available file " + fp + ".", e);
+			}
+		}
+	}
+
+	/**
+	 * Formats a {@link File} dependent on the strength-level.
 	 *
 	 * @param rawProgram is the unformatted program.
 	 * @param level is the strength of the formatter.
 	 * @param isMain tells, if the formatted file is the Main.pc-file
 	 * @return the formatted program.
 	 */
-	public static final List<String> format(List<String> rawProgram, boolean isMain) {
-		int level = Main.getFormattingLvl();
-		if (level < 1 && level > 5)
-			throw new IllegalArgumentException("The level of the formatter has to be between 1 and 5. Was: " + level);
+	private static final List<String> formatFile(List<String> rawProgram, FilePath dataPath) {
+		Formatter.filePath = dataPath;
 		program = rawProgram.stream().map(l -> l.strip()).collect(Collectors.toList()); // Stripping has to occur first
 		print("Executing formatting-pre-checks.");
 		FormattingPreChecks.check();
@@ -36,7 +58,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 		if (level >= 2)
 			FormatterLvl2.format();
 		// Necessary
-		FormatterLvl1.format(isMain);
+		FormatterLvl1.format(dataPath.getName().equals(importing.filedata.File.MAIN_FILE));
 		/////////////////////////////////////////
 		// Shortening
 		if (level >= 5)

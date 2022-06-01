@@ -8,6 +8,7 @@ import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
 import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import building.expressions.main.CloseBlock;
@@ -130,6 +131,7 @@ public final class FormatterLvl1 extends Formatter {
 			if (program.get(i).startsWith(IMPORT + " "))
 				imports.add(program.remove(i));
 		}
+		Collections.sort(imports);
 		program.addAll(0, imports);
 	}
 

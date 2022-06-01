@@ -313,7 +313,7 @@ public final class ProgramHelper {
 	 * @return true if the line contains that runnable expression.
 	 */
 	public static boolean containsRunnable(String line, String regex) {
-		return indexOfRunnable(line, regex) != -1;
+		return firstRunnableMatch(line, regex) != null;
 	}
 
 	/**
@@ -347,12 +347,8 @@ public final class ProgramHelper {
 	 * @return the index of the start of the match.
 	 */
 	public static int indexOfRunnable(String line, String regex) {
-		//@formatter:off
-		MatchResult match = Pattern.compile(regex).matcher(line).results()
-				.filter(mRes -> isRunnableCode(mRes.start(), line))
-				.findFirst().orElseGet(() -> null);
-		//@formatter:on
-		return match == null ? -1 : match.start();
+		MatchResult m = firstRunnableMatch(line, regex);
+		return m == null ? -1 : m.start();
 	}
 
 	/**
@@ -364,9 +360,14 @@ public final class ProgramHelper {
 	 * @return the first match.
 	 */
 	public static String getFirstRunnable(String line, String regex) {
-		MatchResult m = Pattern.compile(regex).matcher(line).results().filter(mRes -> isRunnableCode(mRes.start(), line)).findFirst()
-				.orElse(null);
+		MatchResult m = firstRunnableMatch(line, regex);
 		return m == null ? null : m.group();
+	}
+
+	private static MatchResult firstRunnableMatch(String line, String regex) {
+		return Pattern.compile(regex).matcher(line).results() //
+				.filter(mRes -> isRunnableCode(mRes.start(), line)) //
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -410,5 +411,20 @@ public final class ProgramHelper {
 	 */
 	public static int runnableMatches(String line, String regex) {
 		return getAllRunnable(line, regex).size();
+	}
+
+	/**
+	 * Underlines the first runnable match of a regex.
+	 *
+	 * @see StringHelper#pointUnderline(String, int, int)
+	 * @param line is the whole line.
+	 * @param regex is the regular expression that gets matched.
+	 * @return the possibly underlined line.
+	 */
+	public static String underlineFirstRunnable(String line, String regex) {
+		MatchResult m = firstRunnableMatch(line, regex);
+		if (m == null)
+			return line;
+		return pointUnderline(line, m.start(), m.end() - m.start());
 	}
 }

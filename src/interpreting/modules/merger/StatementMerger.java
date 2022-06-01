@@ -7,7 +7,6 @@ import building.expressions.main.statements.ConditionalStatement;
 import building.expressions.main.statements.FlagSpace;
 import building.expressions.main.statements.ReturnStatement;
 import building.types.specific.KeywordType;
-import runtime.exceptions.UnexpectedTypeError;
 
 /**
  * Builds every Statement, such as {@link ConditionalStatement} and {@link ReturnStatement}.
@@ -29,7 +28,7 @@ public abstract class StatementMerger extends SuperMerger {
 			case ELSE:
 				return new ConditionalStatement(lineID, type, null, buildOpenBlock());
 			default:
-				throw new UnexpectedTypeError(orgLine, type, ConditionalStatement.class);
+				throw new AssertionError("Unexpected Type:" + type + " in " + dataPath);
 		}
 	}
 

@@ -5,8 +5,9 @@ import static building.types.abstractions.SpecificType.MERGED;
 import building.expressions.abstractions.Expression;
 import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.Value;
-import runtime.exceptions.CastingException;
 
 /** Changes the type of a value by calling {@link Value#as(DataType)}. */
 public class ExplicitCast extends Expression implements ValueHolder {
@@ -31,11 +32,15 @@ public class ExplicitCast extends Expression implements ValueHolder {
 	/**
 	 * Returns the value of {@link #target}, casted to the {@link #targetType}.
 	 *
-	 * @throws CastingException, if the cast isn't supported.
+	 * @throws NonExpressionException, if the cast isn't supported.
 	 */
 	@Override
-	public Value getValue() throws CastingException {
-		return target.as(targetType);
+	public Value getValue() {
+		try {
+			return target.as(targetType);
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 
 }

@@ -3,7 +3,7 @@ package misc.helper;
 import java.math.BigInteger;
 
 import building.expressions.abstractions.interfaces.ValueHolder;
-import runtime.exceptions.CastingException;
+import errorhandeling.NonExpressionException;
 
 public class MathHelper {
 
@@ -25,13 +25,11 @@ public class MathHelper {
 	/**
 	 * Turns a {@link ValueHolder} into a {@link Integer}. This should only get used in special cases
 	 * because problems that can occur are:
-	 * 
-	 * <pre>
-	 * - Value isn't castable to int. 	-> {@link CastingException}
-	 * - Is too big for int.			-> {@link ArithmeticException}
-	 * </pre>
+	 *
+	 * @throws NonExpressionException if val isn't castable to int.
+	 * @throws ArithmeticException if val is too big for int.
 	 */
-	public static int valToInt(ValueHolder val) {
+	public static int valToInt(ValueHolder val) throws NonExpressionException, ArithmeticException {
 		return val.asInt().raw().intValueExact();
 	}
 }

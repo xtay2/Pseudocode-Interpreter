@@ -11,9 +11,9 @@ import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
 import building.types.specific.datatypes.SingleType;
 import building.types.specific.operators.InfixOpType;
+import errorhandeling.PseudocodeException;
 import formatter.basic.Formatter;
 import runtime.datatypes.Value;
-import runtime.exceptions.DeclarationException;
 
 /**
  * Every piece of text that isn't predefined by the Interpreter via Keywords, Operators, etc...
@@ -28,20 +28,24 @@ public class Name extends Expression implements ValueChanger {
 		super(lineID, NAME);
 		this.name = name;
 		assert name != null : "Name cannot be null.";
-		if (!isName(name) && !KeywordType.MAIN.toString().equals(name))
-			throw new DeclarationException(getOriginalLine(), "The name has to pass the name-check. Was: " + name);
+		if (!isName(name) && !KeywordType.MAIN.toString().equals(name)) {
+			throw new PseudocodeException("InvalidName", //
+					"A name has to be an alphanumeric string thats not already a keyword. Was: " + name, //
+					getDataPath() //
+			);
+		}
 	}
 
 	/** A shortcut for getting the value over {@link Scope}. */
 	@Override
 	public Value getValue() {
-		return getScope().getVar(name, getOriginalLine()).getValue();
+		return getScope().getVar(this).getValue();
 	}
 
 	/** A shortcut for setting the value over the {@link Scope}. */
 	@Override
 	public Value setValue(Value val) {
-		return getScope().getVar(name, getOriginalLine()).setValue(val);
+		return getScope().getVar(this).setValue(val);
 	}
 
 	/** Arg is valid name if alphanumerical with underscores. (Atleast one character.) */
@@ -53,9 +57,9 @@ public class Name extends Expression implements ValueChanger {
 	public static boolean isAlphaNumKeyword(String arg) {
 		//@formatter:off
 		return SpecificType.equalsString(arg, KeywordType.class)
-				|| SpecificType.equalsString(arg, SingleType.class)
-				|| SpecificType.equalsString(arg, FlagType.class)
-				|| SpecificType.equalsString(arg, InfixOpType.class);
+			|| SpecificType.equalsString(arg, SingleType.class)
+			|| SpecificType.equalsString(arg, FlagType.class)
+			|| SpecificType.equalsString(arg, InfixOpType.class);
 		//@formatter:on
 	}
 

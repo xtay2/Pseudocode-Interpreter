@@ -1,6 +1,7 @@
 package building.expressions.abstractions.interfaces;
 
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
 import misc.constants.TypeConstants;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
@@ -8,7 +9,6 @@ import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
 import runtime.datatypes.textual.CharValue;
 import runtime.datatypes.textual.TextValue;
-import runtime.exceptions.CastingException;
 
 /**
  * An Interface for everything that can get casted.
@@ -20,29 +20,33 @@ public interface Castable {
 	/**
 	 * Cast this {@link Castable} to the passed {@link DataType}.
 	 *
-	 * @throws CastingException Can result in a {@link CastingException}, if the cast is not supported.
+	 * @throws NonExpressionException, if the cast is not supported.
 	 */
-	public Value as(DataType t) throws CastingException;
+	public Value as(DataType t) throws NonExpressionException;
 
 	// CASTING-SHORTCUTS
 
-	public default NumberValue asNr() {
+	default NumberValue asNr() throws NonExpressionException {
 		return (NumberValue) as(TypeConstants.NR);
 	}
 
-	public default IntValue asInt() {
+	default IntValue asInt() throws NonExpressionException {
 		return (IntValue) as(TypeConstants.INT);
 	}
 
-	public default TextValue asText() {
-		return (TextValue) as(TypeConstants.TEXT);
+	default TextValue asText() {
+		try {
+			return (TextValue) as(TypeConstants.TEXT);
+		} catch (NonExpressionException e) {
+			throw new AssertionError("It should allways be possible to cast to text.", e);
+		}
 	}
 
-	public default CharValue asChar() {
+	default CharValue asChar() throws NonExpressionException {
 		return (CharValue) as(TypeConstants.CHAR);
 	}
 
-	public default BoolValue asBool() {
+	default BoolValue asBool() throws NonExpressionException {
 		return (BoolValue) as(TypeConstants.BOOL);
 	}
 }

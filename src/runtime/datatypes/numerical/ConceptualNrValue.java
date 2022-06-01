@@ -1,9 +1,10 @@
 package runtime.datatypes.numerical;
 
+import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.Value;
-import runtime.exceptions.CastingException;
 
 /**
  * This class contains the conceptual constants {@link ConceptualNrValue#POS_INF},
@@ -197,12 +198,12 @@ public abstract class ConceptualNrValue extends NumberValue {
 	};
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType())
-			throw new CastingException(this, t);
+			ValueHolder.throwCastingExc(this, t);
 		return switch (t.type) {
 			case VAR, NR -> this;
-			default -> throw new CastingException(this, t);
+			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
 

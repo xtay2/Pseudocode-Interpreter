@@ -10,6 +10,7 @@ import java.math.MathContext;
 
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.Value;
 import runtime.datatypes.textual.TextValue;
 
@@ -73,7 +74,11 @@ public abstract class NumberValue extends Value {
 
 	/** Checks if the value is positive. x >= 0 */
 	public final boolean isPositive() {
-		return isGreaterEq(ZERO) || this == POS_INF;
+		try {
+			return isGreaterEq(ZERO) || this == POS_INF;
+		} catch (NonExpressionException e) {
+			throw new AssertionError(ZERO + " should never cause a casting-exception.");
+		}
 	}
 
 	/** Checks if the value is negative. x < 0 */
@@ -88,8 +93,12 @@ public abstract class NumberValue extends Value {
 
 	// COMPARISON
 
-	/** this < n */
-	public final boolean isSmallerThan(NumberValue v) {
+	/**
+	 * this < n
+	 *
+	 * @throws NonExpressionException -> Casting
+	 */
+	public final boolean isSmallerThan(NumberValue v) throws NonExpressionException {
 		if (this == NAN || v == NAN)
 			throw new ArithmeticException("The value of NaN cannot be compared.");
 		if (this == v)
@@ -109,18 +118,30 @@ public abstract class NumberValue extends Value {
 		throw new AssertionError("Undefined Case for Number-Value Comparison: " + this.raw() + " and " + v.raw());
 	}
 
-	/** a1 <= a2 */
-	public final boolean isSmallerEq(NumberValue v) {
+	/**
+	 * a1 <= a2
+	 *
+	 * @throws NonExpressionException -> Casting
+	 */
+	public final boolean isSmallerEq(NumberValue v) throws NonExpressionException {
 		return isSmallerThan(v) || valueCompare(v);
 	}
 
-	/** a1 > a2 */
-	public final boolean isGreaterThan(NumberValue v) {
+	/**
+	 * a1 > a2
+	 *
+	 * @throws NonExpressionException -> Casting
+	 */
+	public final boolean isGreaterThan(NumberValue v) throws NonExpressionException {
 		return v.isSmallerThan(this);
 	}
 
-	/** a1 >= a2 */
-	public final boolean isGreaterEq(NumberValue v) {
+	/**
+	 * a1 >= a2
+	 *
+	 * @throws NonExpressionException -> Casting
+	 */
+	public final boolean isGreaterEq(NumberValue v) throws NonExpressionException {
 		return v.isSmallerEq(this);
 	}
 

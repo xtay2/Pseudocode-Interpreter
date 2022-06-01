@@ -42,7 +42,14 @@ public final class StringHelper {
 	 * @param pointerLength is the length of the pointed section.
 	 */
 	public static String pointUnderline(String line, int pointer, int pointerLength) {
-		return line + "\n" + " ".repeat(pointer) + "^".repeat(pointerLength);
+		int leadingTabs = 0;
+		for (int i = 0; i < line.length(); i++) {
+			if (line.charAt(i) == '\t')
+				leadingTabs++;
+			else
+				break;
+		}
+		return line.stripLeading() + "\n" + " ".repeat(pointer - leadingTabs) + "^".repeat(pointerLength);
 	}
 
 	/**

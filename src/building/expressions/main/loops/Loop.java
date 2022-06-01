@@ -14,6 +14,8 @@ import building.types.abstractions.SpecificType;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.numerical.DecimalValue;
 import runtime.datatypes.numerical.NumberValue;
 
@@ -90,8 +92,12 @@ public abstract class Loop extends ScopeHolder {
 	 * Set {@link #start} and {@link #inc} here.
 	 */
 	protected void initLoop() {
-		start = startHolder.asNr();
-		inc = incHolder.asNr();
+		try {
+			start = startHolder.asNr();
+			inc = incHolder.asNr();
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 
 	/**
@@ -107,6 +113,6 @@ public abstract class Loop extends ScopeHolder {
 	 * @return {@link #alias} if existing, or the implicit countername, if not.
 	 */
 	protected final Name getLoopVarAlias() {
-		return alias != null ? alias : getScope().getCounterName(getOriginalLine());
+		return alias != null ? alias : getScope().getCounterName(getDataPath());
 	}
 }

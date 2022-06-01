@@ -17,12 +17,11 @@ import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.merger.ExpressionMerger;
 import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
-import runtime.exceptions.NullNotAllowedException;
-import runtime.exceptions.UnexpectedDataType;
 
 /**
  * ; * This is the Superclass for {@link Function}, {@link MainFunction} and {@link NativeFunction}.
@@ -75,15 +74,22 @@ public abstract class Definition extends ScopeHolder implements Flaggable, NameH
 			throw new AssertionError("Function \"" + name + "\" already has a return value.");
 		if (returnType == null) { // No return-type specified.
 			String suggDataType = (val instanceof ArrayValue av ? av.getRules() : val.dataType).toString();
-			throw new UnexpectedDataType(getOriginalLine(),
-					"Doesn't specify " + suggDataType + " as return-type, but returned a value anyways." + "\nTo add a return-type, write: "
-							+ FUNC + " " + getNameString() + "(...) " + ARROW_R + " " + suggDataType + " " + OPEN_BLOCK);
+			throw new PseudocodeException("VoidReturn", //
+					"Doesn't specify " + suggDataType + " as return-type, but returned a value anyways." + //
+							"\nTo add a return-type, write: " + //
+							FUNC + " " + getNameString() + "(...) " + ARROW_R + " " + suggDataType + " " + OPEN_BLOCK,
+					getDataPath());
 		}
-		if (val == NULL && !returnType.allowsNull)
-			throw new NullNotAllowedException(getOriginalLine(), "The " + type + " \"" + getNameString() + "\" tries to return null.");
-		if (!val.matches(returnType))
-			throw new UnexpectedDataType(getOriginalLine(), "The function " + getNameString() + " expected a return-value of type "
-					+ returnType + " but returned the value " + val + ".");
+		if (val == NULL && !returnType.allowsNull) {
+			throw new PseudocodeException("NullNotAllowed", //
+					"The " + type + " \"" + getNameString() + "\" tries to return null.", getDataPath());
+		}
+		if (!val.matches(returnType)) {
+			throw new PseudocodeException("UnexpectedReturn", //
+					"The function " + getNameString() + " expected a return-value of type " + returnType //
+							+ " but returned the value " + val + "instead.",
+					getDataPath());
+		}
 		returnVal = val;
 	}
 

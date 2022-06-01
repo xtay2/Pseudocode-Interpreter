@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import building.expressions.abstractions.Range;
 import building.types.specific.datatypes.DataType;
 import building.types.specific.datatypes.SingleType;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
@@ -26,7 +27,7 @@ import runtime.datatypes.textual.TextValue;
 public class ValueTests {
 
 	@Test
-	void testMatches() {
+	void testMatches() throws NonExpressionException {
 		// Int
 		IntValue i = new IntValue(0);
 		testMatch(i, false, VAR, INT, NR);
@@ -74,17 +75,17 @@ public class ValueTests {
 		assert !arr3.allowsLosslessCastingTo(new DataType(BOOL, false, exact(1))); // [true] -> bool[1]
 
 		// Multidimensional
-		ArrayValue arr4 = new ArrayValue(arr1, arr2, arr3);
+		ArrayValue arr4 = ArrayValue.newInstance(arr1, arr2, arr3);
 		assert arr4.allowsLosslessCastingTo(new DataType(VAR, true, Range.exact(3))); // [["Hello"], [null], [true, true]] -> var?[]
 		assert !arr4.allowsLosslessCastingTo(new DataType(VAR, false, UNBOUNDED)); // [["Hello"], [null], [true, true]] -> var[]
 		assert !arr4.allowsLosslessCastingTo(new DataType(TEXT, true, UNBOUNDED)); // [["Hello"], [null], [true, true]] -> var[]
 
-		ArrayValue arr5 = new ArrayValue(new ArrayValue());
+		ArrayValue arr5 = ArrayValue.newInstance(ArrayValue.newInstance());
 		assert arr5.allowsLosslessCastingTo(new DataType(VAR, true, UNBOUNDED)); // [[]] -> var?[]
 		assert arr5.allowsLosslessCastingTo(new DataType(VAR, true, UNBOUNDED, UNBOUNDED)); // [[]] -> var?[][]
 		assert !arr5.allowsLosslessCastingTo(new DataType(VAR, true, UNBOUNDED, UNBOUNDED, UNBOUNDED)); // [[]] -> var?[][][]
 
-		ArrayValue arr6 = new ArrayValue(new ArrayValue(), n);
+		ArrayValue arr6 = ArrayValue.newInstance(ArrayValue.newInstance(), n);
 		assert arr6.allowsLosslessCastingTo(new DataType(VAR, true, UNBOUNDED)); // [[], null] -> var?[]
 		assert !arr6.allowsLosslessCastingTo(new DataType(VAR, true, UNBOUNDED, UNBOUNDED)); // [[], null] -> var?[][]
 	}

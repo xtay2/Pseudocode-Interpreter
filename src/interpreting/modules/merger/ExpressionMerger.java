@@ -23,7 +23,8 @@ import building.types.abstractions.AbstractType;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
+import importing.filedata.paths.DataPath;
 import interpreting.program.ProgramLine;
 import launching.Main;
 import runtime.defmanager.DefManager;
@@ -33,8 +34,8 @@ public abstract class ExpressionMerger {
 	protected static List<BuilderExpression> line;
 	protected static List<BuilderExpression> orgExp;
 	protected static int lineID;
-	protected static int orgLine;
 	protected static Scope outer;
+	protected static DataPath dataPath;
 
 	/**
 	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
@@ -47,26 +48,13 @@ public abstract class ExpressionMerger {
 		orgExp = Collections.unmodifiableList(pline.getExpressions());
 		line = pline.getExpressions();
 		lineID = pline.lineID;
-		orgLine = pline.orgLine;
+		dataPath = pline.dataPath;
 		outer = findScope();
 		debugLine(outer);
-		MainExpression main;
-		try {
-			main = (MainExpression) SuperMerger.build();
-		} catch (Exception | Error e) {
-			if (Main.showJStacktrace())
-				e.printStackTrace();
-			else {
-				System.err.println("---" + e.getClass().getSimpleName() + "---");
-				System.err.println(e.getMessage());
-			}
-			System.err.print("\nCaused: ");
-			throw new IllegalCodeFormatException(orgLine,
-					"Unknown unpropper format." + "\nOriginal state of line " + orgExp + "\nCurrent state of line: " + line);
-		}
+		MainExpression main = (MainExpression) SuperMerger.build();
 		// Check if line was correctly build
 		if (main == null || !SuperMerger.line.isEmpty()) {
-			throw new AssertionError(orgLine + ": Main-Merge got finished too early or was null.\nMain: " + main + "\nLine: " + line
+			throw new AssertionError(dataPath + ": Main-Merge got finished too early or was null.\nMain: " + main + "\nLine: " + line
 					+ "\nOrgLine: " + orgExp);
 		}
 		// Sets the Scope
@@ -91,9 +79,11 @@ public abstract class ExpressionMerger {
 	private static void globalScopeCheck(MainExpression main) {
 		if (!(main instanceof Allocating) && !(main instanceof Definition) && !(main instanceof MainFunction)
 				&& !(main instanceof FlagSpace) && !(main instanceof CloseBlock)) {
-			if ((main instanceof ScopeHolder sh && sh.getOuterScope() == GLOBAL) || main.getScope() == GLOBAL)
-				throw new IllegalCodeFormatException(orgLine,
-						main.toString() + " \"" + main.type + "\" shouldn't lie in the global-scope.");
+			if ((main instanceof ScopeHolder sh && sh.getOuterScope() == GLOBAL) || main.getScope() == GLOBAL) {
+				throw new PseudocodeException("InvalidPosition", //
+						main.toString() + " \"" + main.type + "\" shouldn't lie in the global-scope.", //
+						main.getDataPath());
+			}
 		}
 	}
 
@@ -170,8 +160,8 @@ public abstract class ExpressionMerger {
 
 	private static void debugLine(Scope scope) {
 		// Merge
-		String ls = "Merging " + orgLine + " in " + scope.getScopeName() + ": ";
-		final int MAX = 30;
+		String ls = "Merging " + dataPath + " in " + scope.getScopeName() + ": ";
+		final int MAX = 50;
 		if (ls.length() > MAX)
 			print(ls + " \t" + orgExp);
 		else

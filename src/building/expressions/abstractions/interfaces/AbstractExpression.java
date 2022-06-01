@@ -5,6 +5,9 @@ import building.expressions.abstractions.MainExpression;
 import building.types.abstractions.AbstractType;
 import importing.filedata.paths.DataPath;
 
+/**
+ * This is a super-interface for every interface that is implicitly an {@link Expression}.
+ */
 public interface AbstractExpression {
 
 	/** Returns the {@link DataPath} of this {@link Expression}. */

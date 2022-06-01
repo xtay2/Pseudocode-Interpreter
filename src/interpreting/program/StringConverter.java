@@ -10,7 +10,8 @@ import building.expressions.abstractions.Expression;
 import building.expressions.normal.BuilderExpression;
 import building.expressions.normal.containers.Name;
 import building.types.abstractions.SpecificType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
+import misc.helper.ProgramHelper;
 import runtime.datatypes.Value;
 
 /**
@@ -52,8 +53,12 @@ public abstract class StringConverter {
 			else if (NAME.is(t) && isNamePart(current, next))
 				return NAME.create(current, line.lineID);
 		}
-		if (next == ' ')
-			throw new IllegalCodeFormatException(line.orgLine, "\"" + current + "\" didn't match any expected pattern:\n" + line.line);
+		if (next == ' ') {
+			throw new PseudocodeException("IllegalCodeFormat", //
+					"\"" + current + "\" didn't match any expected pattern. ", //
+					ProgramHelper.underlineFirstRunnable(line.line, current + "(?=\\" + next + ")"), //
+					line.dataPath);
+		}
 		return null;
 	}
 

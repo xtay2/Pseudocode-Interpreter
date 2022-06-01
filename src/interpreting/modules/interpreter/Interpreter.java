@@ -43,7 +43,7 @@ public final class Interpreter {
 	 */
 	public static boolean execute(int i) {
 		MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
-		print(m.getOriginalLine() + ": " + m.toString());
+		print(m.getDataPath() + ": " + m.toString());
 		return m.execute();
 	}
 
@@ -58,7 +58,7 @@ public final class Interpreter {
 	private static void registerGlobalVars() {
 		for (ProgramLine l : Main.PROGRAM) {
 			if (l.getMainExpression() instanceof Declaration d && d.getScope() == GlobalScope.GLOBAL) {
-				print("Registering global Var " + d.getNameString() + " in line: " + d.getOriginalLine());
+				print("Registering global Var " + d.getNameString() + " in line: " + d.getDataPath());
 				d.getValue();
 			}
 		}

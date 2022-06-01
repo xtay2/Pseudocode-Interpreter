@@ -21,7 +21,8 @@ import building.expressions.possible.allocating.Declaration;
 import building.expressions.possible.multicall.MultiCall;
 import building.types.specific.AssignmentType;
 import building.types.specific.datatypes.DataType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 
 /** Every merged {@link ValueHolder}. */
 public abstract class ValueMerger extends SuperMerger {
@@ -84,10 +85,16 @@ public abstract class ValueMerger extends SuperMerger {
 		DataType type = buildExpType();
 		Name name = buildName();
 		AssignmentType assignOp = line.isEmpty() ? null : (AssignmentType) line.remove(0).type;
-		ValueHolder vH = line.isEmpty() ? type.stdVal() : buildVal();
+		ValueHolder vH;
+		try {
+			vH = line.isEmpty() ? type.stdVal() : buildVal();
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, dataPath);
+		}
 		if (assignOp != null && assignOp != AssignmentType.NORMAL) {
-			throw new IllegalCodeFormatException(orgLine,
-					"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".");
+			throw new PseudocodeException("Declaration", //
+					"An initial declaration can only utilise the normal assignment operator \"" + AssignmentType.NORMAL + "\".", //
+					dataPath);
 		}
 		return new Declaration(lineID, type, name, vH);
 	}

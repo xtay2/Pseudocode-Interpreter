@@ -19,8 +19,8 @@ public non-sealed interface SpecificType extends AbstractType {
 	 */
 	public static final SpecificType MERGED = new SpecificType() {
 
-		private final UnsupportedOperationException uoe = new UnsupportedOperationException(
-				"No operations should get performed on a merged type.");
+		private static final UnsupportedOperationException uoe = //
+				new UnsupportedOperationException("No operations should get performed on a merged type.");
 
 		@Override
 		public AbstractType[] abstractExpected() {
@@ -36,7 +36,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	/**
 	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
 	 * supports also {@link UnspecificType}s and gets called by {@link #expected()}.
-	 * 
+	 *
 	 * @return a non-null array.
 	 */
 	AbstractType[] abstractExpected();
@@ -44,7 +44,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	/**
 	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
 	 * only returns the absolute subvalues.
-	 * 
+	 *
 	 * @return a non-null array.
 	 */
 	default SpecificType[] expected() {
@@ -75,8 +75,8 @@ public non-sealed interface SpecificType extends AbstractType {
 
 	/**
 	 * Checks if the {@link String} matches a raw-type of the passed {@link SpecificType}.
-	 * 
-	 * @param arg       is the passed {@link String}.
+	 *
+	 * @param arg is the passed {@link String}.
 	 * @param typeClass is the class of the {@link SpecificType}.
 	 */
 	static <T extends SpecificType> boolean equalsString(String arg, Class<T> typeClass) {
@@ -86,9 +86,9 @@ public non-sealed interface SpecificType extends AbstractType {
 	/**
 	 * Returns the first raw-type of the passed {@link SpecificType} that matches the passed
 	 * {@link String}.
-	 * 
-	 * @param <T>       is the class-type of the return-value.
-	 * @param arg       is the passed {@link String}.
+	 *
+	 * @param <T> is the class-type of the return-value.
+	 * @param arg is the passed {@link String}.
 	 * @param typeClass is the class of the {@link SpecificType}.
 	 */
 	static <T extends SpecificType> T fromString(String arg, Class<T> typeClass) {
@@ -97,8 +97,8 @@ public non-sealed interface SpecificType extends AbstractType {
 
 	/**
 	 * Calls the hidden, static method {@link Enum#values()} for any subclass of {@link SpecificType}.
-	 * 
-	 * @param <T>       is the class-type of the return-value.
+	 *
+	 * @param <T> is the class-type of the return-value.
 	 * @param typeClass is the class of the {@link SpecificType}.
 	 * @return an array of raw-types
 	 */

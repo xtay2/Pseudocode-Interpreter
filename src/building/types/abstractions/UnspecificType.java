@@ -34,5 +34,4 @@ public non-sealed interface UnspecificType extends AbstractType {
 		}
 		return subValues.toArray(new SpecificType[subValues.size()]);
 	}
-
 }

@@ -46,7 +46,7 @@ public class Literal extends Expression implements ValueHolder {
 		if (val != null)
 			return val;
 		if (arrayPreInit != null)
-			return new ArrayValue(Arrays.stream(arrayPreInit).map(e -> e.getValue()).toArray(Value[]::new));
+			return ArrayValue.newInstance(Arrays.stream(arrayPreInit).map(e -> e.getValue()).toArray(Value[]::new));
 		throw new AssertionError("This literal must be either an array or not. Is: " + this);
 	}
 

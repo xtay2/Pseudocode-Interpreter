@@ -10,7 +10,8 @@ import building.expressions.abstractions.interfaces.ValueHolder;
 import building.expressions.main.loops.ConditionalLoop;
 import building.expressions.normal.brackets.OpenBlock;
 import building.types.specific.KeywordType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.interpreter.Interpreter;
 import interpreting.program.ProgramLine;
 
@@ -47,28 +48,39 @@ public final class ConditionalStatement extends ScopeHolder {
 			throw new AssertionError("Trying an invalid connection with this Statement.");
 		if (nextBlock.is(IF))
 			throw new AssertionError("If can only be at the top of an if/elif/any/else Construct.");
-		if (is(ELSE))
-			throw new IllegalCodeFormatException(getOriginalLine(), "An else cannot have a following " + nextBlock + "-statement.");
-		if (!is(ELIF) && nextBlock.is(ANY))
-			throw new IllegalCodeFormatException(getOriginalLine(), "An any-Block can only follow an elif-Statement.");
+		if (is(ELSE)) {
+			throw new PseudocodeException("InvalidConstruct", //
+					"An else cannot have a following " + nextBlock + "-statement.", //
+					getDataPath());
+		}
+		if (!is(ELIF) && nextBlock.is(ANY)) {
+			throw new PseudocodeException("InvalidConstruct", //
+					"An any-block can only follow an elif-statement.", //
+					getDataPath());
+		}
 		this.nextBlock = nextBlock;
 	}
 
 	@Override
 	public boolean execute() {
-		if (is(IF) || is(ELIF)) {
-			if (condition.asBool().value) // Execute after condition is true.
-				return executeBody() ? Interpreter.execute(findAnyCase()) : false; // Find any or end if successfull.
-			return Interpreter.execute(findElseCase()); // Find next else if not successfull.
-		} else if (is(ANY) && condition != null) {
-			// If any-if condition is true
-			if (condition.asBool().value) {
-				if (!executeBody()) // ... and return got triggered
-					return false; // Return
-			}
-			return Interpreter.execute(endOfConstruct()); // End, if condition was false or statement is done.
-		} else // Execute without condition. ANY / ELSE
-			return executeBody() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
+		try {
+			if (is(IF) || is(ELIF)) {
+				if (condition.asBool().value) // Execute after condition is true.
+					return executeBody() ? Interpreter.execute(findAnyCase()) : false;
+				// Find any or end if successfull.
+				return Interpreter.execute(findElseCase()); // Find next else if not successfull.
+			} else if (is(ANY) && condition != null) {
+				// If any-if condition is true
+				if (condition.asBool().value) {
+					if (!executeBody()) // ... and return got triggered
+						return false; // Return
+				}
+				return Interpreter.execute(endOfConstruct()); // End, if condition was false or statement is done.
+			} else // Execute without condition. ANY / ELSE
+				return executeBody() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, getDataPath());
+		}
 	}
 
 	/**
@@ -96,7 +108,7 @@ public final class ConditionalStatement extends ScopeHolder {
 				return nextBlock.getStart();
 			if (nextBlock.is(ANY))
 				return nextBlock.findElseCase();
-			throw new IllegalCodeFormatException(getOriginalLine(), "Illegal Construct. " + nextBlock + " after " + type);
+			throw new PseudocodeException("InvalidConstruct", "Unexpected " + nextBlock + " after " + type, getDataPath());
 		}
 		return endOfConstruct();
 	}

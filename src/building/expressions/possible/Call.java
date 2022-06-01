@@ -12,7 +12,7 @@ import building.expressions.main.functions.Definition;
 import building.expressions.normal.containers.Name;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallableValueHolder;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.defmanager.DefManager;
@@ -43,8 +43,8 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 		for (int i = 0; i < parameters.length; i++) {
 			if (parameters[i] instanceof MultiCall mc) {
 				if (multiCall != null) {
-					throw new IllegalCodeFormatException(getOriginalLine(),
-							"Tried to call " + getNameString() + " with multiple multi-calls.");
+					throw new PseudocodeException("InvalidParameters", //
+							"Tried to call " + getNameString() + " with multiple multi-calls.", getDataPath());
 				}
 				multiCall = mc;
 				idxOfMultiCall = i;
@@ -75,7 +75,7 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 		}
 		// If the calls had return-values, return them in an array.
 		if (returnArr[0] != null)
-			return new ArrayValue(returnArr);
+			return ArrayValue.newInstance(returnArr);
 		// If not, dont return anything.
 		return null;
 	}
@@ -83,7 +83,7 @@ public class Call extends PossibleMainExpression implements MultiCallableValueHo
 	/** Finds target-{@link Definition}, calls it with the params and returns the return-values. */
 	private Value callTarget(ValueHolder... params) {
 		// Find target
-		Definition target = DefManager.get(calledFunc.getNameString(), parameters.length, getOriginalLine());
+		Definition target = DefManager.get(calledFunc.getNameString(), parameters.length, getDataPath());
 		// Call target
 		Scope.tos++;
 		Value returnVal = target.call(params);

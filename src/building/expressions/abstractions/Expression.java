@@ -22,7 +22,7 @@ import launching.Main;
 public abstract class Expression implements AbstractExpression {
 
 	/** The line in which this Expression is defined. */
-	public final Integer lineIdentifier;
+	public final int lineIdentifier;
 
 	/** The Type of this Expression. */
 	public final SpecificType type;
@@ -42,12 +42,6 @@ public abstract class Expression implements AbstractExpression {
 		assert myType != null : "Type cannot be null.";
 	}
 
-	/** Returns the corresponding line, shown in the text-editor of the user. */
-	@Deprecated(forRemoval = true)
-	public final int getOriginalLine() {
-		return Main.PROGRAM.getLine(lineIdentifier).orgLine;
-	}
-
 	/**
 	 * Used mostly in the {@link SuperMerger} for any {@link BuilderExpression} to assure, that this
 	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
@@ -65,9 +59,7 @@ public abstract class Expression implements AbstractExpression {
 	 * Gets called by the {@link SuperMerger}
 	 */
 	public Scope getScope() {
-		if (lineIdentifier != null)
-			return Main.PROGRAM.getLine(lineIdentifier).getMainExpression().getScope();
-		throw new AssertionError("This " + this + " has no scope.");
+		return Main.PROGRAM.getLine(lineIdentifier).getMainExpression().getScope();
 	}
 
 	/**

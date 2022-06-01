@@ -35,7 +35,6 @@ public abstract class FuncMerger extends SuperMerger {
 		LinkedHashMap<Name, DataType> params = buildFuncParams();
 		DataType returnType = buildReturnType();
 		return new Function(lineID, name, params, returnType, (OpenBlock) build());
-
 	}
 
 	/** [->] [TYPE] */

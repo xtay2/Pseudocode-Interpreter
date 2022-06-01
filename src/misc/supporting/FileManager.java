@@ -2,16 +2,17 @@ package misc.supporting;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import importing.filedata.paths.FilePath;
-import interpreting.exceptions.ImportingException;
 
 public final class FileManager {
 
@@ -80,28 +81,24 @@ public final class FileManager {
 	 * @param subfolder is the starting point of the search. This has to be an absolute Path.
 	 * @param target is the name of the target File or Folder.
 	 * @return the path between subfolder and target
+	 * @throws IOException when multiple, or no {@link File}s were found.
 	 */
-	public static String findPath(String subfolder, String target) {
+	public static String findPath(String subfolder, String target) throws IOException {
 		List<Path> paths;
 		try {
 			paths = Files.walk(Path.of(subfolder)).filter(e -> e.endsWith(target)).toList();
 		} catch (IOException e) {
-			throw new ImportingException(-1, "Couldn't find file \"" + subfolder + ".." + target + "\"");
+			throw new FileNotFoundException("Couldn't find file \"" + subfolder + ".." + target + "\"");
 		}
 		if (paths.size() == 1) {
 			String path = paths.get(0).toString().replace('\\', '/');
 			path = path.substring(subfolder.length(), path.lastIndexOf(target));
 			return path.replace('/', '.');
 		}
-		throw new ImportingException(-1, "There are multiple matches for the file:\n\"" + subfolder + ".." + target + "\"");
+		throw new FileAlreadyExistsException("There are multiple matches for the file:\n\"" + subfolder + ".." + target + "\"");
 	}
 
-	public static List<String> readFile(FilePath path) {
-		try {
-			return Files.readAllLines(Paths.get(path.getAbsPath()));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public static List<String> readFile(FilePath path) throws IOException {
+		return Files.readAllLines(Paths.get(path.getAbsPath()));
 	}
 }

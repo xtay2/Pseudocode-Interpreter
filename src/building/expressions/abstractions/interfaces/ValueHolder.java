@@ -9,8 +9,9 @@ import building.expressions.possible.Call;
 import building.expressions.possible.allocating.Assignment;
 import building.expressions.possible.multicall.MultiCall;
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
+import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
-import runtime.exceptions.CastingException;
 
 /**
  * An interface for everything that can return a {@link Value} in code.
@@ -35,10 +36,22 @@ public interface ValueHolder extends Operatable, Castable {
 	public Value getValue();
 
 	/**
-	 * This should not get overridden!
+	 * This should only get overridden by {@link Value} and {@link MaybeValue}!
+	 *
+	 * @param t is the target type.
+	 * @throws NonExpressionException -> Casting
 	 */
 	@Override
-	default Value as(DataType t) throws CastingException {
+	default Value as(DataType t) throws NonExpressionException {
 		return getValue().as(t);
+	}
+
+	/**
+	 * Throws a "CastingException".
+	 *
+	 * @return Nothing, but has this return type, so that the method can be used in switch-expressions.
+	 */
+	static Value throwCastingExc(Value val, DataType targetType) throws NonExpressionException {
+		throw new NonExpressionException("Casting", "Cannot cast " + val + " to " + targetType + ".");
 	}
 }

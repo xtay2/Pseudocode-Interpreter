@@ -3,6 +3,7 @@ package building.types.specific.datatypes;
 import java.util.Arrays;
 
 import building.expressions.abstractions.Range;
+import errorhandeling.NonExpressionException;
 import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
@@ -32,8 +33,12 @@ public class DataType {
 		this.ranges = range;
 	}
 
-	/** Returns the value that a variable gets when it has none at the declaration. */
-	public Value stdVal() {
+	/**
+	 * Returns the value that a variable gets when it has none at the declaration.
+	 *
+	 * @throws NonExpressionException for when this type doesn't support a stdVal.
+	 */
+	public Value stdVal() throws NonExpressionException {
 		if (isArrayType()) {
 			Value[] content = new Value[ranges[ranges.length - 1].lowerBound];
 			if (content.length > 0)

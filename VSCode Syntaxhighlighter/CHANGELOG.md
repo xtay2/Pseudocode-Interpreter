@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.10
+Added special highlighting for capslocked constants. 
+
 ### Update 0.4.9
 Added highlighting for the keyword `enum`. 
 

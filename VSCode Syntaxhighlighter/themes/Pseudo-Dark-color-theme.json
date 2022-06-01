@@ -167,11 +167,19 @@
 				"foreground": "#f07178"
 			}
 		},
+		{"name": "Constant",
+			"scope": [
+				"constant.language",
+			],
+			"settings": {
+				"fontStyle": "italic bold",
+				"foreground": "#7685c3"
+			}
+		},
 		{
-			"name": "Number, Constant, Function Argument, Tag Attribute, Embedded",
+			"name": "Number, Function Argument, Tag Attribute, Embedded",
 			"scope": [
 				"constant.numeric",
-				"constant.language",
 				"support.constant",
 				"constant.character",
 				"constant.escape",

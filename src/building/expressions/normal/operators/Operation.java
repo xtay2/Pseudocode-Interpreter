@@ -16,11 +16,10 @@ import building.expressions.normal.operators.infix.LogicalOperator;
 import building.expressions.possible.multicall.MultiCall;
 import building.expressions.possible.multicall.MultiCallable;
 import building.types.specific.operators.InfixOpType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.merger.SuperMerger;
 import misc.helper.StringHelper;
 import runtime.datatypes.Value;
-import runtime.exceptions.NullNotAllowedException;
 
 /** Consist of n Operators and n + 1 ValueHolders. */
 public final class Operation extends Expression implements MultiCallable, ValueHolder {
@@ -34,8 +33,10 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 			throw new AssertionError("An operation has to atleast contain one operator and two values.\nWas " + op);
 		this.operation = format(op);
 		if (op.contains(NULL))
-			throw new NullNotAllowedException(getOriginalLine(), "Null isn't allowed to be in an operation.\n"
-					+ StringHelper.pointUnderline(toString(), toString().indexOf(NULL.toString()), NULL.toString().length()));
+			throw new PseudocodeException("NullNotAllowed",
+					"Null isn't allowed to be in an operation.\n"
+							+ StringHelper.pointUnderline(toString(), toString().indexOf(NULL.toString()), NULL.toString().length()),
+					getDataPath());
 	}
 
 	/** Converts multiple ComparativeOperators */
@@ -87,7 +88,7 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 			res += switch (e) {
 				case InfixOperator io -> " " + io.type + " ";
 				case ValueHolder vh -> vh.toString();
-				default -> throw new IllegalCodeFormatException(getOriginalLine(), "Illegal Element in Operation: " + e);
+				default -> throw new PseudocodeException("IllegalOperation", "Illegal Element in Operation: " + e, getDataPath());
 			};
 		}
 		return res;

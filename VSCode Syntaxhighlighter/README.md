@@ -27,18 +27,18 @@ Pseudocode is a highlevel language with easy to read syntax. This extension enab
 
 ### Operators
 
- - #### Arithmetic: `+`, `-`, `*`, `/`, `%`, `^`.
+ - Arithmetic: `+`, `-`, `*`, `/`, `%`, `^`.
 
- - #### Logical: `and`, `nand`, `or`, `nor`, `xor`, `xnor`, `root`, `not`.
+ - Logical: `and`, `nand`, `or`, `nor`, `xor`, `xnor`, `root`, `not`.
 
- - #### Comparative: `==`, `!=`, `<`, `<=`, `>=`, `>`, `≤`, `≠`, `≥`.
+ - Comparative: `==`, `!=`, `<`, `<=`, `>=`, `>`, `≤`, `≠`, `≥`.
 
- - #### Misc: `=`, `in`, `?`.
+ - Misc: `=`, `in`, `?`.
 
 ### Constants
- - #### Numeric: `INF`, `NaN`.
- - #### Boolean: `true`, `false`.
+ - Numeric: `INF`, `NaN`.
+ - Boolean: `true`, `false`.
 
 ## Example Code
 
-![Example Code Snippet](SampleCode.jpg)
+![Example Code Snippet](https://raw.githubusercontent.com/xtay2/Pseudocode/main/VSCode%20Syntaxhighlighter/SampleCode.jpg)

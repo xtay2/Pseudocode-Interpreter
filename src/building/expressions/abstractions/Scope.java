@@ -1,20 +1,18 @@
 package building.expressions.abstractions;
 
-import static misc.helper.StringHelper.enumerate;
-
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import building.expressions.abstractions.interfaces.Registerable;
 import building.expressions.main.CloseBlock;
+import building.expressions.main.loops.Loop;
 import building.expressions.normal.brackets.OpenBlock;
 import building.expressions.normal.containers.Name;
 import building.expressions.normal.containers.Variable;
 import building.expressions.possible.Call;
-import interpreting.exceptions.IllegalCodeFormatException;
-import runtime.exceptions.VarNotFoundException;
+import errorhandeling.PseudocodeException;
+import importing.filedata.paths.DataPath;
 
 /**
  * A Scope is a Block that limits the visibility of variables.
@@ -79,12 +77,11 @@ public class Scope {
 	/** Registers the {@link Registerable} in this scope. */
 	public final void register(Registerable reg) {
 		String regName = reg.getNameString();
-		if (!contains(regName, tos)) {
-			memory.add(new UVID(regName, tos, reg));
-		} else {
-			throw new IllegalCodeFormatException(reg.getOriginalLine(),
-					regName + " is already defined in line " + get(reg.getNameString()).getOriginalLine());
+		if (contains(regName, tos)) {
+			throw new PseudocodeException("DuplicateDeclaration",
+					"\"" + regName + "\" is already defined in " + get(reg.getNameString()).getDataPath(), reg.getDataPath());
 		}
+		memory.add(new UVID(regName, tos, reg));
 	}
 
 	/** Returns true, if this, or any underlying Scope contains the quested {@link Registerable}. */
@@ -122,15 +119,15 @@ public class Scope {
 	// GETTERS--------------------------------------------------------------------
 
 	/** Returns the quested {@link Variable} from this, or any underlying scope. */
-	public final Variable getVar(String target, int orgLine) {
-		Registerable r = get(target);
+	public final Variable getVar(Name target) {
+		Variable r = (Variable) get(target.getNameString());
 		if (r == null) {
-			throw new VarNotFoundException(orgLine,
-					"Couldn't find var \"" + target + "\".\nThis scope \"" + getScopeName() + "\" contains: " + enumerate(getWholeMem()));
+			throw new PseudocodeException("VarNotFound", //
+					"Couldn't find var \"" + target.getNameString() + "\".", //
+					target.getDataPath() //
+			);
 		}
-		if (r instanceof Variable var)
-			return var;
-		throw new VarNotFoundException(orgLine, target + " was found in scope \"" + getScopeName() + "\" but is not a function.");
+		return r;
 	}
 
 	/**
@@ -152,23 +149,12 @@ public class Scope {
 	// HELPER-FUNCTIONS-------------------------------------------------------
 
 	/**
-	 * Returns a {@link Map} of every {@link Registerable} thats saved in this and all underlying
-	 * scopes.
-	 */
-	private Set<UVID> getWholeMem() {
-		if (lowerScope == null)
-			return new HashSet<>(memory);
-		HashSet<UVID> mem = new HashSet<>();
-		mem.addAll(lowerScope.getWholeMem());
-		mem.addAll(memory);
-		return mem;
-	}
-
-	/**
 	 * Returns the next available counter-name. If more than 8 counter-names are in use, an
 	 * {@link IllegalCodeFormatException} gets thrown.
+	 *
+	 * @param dataPath is the path of the {@link Loop} that requests this loop-counter.
 	 */
-	public final Name getCounterName(int originalLine) {
+	public final Name getCounterName(DataPath dataPath) {
 		final char fstCnt = 'i';
 		final int cntNr = 8;
 		for (char c = fstCnt; c < (fstCnt + cntNr); c++) {
@@ -176,7 +162,7 @@ public class Scope {
 			if (!containsAny(n))
 				return new Name(lineID, n);
 		}
-		throw new IllegalCodeFormatException(originalLine,
-				"Too many nested Scopes! All " + cntNr + " counternames " + fstCnt + "-" + (char) (fstCnt + cntNr - 1) + " are in use.");
+		throw new PseudocodeException("LoopCounter", "Too many nested Scopes! All " + cntNr + " loop-counternames " + fstCnt + "-"
+				+ (char) (fstCnt + cntNr - 1) + " are in use.", dataPath);
 	}
 }

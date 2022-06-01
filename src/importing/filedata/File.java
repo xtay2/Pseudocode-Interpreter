@@ -1,7 +1,9 @@
 package importing.filedata;
 
 import static misc.helper.ProgramHelper.*;
+import static misc.helper.StringHelper.pointUnderline;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -10,22 +12,25 @@ import java.util.Set;
 
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import errorhandeling.PseudocodeException;
 import formatter.basic.Formatter;
 import importing.Importer;
+import importing.filedata.interactable.CallInfo;
+import importing.filedata.interactable.DefInfo;
 import importing.filedata.paths.DataPath;
 import importing.filedata.paths.FilePath;
-import interpreting.exceptions.IllegalCodeFormatException;
-import interpreting.exceptions.ImportingException;
 import misc.helper.ProgramHelper;
 import misc.helper.StringHelper;
 import misc.supporting.FileManager;
 import misc.supporting.Output;
 import misc.util.Tuple;
-import runtime.exceptions.DefNotFoundException;
 
 public class File {
 
 	public static final String EXTENSION = ".pc";
+
+	/** The name of the Main.pc */
+	public static final String MAIN_FILE = "Main";
 
 	public final FilePath path;
 
@@ -40,28 +45,38 @@ public class File {
 	/** Set that contains all {@link CallInfo}s in all called {@link DefInfo}s in this class. */
 	private final Set<CallInfo> usedCalls = new HashSet<>();
 
+	/** Set that contains all imported filepaths. */
 	private final Set<FilePath> imports = new HashSet<>();
 
 	public File(FilePath path) {
 		this.path = path;
-		content = FileManager.readFile(path);
+		try {
+			content = FileManager.readFile(path);
+		} catch (IOException e) {
+			throw new AssertionError("The creation of FilePath should already check, if this is a valid path.\n" + path, e);
+		}
 		while (content.get(0).startsWith(KeywordType.IMPORT.toString())) {
 			String importLn = content.remove(0).substring(KeywordType.IMPORT.toString().length() + 1);
-			imports.add(new FilePath(importLn));
+			try {
+				imports.add(new FilePath(importLn));
+			} catch (IOException e) {
+				throw new PseudocodeException(e, generateDataPath(0));
+			}
 			Output.print(this + " imports " + importLn);
 		}
 		preload();
-		// allDefs.forEach(e -> System.out.println(e.defName() + "(" + e.paramCount() + ")"));
 	}
 
 	/**
 	 * Finds all {@link DefInfo}s in this {@link File} and saves them in {@link #allDefs}.
 	 */
 	private void preload() {
+		boolean isMain = path.getName().equals(File.MAIN_FILE);
 		for (int i = 0; i < content.size(); i++) {
-			if (containsRunnable(content.get(i), "\\b" + KeywordType.FUNC + "\\b"))
+			String line = content.get(i);
+			if (containsRunnable(line, "\\b" + KeywordType.FUNC + "\\b"))
 				i = buildDefFromLine(i);
-			else if (containsRunnable(content.get(i), "\\b" + KeywordType.MAIN + "\\b"))
+			else if (isMain && containsRunnable(line, "\\b" + KeywordType.MAIN + "\\b"))
 				i = buildMainFromLine(i);
 		}
 	}
@@ -95,15 +110,20 @@ public class File {
 		String defName = getFirstRunnable(line, "(?<=" + KeywordType.FUNC + "\\s)\\w+(?=\\()");
 		// Find args
 		String params = getFirstRunnable(line, "\\([\\w,\\?\\[\\]\\s]*\\)");
-		if (defName == null || params == null)
-			throw new IllegalCodeFormatException(lineIdx, "Illegal use of " + KeywordType.FUNC);
+		if (defName == null || params == null) {
+			throw new PseudocodeException("IllegalCodeFormat", "Illegal use of the " + KeywordType.FUNC + " keyword."//
+					+ " (Expected a name, followed by brackets)", line, generateDataPath(lineIdx));
+		}
 		int argCnt = params.length() == 2 ? 0 : runnableMatches(params, ",") + 1;
 		// Find end
 		int end = lineIdx;
 		if (!isNative && !containsRunnable(line, ";"))
 			end = findMatchingBrack(content, lineIdx, indexOfRunnable(line, Formatter.OBR))[0];
-		if (!allDefs.add(new DefInfo(path, defName, argCnt, lineIdx, end, isNative)))
-			throw new IllegalCodeFormatException(lineIdx, "Multiple Definitions of " + defName + " in " + path);
+		if (allDefs.stream().anyMatch(def -> def.matches(defName, argCnt))) {
+			throw new PseudocodeException("DuplicateDef", "There are multiple definitions of \"" + defName + "\".",
+					generateDataPath(lineIdx));
+		}
+		allDefs.add(new DefInfo(path, defName, argCnt, lineIdx, end, isNative));
 		return end;
 	}
 
@@ -121,12 +141,14 @@ public class File {
 	public void findUsedDefs(CallInfo... incoming) {
 		Set<DefInfo> newlyAddedDefs = new HashSet<>();
 		for (CallInfo ci : incoming) {
-			DefInfo target = allDefs.stream().filter(di -> di.matches(ci)).findFirst()
-					.orElseThrow(() -> new DefNotFoundException(-1,
-							"Tried to call non-existent definition \"" + ci.targetName() + "\" in " + path //
-									+ "\nCallInfo: " + ci //
-									+ "\nFileInfo: " + debugInfo()) //
-					);
+			DefInfo target = allDefs.stream() //
+					.filter(di -> di.matches(ci)) //
+					.findFirst().orElseThrow( //
+							() -> new PseudocodeException("DefNotFound", //
+									"Tried to call non-existent definition \"" + ci.targetName()//
+											+ "\nCallInfo: " + ci //
+											+ "\nFileInfo: " + debugInfo(),
+									ci.originPath()));
 			if (usedDefs.add(target))
 				newlyAddedDefs.add(target);
 		}
@@ -178,7 +200,7 @@ public class File {
 				int idxOfBrack = match.indexOf('(');
 				String name = match.substring(0, idxOfBrack);
 				int params = idxOfBrack == match.length() - 2 ? 0 : ProgramHelper.runnableMatches(match, ",") + 1;
-				calls.add(new CallInfo(findDefOf(name, params, i), name, params));
+				calls.add(new CallInfo(new DataPath(path, i), findDefOf(name, params, i), name, params));
 			}
 		}
 		return calls;
@@ -198,7 +220,11 @@ public class File {
 			if (f.allDefs.stream().anyMatch(e -> e.matches(callName, params)))
 				return fp;
 		}
-		throw new ImportingException(orgLine, "Trying to call a function " + callName + " in " + this + " that doesn't get imported.");
+		throw new PseudocodeException("DefNotFound", //
+				"Trying to call a function \"" + callName + "\" that doesn't get imported.", //
+				pointUnderline(content.get(orgLine), indexOfRunnable(content.get(orgLine), callName), callName.length()),
+				generateDataPath(orgLine) //
+		);
 	}
 
 	/**
@@ -207,7 +233,7 @@ public class File {
 	public List<Tuple<DataPath, String>> getRelevantContent() {
 		ArrayList<Tuple<DataPath, String>> relevant = new ArrayList<>(content.size());
 		for (int i = 0; i < content.size(); i++)
-			relevant.add(new Tuple<DataPath, String>(new DataPath(path, i), content.get(i)));
+			relevant.add(new Tuple<DataPath, String>(new DataPath(path, i + 1), content.get(i)));
 		// List of all uncalled defs that should get deleted. (Ordered and Reversed)
 		List<DefInfo> delOrdRev = new ArrayList<>(allDefs);
 		delOrdRev.removeAll(usedDefs);
@@ -222,6 +248,15 @@ public class File {
 			relevant.subList(uncalled.startLine(), uncalled.endLine() + 1).clear();
 		}
 		return relevant;
+	}
+
+	/**
+	 * Generates the {@link DataPath} for a specific line in this {@link File}.
+	 *
+	 * @param line is the index of the line in {@link #content}.
+	 */
+	private DataPath generateDataPath(int line) {
+		return new DataPath(path, line + imports.size() + 1);
 	}
 
 	/**

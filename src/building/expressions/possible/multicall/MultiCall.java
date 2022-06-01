@@ -11,35 +11,35 @@ import building.expressions.normal.operators.postfix.PostfixOperator;
 import building.expressions.normal.operators.prefix.PrefixOperator;
 import building.expressions.possible.Call;
 import building.types.specific.operators.InfixOpType;
-import interpreting.exceptions.IllegalCodeFormatException;
+import errorhandeling.PseudocodeException;
 import interpreting.modules.merger.SuperMerger;
 import runtime.datatypes.Value;
 
 /**
  * Performs the outer Expression for each {@link MultiCallable} in it.
- * 
+ *
  * <pre>
  * Should support:
- * 
+ *
  *  - Any changing {@link PrefixOperator} or {@link PostfixOperator}:
  * 	|a, b|++ -> a++, b++
- * 
+ *
  *  - Any {@link Call} that takes just one parameter:
  * 	print(|a, b|) -> print(a), print(b)
- * 
+ *
  *  - Any {@link LogicalOperator} that is an {@link InfixOpType}, on one of both side:
  * 	a and |b, c| -> (a and b) or (a and c)
  * 	|a, b| or c -> (a or c) or (b or c)
- *  
+ *
  *  - The {@link InOperator} on one of both sides.
  * 	|a, b| in c -> (a in c) or (b in c)
  * 	a in |b, c| -> (a in b) or (a in c)
- *  
+ *
  *  - The {@link IsStatement}
  * 	|a, b| is type -> (a is type) or (b is type)
- * 
+ *
  * Should explicitly not support:
- * 
+ *
  *  - An {@link MultiCall} thats somehow connected with another one, like:
  *	|a, |b, c||
  *	|a, b| and |c, d|
@@ -53,14 +53,14 @@ public class MultiCall extends Expression implements ValueHolder {
 	/**
 	 * Creates a {@link MultiCall}.
 	 *
-	 * @param outer   shouldn't be null
+	 * @param outer shouldn't be null
 	 * @param content shouldn't be null
 	 */
 	public MultiCall(int lineID, ValueHolder[] content) {
 		super(lineID, MERGED);
 		this.content = content;
 		if (content.length < 2)
-			throw new IllegalCodeFormatException(getOriginalLine(), "This Multicall has to contain atleast two elements");
+			throw new PseudocodeException("MultiCallParams", "This Multicall has to contain atleast two elements", getDataPath());
 	}
 
 	/**

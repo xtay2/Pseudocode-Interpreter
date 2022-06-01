@@ -8,14 +8,16 @@ import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import building.expressions.abstractions.interfaces.ValueHolder;
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
+import importing.filedata.paths.DataPath;
 import runtime.datatypes.BoolValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
 import runtime.datatypes.numerical.IntValue;
 import runtime.datatypes.numerical.NumberValue;
-import runtime.exceptions.CastingException;
-import runtime.exceptions.ShouldBeNaturalNrException;
 
 public final class TextValue extends Value {
 
@@ -34,7 +36,7 @@ public final class TextValue extends Value {
 	}
 
 	@Override
-	public Value as(DataType t) throws CastingException {
+	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType()) {
 			TextValue[] charArray = new TextValue[value.length()];
 			for (int i = 0; i < charArray.length; i++)
@@ -47,21 +49,21 @@ public final class TextValue extends Value {
 			case CHAR -> asChar();
 			case INT -> asNr().asInt();
 			case NR -> asNr();
-			default -> throw new CastingException(this, t);
+			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
 
 	@Override
-	public BoolValue asBool() throws CastingException {
+	public BoolValue asBool() throws NonExpressionException {
 		if (BoolValue.TRUE.toString().equals(value))
 			return BoolValue.valueOf(true);
 		if (BoolValue.FALSE.toString().equals(value))
 			return BoolValue.valueOf(false);
-		throw new CastingException("Only \"true\" & \"false\" can be casted from text to bool. \nWas: \"" + raw() + "\"");
+		throw new NonExpressionException("Casting", "Only \"true\" & \"false\" can be casted from text to bool. \nWas: \"" + raw() + "\"");
 	}
 
 	@Override
-	public NumberValue asNr() throws CastingException {
+	public NumberValue asNr() throws NonExpressionException {
 		String t = value.strip();
 		if (!t.contains("/")) {
 			if (t.equals(POS_INF.txt))
@@ -93,10 +95,10 @@ public final class TextValue extends Value {
 	}
 
 	@Override
-	public CharValue asChar() throws CastingException {
+	public CharValue asChar() throws NonExpressionException {
 		if (value.length() == 1)
 			return new CharValue(value.charAt(0));
-		throw new CastingException("The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
+		throw new NonExpressionException("Casting", "The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
 				+ "\" consists of multiple chars, and therefore cannot be casted to one.");
 	}
 
@@ -118,9 +120,9 @@ public final class TextValue extends Value {
 	}
 
 	/** Multiplies this text n times. */
-	public TextValue multiply(int times, int executedInLine) {
+	public TextValue multiply(int times, DataPath dataPath) {
 		if (times < 0)
-			throw new ShouldBeNaturalNrException(executedInLine, "Text cannot be multiplied with negative numbers.");
+			throw new PseudocodeException("ShouldBeNaturalNrException", "Text cannot be multiplied with negative numbers.", dataPath);
 		return new TextValue(value.repeat(times));
 	}
 

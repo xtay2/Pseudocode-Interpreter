@@ -15,13 +15,11 @@ import building.expressions.abstractions.interfaces.ValueChanger;
 import building.types.specific.BuilderType;
 import building.types.specific.FlagType;
 import building.types.specific.datatypes.DataType;
+import errorhandeling.NonExpressionException;
+import errorhandeling.PseudocodeException;
 import runtime.datatypes.MaybeValue;
 import runtime.datatypes.Value;
 import runtime.datatypes.array.ArrayValue;
-import runtime.exceptions.CastingException;
-import runtime.exceptions.DeclarationException;
-import runtime.exceptions.NullNotAllowedException;
-import runtime.exceptions.UnexpectedDataType;
 
 /**
  * Has a Name and a Value. The Name has a scope.
@@ -37,6 +35,7 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 	private final Name name;
 	private MaybeValue value;
 	public final DataType dataType;
+
 	// FLAGS
 	private final Set<FlagType> flags = new HashSet<>();
 
@@ -69,22 +68,26 @@ public class Variable extends Expression implements Registerable, ValueChanger, 
 	/**
 	 * Should get identified through {@link Scope#get()}.
 	 *
-	 * @throws CastingException if this is a TypedVar and the types don't match.
+	 * @throws NonExpressionException if this is a TypedVar and the types don't match.
 	 */
 	@Override
-	public Value setValue(Value val) throws CastingException {
+	public Value setValue(Value val) {
 		if (val == null)
 			throw new AssertionError("Value cannot be null.");
 		if (hasFlag(FINAL) || hasFlag(CONSTANT) && value != null)
-			throw new DeclarationException(getOriginalLine(),
-					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName());
-		if (!allowsNull() && val == NULL)
-			throw new NullNotAllowedException(getOriginalLine(),
-					"This variable doesn't allow null. To change that, write:\n" + dataType + "" + BuilderType.MAYBE + " ...");
+			throw new PseudocodeException("ImmutableModification",
+					"Trying to modify the " + (hasFlag(CONSTANT) ? "constant " : "final variable ") + getName(), getDataPath());
+		if (!allowsNull() && val == NULL) {
+			throw new PseudocodeException("NullNotAllowed",
+					"This variable doesn't allow null. To change that, write:\n" + dataType + "" + BuilderType.MAYBE + " ...",
+					getDataPath());
+		}
 		if (!val.matches(dataType)) {
 			String passedType = (val instanceof ArrayValue at ? at.getRules() : val.dataType).toString();
-			throw new UnexpectedDataType(getOriginalLine(), "Variable \"" + getNameString() + "\" only expects values of type " + dataType
-					+ ", but this was passed instead:\nValue: " + val + "\nType: " + passedType);
+			throw new PseudocodeException("UnexpectedDataType", //
+					"Variable \"" + getNameString() + "\" only expects values of type " + dataType + ", but this was passed instead:"
+							+ "\nValue: " + val + "\nType: " + passedType,
+					getDataPath());
 		}
 		value = new MaybeValue(val);
 		return getValue();
