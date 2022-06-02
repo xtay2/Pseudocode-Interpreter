@@ -1,6 +1,8 @@
 # Pseudocode
 ![logo](https://github.com/xtay2/Pseudocode/blob/main/VSCode%20Syntaxhighlighter/logo.png)
 
+![](https://img.shields.io/website?down_message=offline&up_message=online&url=https%3A%2F%2Fpseudocode.site&style=for-the-badge)
+![](https://img.shields.io/github/last-commit/xtay2/Pseudocode?style=for-the-badge)
 ### About
 Pseudocode is an imperative, all-purpose programming language (that will also support objects in the future). 
 This repository contains the latest development version of the language-interpreter.
