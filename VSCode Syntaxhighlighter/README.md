@@ -1,5 +1,9 @@
-# Disclaimer!
-Download the Alpha of Pseudocode now on [pseudocode.site](https://www.pseudocode.site), or visit the [GitHub-repository](https://github.com/xtay2/Pseudocode)!
+## Disclaimer
+Download the Alpha of Pseudocode now on [www.pseudocode.site](https://www.pseudocode.site), or visit the [GitHub-repository](https://github.com/xtay2/Pseudocode)!
+
+![](https://img.shields.io/visual-studio-marketplace/d/xtay.pseudocode-lang?style=for-the-badge) 
+![](https://img.shields.io/visual-studio-marketplace/stars/xtay.pseudocode-lang?style=for-the-badge) 
+![](https://img.shields.io/visual-studio-marketplace/v/xtay.pseudocode-lang?style=for-the-badge)
 
 ## What is Peudocode ?
 
@@ -12,7 +16,9 @@ Pseudocode is a highlevel language with easy to read syntax. This extension enab
 
  - Loops: `while`, `until`, `repeat`, `as`, `from to step`, `for in`.
 
- - Object related: `main`, `func`, `class`, `enum`, `null`, `is`.
+ - Functional: `main`, `func`, `method`.
+
+ - Blueprints: `class`, `enum`, `interface`, `struct`, `module`.
 
  - Flags `static`, `native`, `final`, `const`, `public`.
 
@@ -20,7 +26,7 @@ Pseudocode is a highlevel language with easy to read syntax. This extension enab
 
  - Errors: `try`, `catch`.
 
- - Misc: `import`.
+ - Misc: `import`, `null`, `is`.
 
 ### Datatypes
  - `var`, `nr`, `int`, `bool`, `text`, `char`, `def`.

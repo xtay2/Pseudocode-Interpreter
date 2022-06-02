@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.4.11
+Added highlighting for `interface`, `struct`, `module` and `method`.
+
 ### Update 0.4.10
 Added special highlighting for capslocked constants. 
 

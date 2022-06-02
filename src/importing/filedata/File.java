@@ -12,6 +12,7 @@ import java.util.Set;
 
 import building.types.specific.FlagType;
 import building.types.specific.KeywordType;
+import errorhandeling.Errors;
 import errorhandeling.PseudocodeException;
 import formatter.basic.Formatter;
 import importing.Importer;
@@ -48,6 +49,11 @@ public class File {
 	/** Set that contains all imported filepaths. */
 	private final Set<FilePath> imports = new HashSet<>();
 
+	/**
+	 * Creates a {@link File} and initialises {@link #allDefs}.
+	 *
+	 * @param path is a non null, valid {@link FilePath}.
+	 */
 	public File(FilePath path) {
 		this.path = path;
 		try {
@@ -55,16 +61,18 @@ public class File {
 		} catch (IOException e) {
 			throw new AssertionError("The creation of FilePath should already check, if this is a valid path.\n" + path, e);
 		}
-		while (content.get(0).startsWith(KeywordType.IMPORT.toString())) {
-			String importLn = content.remove(0).substring(KeywordType.IMPORT.toString().length() + 1);
-			try {
-				imports.add(new FilePath(importLn));
-			} catch (IOException e) {
-				throw new PseudocodeException(e, generateDataPath(0));
+		if (!content.isEmpty()) { // Empty file has no info to init
+			while (content.get(0).startsWith(KeywordType.IMPORT.toString())) {
+				String importLn = content.remove(0).substring(KeywordType.IMPORT.toString().length() + 1);
+				try {
+					imports.add(new FilePath(importLn));
+				} catch (IOException e) {
+					throw new PseudocodeException(e, generateDataPath(0));
+				}
+				Output.print(this + " imports " + importLn);
 			}
-			Output.print(this + " imports " + importLn);
+			preload();
 		}
-		preload();
 	}
 
 	/**
@@ -137,6 +145,8 @@ public class File {
 	 * </pre>
 	 *
 	 * @param incoming are the incoming {@link CallInfo}s from other {@link File}s.
+	 * @throws AssertionError if the main-func couldn't get found.
+	 * @throws PseudocodeException if the any other func couldn't get found.
 	 */
 	public void findUsedDefs(CallInfo... incoming) {
 		Set<DefInfo> newlyAddedDefs = new HashSet<>();
@@ -144,11 +154,15 @@ public class File {
 			DefInfo target = allDefs.stream() //
 					.filter(di -> di.matches(ci)) //
 					.findFirst().orElseThrow( //
-							() -> new PseudocodeException("DefNotFound", //
-									"Tried to call non-existent definition \"" + ci.targetName()//
-											+ "\nCallInfo: " + ci //
-											+ "\nFileInfo: " + debugInfo(),
-									ci.originPath()));
+							() -> {
+								// Error has to be handled here.
+								if (ci.originPath() == null && ci.targetName().equals(KeywordType.MAIN.toString()))
+									Errors.handleError(new AssertionError("Couldn't find " + KeywordType.MAIN + "-func in " + this));
+								return new PseudocodeException("DefNotFound", //
+										"Tried to call non-existent definition \"" + ci.targetName() + "\"." //
+												+ "\nCallInfo: " + ci + "\nFileInfo: " + debugInfo(),
+										ci.originPath());
+							});
 			if (usedDefs.add(target))
 				newlyAddedDefs.add(target);
 		}

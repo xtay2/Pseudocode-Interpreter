@@ -7,11 +7,11 @@
 		{"include": "#var_types"},
 
 		{"include": "#keywords"},
+		{"include": "#blueprints"},
 		{"include": "#jump_statements"},
 
 		{"include": "#import_statements"},
 		{"include": "#import_lines"},
-
 		
 		{"include": "#true_literal"},
 		{"include": "#false_literal"},
@@ -36,7 +36,13 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pseudocode",
-				"match": "\\b(main|func|if|elif|any|else|while|until|repeat|from|to|step|as|for|class|enum|is|try|catch|static|native|final|const|public|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
+				"match": "\\b(main|func|method|if|elif|any|else|while|until|repeat|from|to|step|as|for|is|try|catch|static|native|final|const|public|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
+			}]
+		},
+		"blueprints": {
+			"patterns": [{
+				"name": "blueprint.pseudocode",
+				"match": "\\b(class|interface|enum|struct|module)\\b"
 			}]
 		},
 		"jump_statements": {

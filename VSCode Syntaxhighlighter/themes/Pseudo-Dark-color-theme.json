@@ -106,6 +106,15 @@
 			}
 		},
 		{
+			"name": "Blueprints",
+			"scope": [
+				"blueprint.pseudocode"
+			],
+			"settings": {
+				"foreground": "#89DDFF"
+			}
+		},
+		{
 			"name": "Operator, Misc",
 			"scope": [
 				"keyword.control",

@@ -6,11 +6,7 @@ import java.util.List;
 /**
  * Abstract Helperclass that contains all functions that get used all over the project.
  */
-public final class StringHelper {
-
-	private StringHelper() {
-		// Dead constructor
-	}
+public interface StringHelper {
 
 	/**
 	 * Points to a char in a string.

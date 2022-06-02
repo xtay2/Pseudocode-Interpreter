@@ -6,13 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import importing.filedata.paths.FilePath;
+import misc.helper.StringHelper;
 
 public final class FileManager {
 
@@ -95,7 +95,10 @@ public final class FileManager {
 			path = path.substring(subfolder.length(), path.lastIndexOf(target));
 			return path.replace('/', '.');
 		}
-		throw new FileAlreadyExistsException("There are multiple matches for the file:\n\"" + subfolder + ".." + target + "\"");
+		if (paths.isEmpty())
+			throw new FileNotFoundException("Couldn't find any file at the search-path: \n\"" + subfolder + ".." + target + "\"");
+		throw new IOException("There are multiple matches for the search-path: \n\"" + subfolder + ".." + target + "\"" //
+				+ "\nMatches:" + StringHelper.enumerate(paths));
 	}
 
 	public static List<String> readFile(FilePath path) throws IOException {
