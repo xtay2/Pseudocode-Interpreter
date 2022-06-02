@@ -6,6 +6,7 @@ Pseudocode is an imperative, all-purpose programming language (that will also su
 This repository contains the latest development version of the language-interpreter.
 - [Official website](https://pseudocode.site/)
 - [Official wiki](https://wiki.pseudocode.site/)
+- [VSCode Syntaxhighlighter](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang)
 
 ### Related Repositories
 - [Installer](https://github.com/xtay2/Pseudocode-Installer)
@@ -14,4 +15,3 @@ This repository contains the latest development version of the language-interpre
 ### Community
 - Feature or pull-requests are allways welcome.
 - Please report any bugs/unexpected behaviour that you encounter.
-- A download-/executable interpreter-file will be available soon. 
