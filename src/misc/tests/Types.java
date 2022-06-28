@@ -1,22 +1,14 @@
 package misc.tests;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.*;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import building.types.abstractions.AbstractType;
-import building.types.abstractions.SpecificType;
-import building.types.abstractions.SuperType;
-import building.types.abstractions.UnspecificType;
+import building.types.abstractions.*;
 
 public class Types {
-
+	
 	@Test
 	void test() {
 		AbstractType[] everyType = SuperType.values();
@@ -28,7 +20,7 @@ public class Types {
 			}
 		}
 	}
-
+	
 	/** Checks, if a type stores multiple identical {@link SpecificType}s. */
 	private void hasDuplicateExpected(AbstractType t) {
 		List<SpecificType> exp = new ArrayList<>();
@@ -43,7 +35,7 @@ public class Types {
 			assert !exp.contains(null) : "Expected types for " + t + " contain null.";
 		}
 	}
-
+	
 	private <T> Set<T> findDuplicates(Collection<T> collection) {
 		Set<T> uniques = new HashSet<>();
 		return collection.stream().filter(e -> !uniques.add(e)).collect(Collectors.toSet());

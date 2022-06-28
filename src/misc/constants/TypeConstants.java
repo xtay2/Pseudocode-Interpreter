@@ -1,18 +1,17 @@
 package misc.constants;
 
-import building.expressions.abstractions.Range;
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
+import building.expressions.abstractions.*;
+import building.types.specific.datatypes.*;
 
 /**
  * A collection of constants, used for basic casting.
  */
 public abstract class TypeConstants {
-
+	
 	private TypeConstants() {
 		// Dead Constructor
 	}
-
+	
 	// Nullable Types @formatter:off
 	public static final DataType VAR  = new DataType(SingleType.VAR,  true);
 	public static final DataType TEXT = new DataType(SingleType.TEXT, true);

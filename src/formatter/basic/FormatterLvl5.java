@@ -1,18 +1,16 @@
 package formatter.basic;
 
-import static building.types.specific.FlagType.CONSTANT;
-import static building.types.specific.FlagType.FINAL;
+import static building.types.specific.FlagType.*;
 import static building.types.specific.KeywordType.*;
-import static building.types.specific.datatypes.SingleType.VAR;
+import static building.types.specific.datatypes.SingleType.*;
 import static misc.helper.ProgramHelper.*;
-import static misc.helper.StringHelper.removeCharAt;
-import static runtime.datatypes.BoolValue.FALSE;
-import static runtime.datatypes.BoolValue.TRUE;
+import static misc.helper.StringHelper.*;
+import static runtime.datatypes.BoolValue.*;
 
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.AssignmentType;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.*;
 
 /**
  * Everything should get executed after {@link FormatterLvl2#format()}.
@@ -32,7 +30,7 @@ import building.types.specific.AssignmentType;
  * @see Formatter
  */
 public final class FormatterLvl5 extends Formatter {
-
+	
 	protected static void format() {
 		commentDeadScopes();
 		commentDeadVars();
@@ -47,7 +45,7 @@ public final class FormatterLvl5 extends Formatter {
 			);
 		//@formatter:on
 	}
-
+	
 	/**
 	 * Comments out each of the following dead conditionals:
 	 * 
@@ -83,17 +81,17 @@ public final class FormatterLvl5 extends Formatter {
 			}
 		}
 	}
-
+	
 	/** Comments out all variable-declarations that dont get used. */
 	static void commentDeadVars() {
 		// TODO Auto-generated method stub
 	}
-
+	
 	/** Comments out all definition-declarations that dont get called. */
 	static void commentDeadDefs() {
 		// TODO Auto-generated method stub
 	}
-
+	
 	/**
 	 * Splits a line that starts with a CB and something behind that into two lines.
 	 * 
@@ -113,7 +111,7 @@ public final class FormatterLvl5 extends Formatter {
 			program.add(lineIdx + 1, line.substring(2));
 		}
 	}
-
+	
 	/** Comments out dead code after a return-statement. */
 	static void commentAfterReturn() {
 		for (int i = 0; i < program.size(); i++) {
@@ -133,7 +131,7 @@ public final class FormatterLvl5 extends Formatter {
 			}
 		}
 	}
-
+	
 	/** A {@link LineFormatterFunc} that removes multiple brackets that enclose the same thing. */
 	static String removeDoubleBrackets(String line, boolean isFullyRunnable) {
 		for (int i = 0; i < line.length(); i++) {
@@ -153,7 +151,7 @@ public final class FormatterLvl5 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/**
 	 * List of expression that expect a {@link ValueHolder}.
 	 * 
@@ -165,7 +163,7 @@ public final class FormatterLvl5 extends Formatter {
 	 */
 	static List<String> expectedStart = List.of(//
 			IF.toString(), ELIF.toString(), ANY + " " + IF, WHILE.toString(), UNTIL.toString(), REPEAT.toString());
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that removes all brackets that enclose the whole expression.
 	 * 
@@ -194,7 +192,7 @@ public final class FormatterLvl5 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that aggressively removes redundant parts from boolean-expressions.
 	 */
@@ -202,7 +200,7 @@ public final class FormatterLvl5 extends Formatter {
 		// TODO Implement me!
 		return null;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that replaces:
 	 * 

@@ -1,18 +1,16 @@
 package building.expressions.main.loops;
 
-import static building.types.specific.KeywordType.UNTIL;
-import static building.types.specific.KeywordType.WHILE;
+import static building.types.specific.KeywordType.*;
 
-import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.statements.ConditionalStatement;
-import building.expressions.normal.brackets.OpenBlock;
-import building.expressions.normal.containers.Name;
-import building.types.specific.KeywordType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import interpreting.program.ProgramLine;
-import runtime.datatypes.numerical.NumberValue;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.abstractions.scopes.*;
+import building.expressions.main.statements.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.name.*;
+import building.types.specific.*;
+import errorhandeling.*;
+import interpreting.program.*;
+import runtime.datatypes.numerical.*;
 
 /**
  * While/Until Loop.
@@ -21,9 +19,9 @@ import runtime.datatypes.numerical.NumberValue;
  * @see ConditionalStatement
  */
 public final class ConditionalLoop extends Loop {
-
+	
 	private final ValueHolder condition;
-
+	
 	/**
 	 * Creates a {@link ConditionalLoop}, based on the passed {@link KeywordType}.
 	 *
@@ -39,7 +37,7 @@ public final class ConditionalLoop extends Loop {
 			throw new AssertionError("Condition cannot be null.");
 		this.condition = condition;
 	}
-
+	
 	/**
 	 * Returns true when:
 	 *
@@ -54,7 +52,7 @@ public final class ConditionalLoop extends Loop {
 		try {
 			return condition.asBool().value == is(WHILE);
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
 }

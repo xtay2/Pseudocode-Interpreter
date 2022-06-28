@@ -1,23 +1,19 @@
 package formatter.basic;
 
-import static building.types.abstractions.SpecificType.equalsString;
+import static building.types.abstractions.SpecificType.*;
 import static building.types.specific.KeywordType.*;
-import static java.lang.String.valueOf;
+import static java.lang.String.*;
 import static misc.helper.ProgramHelper.*;
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import building.expressions.main.CloseBlock;
-import building.expressions.main.statements.FlagSpace;
-import building.expressions.normal.brackets.OpenBlock;
-import building.types.specific.FlagType;
-import building.types.specific.KeywordType;
-import building.types.specific.operators.InfixOpType;
-import misc.constants.GreekSymbol;
+import building.expressions.main.*;
+import building.expressions.main.statements.*;
+import building.expressions.normal.brackets.*;
+import building.types.specific.*;
+import building.types.specific.operators.*;
+import misc.constants.*;
 
 /**
  * Everything should get executed after {@link FormatterLvl2#format()}.
@@ -39,7 +35,7 @@ import misc.constants.GreekSymbol;
  * @see Formatter
  */
 public final class FormatterLvl1 extends Formatter {
-
+	
 	/**
 	 * Gets executed before everything else.
 	 *
@@ -52,7 +48,7 @@ public final class FormatterLvl1 extends Formatter {
 				    (x, y) -> correctNrConsts(x, y));
 		//@formatter:on
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that replaces simple writings or operators with their
 	 * unicode-equivalent.
@@ -63,7 +59,7 @@ public final class FormatterLvl1 extends Formatter {
 		line = replaceAllIfRunnable(line, ">=", InfixOpType.GREATER_EQ.toString(), isFullyRunnable);
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that replaces all escaped text-versions with greek characters.
 	 */
@@ -83,14 +79,14 @@ public final class FormatterLvl1 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/** A {@link LineFormatterFunc} that corrects the case of number-constants. */
 	static String correctNrConsts(String line, boolean isFullyRunnable) {
 		line = replaceAllIfRunnable(line, "(?i)\\b" + NAN + "\\b", NAN.txt, isFullyRunnable);
 		line = replaceAllIfRunnable(line, "(?i)\\b" + POS_INF + "\\b", POS_INF.txt, isFullyRunnable);
 		return line;
 	}
-
+	
 	protected static void format(boolean isMain) {
 		if (isMain)
 			addMissingMain();
@@ -106,7 +102,7 @@ public final class FormatterLvl1 extends Formatter {
 				);
 		//@formatter:on
 	}
-
+	
 	/**
 	 * Adds a main-function if there isn't one already present.
 	 */
@@ -119,7 +115,7 @@ public final class FormatterLvl1 extends Formatter {
 			program.add(3, "");
 		}
 	}
-
+	
 	/**
 	 * Move all import statements to the top of the file.
 	 *
@@ -134,7 +130,7 @@ public final class FormatterLvl1 extends Formatter {
 		Collections.sort(imports);
 		program.addAll(0, imports);
 	}
-
+	
 	/**
 	 * Formats {@link OpenBlock} Brackets.
 	 *
@@ -177,7 +173,7 @@ public final class FormatterLvl1 extends Formatter {
 			}
 		}
 	}
-
+	
 	/**
 	 * If something stands in front of a {@link CloseBlock} the, CB and everything behind it gets moved
 	 * to the next line.
@@ -223,7 +219,7 @@ public final class FormatterLvl1 extends Formatter {
 			}
 		}
 	}
-
+	
 	/**
 	 * Adds missing semicolons and removes unnecessary ones.
 	 *
@@ -252,7 +248,7 @@ public final class FormatterLvl1 extends Formatter {
 				program.set(i, replaceAllIfRunnable(line, MCS, "", isFullyRunnable(line)));
 		}
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that removes a space between the name of a function and its params.
 	 *
@@ -264,7 +260,7 @@ public final class FormatterLvl1 extends Formatter {
 	static String correctFuncs(String line, boolean isFullyRunnable) {
 		return replaceAllIfRunnable(line, "(?<=func\\s\\w+)\\s+(?=\\()", "", isFullyRunnable);
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that replaces wrong spellings of {@link KeywordType#ELIF}.
 	 *
@@ -274,7 +270,7 @@ public final class FormatterLvl1 extends Formatter {
 	static String replaceElifs(String line, boolean isFullyRunnable) {
 		return replaceAllIfRunnable(line, ELSE + "(:?)\\s" + IF, ELIF.toString(), isFullyRunnable);
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that:
 	 *

@@ -1,16 +1,14 @@
 package formatter.basic;
 
-import static building.types.specific.BuilderType.STEP;
-import static building.types.specific.BuilderType.TO;
+import static building.types.specific.BuilderType.*;
 import static building.types.specific.KeywordType.*;
 import static building.types.specific.operators.InfixOpType.*;
-import static building.types.specific.operators.PrefixOpType.NOT;
-import static misc.helper.ProgramHelper.replaceAllIfRunnable;
-import static runtime.datatypes.BoolValue.FALSE;
-import static runtime.datatypes.BoolValue.TRUE;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static building.types.specific.operators.PrefixOpType.*;
+import static misc.helper.ProgramHelper.*;
+import static runtime.datatypes.BoolValue.*;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Everything should get executed after {@link FormatterLvl2#format()} and {@link FormatterLvl5}, if
@@ -27,7 +25,7 @@ import java.util.List;
  * @see Formatter
  */
 public final class FormatterLvl4 extends Formatter {
-
+	
 	protected static void format() {
 	//@formatter:off
 	forEachLine(
@@ -38,7 +36,7 @@ public final class FormatterLvl4 extends Formatter {
 		);
 	//@formatter:on
 	}
-
+	
 	/** A {@link LineFormatterFunc} that simplifies/removes redundant terms. */
 	static String simplifyMisc(String line, boolean isFullyRunnable) {
 		// Remove step 1
@@ -47,7 +45,7 @@ public final class FormatterLvl4 extends Formatter {
 		line = replaceAllIfRunnable(line, ANY + " " + IF + " " + TRUE, ANY.toString(), isFullyRunnable);
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that removes redundant boolean literals/operators.
 	 */
@@ -55,7 +53,7 @@ public final class FormatterLvl4 extends Formatter {
 		int lineL = line.length();
 		line = replaceAllIfRunnable(line, NOT + " " + FALSE, TRUE.toString(), isFullyRunnable);
 		line = replaceAllIfRunnable(line, NOT + " " + TRUE, FALSE.toString(), isFullyRunnable);
-
+		
 		//All bool-expressions that are redundant and can be deleted @formatter:off
 		line = List.of(
 			NOT + " " + NOT,
@@ -83,7 +81,7 @@ public final class FormatterLvl4 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that simplifies endless loops with "repeat {".
 	 *
@@ -101,7 +99,7 @@ public final class FormatterLvl4 extends Formatter {
 		line = replaceAllIfRunnable(line, FROM + " 0 " + TO + POS_INF + OSR, REPEAT.toString(), isFullyRunnable);
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that swaps "while not" with "until", and "until not" with "while".
 	 */
@@ -110,5 +108,5 @@ public final class FormatterLvl4 extends Formatter {
 		line = replaceAllIfRunnable(line, UNTIL + " " + NOT, WHILE.toString(), isFullyRunnable);
 		return line;
 	}
-
+	
 }

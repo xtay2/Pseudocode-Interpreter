@@ -1,21 +1,15 @@
 package misc.supporting;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.*;
+import java.nio.file.*;
+import java.util.*;
 
-import importing.filedata.paths.FilePath;
-import misc.helper.StringHelper;
+import importing.filedata.paths.*;
+import misc.helper.*;
 
 public final class FileManager {
-
+	
 	/**
 	 * Write a List of lines into the textfile.
 	 *
@@ -28,7 +22,7 @@ public final class FileManager {
 			res += line + "\n";
 		writeFile(res.stripTrailing(), path);
 	}
-
+	
 	/**
 	 * Write a string into the textfile.
 	 *
@@ -45,7 +39,7 @@ public final class FileManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Finds a {@link File} in a specified directory.
 	 *
@@ -67,7 +61,7 @@ public final class FileManager {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Tries to find a File, when a bit of the path is missing.
 	 *
@@ -100,7 +94,7 @@ public final class FileManager {
 		throw new IOException("There are multiple matches for the search-path: \n\"" + subfolder + ".." + target + "\"" //
 				+ "\nMatches:" + StringHelper.enumerate(paths));
 	}
-
+	
 	public static List<String> readFile(FilePath path) throws IOException {
 		return Files.readAllLines(Paths.get(path.getAbsPath()));
 	}

@@ -1,20 +1,18 @@
 package interpreting.program;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
-import importing.filedata.paths.DataPath;
-import interpreting.modules.interpreter.Interpreter;
+import importing.filedata.paths.*;
+import interpreting.modules.interpreter.*;
 
 public final class Program implements Iterable<ProgramLine> {
-
+	
 	/** All lines of code, strongly indexed. */
 	private final ArrayList<ProgramLine> program = new ArrayList<>(20);
-
+	
 	private boolean constructed = false;
-
+	
 	/**
 	 * Adds/Replaces a specified, stripped line of code in this datastructure.
 	 *
@@ -29,7 +27,7 @@ public final class Program implements Iterable<ProgramLine> {
 			throw new NullPointerException("Line can be empty, but not null.");
 		program.add(new ProgramLine(content, program.size(), dataPath)); // Line was added.
 	}
-
+	
 	/**
 	 * Constructs the whole program and locks writing access.
 	 */
@@ -38,12 +36,12 @@ public final class Program implements Iterable<ProgramLine> {
 		// Construct BuilderExpressions
 		for (ProgramLine line : program)
 			line.construct();
-
+		
 		// Merge to Expressions
 		for (ProgramLine line : program)
 			line.merge();
 	}
-
+	
 	/**
 	 * Return a ProgramLine
 	 *
@@ -58,17 +56,17 @@ public final class Program implements Iterable<ProgramLine> {
 			throw new AssertionError("Tried to read line " + i + " from PROGRAM in Main. Size: " + program.size());
 		}
 	}
-
+	
 	/** Finds a line of code through the {@link DataPath}. */
 	public String find(DataPath location) {
 		constructedCheck();
 		try {
-			return stream().filter(e -> e.dataPath.equals(location)).findFirst().get().line;
+			return stream().filter(e -> e.getDataPath().equals(location)).findFirst().get().line;
 		} catch (NoSuchElementException e) {
 			throw new AssertionError("A valid datapath should link to a valid file.\nPath was: " + location, e);
 		}
 	}
-
+	
 	@Override
 	public String toString() {
 		String out = "";
@@ -76,19 +74,19 @@ public final class Program implements Iterable<ProgramLine> {
 			out += l.toString() + "\n";
 		return out;
 	}
-
+	
 	/** Gets used in the {@link Interpreter}. */
 	@Override
 	public Iterator<ProgramLine> iterator() {
 		constructedCheck();
 		return program.iterator();
 	}
-
+	
 	/** Returns the number of lines in this program. */
 	public int size() {
 		return program.size();
 	}
-
+	
 	/**
 	 * Returns a {@link Stream} of this program.
 	 */
@@ -96,11 +94,9 @@ public final class Program implements Iterable<ProgramLine> {
 		constructedCheck();
 		return program.stream();
 	}
-
-	public boolean isConstructed() {
-		return constructed;
-	}
-
+	
+	public boolean isConstructed() { return constructed; }
+	
 	/**
 	 * Throws an {@link AssertionError} if the program isn't {@link #constructed} yet. This should get
 	 * added to all major read operations.

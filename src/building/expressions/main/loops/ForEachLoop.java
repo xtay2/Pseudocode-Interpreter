@@ -1,29 +1,28 @@
 package building.expressions.main.loops;
 
-import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.brackets.OpenBlock;
-import building.expressions.normal.containers.Name;
-import building.expressions.normal.containers.Variable;
-import building.types.specific.KeywordType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import misc.constants.TypeConstants;
-import misc.helper.MathHelper;
-import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.numerical.NumberValue;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.abstractions.scopes.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.*;
+import building.expressions.normal.containers.name.*;
+import building.types.specific.*;
+import errorhandeling.*;
+import misc.constants.*;
+import misc.helper.*;
+import runtime.datatypes.array.*;
+import runtime.datatypes.numerical.*;
 
 public class ForEachLoop extends Loop {
-
+	
 	/** The {@link ValueHolder} that gets called at the start of every new iteration. */
 	private final ValueHolder arrayHolder;
-
+	
 	/** The temporary value that gets reset for every iteration. */
 	private ArrayValue array;
-
+	
 	/** The name for the running element. */
 	private Name elemName;
-
+	
 	/**
 	 * Creates a {@link ForEachLoop}.
 	 *
@@ -39,27 +38,27 @@ public class ForEachLoop extends Loop {
 		this.elemName = elemName;
 		this.arrayHolder = arrayH;
 	}
-
+	
 	@Override
 	protected void initLoop() {
 		super.initLoop();
 		try {
 			array = (ArrayValue) arrayHolder.as(TypeConstants.VAR_ARR);
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
-
+	
 	@Override
 	@SuppressWarnings("unlikely-arg-type")
 	protected boolean doContinue(NumberValue iteration) {
 		try {
 			if (iteration.equals(array.length()))
 				return false;
-			new Variable(lineIdentifier, getScope(), TypeConstants.VAR, elemName, array.get(MathHelper.valToInt(iteration)));
+			new Variable(lineIdentifier, TypeConstants.VAR, elemName, array.get(MathHelper.valToInt(iteration)));
 			return true;
 		} catch (ArithmeticException | NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
 }

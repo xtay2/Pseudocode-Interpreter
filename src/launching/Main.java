@@ -1,21 +1,17 @@
 package launching;
 
-import static misc.supporting.Output.print;
+import static misc.supporting.Output.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 
-import errorhandeling.Errors;
-import errorhandeling.InitException;
+import errorhandeling.*;
 import importing.filedata.File;
-import interpreting.modules.interpreter.Interpreter;
-import interpreting.modules.parser.Parser;
-import interpreting.program.Program;
-import misc.supporting.FileManager;
-import misc.supporting.Output;
+import interpreting.modules.interpreter.*;
+import interpreting.modules.parser.*;
+import interpreting.program.*;
+import misc.supporting.*;
 
 /**
  * The starting point for the Interpreter.
@@ -23,22 +19,21 @@ import misc.supporting.Output;
  * Takes the execution command and possible flags, and starts the program accordingly.
  */
 public abstract class Main {
-
+	
 	public static final Program PROGRAM = new Program();
-
+	
 	public static String libPath, launchPath;
 	private static boolean jStacktrace = false;
 	private static int formatterLvl = 5;
-
+	
 	public static void main(String[] args) {
 		//@formatter:off
-		if (args.length < 3) {
+		if (args.length < 3)
 			throw new IllegalArgumentException("The Interpreter has to get launched with following arguments:"
 				+ "\n-The library-path" + (args.length >= 1 ? "\t Was: " + args[0] : "")
 				+ "\n-The project-path" + (args.length >= 2 ? "\t Was: " + args[1] : "")
 				+ "\n-An execution-command"
 				+ "\n-Optional flags");
-		}
 		//@formatter:on
 		libPath = args[0].strip().replace('\\', '/');
 		launchPath = args[1].strip().replace('\\', '/');
@@ -52,7 +47,7 @@ public abstract class Main {
 			Errors.handleError(t);
 		}
 	}
-
+	
 	/** Executes with the specified configurations. */
 	private static void execute(String execCommand, String[] execFlags) {
 		switch (execCommand.toLowerCase()) {
@@ -72,7 +67,7 @@ public abstract class Main {
 				throw new IllegalArgumentException("Unexpected execution-command: " + execCommand);
 		}
 	}
-
+	
 	/**
 	 * Creates a new project.
 	 *
@@ -97,7 +92,7 @@ public abstract class Main {
 			throw new InitException("Project \"" + projectName + "\" couldn't get created.", e);
 		}
 	}
-
+	
 	/**
 	 * Starts the formatting and the execution.
 	 *
@@ -109,15 +104,15 @@ public abstract class Main {
 		boolean force = false;
 		for (String flag : execFlags) {
 			flag = flag.strip();
-			if ("--debug".equals(flag))
+			if ("--debug".equals(flag)) {
 				Output.debugMode = true;
-			else if ("--j-stacktrace".equals(flag))
+			} else if ("--j-stacktrace".equals(flag)) {
 				jStacktrace = true;
-			else if (flag.matches("--formatter-lvl:\\d"))
+			} else if (flag.matches("--formatter-lvl:\\d")) {
 				formatterLvl = Character.getNumericValue(flag.charAt(flag.length() - 1));
-			else if (justFormatting && "--force".equals(flag))
+			} else if (justFormatting && "--force".equals(flag)) {
 				force = true;
-			else
+			} else
 				throw new IllegalArgumentException("Unexpected flag for format-command: " + flag);
 		}
 		// Save execution
@@ -128,16 +123,14 @@ public abstract class Main {
 			Interpreter.interpret();
 		}
 	}
-
+	
 	/**
 	 * Returns the strength of the formatter.
 	 *
 	 * Default: 5
 	 */
-	public static int getFormattingLvl() {
-		return formatterLvl;
-	}
-
+	public static int getFormattingLvl() { return formatterLvl; }
+	
 	public static boolean showJStacktrace() {
 		return jStacktrace;
 	}

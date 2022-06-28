@@ -1,14 +1,14 @@
 package building.expressions.possible.multicall;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.operators.infix.InfixOperator;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.infix.*;
+import runtime.datatypes.*;
 
 /**
  * @see InfixOperator
  */
 public interface MultiCallableOperation extends MultiCallable {
-
+	
 	/**
 	 * Similar to {@link #executeFor(ValueHolder[])}, but takes an additional operand on the right.
 	 * 
@@ -17,7 +17,7 @@ public interface MultiCallableOperation extends MultiCallable {
 	 * </pre>
 	 */
 	Value executeFor(ValueHolder[] content, ValueHolder operand);
-
+	
 	/**
 	 * Similar to {@link #executeFor(ValueHolder[])}, but takes an additional operand on the left.
 	 * 

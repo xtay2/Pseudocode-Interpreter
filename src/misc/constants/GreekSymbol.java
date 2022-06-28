@@ -1,18 +1,39 @@
 package misc.constants;
 
 public enum GreekSymbol {
-
-	ALPHA('Α', 'α'), BETA('Β', 'β'), GAMMA('Γ', 'γ'), DELTA('Δ', 'δ'), EPSILON('Ε', 'ε'), ZETA('Ζ', 'ζ'), ETA('Η', 'η'), THETA('Θ', 'θ'),
-	IOTA('Ι', 'ι'), KAPPA('Κ', 'κ'), LAMBDA('Λ', 'λ'), MU('Μ', 'μ'), NU('Ν', 'ν'), XI('Ξ', 'ξ'), OMICRON('Ο', 'ο'), PI('Π', 'π'),
-	RHO('Ρ', 'ρ'), SIGMA('Σ', 'ς'), TAU('Τ', 'τ'), UPSILON('Υ', 'υ'), PHI('Φ', 'φ'), CHI('Χ', 'χ'), PSI('Ψ', 'ψ'), OMEGA('Ω', 'ω');
-
+	
+	ALPHA('Α', 'α'),
+	BETA('Β', 'β'),
+	GAMMA('Γ', 'γ'),
+	DELTA('Δ', 'δ'),
+	EPSILON('Ε', 'ε'),
+	ZETA('Ζ', 'ζ'),
+	ETA('Η', 'η'),
+	THETA('Θ', 'θ'),
+	IOTA('Ι', 'ι'),
+	KAPPA('Κ', 'κ'),
+	LAMBDA('Λ', 'λ'),
+	MU('Μ', 'μ'),
+	NU('Ν', 'ν'),
+	XI('Ξ', 'ξ'),
+	OMICRON('Ο', 'ο'),
+	PI('Π', 'π'),
+	RHO('Ρ', 'ρ'),
+	SIGMA('Σ', 'ς'),
+	TAU('Τ', 'τ'),
+	UPSILON('Υ', 'υ'),
+	PHI('Φ', 'φ'),
+	CHI('Χ', 'χ'),
+	PSI('Ψ', 'ψ'),
+	OMEGA('Ω', 'ω');
+	
 	public final char upper, lower;
-
+	
 	private GreekSymbol(char upperCase, char lowerCase) {
 		upper = upperCase;
 		lower = lowerCase;
 	}
-
+	
 	/**
 	 * Returns the matching character for the searched up symbol.
 	 *

@@ -1,7 +1,7 @@
 package errorhandeling;
 
-import building.expressions.abstractions.interfaces.AbstractExpression;
-import importing.filedata.paths.DataPath;
+import building.expressions.abstractions.interfaces.*;
+import importing.filedata.paths.*;
 
 /**
  * This is a checked {@link Exception} for all cases were a {@link PseudocodeException} cannot be
@@ -12,9 +12,13 @@ import importing.filedata.paths.DataPath;
  */
 @SuppressWarnings("serial")
 public class NonExpressionException extends Exception {
-
+	
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -3785151353443964919L;
 	public final String name, message;
-
+	
 	/**
 	 * Creates a {@link NonExpressionException}.
 	 *
@@ -27,5 +31,5 @@ public class NonExpressionException extends Exception {
 		this.name = name;
 		this.message = message;
 	}
-
+	
 }

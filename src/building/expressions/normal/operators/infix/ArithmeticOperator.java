@@ -1,21 +1,19 @@
 package building.expressions.normal.operators.infix;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.operators.InfixOpType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.numerical.NumberValue;
-import runtime.datatypes.textual.TextValue;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
+import runtime.datatypes.numerical.*;
+import runtime.datatypes.textual.*;
 
 public class ArithmeticOperator extends InfixOperator {
-
+	
 	public ArithmeticOperator(int lineID, InfixOpType op) {
 		super(lineID, op);
 	}
-
+	
 	@Override
 	public Value perform(ValueHolder a, ValueHolder b) {
 		Value fst = a.getValue();
@@ -32,10 +30,10 @@ public class ArithmeticOperator extends InfixOperator {
 				default -> throw new AssertionError("Unexpected arithmetic operator: " + op);
 			};
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
-
+	
 	@Override
 	public ArrayValue executeFor(ValueHolder operand, ValueHolder[] content) {
 		Value[] res = new Value[content.length];
@@ -43,7 +41,7 @@ public class ArithmeticOperator extends InfixOperator {
 			res[i] = perform(operand, content[i]);
 		return ArrayValue.newInstance(res);
 	}
-
+	
 	@Override
 	public ArrayValue executeFor(ValueHolder[] content, ValueHolder operand) {
 		Value[] res = new Value[content.length];
@@ -51,7 +49,7 @@ public class ArithmeticOperator extends InfixOperator {
 			res[i] = perform(content[i], operand);
 		return ArrayValue.newInstance(res);
 	}
-
+	
 	/**
 	 * {@link NumberValue#add} numbers, {@link ArrayValue#concat} arrays, or
 	 * {@link ArrayValue#append}/{@link ArrayValue#prepend} element to arrays.
@@ -62,21 +60,21 @@ public class ArithmeticOperator extends InfixOperator {
 		// Array Concat
 		if (a instanceof ArrayValue a1 && b instanceof ArrayValue a2)
 			return a1.concat(a2);
-
+		
 		// Arithmetical Addition
 		if (a instanceof NumberValue n1 && b instanceof NumberValue n2)
 			return n1.add(n2);
-
+		
 		// Array Addition End
 		if (a instanceof ArrayValue arr && !(b instanceof ArrayValue))
 			return arr.append(b);
 		// Array Addition Start
 		if (!(a instanceof ArrayValue) && b instanceof ArrayValue arr)
 			return arr.prepend(a);
-
+		
 		return a.asText().concat(b.asText());
 	}
-
+	
 	/**
 	 * Subtract numbers.
 	 *
@@ -87,28 +85,28 @@ public class ArithmeticOperator extends InfixOperator {
 	private Value sub(Value a, Value b) throws NonExpressionException {
 		return a.asNr().sub(b.asNr());
 	}
-
+	
 	private Value mult(Value a, Value b) throws NonExpressionException {
 		// Array-Multiplication
 		if (a instanceof ArrayValue arr && b instanceof IntValue i)
-			return arr.multiply(i.raw().intValueExact(), getDataPath());
-
+			return arr.multiply(i.raw().intValueExact(), getBlueprintPath());
+		
 		// Array-Multiplication
 		if (a instanceof IntValue i && b instanceof ArrayValue arr)
-			return arr.multiply(i.value.intValueExact(), getDataPath());
-
+			return arr.multiply(i.value.intValueExact(), getBlueprintPath());
+		
 		// Text-Multiplication
 		if (a instanceof TextValue txt && b instanceof IntValue i)
-			return txt.multiply(i.value.intValueExact(), getDataPath());
-
+			return txt.multiply(i.value.intValueExact(), getBlueprintPath());
+		
 		// Text-Multiplication
 		if (a instanceof IntValue i && b instanceof TextValue txt)
-			return txt.multiply(i.value.intValueExact(), getDataPath());
-
+			return txt.multiply(i.value.intValueExact(), getBlueprintPath());
+		
 		// Arithmetical Addition
 		return a.asNr().mult(b.asNr());
 	}
-
+	
 	/**
 	 * Divide numbers.
 	 *
@@ -119,7 +117,7 @@ public class ArithmeticOperator extends InfixOperator {
 	private Value div(Value a, Value b) throws NonExpressionException {
 		return a.asNr().div(b.asNr());
 	}
-
+	
 	/**
 	 * Modulate numbers.
 	 *
@@ -130,7 +128,7 @@ public class ArithmeticOperator extends InfixOperator {
 	private Value mod(Value a, Value b) throws NonExpressionException {
 		return a.asNr().mod(b.asNr());
 	}
-
+	
 	/**
 	 * Potentiate numbers.
 	 *
@@ -141,7 +139,7 @@ public class ArithmeticOperator extends InfixOperator {
 	private Value pow(Value a, Value b) throws NonExpressionException {
 		return a.asNr().pow(b.asNr());
 	}
-
+	
 	/**
 	 * Extract root from numbers.
 	 *

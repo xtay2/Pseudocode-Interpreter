@@ -1,20 +1,23 @@
 package errorhandeling;
 
-import importing.filedata.paths.DataPath;
-import importing.filedata.paths.FilePath;
-import interpreting.program.Program;
-import launching.Main;
-import misc.helper.StringHelper;
+import importing.filedata.paths.*;
+import interpreting.program.*;
+import launching.*;
+import misc.helper.*;
 
 /**
  * These errors get throw throughout the whole project. They are caught in th main-function
  */
 @SuppressWarnings("serial")
 public class PseudocodeException extends RuntimeException {
-
+	
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -1461106820948096447L;
 	private final String name, message, line;
 	private final FilePath location;
-
+	
 	/**
 	 * Create a {@link PseudocodeException} whenever something goes wrong.
 	 *
@@ -34,29 +37,30 @@ public class PseudocodeException extends RuntimeException {
 		this.location = location;
 		if (line == null) {
 			line = "";
-			if (location instanceof DataPath dp && Main.PROGRAM.isConstructed())
+			if (location instanceof DataPath dp && Main.PROGRAM.isConstructed()) {
 				line = Main.PROGRAM.find(dp);
+			}
 		}
 		this.line = line;
 	}
-
+	
 	/** A {@link PseudocodeException} without a specially formatted line. */
 	public PseudocodeException(String name, String message, FilePath location) {
 		this(name, message, null, location);
 	}
-
+	
 	/** Java {@link Exception} Wrapper. */
 	public PseudocodeException(Exception e, FilePath location) {
 		this(e.getClass().getSimpleName(), e.getMessage(), null, location);
 		initCause(e);
 	}
-
+	
 	/** Inner {@link NonExpressionException} Wrapper. */
 	public PseudocodeException(NonExpressionException e, DataPath location) {
 		this(e.name, e.getMessage(), null, location);
 		initCause(e);
 	}
-
+	
 	@Override
 	public String toString() {
 		String arcticle = name.matches("[aeiouAEIOU].*") ? "An" : "A";

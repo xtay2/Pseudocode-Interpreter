@@ -1,28 +1,25 @@
 package formatter.basic;
 
-import static misc.helper.ProgramHelper.containsRunnable;
-import static misc.supporting.Output.print;
+import static misc.helper.ProgramHelper.*;
+import static misc.supporting.Output.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.*;
 
-import building.types.specific.BuilderType;
-import formatter.FileDataManagement;
-import importing.filedata.paths.FilePath;
-import launching.Main;
-import misc.constants.GreekSymbol;
-import misc.supporting.FileManager;
+import building.types.specific.*;
+import formatter.*;
+import importing.filedata.paths.*;
+import launching.*;
+import misc.supporting.*;
 
 public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl1, FormatterLvl2, FormatterLvl3, FormatterLvl4, FormatterLvl5 {
-
+	
 	static List<String> program;
 	static FilePath filePath;
 	static final int level = Main.getFormattingLvl();
-
+	
 	/**
 	 * Format all unformatted files.
 	 */
@@ -37,7 +34,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 			}
 		}
 	}
-
+	
 	/**
 	 * Formats a {@link File} dependent on the strength-level.
 	 *
@@ -74,7 +71,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 		indent(); // Indentation comes last
 		return program;
 	}
-
+	
 	/** Add correct tabwise indentation. */
 	static void indent() {
 		int brack = 0;
@@ -89,9 +86,9 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 				brack++;
 		}
 	}
-
+	
 	// STATIC INHERITED
-
+	
 	//@formatter:off
 	public static final char
 
@@ -100,36 +97,14 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 
     public static final String
 
-    /** Lowercase Regex ASCII*/
-    LCR = "[a-z]",
-
-	/** Uppercase Regex ASCII*/
-	UCR = "[A-Z]",
-
-	/** Greek lowercase Regex */
-	GLCR = "[" + GreekSymbol.ALPHA.lower+ "-" + GreekSymbol.OMEGA.lower + "]",
-
-	/** Greek uppercase Regex */
-	GUCR = "[" + GreekSymbol.ALPHA.upper+ "-" + GreekSymbol.OMEGA.upper + "]",
-
-	/** Umlaut Regex */
-    UMLAUTE = "[äöüÄÖÜß]",
-
-	/** ASCII chars, Greek chars, umlaut */
-    ALBHABETICAL = LCR + "|" + UCR + "|" + GLCR + "|" + GUCR + "|" + UMLAUTE,
-
-	/** Alphabetical, digits and underscore */
-    ALPHANUM = "("+ ALBHABETICAL + "|\\d|_)",
-
-    /** Regex for a word with any length, that contains atleast one {@link #ALPHABETICAL} char. */
-    WR = ALPHANUM + "*(" + ALBHABETICAL + ")+" + ALPHANUM + "*",
-
+	//---------------------------------------------------------------------------
   	/** The symbol of a OpenBlock. { Has to be ecaped in a regex.*/
   	OB = BuilderType.OPEN_BLOCK.toString(),
 
   	/** The symbol of a CloseBlock. } Has to be ecaped in a regex.*/
   	CB = BuilderType.CLOSE_BLOCK.toString(),
 
+	//---------------------------------------------------------------------------
 	/** Open Block-Regex: "{" */
   	OBR = "\\" + OB,
 
@@ -143,6 +118,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
   	 */
   	OSR = "((?=" + OLS + "\\s)|(?=\\s" + OBR +"))",
 
+	//---------------------------------------------------------------------------
   	/** The symbol of a multi-close-scope ; */
   	MCS = BuilderType.MULTI_CLOSE_SCOPE.toString(),
 
@@ -150,13 +126,14 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
   	SLC = BuilderType.SINGLE_LINE_COMMENT.toString();
 
     //@formatter:on
-
+	
 	/**
 	 * Every formatting-function that only edits one line is a {@link LineFormatterFunc}. They all get
 	 * called in {@link Formatter#forEachLine(List)}.
 	 */
 	@FunctionalInterface
 	interface LineFormatterFunc {
+		
 		/**
 		 * A method that only edits one line.
 		 *
@@ -166,7 +143,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 		 */
 		String formatLine(String line, boolean isFullyRunnable);
 	}
-
+	
 	/** Executes the formatting that can be done linewise, i.e is not dependent on other lines. */
 	static void forEachLine(LineFormatterFunc... functions) {
 		for (int i = 0; i < program.size(); i++) {
@@ -180,12 +157,12 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 			program.set(i, line);
 		}
 	}
-
+	
 	/** Returns true if the line doesn't contain comments or strings. */
 	public static boolean isFullyRunnable(String line) {
 		return !line.contains(SLC) && !line.contains("\"");
 	}
-
+	
 	/**
 	 * Comment out all uncommented lines between two indices in the {@link Formatter#program}.
 	 *
@@ -196,7 +173,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 		for (int i = start; i <= end; i++)
 			comment(i);
 	}
-
+	
 	/**
 	 * Comments out the line at the specified index in {@link Formatter#program}, if its not already
 	 * done.
@@ -204,7 +181,7 @@ public sealed abstract class Formatter permits FormattingPreChecks, FormatterLvl
 	static void comment(int line) {
 		program.set(line, comment(program.get(line)));
 	}
-
+	
 	/** Returns the same {@link String} with a prepended SLC if it doesn't already start with one. */
 	static String comment(String line) {
 		if (!line.startsWith(SLC) && !line.isBlank())

@@ -6,34 +6,27 @@ import static building.types.specific.DynamicType.*;
 import static building.types.specific.FlagType.*;
 import static building.types.specific.KeywordType.*;
 import static building.types.specific.datatypes.SingleType.*;
-import static interpreting.modules.merger.ValueMerger.buildAssignment;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import static interpreting.modules.merger.ValueMerger.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.Range;
-import building.expressions.abstractions.interfaces.Flaggable;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.CloseBlock;
-import building.expressions.normal.BuilderExpression;
-import building.expressions.normal.brackets.OpenBlock;
-import building.expressions.normal.containers.ArrayAccess;
-import building.expressions.normal.containers.Literal;
-import building.expressions.normal.containers.Name;
-import building.types.specific.AssignmentType;
-import building.types.specific.BuilderType;
-import building.types.specific.DynamicType;
-import building.types.specific.FlagType;
-import building.types.specific.KeywordType;
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
-import building.types.specific.operators.PrefixOpType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import interpreting.program.ValueBuilder;
-import misc.helper.MathHelper;
+import java.util.*;
+
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.main.*;
+import building.expressions.main.blueprints.*;
+import building.expressions.main.blueprints.Module;
+import building.expressions.normal.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.*;
+import building.expressions.normal.containers.name.*;
+import building.types.abstractions.*;
+import building.types.specific.*;
+import building.types.specific.datatypes.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import importing.filedata.paths.*;
+import interpreting.program.*;
+import misc.helper.*;
 
 /**
  * Every build-Method should atleast remove the first element of the line.
@@ -41,7 +34,7 @@ import misc.helper.MathHelper;
  * The subclasses of this are all indirectly called by the switch-cases in {@link #build()}.
  */
 public abstract class SuperMerger extends ExpressionMerger {
-
+	
 	/**
 	 * The default implementation for {@link #buildVal(boolean inOperation)} if no operation gets
 	 * evaluated.)
@@ -49,7 +42,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 	protected static ValueHolder buildVal() {
 		return buildVal(false);
 	}
-
+	
 	/**
 	 * Constructs an {@link ValueHolder} from the {@link AbstractType} of the first
 	 * {@link BuilderExpression}.
@@ -65,17 +58,19 @@ public abstract class SuperMerger extends ExpressionMerger {
 					case NAME:
 						if (sec != null) {
 							if (sec.is(OPEN_BRACKET))
-								yield (ValueHolder) ValueMerger.buildCall();
+								yield (ValueHolder) buildCall(buildStaticLink());
 							if (sec.is(ARRAY_START)) {
-								ArrayAccess acc = ValueMerger.buildArrayAccess();
+								ArrayAccess acc = buildArrayAccess();
 								if (!line.isEmpty() && line.get(0).is(ASSIGNMENT_TYPE))
 									yield buildAssignment(acc);
 								yield acc;
 							}
 							if (sec.is(ASSIGNMENT_TYPE))
-								yield buildAssignment(buildName());
+								yield buildAssignment(buildName(VarName.class));
 						}
-						yield buildName();
+						yield buildName(VarName.class);
+					case STATIC_LINK:
+						yield null;//
 				};
 			case BuilderType b:
 				yield switch (b) {
@@ -83,20 +78,20 @@ public abstract class SuperMerger extends ExpressionMerger {
 						yield ValueMerger.buildArrayLiteral();
 					case OPEN_BRACKET:
 						if (sec != null && sec.is(DATA_TYPE))
-							yield ValueMerger.buildExplicitCast();
-						yield ValueMerger.buildBracketedExpression();
+							yield buildExplicitCast();
+						yield buildBracketedExpression();
 					case MULTI_CALL_START:
-						yield ValueMerger.buildMultiCall();
+						yield buildMultiCall();
 					// Non-Value-BuilderTypes
 					default:
-						throw new PseudocodeException("IllegalCodeFormat", "Unexpected symbol: \"" + b + "\".", dataPath);
+						throw new PseudocodeException("IllegalCodeFormat", "Unexpected symbol: \"" + b + "\".", path);
 				};
 			case SingleType e:
-				yield ValueMerger.buildDeclaration();
+				yield buildDeclaration();
 			case PrefixOpType p:
 				yield OpMerger.buildPrefix();
 			default:
-				throw new AssertionError("Unexpected type " + fst.type + " in " + dataPath);
+				throw new AssertionError("Unexpected type \"" + fst.type + "\" at " + path);
 		};
 		// Check for follow-ups.
 		if (!line.isEmpty()) {
@@ -111,7 +106,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		}
 		return result;
 	}
-
+	
 	/**
 	 * Constructs an {@link Expression} from a {@link BuilderType}. This includes Scopes.
 	 */
@@ -124,10 +119,10 @@ public abstract class SuperMerger extends ExpressionMerger {
 			// Complex BuilderTypes
 			case ARRAY_START, OPEN_BRACKET, MULTI_CALL_START -> (Expression) buildVal();
 			// Decorative BuilderTypes
-			default -> throw new AssertionError("Unexpected type " + type + " in " + dataPath);
+			default -> throw new AssertionError("Unexpected type " + type + " in " + path);
 		};
 	}
-
+	
 	/** Constructs an {@link Expression} from a {@link KeywordType}. */
 	protected static Expression buildKeyword() {
 		KeywordType type = (KeywordType) line.get(0).type;
@@ -143,27 +138,51 @@ public abstract class SuperMerger extends ExpressionMerger {
 			// Callables
 			case FUNC -> FuncMerger.buildFunc(false);
 			case MAIN -> FuncMerger.buildMain();
-			case IS, IMPORT -> throw new AssertionError("Unexpected type " + type + " in " + dataPath);
+			case IS, IMPORT -> throw new AssertionError("Unexpected type " + type + " in " + path);
 		};
 	}
-
+	
+	/** [Blueprint] [Name] [{] */
+	public static Blueprint buildBlueprint() {
+		BlueprintType bp = (BlueprintType) line.remove(0).type;
+		Name name = buildName(ClassName.class);
+		OpenBlock ob = buildOpenBlock();
+		return switch (bp) {
+			case MODULE -> new Module(lineID, name, ob);
+		};
+	}
+	
 	/** [{] */
 	protected static OpenBlock buildOpenBlock() {
 		line.remove(0);
 		return new OpenBlock(lineID);
 	}
-
+	
 	/** [}] */
 	protected static CloseBlock buildCloseBlock() {
 		line.remove(0);
 		return new CloseBlock(lineID);
 	}
-
+	
 	/** [NAME] **/
-	protected static Name buildName() {
-		return new Name(lineID, line.remove(0).value);
+	@SuppressWarnings("unchecked")
+	protected static <T extends Name> T buildName(Class<T> nameType) {
+		Name res = Name.generateName(lineID, line.remove(0).value);
+		if (!res.getClass().equals(nameType)) {
+			throw new PseudocodeException("InvalidName", //
+					"Expected the name for a constant (uppercase letters with underscores) but got \"" + res + "\".", //
+					path);
+		}
+		return (T) res;
 	}
-
+	
+	/**  */
+	protected static Blueprint buildStaticLink() {
+		if (line.get(0).is(DynamicType.STATIC_LINK))
+			return line.remove(0).value;
+		return ((BlueprintPath) path).blueprint;
+	}
+	
 	/** [Start] [ValueHolder] ((,) [ValueHolder])] [End] */
 	protected static ValueHolder[] buildParts() {
 		List<ValueHolder> parts = new ArrayList<>();
@@ -175,7 +194,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		} while (line.remove(0).is(COMMA));
 		return parts.toArray(new ValueHolder[parts.size()]);
 	}
-
+	
 	/** [EXPECTED_TYPE] [?] ([ARRAY_START] [RANGE] [ARRAY_END]) */
 	protected static DataType buildExpType() {
 		SingleType t = (SingleType) line.remove(0).type;
@@ -195,7 +214,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		}
 		return new DataType(t, allowsNull);
 	}
-
+	
 	/** [INT?] [..?] [INT?] */
 	private static Range buildRange() {
 		try {
@@ -213,14 +232,14 @@ public abstract class SuperMerger extends ExpressionMerger {
 				if (line.get(0).is(LITERAL))
 					return Range.upperBound(MathHelper.valToInt(buildVal()));
 				throw new PseudocodeException("IllegalCodeFormatException",
-						"Range-Symbol \"..\" has to be surrounded by atleast one integer-literal.", dataPath);
+						"Range-Symbol \"..\" has to be surrounded by atleast one integer-literal.", path);
 			}
 			return Range.UNBOUNDED;
-		}catch (NonExpressionException e) {
-			throw new PseudocodeException(e, dataPath);
+		} catch (NonExpressionException e) {
+			throw new PseudocodeException(e, path);
 		}
 	}
-
+	
 	/**
 	 * Super-Routine for all Flaggables.
 	 *
@@ -230,19 +249,19 @@ public abstract class SuperMerger extends ExpressionMerger {
 		Set<FlagType> flags = new HashSet<>();
 		while (line.get(0).is(FLAG_TYPE)) {
 			if (!flags.add((FlagType) line.remove(0).type))
-				throw new AssertionError("Duplicate flag in " + dataPath);
+				throw new AssertionError("Duplicate flag in " + path);
 		}
 		Flaggable f = null;
 		// Declaration with optional flags
 		if (line.get(0).is(DATA_TYPE))
-			f = ValueMerger.buildDeclaration();
+			f = buildDeclaration();
 		// Declaration of a constant without type and optional flags
 		else if ((flags.contains(CONSTANT) || flags.contains(FINAL)) && line.get(0).is(NAME)) {
 			line.add(0, new BuilderExpression(lineID, VAR));
 			if (line.size() <= 2 || !line.get(2).is(AssignmentType.NORMAL))
 				throw new PseudocodeException("InsufficientDeclaration", "A final variable has to be defined with a value at declaration.",
-						dataPath);
-			f = ValueMerger.buildDeclaration();
+						path);
+			f = buildDeclaration();
 		}
 		// Definition-Declaration with optional flags
 		else if (line.get(0).is(FUNC))
@@ -251,7 +270,7 @@ public abstract class SuperMerger extends ExpressionMerger {
 		else if (line.get(0).is(OPEN_BLOCK))
 			f = StatementMerger.buildFlagSpace();
 		else
-			throw new AssertionError("Unexpected Type: " + line.get(0).type + " in " + dataPath);
+			throw new AssertionError("Unexpected Type: " + line.get(0).type + " in " + path);
 		f.addFlags(flags);
 		return f;
 	}

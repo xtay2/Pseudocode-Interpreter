@@ -1,21 +1,21 @@
 package formatter.basic;
 
-import static misc.helper.ProgramHelper.isRunnableCode;
+import static misc.helper.ProgramHelper.*;
 
-import errorhandeling.PseudocodeException;
-import importing.filedata.paths.DataPath;
-import misc.helper.StringHelper;
+import errorhandeling.*;
+import importing.filedata.paths.*;
+import misc.helper.*;
 
 /**
  * This class checks, if the {@link Formatter#program} can get "safely" formatted. Formatting-errors
  * might still occur.
  */
 public final class FormattingPreChecks extends Formatter {
-
+	
 	protected static void check() {
 		checkForLonelyBrackets();
 	}
-
+	
 	/**
 	 * Finds any occurrence of a bracket that has no match.
 	 *
@@ -33,7 +33,7 @@ public final class FormattingPreChecks extends Formatter {
 						case '(' -> simple++;
 						case '[' -> square++;
 						case '{' -> curly++;
-
+					
 						case ')' -> simple--;
 						case ']' -> square--;
 						case '}' -> curly--;

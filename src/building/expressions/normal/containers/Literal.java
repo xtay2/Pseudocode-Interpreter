@@ -1,21 +1,21 @@
 package building.expressions.normal.containers;
 
-import java.util.Arrays;
+import java.util.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.DynamicType;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * Container for any {@link Value} and any uninitialised {@link ArrayValue}.
  */
 public class Literal extends Expression implements ValueHolder {
-
+	
 	private final Value val;
 	private final ValueHolder[] arrayPreInit;
-
+	
 	/**
 	 * Constructs a wrapping {@link Literal} around a {@link Value}.
 	 *
@@ -27,7 +27,7 @@ public class Literal extends Expression implements ValueHolder {
 		this.val = val;
 		arrayPreInit = null;
 	}
-
+	
 	/**
 	 * Constructs a wrapping {@link Literal} around an unitilialized {@link ArrayValue} that can later
 	 * be obtained by calling {@link #getValue()}.
@@ -40,7 +40,7 @@ public class Literal extends Expression implements ValueHolder {
 		val = null;
 		this.arrayPreInit = arrayPreInit;
 	}
-
+	
 	@Override
 	public Value getValue() {
 		if (val != null)
@@ -49,7 +49,7 @@ public class Literal extends Expression implements ValueHolder {
 			return ArrayValue.newInstance(Arrays.stream(arrayPreInit).map(e -> e.getValue()).toArray(Value[]::new));
 		throw new AssertionError("This literal must be either an array or not. Is: " + this);
 	}
-
+	
 	@Override
 	public String toString() {
 		return val != null ? val.toString() : Arrays.toString(arrayPreInit);

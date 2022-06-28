@@ -1,5 +1,8 @@
 # Public Change Log
 
+### Update 0.5
+Added highlighting for `new`, `super`, `this`, `$` and blueprint-names. Removed highlighting for `static`.
+
 ### Update 0.4.11
 Added highlighting for `interface`, `struct`, `module` and `method`.
 

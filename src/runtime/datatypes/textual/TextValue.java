@@ -1,40 +1,34 @@
 package runtime.datatypes.textual;
 
-import static building.types.specific.datatypes.SingleType.TEXT;
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
-import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static building.types.specific.datatypes.SingleType.*;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import importing.filedata.paths.DataPath;
-import runtime.datatypes.BoolValue;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.numerical.NumberValue;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import importing.filedata.paths.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
+import runtime.datatypes.numerical.*;
 
 public final class TextValue extends Value {
-
+	
 	public final String value;
-
+	
 	/** Creates a {@link TextValue} from a {@link Character}. */
 	public TextValue(char val) {
 		super(TEXT);
 		value = String.valueOf(val);
 	}
-
+	
 	/** Creates a {@link TextValue} from a {@link String}. */
 	public TextValue(String val) {
 		super(TEXT);
 		value = val;
 	}
-
+	
 	@Override
 	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType()) {
@@ -52,7 +46,7 @@ public final class TextValue extends Value {
 			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
-
+	
 	@Override
 	public BoolValue asBool() throws NonExpressionException {
 		if (BoolValue.TRUE.toString().equals(value))
@@ -61,7 +55,7 @@ public final class TextValue extends Value {
 			return BoolValue.valueOf(false);
 		throw new NonExpressionException("Casting", "Only \"true\" & \"false\" can be casted from text to bool. \nWas: \"" + raw() + "\"");
 	}
-
+	
 	@Override
 	public NumberValue asNr() throws NonExpressionException {
 		String t = value.strip();
@@ -83,7 +77,7 @@ public final class TextValue extends Value {
 						.add(NumberValue.create(BigInteger.ONE, BigInteger.TEN.pow(d))
 								.mult(new IntValue(new BigInteger(t.substring(ps + 1, pe))))
 								.div(new IntValue(new BigInteger("9".repeat(pLength)))));
-
+				
 				return isNeg ? n.negate() : n;
 			}
 		}
@@ -93,7 +87,7 @@ public final class TextValue extends Value {
 			return NAN;
 		return new TextValue(parts[0]).asNr().div(new TextValue(parts[1]).asNr());
 	}
-
+	
 	@Override
 	public CharValue asChar() throws NonExpressionException {
 		if (value.length() == 1)
@@ -101,36 +95,36 @@ public final class TextValue extends Value {
 		throw new NonExpressionException("Casting", "The text \"" + (value.length() > 20 ? value.substring(0, 15) + "..." : value)
 				+ "\" consists of multiple chars, and therefore cannot be casted to one.");
 	}
-
+	
 	@Override
 	public boolean valueCompare(Value v) {
 		return v.raw().toString().equals(value);
 	}
-
+	
 	// OPERATIONS
-
+	
 	/** Checks if this TextValue contains a element. */
 	public BoolValue contains(Value element) {
 		return BoolValue.valueOf(value.contains(element.asText().value));
 	}
-
+	
 	/** Appends a second text after this one. */
 	public TextValue concat(TextValue v) {
 		return new TextValue(value + v.value);
 	}
-
+	
 	/** Multiplies this text n times. */
 	public TextValue multiply(int times, DataPath dataPath) {
 		if (times < 0)
 			throw new PseudocodeException("ShouldBeNaturalNrException", "Text cannot be multiplied with negative numbers.", dataPath);
 		return new TextValue(value.repeat(times));
 	}
-
+	
 	@Override
 	public String raw() {
 		return new String(value);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "\"" + raw() + "\"";

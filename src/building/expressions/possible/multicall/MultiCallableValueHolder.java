@@ -1,11 +1,11 @@
 package building.expressions.possible.multicall;
 
-import building.expressions.abstractions.MainExpression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import runtime.datatypes.*;
 
 public interface MultiCallableValueHolder extends MultiCallable, ValueHolder {
-
+	
 	/**
 	 * Should call {@link MultiCallable#getValue()} once for every element in content.
 	 * 

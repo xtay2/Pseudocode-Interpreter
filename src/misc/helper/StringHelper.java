@@ -1,13 +1,12 @@
 package misc.helper;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Abstract Helperclass that contains all functions that get used all over the project.
  */
 public interface StringHelper {
-
+	
 	/**
 	 * Points to a char in a string.
 	 *
@@ -23,7 +22,7 @@ public interface StringHelper {
 	public static String pointUnderline(String line, int pointer) {
 		return pointUnderline(line, pointer, 1);
 	}
-
+	
 	/**
 	 * Points to a section in a string.
 	 *
@@ -47,7 +46,7 @@ public interface StringHelper {
 		}
 		return line.stripLeading() + "\n" + " ".repeat(pointer - leadingTabs) + "^".repeat(pointerLength);
 	}
-
+	
 	/**
 	 * Removes the char at the specified index and returns the line with lenght -1. If the idx is out of
 	 * bounds, the unchanged line gets returned.
@@ -55,7 +54,12 @@ public interface StringHelper {
 	public static String removeCharAt(int idx, String line) {
 		return new StringBuilder(line).deleteCharAt(idx).toString();
 	}
-
+	
+	/** An alternative toString() method for arrays. */
+	public static String enumerate(Object[] array) {
+		return enumerate(List.of(array));
+	}
+	
 	/**
 	 * An alternative toString() method for every {@link Collection}.
 	 *
@@ -71,7 +75,7 @@ public interface StringHelper {
 			return "<none>";
 		return collection.stream().map(e -> e.toString()).reduce("", (acc, e) -> acc + "\n-" + e);
 	}
-
+	
 	/**
 	 * An alternative toString() method for every {@link List}.
 	 *
@@ -88,5 +92,5 @@ public interface StringHelper {
 			res += i + ": " + list.get(i) + (i == list.size() - 1 ? "" : "\n");
 		return res;
 	}
-
+	
 }

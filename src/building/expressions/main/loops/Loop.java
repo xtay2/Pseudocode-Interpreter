@@ -1,23 +1,20 @@
 package building.expressions.main.loops;
 
-import static runtime.datatypes.numerical.NumberValue.ONE;
-import static runtime.datatypes.numerical.NumberValue.ZERO;
+import static runtime.datatypes.numerical.NumberValue.*;
 
-import java.util.Set;
+import java.util.*;
 
-import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.brackets.OpenBlock;
-import building.expressions.normal.containers.Name;
-import building.expressions.normal.containers.Variable;
-import building.types.abstractions.SpecificType;
-import building.types.specific.FlagType;
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.numerical.DecimalValue;
-import runtime.datatypes.numerical.NumberValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.abstractions.scopes.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.*;
+import building.expressions.normal.containers.name.*;
+import building.types.abstractions.*;
+import building.types.specific.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import runtime.datatypes.numerical.*;
 
 /**
  * A loop is a Scope that gets called repeatedly, while or until a condition is true. This gets
@@ -28,17 +25,17 @@ import runtime.datatypes.numerical.NumberValue;
  * @see IntervalLoop
  * @see RepeatLoop
  */
-public abstract class Loop extends ScopeHolder {
-
+public abstract class Loop extends BlockHolder implements ScopeHolder {
+	
 	// These should get initialised at merge
 	protected ValueHolder startHolder = ZERO;
 	protected ValueHolder incHolder = ONE;
 	private final Name alias;
-
+	
 	// These should get initialised at init
 	protected NumberValue start;
 	protected NumberValue inc;
-
+	
 	/**
 	 * Constructor for an abstract {@link Loop}.
 	 *
@@ -51,7 +48,7 @@ public abstract class Loop extends ScopeHolder {
 		super(lineID, myType, os);
 		this.alias = alias;
 	}
-
+	
 	/**
 	 * Executes this loop as long as its run-condition is satisfied.
 	 *
@@ -66,16 +63,13 @@ public abstract class Loop extends ScopeHolder {
 		Name cntName = getLoopVarAlias();
 		while (doContinue(i)) {
 			initCounter(i, cntName);
-			if (!callFirstLine()) {
-				getScope().clear();
+			if (!callFirstLine())
 				return false;
-			}
-			getScope().clear();
 			i = i.add(inc);
 		}
 		return callNextLine();
 	}
-
+	
 	/**
 	 * Sets the immutable counter for this iteration.
 	 *
@@ -83,9 +77,9 @@ public abstract class Loop extends ScopeHolder {
 	 * @param cntName is the pre-defined countername "i"-"p".
 	 */
 	private void initCounter(NumberValue i, Name cntName) {
-		new Variable(lineIdentifier, getScope(), new DataType(SingleType.NR, false), cntName, i).addFlags(Set.of(FlagType.CONSTANT));
+		new Variable(lineIdentifier, new DataType(SingleType.NR, false), cntName, i).addFlags(Set.of(FlagType.CONSTANT));
 	}
-
+	
 	/**
 	 * Only gets called by {@link Loop#execute()} before a loop gets executed.
 	 *
@@ -96,23 +90,21 @@ public abstract class Loop extends ScopeHolder {
 			start = startHolder.asNr();
 			inc = incHolder.asNr();
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
-
+	
 	/**
 	 * Only gets called by {@link Loop#execute()}.
 	 *
 	 * @param iteration is the current iteration, starting at {@link DecimalValue#ZERO}.
 	 */
 	protected abstract boolean doContinue(NumberValue iteration);
-
+	
 	/**
 	 * Returns the name for the loop-counter.
 	 *
 	 * @return {@link #alias} if existing, or the implicit countername, if not.
 	 */
-	protected final Name getLoopVarAlias() {
-		return alias != null ? alias : getScope().getCounterName(getDataPath());
-	}
+	protected final Name getLoopVarAlias() { return alias != null ? alias : ScopeManager.getCounterName(getBlueprintPath().blueprint); }
 }

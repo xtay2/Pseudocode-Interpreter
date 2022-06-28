@@ -1,27 +1,24 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.SingleType.NR;
-import static misc.helper.MathHelper.getDigitCount;
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
-import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static building.types.specific.datatypes.SingleType.*;
+import static misc.helper.MathHelper.*;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.HashMap;
+import java.math.*;
+import java.util.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import ch.obermuhlner.math.big.BigDecimalMath;
-import errorhandeling.NonExpressionException;
-import misc.supporting.Output;
-import runtime.datatypes.Value;
-import runtime.datatypes.textual.TextValue;
-import runtime.natives.SystemFunctions;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import ch.obermuhlner.math.big.*;
+import errorhandeling.*;
+import misc.supporting.*;
+import runtime.datatypes.*;
+import runtime.datatypes.textual.*;
+import runtime.natives.*;
 
 /** An arbitrary Decimal Number with 100 digits of precision. */
 public final class DecimalValue extends NumberValue {
-
+	
 	/**
 	 * The Numerator
 	 *
@@ -33,7 +30,7 @@ public final class DecimalValue extends NumberValue {
 	 * </pre>
 	 */
 	protected final BigInteger num;
-
+	
 	/**
 	 * The Denominator
 	 *
@@ -48,7 +45,7 @@ public final class DecimalValue extends NumberValue {
 	 * </pre>
 	 */
 	protected final BigInteger denom;
-
+	
 	/** Produces a rational Number. This fraction has to be already reduced. */
 	protected DecimalValue(BigInteger numerator, BigInteger denominator) {
 		super(NR);
@@ -72,7 +69,7 @@ public final class DecimalValue extends NumberValue {
 		this.num = numerator;
 		this.denom = denominator;
 	}
-
+	
 	/**
 	 * Turns this into a String.
 	 *
@@ -111,7 +108,7 @@ public final class DecimalValue extends NumberValue {
 		}
 		return sb.toString();
 	}
-
+	
 	/**
 	 * Returns this Number as a fractional text-representation.
 	 *
@@ -120,7 +117,7 @@ public final class DecimalValue extends NumberValue {
 	public String asRational() {
 		return num + "/" + denom;
 	}
-
+	
 	@Override
 	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType())
@@ -139,15 +136,15 @@ public final class DecimalValue extends NumberValue {
 				yield ValueHolder.throwCastingExc(this, t);
 		};
 	}
-
+	
 	/** This should only get called in debugging scenarios. */
 	@Override
 	public String toString() {
 		return Output.debugMode ? getClass().getSimpleName() : fractionToDecimal();
 	}
-
+	
 	// Operations
-
+	
 	@Override
 	public NumberValue add(NumberValue v) {
 		if (v instanceof DecimalValue d) {
@@ -159,19 +156,19 @@ public final class DecimalValue extends NumberValue {
 		}
 		return v.add(this); // add() in IntVal or ConceptualNrVal
 	}
-
+	
 	@Override
 	public NumberValue sub(NumberValue v) {
 		return add(v.negate());
 	}
-
+	
 	@Override
 	public NumberValue mult(NumberValue v) {
 		if (v instanceof DecimalValue d)
 			return create(num.multiply(d.num), denom.multiply(d.denom));
 		return v.mult(this); // mult() in IntVal or ConceptualNrVal
 	}
-
+	
 	@Override
 	public NumberValue div(NumberValue v) {
 		if (v.equals(ZERO) || v == NAN || v.isInfinite())
@@ -182,7 +179,7 @@ public final class DecimalValue extends NumberValue {
 			return mult(create(BigInteger.ONE, i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue mod(NumberValue v) {
 		if (v.equals(ZERO) || v == NAN || v.isInfinite())
@@ -193,7 +190,7 @@ public final class DecimalValue extends NumberValue {
 			return create(raw().remainder(new BigDecimal(i.raw())));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue pow(NumberValue v) {
 		if (v == NAN || v == NEG_INF)
@@ -208,7 +205,7 @@ public final class DecimalValue extends NumberValue {
 			return create(BigDecimalMath.pow(raw(), new BigDecimal(i.value), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	/** Calculates the n'th root from v. (this = n) */
 	@Override
 	public NumberValue root(NumberValue v) {
@@ -222,7 +219,7 @@ public final class DecimalValue extends NumberValue {
 			return create(BigDecimalMath.root(new BigDecimal(i.value), raw(), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public BigDecimal raw() {
 		return new BigDecimal(num).divide(new BigDecimal(denom), PRECISION);

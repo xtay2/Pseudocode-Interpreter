@@ -1,20 +1,19 @@
 package building.expressions.normal.casting;
 
-import static building.types.abstractions.SpecificType.MERGED;
+import static building.types.abstractions.SpecificType.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
 
 /** Changes the type of a value by calling {@link Value#as(DataType)}. */
 public class ExplicitCast extends Expression implements ValueHolder {
-
+	
 	private final DataType targetType;
 	private final ValueHolder target;
-
+	
 	/**
 	 * Creates an {@link ExplicitCast}.
 	 *
@@ -28,7 +27,7 @@ public class ExplicitCast extends Expression implements ValueHolder {
 		if (targetType == null || target == null)
 			throw new AssertionError("Targettype and valueholder cannot be null.");
 	}
-
+	
 	/**
 	 * Returns the value of {@link #target}, casted to the {@link #targetType}.
 	 *
@@ -39,8 +38,8 @@ public class ExplicitCast extends Expression implements ValueHolder {
 		try {
 			return target.as(targetType);
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
-
+	
 }

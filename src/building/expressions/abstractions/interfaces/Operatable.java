@@ -1,6 +1,6 @@
 package building.expressions.abstractions.interfaces;
 
-import building.expressions.normal.operators.infix.InfixOperator;
+import building.expressions.normal.operators.infix.*;
 
 /**
  * Everything that can be part of an operation.

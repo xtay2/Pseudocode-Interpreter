@@ -1,42 +1,39 @@
 package building.expressions.normal.operators.prefix;
 
-import static runtime.datatypes.numerical.NumberValue.ONE;
+import static runtime.datatypes.numerical.NumberValue.*;
 
-import building.expressions.abstractions.PossibleMainExpression;
-import building.expressions.abstractions.interfaces.ValueChanger;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.postfix.PostfixOperator;
-import building.expressions.possible.multicall.MultiCall;
-import building.expressions.possible.multicall.MultiCallableValueHolder;
-import building.types.specific.operators.PrefixOpType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.postfix.*;
+import building.expressions.possible.multicall.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * @see PostfixOperator
  * @see InfixOperator
  */
 public class PrefixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
-
+	
 	private final ValueHolder content;
-
+	
 	public PrefixOperator(int lineID, PrefixOpType type, ValueHolder content) {
 		super(lineID, type);
 		this.content = content;
 		if (content == null)
 			throw new AssertionError("Val cannot be null.");
 	}
-
+	
 	@Override
 	public Value getValue() {
 		if (content instanceof MultiCall mc)
 			return executeFor(mc.content);
 		return evaluate(content);
 	}
-
+	
 	@Override
 	public Value executeFor(ValueHolder[] content) {
 		Value[] res = new Value[content.length];
@@ -44,7 +41,7 @@ public class PrefixOperator extends PossibleMainExpression implements MultiCalla
 			res[i] = evaluate(content[i]);
 		return ArrayValue.newInstance(res);
 	}
-
+	
 	private Value evaluate(ValueHolder val) {
 		Value v = val.getValue();
 		try {
@@ -67,11 +64,11 @@ public class PrefixOperator extends PossibleMainExpression implements MultiCalla
 					break;
 			}
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 		return v;
 	}
-
+	
 	@Override
 	public boolean execute() {
 		getValue();

@@ -1,22 +1,16 @@
 package runtime.natives;
 
-import static misc.constants.TypeConstants.NR;
-import static misc.constants.TypeConstants.TEXT;
+import static misc.constants.TypeConstants.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.containers.Name;
-import building.types.specific.datatypes.DataType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
-import runtime.datatypes.numerical.DecimalValue;
-import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.numerical.NumberValue;
-import runtime.datatypes.textual.TextValue;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.containers.name.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.numerical.*;
+import runtime.datatypes.textual.*;
 
 /**
  * The definitions of all native functions.
@@ -26,37 +20,37 @@ import runtime.datatypes.textual.TextValue;
  */
 @Deprecated
 public final class SystemFunctions {
-
+	
 	/** Enum with all Systemfunctions and their names. */
 	public static enum SYSTEM_FUNCTION {
-
+		
 		/** Terminates the program. */
 		EXIT("exit", TEXT),
-
+		
 		/** Prints something in the console. */
 		PRINT("print", TEXT),
-
+		
 		/** Reads something from the console. */
 		READ("read"),
-
+		
 		/** Returns a fractional representation of a number. */
 		AS_RATIONAL("asRational", NR),
-
+		
 		/** Returns a random {@link NumberValue} in a specified range. */
 		RAND_NR("randNr", NR, NR),
-
+		
 		/** Returns a timestamp of the current system clock in nanoseconds. */
 		TIMESTAMP("timestamp");
-
+		
 		public final String name;
 		public final DataType[] argTypes;
-
+		
 		private SYSTEM_FUNCTION(String name, DataType... argTypes) {
 			this.name = name;
 			this.argTypes = argTypes;
 		}
 	}
-
+	
 	/**
 	 * Call a specific native func.
 	 *
@@ -79,28 +73,28 @@ public final class SystemFunctions {
 			case TIMESTAMP -> timestamp();
 		};
 	}
-
+	
 	/** Returns the matching system-function for this name. */
 	public static SYSTEM_FUNCTION getSystemFunction(Name name) {
 		for (SYSTEM_FUNCTION f : SYSTEM_FUNCTION.values())
 			if (f.name.equals(name.getNameString()))
 				return f;
-		throw new PseudocodeException("UnknownNativeFunc", "There is no native function called " + name + ".", name.getDataPath());
+		throw new PseudocodeException("UnknownNativeFunc", "There is no native function called " + name + ".", name.getBlueprintPath());
 	}
-
+	
 	/** native func exit(text) */
 	private static Value exit(TextValue exitMsg) {
 		System.err.println(exitMsg);
 		System.exit(0);
 		return null;
 	}
-
+	
 	/** native func read(text) */
 	private static Value print(TextValue msg) {
 		System.out.println(msg.raw());
 		return null;
 	}
-
+	
 	/** native func read() -> text */
 	private static TextValue read() {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -110,19 +104,19 @@ public final class SystemFunctions {
 			return null;
 		}
 	}
-
+	
 	/** Implementation: native func asRational(nr) -> text */
 	private static TextValue asRational(NumberValue nr) {
 		if (nr instanceof DecimalValue d)
 			return new TextValue(d.asRational());
 		return nr instanceof IntValue i ? new TextValue(i.value.toString() + "/1") : nr.asText();
 	}
-
+	
 	/** Implementation: native func randNr(nr, nr) -> nr */
 	private static NumberValue randNr(NumberValue a, NumberValue b) {
 		throw new AssertionError("This feature isn't implemented yet.");
 	}
-
+	
 	/** Implementation: native func timestamp() -> int */
 	private static IntValue timestamp() {
 		return new IntValue(System.nanoTime());

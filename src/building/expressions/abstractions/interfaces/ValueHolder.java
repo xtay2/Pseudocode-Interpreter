@@ -1,17 +1,16 @@
 package building.expressions.abstractions.interfaces;
 
-import building.expressions.main.statements.IsStatement;
-import building.expressions.normal.brackets.BracketedExpression;
-import building.expressions.normal.containers.ArrayAccess;
-import building.expressions.normal.containers.Name;
-import building.expressions.normal.operators.Operation;
-import building.expressions.possible.Call;
-import building.expressions.possible.allocating.Assignment;
-import building.expressions.possible.multicall.MultiCall;
-import building.types.specific.datatypes.DataType;
-import errorhandeling.NonExpressionException;
-import runtime.datatypes.MaybeValue;
-import runtime.datatypes.Value;
+import building.expressions.main.statements.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.*;
+import building.expressions.normal.containers.name.*;
+import building.expressions.normal.operators.*;
+import building.expressions.possible.*;
+import building.expressions.possible.allocating.*;
+import building.expressions.possible.multicall.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
 
 /**
  * An interface for everything that can return a {@link Value} in code.
@@ -32,9 +31,9 @@ import runtime.datatypes.Value;
  * </pre>
  */
 public interface ValueHolder extends Operatable, Castable {
-
+	
 	public Value getValue();
-
+	
 	/**
 	 * This should only get overridden by {@link Value} and {@link MaybeValue}!
 	 *
@@ -45,7 +44,7 @@ public interface ValueHolder extends Operatable, Castable {
 	default Value as(DataType t) throws NonExpressionException {
 		return getValue().as(t);
 	}
-
+	
 	/**
 	 * Throws a "CastingException".
 	 *

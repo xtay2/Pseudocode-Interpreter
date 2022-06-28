@@ -1,18 +1,16 @@
 package interpreting.modules.merger;
 
-import static building.types.specific.KeywordType.IF;
+import static building.types.specific.KeywordType.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.statements.ConditionalStatement;
-import building.expressions.main.statements.FlagSpace;
-import building.expressions.main.statements.ReturnStatement;
-import building.types.specific.KeywordType;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.main.statements.*;
+import building.types.specific.*;
 
 /**
  * Builds every Statement, such as {@link ConditionalStatement} and {@link ReturnStatement}.
  */
 public abstract class StatementMerger extends SuperMerger {
-
+	
 	/** [IF/ELIF/ELSE] [?BOOL] [OPEN_SCOPE] */
 	public static ConditionalStatement buildConditional(KeywordType type) {
 		line.remove(0);
@@ -28,10 +26,10 @@ public abstract class StatementMerger extends SuperMerger {
 			case ELSE:
 				return new ConditionalStatement(lineID, type, null, buildOpenBlock());
 			default:
-				throw new AssertionError("Unexpected Type:" + type + " in " + dataPath);
+				throw new AssertionError("Unexpected Type:" + type + " in " + path);
 		}
 	}
-
+	
 	public static ReturnStatement buildReturn() {
 		line.remove(0);
 		ValueHolder rvh = null;
@@ -39,7 +37,7 @@ public abstract class StatementMerger extends SuperMerger {
 			rvh = buildVal();
 		return new ReturnStatement(lineID, rvh);
 	}
-
+	
 	/** [Name] [OpenBlock] */
 	public static FlagSpace buildFlagSpace() {
 		return new FlagSpace(lineID, buildOpenBlock());

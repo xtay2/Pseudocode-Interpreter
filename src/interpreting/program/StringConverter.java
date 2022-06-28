@@ -1,25 +1,24 @@
 package interpreting.program;
 
-import static building.types.specific.DynamicType.LITERAL;
-import static building.types.specific.DynamicType.NAME;
+import static building.types.specific.DynamicType.*;
+import static misc.util.Regex.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.normal.BuilderExpression;
-import building.expressions.normal.containers.Name;
-import building.types.abstractions.SpecificType;
-import errorhandeling.PseudocodeException;
-import misc.helper.ProgramHelper;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.normal.*;
+import building.expressions.normal.containers.name.*;
+import building.types.abstractions.*;
+import errorhandeling.*;
+import misc.helper.*;
+import runtime.datatypes.*;
 
 /**
  * Tells, if a {@link String} can be turned into a {@link BuilderExpression} and returns said
  * {@link Expression}.
  */
 public abstract class StringConverter {
-
+	
 	/**
 	 * Creates a {@link BuilderExpression} from a {@link String}, when only the expected types are
 	 * known.
@@ -32,7 +31,7 @@ public abstract class StringConverter {
 	public static BuilderExpression create(String arg, SpecificType[] expectedTypes, ProgramLine line) {
 		return find(arg, ' ', expectedTypes, line);
 	}
-
+	
 	/**
 	 * Creates a {@link BuilderExpression} from a {@link String}, when only the expected types are
 	 * known.
@@ -57,23 +56,23 @@ public abstract class StringConverter {
 			throw new PseudocodeException("IllegalCodeFormat", //
 					"\"" + current + "\" didn't match any expected pattern. ", //
 					ProgramHelper.underlineFirstRunnable(line.line, current + "(?=\\" + next + ")"), //
-					line.dataPath);
+					line.getDataPath());
 		}
 		return null;
 	}
-
+	
 	/** Returns true if just the current part is a {@link Value} and next is a valid delimiter. */
 	private static boolean isValuePart(String current, char next) {
 		if (next == '.') // Special case for decimal numbers
 			return false;
-		return ValueBuilder.isLiteral(current) && !ValueBuilder.isLiteral(current + next) && !Name.isName(current + next);
+		return ValueBuilder.isLiteral(current) && !ValueBuilder.isLiteral(current + next) && !WR.matches(current + next);
 	}
-
+	
 	/** Returns true if just the current part is a {@link Name} and next is a valid delimiter. */
 	private static boolean isNamePart(String current, char next) {
-		return Name.isName(current) && !Name.isName(current + next) && !Name.isAlphaNumKeyword(current + next);
+		return WR.matches(current) && !WR.matches(current + next) && !Name.isAlphaNumKeyword(current + next);
 	}
-
+	
 	/**
 	 * Filters through the expected types to find the matching {@link SpecificType} for the
 	 * {@link String}.
@@ -92,7 +91,7 @@ public abstract class StringConverter {
 		}
 		// Check if keyword is just part of a name
 		if (potMatches.contains(NAME)) {
-			if (Name.isName(current + next))
+			if (WR.matches(current + next))
 				return null;
 			else
 				potMatches.remove(NAME);

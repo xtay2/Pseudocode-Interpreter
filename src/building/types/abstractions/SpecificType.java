@@ -1,38 +1,36 @@
 package building.types.abstractions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import building.expressions.normal.BuilderExpression;
-import building.expressions.normal.brackets.BracketedExpression;
-import building.expressions.normal.containers.ArrayAccess;
+import building.expressions.normal.*;
+import building.expressions.normal.brackets.*;
+import building.expressions.normal.containers.*;
 
 /**
  * Interface for all enums that hold raw types.
  */
 public non-sealed interface SpecificType extends AbstractType {
-
+	
 	/**
 	 * A specific type that has no followups. Examples for merged expressions are the
 	 * {@link ArrayAccess} and the {@link BracketedExpression}.
 	 */
 	public static final SpecificType MERGED = new SpecificType() {
-
+		
 		private static final UnsupportedOperationException uoe = //
 				new UnsupportedOperationException("No operations should get performed on a merged type.");
-
+		
 		@Override
 		public AbstractType[] abstractExpected() {
 			throw uoe;
 		}
-
+		
 		@Override
 		public BuilderExpression create(String arg, int lineID) {
 			throw uoe;
 		}
 	};
-
+	
 	/**
 	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
 	 * supports also {@link UnspecificType}s and gets called by {@link #expected()}.
@@ -40,7 +38,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	 * @return a non-null array.
 	 */
 	AbstractType[] abstractExpected();
-
+	
 	/**
 	 * Nearly every {@link SpecificType} has expected strucures that can follow behind it. This method
 	 * only returns the absolute subvalues.
@@ -57,22 +55,25 @@ public non-sealed interface SpecificType extends AbstractType {
 		}
 		return Arrays.copyOf(acc.toArray(), acc.size(), SpecificType[].class);
 	}
-
+	
 	@Override
 	default boolean is(AbstractType other) {
 		if (other instanceof UnspecificType ut)
 			return this == other || Arrays.stream(ut.directSubValues()).anyMatch(st -> is(st));
 		return this == other;
 	}
-
+	
+	/**
+	 * Creates a {@link BuilderExpression} from a {@link String}.
+	 */
 	default BuilderExpression create(String arg, int lineID) {
 		if (arg.equals(toString()))
 			return new BuilderExpression(lineID, this);
 		throw new AssertionError("Tried to create a BuilderValue out of an illegal String. " + arg + " -> " + this);
 	}
-
+	
 	// Static methods
-
+	
 	/**
 	 * Checks if the {@link String} matches a raw-type of the passed {@link SpecificType}.
 	 *
@@ -82,7 +83,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	static <T extends SpecificType> boolean equalsString(String arg, Class<T> typeClass) {
 		return Arrays.stream(values(typeClass)).anyMatch(v -> v.toString().equals(arg));
 	}
-
+	
 	/**
 	 * Returns the first raw-type of the passed {@link SpecificType} that matches the passed
 	 * {@link String}.
@@ -94,7 +95,7 @@ public non-sealed interface SpecificType extends AbstractType {
 	static <T extends SpecificType> T fromString(String arg, Class<T> typeClass) {
 		return Arrays.stream(values(typeClass)).filter(v -> v.toString().equals(arg)).findFirst().get();
 	}
-
+	
 	/**
 	 * Calls the hidden, static method {@link Enum#values()} for any subclass of {@link SpecificType}.
 	 *

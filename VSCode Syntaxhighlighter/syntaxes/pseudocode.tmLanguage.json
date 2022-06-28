@@ -2,47 +2,57 @@
 	"name": "Pseudocode",
 	"patterns": [
 		{"include": "#comments"},
+		{"include": "#keywords"},
+
+		{"include": "#jump_statements"},
+		{"include": "#object_keywords"},
+
+		{"include": "#imports"},
 
 		{"include": "#func_declarations"},
 		{"include": "#var_types"},
+	
+		{"include": "#bool_literals"},
 
-		{"include": "#keywords"},
-		{"include": "#blueprints"},
-		{"include": "#jump_statements"},
-
-		{"include": "#import_statements"},
-		{"include": "#import_lines"},
-		
-		{"include": "#true_literal"},
-		{"include": "#false_literal"},
-
-		{"include": "#chars"},
-		{"include": "#strings"},
+		{"include": "#chars"}, {"include": "#strings"},
 
 		{"include": "#operators"},
 
 		{"include": "#numeric_constants"},
-		{"include": "#constants"},
 		{"include": "#names"},
 		{"include": "#number_literals"}
 	],
 	"repository": {
 		"comments": {
-			"patterns": [{
-				"name": "comment.pseudocode",
-				"match": "#(.*)"
-			}]
+			"name": "comment.pseudocode",
+			"match": "#.*"
 		},
+
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pseudocode",
-				"match": "\\b(main|func|method|if|elif|any|else|while|until|repeat|from|to|step|as|for|is|try|catch|static|native|final|const|public|null)\\b|(\\|)|(\\?)|((?<=for\\s\\S+\\s)in)"
-			}]
-		},
-		"blueprints": {
-			"patterns": [{
+				"match": "\\b(if|elif|any|else)\\b"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(while|until|repeat|as|step|for)\\b|((?<=for\\s\\S+\\s)in)"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(main|func|method)\\b"
+			}, {
 				"name": "blueprint.pseudocode",
 				"match": "\\b(class|interface|enum|struct|module)\\b"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(native|final|const|solid)\\b"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(public|protected|private|show)\\b"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(try|catch)\\b"
+			}, {
+				"name": "keyword.control.pseudocode",
+				"match": "\\b(is|null)\\b|(\\|)|(\\?)|(\\$)"
 			}]
 		},
 		"jump_statements": {
@@ -51,59 +61,49 @@
 				"match": "\\b(return|break|continue|goto)\\b|(\\-\\>)"
 			}]
 		},
-		"import_statements": {
+		"object_keywords": {
+			"patterns": [{
+				"name": "support.class",
+				"match": "\\b(new|this|super)\\b"
+			}]
+		},
+
+		"imports": {
 			"patterns": [{
 				"name": "keyword.import.pseudocode",
 				"match": "\\b(import\\s)\\b"
-			}]
-		},
-		"import_lines": {
-			"patterns": [{
+			}, {
 				"name": "comment.pseudocode",
 				"match": "(?<=import\\s)((\\w+)|(\\.))+"
 			}]
 		},
-		"constants": {
+
+		"func_declarations": {
 			"patterns": [{
-				"name": "constant.language",
-				"match": "\\b([A-ZÄÖÜ_])+\\b"
+				"name": "entity.name.function.pseudocode",
+				"match": "\\b([a-zäöü][a-zäöüßA-ZÄÖÜ]*)(?=\\()"
 			}]
 		},
-		"names": {
+		"var_types": {
 			"patterns": [{
-				"name": "constant.other.color",
-				"match": "\\w*([a-zäöüßA-ZÄÖÜ])+\\w*"
+				"name": "storage.type.pseudocode",
+				"match": "\\b(nr|text|bool|bin|int|char|var|def)\\b"
 			}]
 		},
-		"numeric_constants": {
-			"patterns": [{
-				"name": "constant.numeric.pseudocode",
-				"match": "(?i)\\b(INF|NaN)\\b"
-			}]
-		},
-		"number_literals": {
-			"patterns": [{
-				"name": "constant.numeric.pseudocode",
-				"match": "\\d+"
-			}]
-		},
-		"true_literal": {
+
+		"bool_literals": {
 			"patterns": [{
 				"name": "literal.true.pseudocode",
 				"match": "\\b(true)\\b"
-			}]
-		},
-		"false_literal": {
-			"patterns": [{
+			}, {
 				"name": "literal.false.pseudocode",
 				"match": "\\b(false)\\b"
 			}]
 		},
+
 		"chars": {
-			"patterns": [{
-				"name": "constant.character.escape.pseudocode",
-				"match": "'.'"
-			}]
+			"name": "constant.character.escape.pseudocode",
+			"match": "'.'"
 		}, 
 		"strings": {
 			"name": "string.quoted.double.pseudocode",
@@ -116,22 +116,39 @@
 				}
 			]
 		},
+
 		"operators": {
 			"patterns": [{
 				"name": "operator.pseudocode",
-				"match": "([\\+|\\-|\\*|\\/|\\%|\\^|\\!|\\=]=?)|(\\b(and|nand|or|nor|xor|xnor|root|not|in)\\b)|(<|<=|=|>=|>)|(≤|≠|≥)"
+				"match": "[+\\-*/%^!=]=?"
+			}, {
+				"name": "operator.pseudocode",
+				"match": "\\b(and|nand|or|nor|xor|xnor|root|not|in)\\b"
+			}, {
+				"name": "operator.pseudocode",
+				"match": "[<≤≠≥>]=?|=="
 			}]
 		},
-		"var_types": {
+
+		"numeric_constants": {
 			"patterns": [{
-				"name": "storage.type.pseudocode",
-				"match": "\\b(var|nr|int|bool|text|char|def)\\b"
+				"name": "constant.numeric.pseudocode",
+				"match": "\\b(INF|NaN)\\b"
 			}]
 		},
-		"func_declarations": {
+		"names": {
 			"patterns": [{
-				"name": "entity.name.function.pseudocode",
-				"match": "\\w+((?=\\()|(?=\\<))"
+				"name": "support.type",
+				"match": "[A-ZÄÖÜ]\\w+"
+			}, {
+				"name": "constant.other.color",
+				"match": "\\b([äöü][a-zäöüßA-ZÄÖÜ]*)\\b"
+			}]
+		},
+		"number_literals": {
+			"patterns": [{
+				"name": "constant.numeric.pseudocode",
+				"match": "\\d+"
 			}]
 		}
 	},

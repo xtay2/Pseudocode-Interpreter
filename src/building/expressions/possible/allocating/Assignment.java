@@ -1,29 +1,23 @@
 package building.expressions.possible.allocating;
 
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.interfaces.ValueChanger;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.containers.ArrayAccess;
-import building.expressions.normal.containers.Variable;
-import building.expressions.normal.operators.Operation;
-import building.expressions.normal.operators.infix.ArithmeticOperator;
-import building.expressions.normal.operators.infix.ComparativeOperator;
-import building.expressions.normal.operators.infix.InOperator;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.infix.LogicalOperator;
-import building.types.specific.AssignmentType;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.containers.*;
+import building.expressions.normal.operators.*;
+import building.expressions.normal.operators.infix.*;
+import building.types.specific.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * Assigns a value to a {@link Variable} thats already initialised, and returns the {@link Value}
  * afterwards.
  */
 public class Assignment extends Allocating {
-
+	
 	private final InfixOperator op;
-
+	
 	/**
 	 * Creates an {@link Assignment}.
 	 *
@@ -48,7 +42,7 @@ public class Assignment extends Allocating {
 			};
 		}
 	}
-
+	
 	/**
 	 * Changes the value of {@link Allocating#target} to {@link Allocating#val}.
 	 *

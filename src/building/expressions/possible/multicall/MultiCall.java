@@ -1,19 +1,18 @@
 package building.expressions.possible.multicall;
 
-import static building.types.abstractions.SpecificType.MERGED;
+import static building.types.abstractions.SpecificType.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.statements.IsStatement;
-import building.expressions.normal.operators.infix.InOperator;
-import building.expressions.normal.operators.infix.LogicalOperator;
-import building.expressions.normal.operators.postfix.PostfixOperator;
-import building.expressions.normal.operators.prefix.PrefixOperator;
-import building.expressions.possible.Call;
-import building.types.specific.operators.InfixOpType;
-import errorhandeling.PseudocodeException;
-import interpreting.modules.merger.SuperMerger;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.main.statements.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.postfix.*;
+import building.expressions.normal.operators.prefix.*;
+import building.expressions.possible.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import interpreting.modules.merger.*;
+import runtime.datatypes.*;
 
 /**
  * Performs the outer Expression for each {@link MultiCallable} in it.
@@ -47,9 +46,9 @@ import runtime.datatypes.Value;
  * </pre>
  */
 public class MultiCall extends Expression implements ValueHolder {
-
+	
 	public final ValueHolder[] content;
-
+	
 	/**
 	 * Creates a {@link MultiCall}.
 	 *
@@ -60,9 +59,9 @@ public class MultiCall extends Expression implements ValueHolder {
 		super(lineID, MERGED);
 		this.content = content;
 		if (content.length < 2)
-			throw new PseudocodeException("MultiCallParams", "This Multicall has to contain atleast two elements", getDataPath());
+			throw new PseudocodeException("MultiCallParams", "This Multicall has to contain atleast two elements", getBlueprintPath());
 	}
-
+	
 	/**
 	 * Because multicalls are allways wrapped inside a bigger {@link ValueHolder}, they only have the
 	 * status of a {@link ValueHolder}, but not the functionality. This is necessarry, so that they can

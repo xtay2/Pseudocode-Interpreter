@@ -1,29 +1,24 @@
 package runtime.datatypes;
 
-import static runtime.datatypes.MaybeValue.NULL;
+import static runtime.datatypes.MaybeValue.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
-import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.numerical.ConceptualNrValue;
-import runtime.datatypes.numerical.DecimalValue;
-import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.textual.CharValue;
-import runtime.datatypes.textual.TextValue;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import runtime.datatypes.array.*;
+import runtime.datatypes.numerical.*;
+import runtime.datatypes.textual.*;
 
 public abstract class Value implements ValueHolder {
-
+	
 	public final SingleType dataType;
-
+	
 	/** Creates a new {@link Value}. */
 	public Value(SingleType dataType) {
 		this.dataType = dataType;
 	}
-
+	
 	/**
 	 * <pre>
 	 * Compares the equality of values. (Commutative)
@@ -44,19 +39,17 @@ public abstract class Value implements ValueHolder {
 	public static final BoolValue eq(Value a, Value b) {
 		return BoolValue.valueOf(a.valueCompare(b));
 	}
-
+	
 	/**
 	 * Should get implemented by all Classes that inherit this class (Value).
 	 *
 	 * @param v is the value its checked against.
 	 */
 	public abstract boolean valueCompare(Value v);
-
+	
 	@Override
-	public final Value getValue() {
-		return this;
-	}
-
+	public final Value getValue() { return this; }
+	
 	/**
 	 * Tells, if this {@link Value} matches the given {@link DataType}.
 	 *
@@ -76,7 +69,7 @@ public abstract class Value implements ValueHolder {
 			return av.allowsLosslessCastingTo(type);
 		return dataType.is(type.type) && type.getDims() == 0;
 	}
-
+	
 	/**
 	 * Returns the {@link Object} that this {@link Value} holds.
 	 *

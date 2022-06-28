@@ -1,14 +1,13 @@
 package building.expressions.abstractions;
 
-import building.expressions.abstractions.interfaces.AbstractExpression;
-import building.expressions.normal.BuilderExpression;
-import building.types.abstractions.AbstractType;
-import building.types.abstractions.SpecificType;
-import building.types.specific.KeywordType;
-import importing.filedata.paths.DataPath;
-import interpreting.modules.merger.SuperMerger;
-import interpreting.program.ProgramLine;
-import launching.Main;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.*;
+import building.types.abstractions.*;
+import building.types.specific.*;
+import importing.filedata.paths.*;
+import interpreting.modules.merger.*;
+import interpreting.program.*;
+import launching.*;
 
 /**
  * Every little part of a program is an expression. This includes names, values, brackets and
@@ -20,13 +19,13 @@ import launching.Main;
  * @see ExpressionType
  */
 public abstract class Expression implements AbstractExpression {
-
+	
 	/** The line in which this Expression is defined. */
 	public final int lineIdentifier;
-
+	
 	/** The Type of this Expression. */
 	public final SpecificType type;
-
+	
 	/**
 	 * Builds an Expression.
 	 *
@@ -41,7 +40,7 @@ public abstract class Expression implements AbstractExpression {
 		this.type = myType;
 		assert myType != null : "Type cannot be null.";
 	}
-
+	
 	/**
 	 * Used mostly in the {@link SuperMerger} for any {@link BuilderExpression} to assure, that this
 	 * Expression is of a certain {@link KeywordType}, when instanceof is no option.
@@ -50,31 +49,16 @@ public abstract class Expression implements AbstractExpression {
 	public final boolean is(AbstractType type) {
 		return this.type.is(type);
 	}
-
-	/**
-	 * Returns the {@link Scope} this {@link MainExpression} lies in. If {@code this} is a
-	 * {@link ScopeHolder}, this Method {@link #getScope()} gets overriden and returns the held Scope
-	 * instead.
-	 *
-	 * Gets called by the {@link SuperMerger}
-	 */
-	public Scope getScope() {
-		return Main.PROGRAM.getLine(lineIdentifier).getMainExpression().getScope();
-	}
-
+	
 	/**
 	 * Returns false for Expressions. Gets Overridden in {@link MainExpression#isDefiniteMainExpression}
 	 */
 	@Override
-	public boolean isDefiniteMainExpression() {
-		return false;
-	}
-
+	public boolean isDefiniteMainExpression() { return false; }
+	
 	@Override
-	public DataPath getDataPath() {
-		return Main.PROGRAM.getLine(lineIdentifier).dataPath;
-	}
-
+	public BlueprintPath getBlueprintPath() { return Main.PROGRAM.getLine(lineIdentifier).getBlueprintPath().get(); }
+	
 	/**
 	 * Always returns the classname when in debuggingmode. If not, identifiers can be returned instead.
 	 */

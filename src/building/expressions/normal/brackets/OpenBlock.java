@@ -1,21 +1,20 @@
 package building.expressions.normal.brackets;
 
-import static building.types.specific.BuilderType.CLOSE_BLOCK;
-import static building.types.specific.BuilderType.OPEN_BLOCK;
+import static building.types.specific.BuilderType.*;
 
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.BlockBracket;
-import building.expressions.main.CloseBlock;
-import building.expressions.normal.BuilderExpression;
-import launching.Main;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.main.*;
+import building.expressions.normal.*;
+import launching.*;
 
 public final class OpenBlock extends Expression implements BlockBracket {
-
+	
 	/** The lineID of the matching {@link CloseBlock} */
 	private final int myMatch;
-
+	
 	public OpenBlock(int lineID) {
 		super(lineID, OPEN_BLOCK);
 		long brack = 1;
@@ -35,9 +34,7 @@ public final class OpenBlock extends Expression implements BlockBracket {
 		}
 		throw new AssertionError("Found no matching CloseBlock.");
 	}
-
+	
 	@Override
-	public int getMatch() {
-		return myMatch;
-	}
+	public int getMatch() { return myMatch; }
 }

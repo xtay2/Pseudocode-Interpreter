@@ -1,23 +1,22 @@
 package building.types.specific.datatypes;
 
-import java.util.Arrays;
+import java.util.*;
 
-import building.expressions.abstractions.Range;
-import errorhandeling.NonExpressionException;
-import runtime.datatypes.MaybeValue;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * @see SingleType
  * @see ArrayType
  */
 public class DataType {
-
+	
 	public final SingleType type;
 	public final boolean allowsNull;
 	public final Range[] ranges;
-
+	
 	/**
 	 * Creates a {@link DataType} from the following components:
 	 *
@@ -32,7 +31,7 @@ public class DataType {
 		this.allowsNull = allowsNull;
 		this.ranges = range;
 	}
-
+	
 	/**
 	 * Returns the value that a variable gets when it has none at the declaration.
 	 *
@@ -54,25 +53,21 @@ public class DataType {
 		}
 		return type.stdVal(allowsNull);
 	}
-
+	
 	/** Returns true, if this is an arraytype. */
-	public boolean isArrayType() {
-		return ranges.length > 0;
-	}
-
+	public boolean isArrayType() { return ranges.length > 0; }
+	
 	/**
 	 * Returns the amount of dimensions for this {@link DataType}. If this isn't an arraytype, 0 gets
 	 * returned.
 	 */
-	public int getDims() {
-		return ranges.length;
-	}
-
+	public int getDims() { return ranges.length; }
+	
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof DataType dt && type.is(dt.type) && (allowsNull == dt.allowsNull) && Arrays.equals(ranges, dt.ranges);
 	}
-
+	
 	@Override
 	public String toString() {
 		String res = type + (allowsNull ? "?" : "");

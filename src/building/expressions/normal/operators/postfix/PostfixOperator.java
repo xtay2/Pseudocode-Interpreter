@@ -1,43 +1,39 @@
 package building.expressions.normal.operators.postfix;
 
-import static runtime.datatypes.numerical.NumberValue.ONE;
+import static runtime.datatypes.numerical.NumberValue.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.PossibleMainExpression;
-import building.expressions.abstractions.interfaces.ValueChanger;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.prefix.PrefixOperator;
-import building.expressions.possible.multicall.MultiCall;
-import building.expressions.possible.multicall.MultiCallableValueHolder;
-import building.types.specific.operators.PostfixOpType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.prefix.*;
+import building.expressions.possible.multicall.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * @see PrefixOperator
  * @see InfixOperator
  */
 public class PostfixOperator extends PossibleMainExpression implements MultiCallableValueHolder {
-
+	
 	private final ValueHolder content;
-
+	
 	public PostfixOperator(int lineID, PostfixOpType type, ValueHolder content) {
 		super(lineID, type);
 		this.content = content;
 		if (content == null)
 			throw new AssertionError("Val cannot be null.");
 	}
-
+	
 	@Override
 	public Value getValue() {
 		if (content instanceof MultiCall mc)
 			return executeFor(mc.content);
 		return evaluate(content);
 	}
-
+	
 	@Override
 	public Value executeFor(ValueHolder[] content) {
 		Value[] res = new Value[content.length];
@@ -45,7 +41,7 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 			res[i] = evaluate(content[i]);
 		return ArrayValue.newInstance(res);
 	}
-
+	
 	private Value evaluate(ValueHolder val) {
 		Value v = val.getValue();
 		try {
@@ -56,7 +52,7 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 					else {
 						throw new PseudocodeException("InvalidPostfix", //
 								"You cannot post-increment a " + ((Expression) val).type + ".", //
-								getDataPath());
+								getBlueprintPath());
 					}
 					break;
 				case DEC:
@@ -65,7 +61,7 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 					else {
 						throw new PseudocodeException("InvalidPostfix", //
 								"You cannot post-decrement a " + ((Expression) val).type + ".", //
-								getDataPath());
+								getBlueprintPath());
 					}
 					break;
 				case FAC:
@@ -73,11 +69,11 @@ public class PostfixOperator extends PossibleMainExpression implements MultiCall
 					break;
 			}
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 		return v;
 	}
-
+	
 	@Override
 	public boolean execute() {
 		getValue();

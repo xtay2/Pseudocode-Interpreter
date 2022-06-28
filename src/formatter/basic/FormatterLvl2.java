@@ -1,24 +1,18 @@
 package formatter.basic;
 
-import static building.types.specific.BuilderType.ARROW_R;
-import static misc.helper.CollectionHelper.merge;
-import static misc.helper.ProgramHelper.isNotInString;
-import static misc.helper.ProgramHelper.replaceAllIfRunnable;
+import static building.types.specific.BuilderType.*;
+import static misc.helper.CollectionHelper.*;
+import static misc.helper.ProgramHelper.*;
+import static misc.util.Regex.*;
 
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
 
-import building.expressions.normal.containers.Name;
-import building.types.abstractions.SpecificType;
-import building.types.specific.AssignmentType;
-import building.types.specific.BuilderType;
-import building.types.specific.DynamicType;
-import building.types.specific.KeywordType;
-import building.types.specific.datatypes.SingleType;
-import building.types.specific.operators.InfixOpType;
-import building.types.specific.operators.PrefixOpType;
-import misc.helper.CollectionHelper;
+import building.types.abstractions.*;
+import building.types.specific.*;
+import building.types.specific.datatypes.*;
+import building.types.specific.operators.*;
+import misc.helper.*;
 
 /**
  * This gets executed first!
@@ -35,7 +29,7 @@ import misc.helper.CollectionHelper;
  * @see Formatter
  */
 public final class FormatterLvl2 extends Formatter {
-
+	
 	protected static void format() {
 	//@formatter:off
 	forEachLine(
@@ -48,14 +42,14 @@ public final class FormatterLvl2 extends Formatter {
 		);
 	//@formatter:on
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that replaces multiple occurrences of whitespaces with just one.
 	 */
 	static String reduceSpaces(String line, boolean isFullyRunnable) {
 		return replaceAllIfRunnable(line, "\\s{2,}", " ", isFullyRunnable);
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that add padding between scopes and braces.
 	 */
@@ -64,25 +58,25 @@ public final class FormatterLvl2 extends Formatter {
 			line = replaceAllIfRunnable(line, start + "(?=\\()", start + " ", isFullyRunnable);
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence of an
 	 * {@link AssignmentType} in the passed line.
 	 */
 	static String assignmentPadding(String line, boolean isFullyRunnable) {
-
+		
 		final SpecificType[] opAssings = Arrays.stream(AssignmentType.values()).filter(e -> e.op != null).toArray(SpecificType[]::new);
 		line = typePadding(opAssings, new SpecificType[] {}, line, isFullyRunnable);
-
+		
 		//@formatter:off
 		SpecificType[] container = {
 			InfixOpType.EQUALS 	// = in ==
 		}; //@formatter:on
-
+		
 		container = CollectionHelper.merge(opAssings, container);
-		return typePadding(new SpecificType[] { AssignmentType.NORMAL }, container, line, isFullyRunnable);
+		return typePadding(new SpecificType[] {AssignmentType.NORMAL}, container, line, isFullyRunnable);
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding around every occurrence of an
 	 * {@link InfixOpType} in the passed line.
@@ -103,7 +97,7 @@ public final class FormatterLvl2 extends Formatter {
 		container = merge(container, AssignmentType.values());
 		return typePadding(InfixOpType.values(), container, line, isFullyRunnable);
 	}
-
+	
 	/**
 	 * Surrounds every occurrence of any passed type in the line with whitespaces.
 	 *
@@ -131,7 +125,7 @@ public final class FormatterLvl2 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/**
 	 * Formats the next matched type with wrong padding.
 	 *
@@ -153,7 +147,7 @@ public final class FormatterLvl2 extends Formatter {
 		}
 		return line;
 	}
-
+	
 	/**
 	 * Checks if the current type is contained in the {@link String}-representation of another type.
 	 *
@@ -167,7 +161,7 @@ public final class FormatterLvl2 extends Formatter {
 		for (SpecificType c : container) {
 			if (c == DynamicType.NAME) {
 				// If current + next could be a Name
-				if (Name.isName(mrg))
+				if (WR.matches(mrg))
 					return false;
 			}
 			// If current is the end of another type, like the second + in ++
@@ -179,7 +173,7 @@ public final class FormatterLvl2 extends Formatter {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding for three types of brackets: (), [], {}.
 	 *
@@ -192,7 +186,7 @@ public final class FormatterLvl2 extends Formatter {
 		line = replaceAllIfRunnable(line, "\\(\\s", "(", isFullyRunnable);
 		line = replaceAllIfRunnable(line, "\\[\\s", "[", isFullyRunnable);
 		line = replaceAllIfRunnable(line, "\\{\\s", "{", isFullyRunnable);
-
+		
 		// ... in front of closing brackets
 		line = replaceAllIfRunnable(line, "\\s\\)", ")", isFullyRunnable);
 		line = replaceAllIfRunnable(line, "\\s\\]", "]", isFullyRunnable);
@@ -203,7 +197,7 @@ public final class FormatterLvl2 extends Formatter {
 		line = replaceAllIfRunnable(line, "\\}(?=" + ALPHANUM + ")", "} ", isFullyRunnable);
 		return line;
 	}
-
+	
 	/**
 	 * A {@link LineFormatterFunc} that corrects the padding for commas, colons and semicolons.
 	 *

@@ -1,16 +1,16 @@
 package misc.helper;
 
-import java.math.BigInteger;
+import java.math.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import errorhandeling.NonExpressionException;
+import building.expressions.abstractions.interfaces.*;
+import errorhandeling.*;
 
 public class MathHelper {
-
+	
 	private MathHelper() {
 		// Dead constructor
 	}
-
+	
 	/**
 	 * Returns the number of digits in a {@link BigInteger}.
 	 */
@@ -21,7 +21,7 @@ public class MathHelper {
 			return digitCount - 1;
 		return digitCount;
 	}
-
+	
 	/**
 	 * Turns a {@link ValueHolder} into a {@link Integer}. This should only get used in special cases
 	 * because problems that can occur are:

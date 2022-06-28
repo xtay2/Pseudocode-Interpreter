@@ -1,19 +1,18 @@
 package building.expressions.main.statements;
 
-import static building.types.specific.KeywordType.RETURN;
+import static building.types.specific.KeywordType.*;
 
-import building.expressions.abstractions.MainExpression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.functions.Definition;
-import building.expressions.main.functions.Function;
-import errorhandeling.PseudocodeException;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.main.functions.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
 
 public class ReturnStatement extends MainExpression {
-
+	
 	private Definition myFunc = null;
 	private final ValueHolder val;
-
+	
 	/**
 	 * Creates a {@link ReturnStatement}.
 	 *
@@ -23,7 +22,7 @@ public class ReturnStatement extends MainExpression {
 		super(lineID, RETURN);
 		this.val = val;
 	}
-
+	
 	/** Set the return-value of the function, and well... return. */
 	@Override
 	public boolean execute() {
@@ -33,7 +32,7 @@ public class ReturnStatement extends MainExpression {
 		}
 		return false;
 	}
-
+	
 	/** Connect this {@link ReturnStatement} to a {@link Function}. */
 	public void initFunc(Definition def) {
 		if (myFunc != null)
@@ -42,7 +41,7 @@ public class ReturnStatement extends MainExpression {
 			myFunc = def;
 		else if (val != null) {
 			throw new PseudocodeException("InvalidReturn",
-					"Only return-statements that don't return values can be used in \"" + def + "\".", getDataPath());
+					"Only return-statements that don't return values can be used in \"" + def + "\".", getBlueprintPath());
 		}
 	}
 }

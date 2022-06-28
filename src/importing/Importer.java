@@ -1,21 +1,17 @@
 package importing;
 
-import static building.types.specific.KeywordType.MAIN;
-import static importing.filedata.paths.Location.SRC;
+import static building.types.specific.KeywordType.*;
+import static importing.filedata.paths.Location.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import building.expressions.main.functions.MainFunction;
-import errorhandeling.InitException;
+import building.expressions.main.functions.*;
+import errorhandeling.*;
 import importing.filedata.File;
-import importing.filedata.interactable.CallInfo;
-import importing.filedata.paths.DataPath;
-import importing.filedata.paths.FilePath;
-import misc.util.Tuple;
+import importing.filedata.interactable.*;
+import importing.filedata.paths.*;
+import misc.util.*;
 
 /**
  * The class that is controlling all imports.
@@ -26,15 +22,15 @@ import misc.util.Tuple;
  * </pre>
  */
 public abstract class Importer {
-
+	
 	private static final Map<FilePath, File> allFiles = new HashMap<>();
-
+	
 	/** A {@link Map} of all public variables and constants in the global scope */
 	public static final Map<DataPath, String> globalVars = new HashMap<>();
-
+	
 	/** The File Main.pc, that contains the {@link MainFunction}. */
 	private static File mainFile;
-
+	
 	static {
 		try {
 			mainFile = getFile(new FilePath(SRC + "..Main"));
@@ -43,7 +39,7 @@ public abstract class Importer {
 		}
 		mainFile.findUsedDefs(new CallInfo(null, mainFile.path, MAIN.toString(), 0));
 	}
-
+	
 	/**
 	 * This returns all {@link File}s that are used in the importing-tree.
 	 *
@@ -58,14 +54,15 @@ public abstract class Importer {
 		}
 		return f;
 	}
-
+	
 	/**
 	 * Returns all lines of all imported Files merged into one {@link List}.
 	 */
 	public static List<Tuple<DataPath, String>> getLines() {
 		List<Tuple<DataPath, String>> lines = new ArrayList<>(1000);
-		for (File f : allFiles.values())
+		for (File f : allFiles.values()) {
 			lines.addAll(f.getRelevantContent());
+		}
 		return lines;
 	}
 }

@@ -1,31 +1,25 @@
 package building.expressions.normal.operators;
 
-import static building.types.abstractions.SpecificType.MERGED;
-import static runtime.datatypes.MaybeValue.NULL;
+import static building.types.abstractions.SpecificType.*;
+import static runtime.datatypes.MaybeValue.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.Operatable;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.operators.infix.ComparativeOperator;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.infix.LogicalOperator;
-import building.expressions.possible.multicall.MultiCall;
-import building.expressions.possible.multicall.MultiCallable;
-import building.types.specific.operators.InfixOpType;
-import errorhandeling.PseudocodeException;
-import interpreting.modules.merger.SuperMerger;
-import misc.helper.StringHelper;
-import runtime.datatypes.Value;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.possible.multicall.*;
+import building.types.specific.operators.*;
+import errorhandeling.*;
+import interpreting.modules.merger.*;
+import misc.helper.*;
+import runtime.datatypes.*;
 
 /** Consist of n Operators and n + 1 ValueHolders. */
 public final class Operation extends Expression implements MultiCallable, ValueHolder {
-
+	
 	private final List<Operatable> operation;
-
+	
 	/** Gets called when an Operation is constructed in the {@link SuperMerger}. */
 	public Operation(int lineID, List<Operatable> op) {
 		super(lineID, MERGED);
@@ -36,9 +30,9 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 			throw new PseudocodeException("NullNotAllowed",
 					"Null isn't allowed to be in an operation.\n"
 							+ StringHelper.pointUnderline(toString(), toString().indexOf(NULL.toString()), NULL.toString().length()),
-					getDataPath());
+					getBlueprintPath());
 	}
-
+	
 	/** Converts multiple ComparativeOperators */
 	private List<Operatable> format(List<Operatable> op) {
 		for (int i = 1; i < op.size(); i += 2) {
@@ -50,12 +44,10 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		}
 		return Collections.unmodifiableList(op);
 	}
-
+	
 	@Override
-	public Value getValue() {
-		return recValue(new ArrayList<>(operation));
-	}
-
+	public Value getValue() { return recValue(new ArrayList<>(operation)); }
+	
 	private Value recValue(List<Operatable> op) {
 		ValueHolder a = (ValueHolder) op.remove(0);
 		InfixOperator o = (InfixOperator) op.remove(0);
@@ -80,7 +72,7 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 		}
 		return o.perform(a, b);
 	}
-
+	
 	@Override
 	public String toString() {
 		String res = "";
@@ -88,7 +80,7 @@ public final class Operation extends Expression implements MultiCallable, ValueH
 			res += switch (e) {
 				case InfixOperator io -> " " + io.type + " ";
 				case ValueHolder vh -> vh.toString();
-				default -> throw new PseudocodeException("IllegalOperation", "Illegal Element in Operation: " + e, getDataPath());
+				default -> throw new PseudocodeException("IllegalOperation", "Illegal Element in Operation: " + e, getBlueprintPath());
 			};
 		}
 		return res;

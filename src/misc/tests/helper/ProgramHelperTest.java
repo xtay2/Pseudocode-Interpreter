@@ -1,13 +1,13 @@
 package misc.tests.helper;
 
-import static misc.helper.ProgramHelper.getAllCallsInLine;
+import static misc.helper.ProgramHelper.*;
 
-import java.util.Set;
+import java.util.*;
 
-import org.junit.Test;
+import org.junit.*;
 
 public class ProgramHelperTest {
-
+	
 	@Test
 	public void getAllCallsInLineTest() {
 		// @formatter:off
@@ -19,9 +19,9 @@ public class ProgramHelperTest {
 		setAssert(Set.of("foo(bar(), buzz())", "bar()", "buzz()"), 	getAllCallsInLine("foo(bar(), buzz())"));
 		// @formatter:on
 	}
-
+	
 	private <T> void setAssert(Set<T> expected, Set<T> result) {
 		assert expected.containsAll(result) : result + "L:(" + result.size() + ") instead of " + expected + "L:(" + expected.size() + ")";
 	}
-
+	
 }

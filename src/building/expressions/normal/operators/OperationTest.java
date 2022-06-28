@@ -1,19 +1,17 @@
 package building.expressions.normal.operators;
 
-import java.util.List;
+import java.util.*;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import building.expressions.abstractions.interfaces.Operatable;
-import building.expressions.normal.operators.infix.ArithmeticOperator;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.postfix.PostfixOperator;
-import building.types.specific.operators.InfixOpType;
-import building.types.specific.operators.PostfixOpType;
-import runtime.datatypes.numerical.IntValue;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.postfix.*;
+import building.types.specific.operators.*;
+import runtime.datatypes.numerical.*;
 
 public class OperationTest {
-
+	
 	@Test
 	void testOperation() {
 		IntValue i = new IntValue(2), j = new IntValue(3);
@@ -24,9 +22,9 @@ public class OperationTest {
 		assert create(i, p, i, m, j).getValue().equals(8);
 		assert create(inc, m, i).equals(4);
 	}
-
+	
 	Operation create(Operatable... operatables) {
 		return new Operation(-1, List.of(operatables));
 	}
-
+	
 }

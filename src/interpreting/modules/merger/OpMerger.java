@@ -1,45 +1,37 @@
 package interpreting.modules.merger;
 
-import static building.types.abstractions.SuperType.INFIX_OP_TYPE;
+import static building.types.abstractions.SuperType.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import building.expressions.abstractions.interfaces.Operatable;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.operators.Operation;
-import building.expressions.normal.operators.infix.ArithmeticOperator;
-import building.expressions.normal.operators.infix.ComparativeOperator;
-import building.expressions.normal.operators.infix.InOperator;
-import building.expressions.normal.operators.infix.InfixOperator;
-import building.expressions.normal.operators.infix.LogicalOperator;
-import building.expressions.normal.operators.postfix.PostfixOperator;
-import building.expressions.normal.operators.prefix.PrefixOperator;
-import building.types.specific.operators.InfixOpType;
-import building.types.specific.operators.PostfixOpType;
-import building.types.specific.operators.PrefixOpType;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.operators.*;
+import building.expressions.normal.operators.infix.*;
+import building.expressions.normal.operators.postfix.*;
+import building.expressions.normal.operators.prefix.*;
+import building.types.specific.operators.*;
 
 /**
  * Every merged {@link Operation}, {@link PrefixOperator}, {@link InfixOperator} or
  * {@link PostfixOperator}.
  */
 public abstract class OpMerger extends ValueMerger {
-
+	
 	/** [PRE_FIX] [VALUE_CHANGER] */
 	public static PrefixOperator buildPrefix() {
 		PrefixOpType t = (PrefixOpType) line.remove(0).type;
 		ValueHolder vc = buildVal(true);
 		return new PrefixOperator(lineID, t, vc);
 	}
-
+	
 	/** [POST_FIX] */
 	public static PostfixOperator buildPostfix(ValueHolder vc) {
 		PostfixOpType t = (PostfixOpType) line.remove(0).type;
 		return new PostfixOperator(lineID, t, vc);
 	}
-
+	
 	// --------------------------------INFIX--------------------------------//
-
+	
 	/** [ValueHolder] ([Operator] [ValueHolder])... */
 	public static Operation buildOperation(ValueHolder fst) {
 		List<Operatable> parts = new ArrayList<>();
@@ -50,7 +42,7 @@ public abstract class OpMerger extends ValueMerger {
 		}
 		return new Operation(lineID, parts);
 	}
-
+	
 	/** [INFIX_OPERATOR] */
 	private static InfixOperator buildInfix() {
 		InfixOpType type = (InfixOpType) line.remove(0).type;

@@ -14,17 +14,21 @@ Pseudocode is a highlevel language with easy to read syntax. This extension enab
 ### Keywords
  - Control Flow: `if`, `elif`, `any`, `else`.
 
- - Loops: `while`, `until`, `repeat`, `as`, `from to step`, `for in`.
+ - Loops: `while`, `until`, `repeat`, `as`, `step`, `for`, `in`.
 
  - Functional: `main`, `func`, `method`.
 
- - Blueprints: `class`, `enum`, `interface`, `struct`, `module`.
+ - Blueprints: `class`, `interface`, `enum`, `struct`, `module`.
 
- - Flags `static`, `native`, `final`, `const`, `public`.
+ - Flags: `native`, `final`, `const`, `solid`.
+
+ - Access Modifiers: `public`, `protected`, `private`, `show`.
 
  - Jumps: `return`, `break`, `continue`, `goto`.
 
  - Errors: `try`, `catch`.
+
+ - Objects: `new`, `this`, `super`.
 
  - Misc: `import`, `null`, `is`.
 
@@ -32,7 +36,6 @@ Pseudocode is a highlevel language with easy to read syntax. This extension enab
  - `var`, `nr`, `int`, `bool`, `text`, `char`, `def`.
 
 ### Operators
-
  - Arithmetic: `+`, `-`, `*`, `/`, `%`, `^`.
 
  - Logical: `and`, `nand`, `or`, `nor`, `xor`, `xnor`, `root`, `not`.

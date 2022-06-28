@@ -1,8 +1,8 @@
 package building.expressions.abstractions;
 
-import building.expressions.possible.Call;
-import building.expressions.possible.multicall.MultiCall;
-import building.types.abstractions.SpecificType;
+import building.expressions.possible.*;
+import building.expressions.possible.multicall.*;
+import building.types.abstractions.*;
 
 /**
  * Every class that extends this one has the possibility to stand alone in a line, (ie. be a main
@@ -20,7 +20,7 @@ import building.types.abstractions.SpecificType;
  *
  */
 public abstract class PossibleMainExpression extends MainExpression {
-
+	
 	/**
 	 * Copies the following Constructor:
 	 *

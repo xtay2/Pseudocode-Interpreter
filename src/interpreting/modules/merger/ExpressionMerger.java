@@ -1,42 +1,34 @@
 package interpreting.modules.merger;
 
-import static building.expressions.abstractions.GlobalScope.GLOBAL;
-import static misc.supporting.Output.print;
+import java.util.*;
 
-import java.util.Collections;
-import java.util.List;
-
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.GlobalScope;
-import building.expressions.abstractions.MainExpression;
-import building.expressions.abstractions.Scope;
-import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.Flaggable;
-import building.expressions.abstractions.interfaces.Registerable;
-import building.expressions.main.CloseBlock;
-import building.expressions.main.functions.Definition;
-import building.expressions.main.functions.MainFunction;
-import building.expressions.main.statements.FlagSpace;
-import building.expressions.normal.BuilderExpression;
-import building.expressions.possible.allocating.Allocating;
-import building.types.abstractions.AbstractType;
-import building.types.specific.BuilderType;
-import building.types.specific.FlagType;
-import building.types.specific.KeywordType;
-import errorhandeling.PseudocodeException;
-import importing.filedata.paths.DataPath;
-import interpreting.program.ProgramLine;
-import launching.Main;
-import runtime.defmanager.DefManager;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.abstractions.scopes.*;
+import building.expressions.main.*;
+import building.expressions.main.blueprints.*;
+import building.expressions.main.functions.*;
+import building.expressions.main.statements.*;
+import building.expressions.normal.*;
+import building.types.abstractions.*;
+import building.types.specific.*;
+import errorhandeling.*;
+import importing.filedata.paths.*;
+import interpreting.program.*;
+import launching.*;
 
 public abstract class ExpressionMerger {
-
+	
 	protected static List<BuilderExpression> line;
 	protected static List<BuilderExpression> orgExp;
 	protected static int lineID;
-	protected static Scope outer;
-	protected static DataPath dataPath;
-
+	
+	/**
+	 * This is a {@link BlueprintPath} for every line that doesn't contain a {@link Blueprint}. (Should
+	 * be used for exceptions, can get casted for {@link Definition}s.)
+	 */
+	protected static DataPath path;
+	
 	/**
 	 * Takes all pure {@link Expression}s from a {@link ProgramLine} as input and merges them into a
 	 * {@link MainExpression}.
@@ -48,70 +40,26 @@ public abstract class ExpressionMerger {
 		orgExp = Collections.unmodifiableList(pline.getExpressions());
 		line = pline.getExpressions();
 		lineID = pline.lineID;
-		dataPath = pline.dataPath;
-		outer = findScope();
-		debugLine(outer);
+		path = pline.getDataPath();
 		MainExpression main = (MainExpression) SuperMerger.build();
 		// Check if line was correctly build
 		if (main == null || !SuperMerger.line.isEmpty()) {
-			throw new AssertionError(dataPath + ": Main-Merge got finished too early or was null.\nMain: " + main + "\nLine: " + line
-					+ "\nOrgLine: " + orgExp);
+			throw new AssertionError(
+					path + ": Main-Merge got finished too early or was null.\nMain: " + main + "\nLine: " + line + "\nOrgLine: " + orgExp);
 		}
 		// Sets the Scope
-		initScopes(main);
-		// Tests if this is illegally in the global-scope.
-		globalScopeCheck(main);
+		try {
+			if (main instanceof Definition def)
+				ScopeManager.DEFS.register(((BlueprintPath) path).blueprint, def);
+		} catch (ClassCastException cce) {
+			throw new PseudocodeException("NoBlueprint", "There is code outside of the blueprint.", path);
+		}
 		// Sets flags from overlying FlagSpaces
 		if (main instanceof Flaggable f)
 			collectFlags(f);
 		return main;
 	}
-
-	/**
-	 * Checks if the passed {@link MainExpression} lies in the {@link GlobalScope} and throws an
-	 * {@link IllegalCodeFormatException}. This method gets triggered immediatly after the merge in the
-	 * {@link ExpressionMerger} and should get contain everything that can lie in the
-	 * {@link GlobalScope}. This is tied to {@link #initScopes(MainExpression)}
-	 *
-	 * Only {@link Allocating}, {@link MainFunction}, {@link Definition}, {@link FlagSpace} and the
-	 * corresponding {@link CloseBlock} can lie in the {@link GlobalScope}.
-	 */
-	private static void globalScopeCheck(MainExpression main) {
-		if (!(main instanceof Allocating) && !(main instanceof Definition) && !(main instanceof MainFunction)
-				&& !(main instanceof FlagSpace) && !(main instanceof CloseBlock)) {
-			if ((main instanceof ScopeHolder sh && sh.getOuterScope() == GLOBAL) || main.getScope() == GLOBAL) {
-				throw new PseudocodeException("InvalidPosition", //
-						main.toString() + " \"" + main.type + "\" shouldn't lie in the global-scope.", //
-						main.getDataPath());
-			}
-		}
-	}
-
-	/**
-	 * This function:
-	 *
-	 * <pre>
-	 * -Sets the {@link Scope} of the {@link MainExpression}.
-	 * -Registers the inner {@link Scope} if the main is a {@link ScopeHolder}.
-	 * -Registers the main, if it is a {@link Registerable} {@link Definition} or {@link MainFunction}.
-	 * </pre>
-	 */
-	private static void initScopes(MainExpression main) {
-		// Set the Scope for a fully merged Expression.
-		main.setScope(outer);
-
-		// Initialise the own Scope if this main is a ScopeHolder.
-		if (main instanceof ScopeHolder sh)
-			sh.initScope();
-
-		// Register the main func immediatly.
-		if (main instanceof MainFunction)
-			((ScopeHolder) main).getOuterScope().register((Registerable) main);
-
-		if (main instanceof Definition r)
-			DefManager.register(r);
-	}
-
+	
 	/**
 	 * If the {@link MainExpression} is a {@link Flaggable}, and lies in a {@link FlagSpace}, it gets
 	 * all of the flags from that {@link FlagSpace}.
@@ -125,19 +73,7 @@ public abstract class ExpressionMerger {
 				i = cb.getMatch();
 		}
 	}
-
-	/** Finds the Scope of this line. */
-	private static Scope findScope() {
-		for (int i = lineID - 1; i >= 0; i--) {
-			MainExpression m = Main.PROGRAM.getLine(i).getMainExpression();
-			if (m instanceof ScopeHolder sh)
-				return sh.getScope();
-			if (m instanceof CloseBlock cb)
-				i = cb.getMatch();
-		}
-		return GlobalScope.GLOBAL;
-	}
-
+	
 	/**
 	 * Constructs an {@link Expression} from the {@link AbstractType} of the first
 	 * {@link BuilderExpression}.
@@ -152,19 +88,11 @@ public abstract class ExpressionMerger {
 				yield SuperMerger.buildAbstract();
 			case FlagType f:
 				yield (Expression) SuperMerger.buildFlaggable();
+			case BlueprintType b:
+				yield SuperMerger.buildBlueprint();
 			default:
 				yield (Expression) SuperMerger.buildVal();
 		};
 		return result;
-	}
-
-	private static void debugLine(Scope scope) {
-		// Merge
-		String ls = "Merging " + dataPath + " in " + scope.getScopeName() + ": ";
-		final int MAX = 50;
-		if (ls.length() > MAX)
-			print(ls + " \t" + orgExp);
-		else
-			print(ls + " ".repeat(MAX - ls.length()) + orgExp);
 	}
 }

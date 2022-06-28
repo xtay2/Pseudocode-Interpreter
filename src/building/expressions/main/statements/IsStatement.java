@@ -1,23 +1,22 @@
 package building.expressions.main.statements;
 
-import static building.types.specific.KeywordType.IS;
-import static runtime.datatypes.MaybeValue.NULL;
+import static building.types.specific.KeywordType.*;
+import static runtime.datatypes.MaybeValue.*;
 
-import building.expressions.abstractions.Expression;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import runtime.datatypes.BoolValue;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
 
 /**
  * Nearly identical to instanceof in Java. Checks if a value is an instance of a given type.
  */
 public class IsStatement extends Expression implements ValueHolder {
-
+	
 	private final ValueHolder val;
 	private final DataType type;
-
+	
 	/**
 	 * Creates an {@link IsStatement}.
 	 *
@@ -31,7 +30,7 @@ public class IsStatement extends Expression implements ValueHolder {
 		if (val == null || type == null)
 			throw new AssertionError("Value or Type cannot be null.");
 	}
-
+	
 	@Override
 	public Value getValue() {
 		Value v = val.getValue();

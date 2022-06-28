@@ -1,6 +1,6 @@
 package building.expressions.possible.multicall;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
+import building.expressions.abstractions.interfaces.*;
 
 /**
  * Target for any {@link MultiCall}.

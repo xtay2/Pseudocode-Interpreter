@@ -1,12 +1,12 @@
 package building.expressions.abstractions.interfaces;
 
-import java.util.Set;
+import java.util.*;
 
-import building.expressions.main.functions.Definition;
-import building.expressions.main.statements.FlagSpace;
-import building.expressions.normal.containers.Variable;
-import building.expressions.possible.allocating.Declaration;
-import building.types.specific.FlagType;
+import building.expressions.main.functions.*;
+import building.expressions.main.statements.*;
+import building.expressions.normal.containers.*;
+import building.expressions.possible.allocating.*;
+import building.types.specific.*;
 
 /**
  * Anything that can have a {@link FlagType}.
@@ -22,7 +22,7 @@ import building.types.specific.FlagType;
  * @see FlagSpace
  */
 public interface Flaggable extends AbstractExpression {
-
+	
 	/**
 	 * Add all Flags to this {@link Flaggable}. This should never get called in any constructor!
 	 *
@@ -37,7 +37,7 @@ public interface Flaggable extends AbstractExpression {
 	 * @param flags is a list of all passed flags in front of this.
 	 */
 	void addFlags(Set<FlagType> flags);
-
+	
 	/**
 	 * Returns true if this {@link Flaggable} contains the specified {@link FlagType}.
 	 *

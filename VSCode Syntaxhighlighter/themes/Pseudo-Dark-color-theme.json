@@ -18,6 +18,15 @@
 			}
 		},
 		{
+			"name": "Pointer",
+			"scope": [
+				"pointer"
+			],
+			"settings": {
+				"foreground": "#d069ed"
+			}
+		},
+		{
 			"name": "Return Statement",
 			"scope": [
 				"keyword.return"
@@ -238,7 +247,7 @@
 				"support.type"
 			],
 			"settings": {
-				"foreground": "#B2CCD6"
+				"foreground": "#7ae1c9"
 			}
 		},
 		{

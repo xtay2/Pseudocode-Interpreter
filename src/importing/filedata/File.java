@@ -1,54 +1,44 @@
 package importing.filedata;
 
 import static misc.helper.ProgramHelper.*;
-import static misc.helper.StringHelper.pointUnderline;
+import static misc.helper.StringHelper.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
-import building.types.specific.FlagType;
-import building.types.specific.KeywordType;
-import errorhandeling.Errors;
-import errorhandeling.PseudocodeException;
+import building.types.specific.*;
+import errorhandeling.*;
 import formatter.basic.Formatter;
-import importing.Importer;
-import importing.filedata.interactable.CallInfo;
-import importing.filedata.interactable.DefInfo;
-import importing.filedata.paths.DataPath;
-import importing.filedata.paths.FilePath;
-import misc.helper.ProgramHelper;
-import misc.helper.StringHelper;
-import misc.supporting.FileManager;
-import misc.supporting.Output;
-import misc.util.Tuple;
+import importing.*;
+import importing.filedata.interactable.*;
+import importing.filedata.paths.*;
+import misc.helper.*;
+import misc.supporting.*;
+import misc.util.*;
 
 public class File {
-
+	
 	public static final String EXTENSION = ".pc";
-
+	
 	/** The name of the Main.pc */
 	public static final String MAIN_FILE = "Main";
-
+	
 	public final FilePath path;
-
+	
 	private final List<String> content;
-
+	
 	/** Set that contains all {@link DefInfo}s of this class. */
 	private final Set<DefInfo> allDefs = new HashSet<>();
-
+	
 	/** Set that contains all called {@link DefInfo}s of this class. */
 	private final Set<DefInfo> usedDefs = new HashSet<>();
-
+	
 	/** Set that contains all {@link CallInfo}s in all called {@link DefInfo}s in this class. */
 	private final Set<CallInfo> usedCalls = new HashSet<>();
-
+	
 	/** Set that contains all imported filepaths. */
 	private final Set<FilePath> imports = new HashSet<>();
-
+	
 	/**
 	 * Creates a {@link File} and initialises {@link #allDefs}.
 	 *
@@ -74,7 +64,7 @@ public class File {
 			preload();
 		}
 	}
-
+	
 	/**
 	 * Finds all {@link DefInfo}s in this {@link File} and saves them in {@link #allDefs}.
 	 */
@@ -88,7 +78,7 @@ public class File {
 				i = buildMainFromLine(i);
 		}
 	}
-
+	
 	/**
 	 * Creates a {@link DefInfo} from a main-func in {@link #content} and adds it to {@link #allDefs}.
 	 *
@@ -103,7 +93,7 @@ public class File {
 		allDefs.add(new DefInfo(path, KeywordType.MAIN.toString(), 0, lineIdx, end, false));
 		return end;
 	}
-
+	
 	/**
 	 * Creates a {@link DefInfo} from {@link #content} and adds it to {@link #allDefs}.
 	 *
@@ -134,7 +124,7 @@ public class File {
 		allDefs.add(new DefInfo(path, defName, argCnt, lineIdx, end, isNative));
 		return end;
 	}
-
+	
 	/**
 	 * Gets called by another {@link File}.
 	 *
@@ -169,7 +159,7 @@ public class File {
 		if (!newlyAddedDefs.isEmpty())
 			findUsedCalls(newlyAddedDefs);
 	}
-
+	
 	/**
 	 * After one {@link File} that imports this one, found all the matching {@link DefInfo}s to its
 	 * {@link CallInfo}s, all outgoing calls from these newly added {@link DefInfo}s.
@@ -183,7 +173,7 @@ public class File {
 		if (!newelyAddedCalls.isEmpty())
 			callAllFiles(newelyAddedCalls);
 	}
-
+	
 	/**
 	 * Sorts the newelyAddedCalls by {@link File} and then calls {@link #findUsedDefs(CallInfo...)} for
 	 * every file.
@@ -204,7 +194,7 @@ public class File {
 		}
 		current.findUsedDefs(callsForFile.toArray(CallInfo[]::new));
 	}
-
+	
 	/** Finds a {@link Set} of calls in def and returns them as {@link CallInfo}s. */
 	private Set<CallInfo> findCallsInDef(DefInfo def) {
 		Set<CallInfo> calls = new HashSet<>();
@@ -219,7 +209,7 @@ public class File {
 		}
 		return calls;
 	}
-
+	
 	/**
 	 * Searches for the {@link FilePath} of the {@link File} that contains the {@link DefInfo} thats
 	 * being called.
@@ -240,7 +230,7 @@ public class File {
 				generateDataPath(orgLine) //
 		);
 	}
-
+	
 	/**
 	 * Returns a sublist of content without all uncalled defs.
 	 */
@@ -252,18 +242,19 @@ public class File {
 		List<DefInfo> delOrdRev = new ArrayList<>(allDefs);
 		delOrdRev.removeAll(usedDefs);
 		delOrdRev = delOrdRev.stream().sorted(new Comparator<DefInfo>() {
+			
 			@Override
 			public int compare(DefInfo o1, DefInfo o2) {
 				return Integer.compare(o2.startLine(), o1.startLine());
 			}
-
+			
 		}).toList();
 		for (DefInfo uncalled : delOrdRev) {
 			relevant.subList(uncalled.startLine(), uncalled.endLine() + 1).clear();
 		}
 		return relevant;
 	}
-
+	
 	/**
 	 * Generates the {@link DataPath} for a specific line in this {@link File}.
 	 *
@@ -272,7 +263,7 @@ public class File {
 	private DataPath generateDataPath(int line) {
 		return new DataPath(path, line + imports.size() + 1);
 	}
-
+	
 	/**
 	 * An enhance {@link #toString()}-method, that provides additional debug-info like all defs, and all
 	 * used calls.
@@ -282,7 +273,7 @@ public class File {
 	public String debugInfo() {
 		return toString() + "\nAll Defs: " + StringHelper.enumerate(allDefs) + "\nUsed Calls: " + StringHelper.enumerate(usedCalls);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "File[Path: " + path + ", TotalDefs: " + allDefs.size() + ", UsedCalls: " + usedCalls.size() + "]";

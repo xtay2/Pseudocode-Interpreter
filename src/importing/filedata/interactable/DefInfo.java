@@ -1,8 +1,7 @@
 package importing.filedata.interactable;
 
-import building.expressions.main.functions.Definition;
-import importing.filedata.interactable.CallInfo;
-import importing.filedata.paths.FilePath;
+import building.expressions.main.functions.*;
+import importing.filedata.paths.*;
 
 /**
  * Saves all necessary importing-data for a {@link Definition}.
@@ -15,7 +14,7 @@ import importing.filedata.paths.FilePath;
  * @param isNative tells if this definition is native. (Has no outgoing calls, one-liner)
  */
 public record DefInfo(FilePath defFile, String defName, int paramCount, int startLine, int endLine, boolean isNative) {
-
+	
 	/**
 	 * Compares this to a {@link CallInfo}.
 	 *
@@ -25,7 +24,7 @@ public record DefInfo(FilePath defFile, String defName, int paramCount, int star
 	public boolean matches(CallInfo ci) {
 		return paramCount == ci.paramCount() && defName.equals(ci.targetName()) && defFile.equals(ci.targetFile());
 	}
-
+	
 	/**
 	 * Compares this to a {@link CallInfo} which {@link CallInfo#targetFile()} isn't known.
 	 *
@@ -36,5 +35,5 @@ public record DefInfo(FilePath defFile, String defName, int paramCount, int star
 	public boolean matches(String callName, int params) {
 		return params == paramCount && defName.equals(callName);
 	}
-
+	
 }

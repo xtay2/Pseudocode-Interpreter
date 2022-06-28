@@ -1,37 +1,32 @@
 package runtime.datatypes.numerical;
 
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
-import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
+import java.math.*;
 
-import building.types.specific.datatypes.DataType;
-import building.types.specific.datatypes.SingleType;
-import errorhandeling.NonExpressionException;
-import runtime.datatypes.Value;
-import runtime.datatypes.textual.TextValue;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.textual.*;
 
 public abstract class NumberValue extends Value {
-
+	
 	/** Total count of digits in an integer or num/denom in a fraction. */
 	public static final int MAX_LENGTH = 100;
 	public static final MathContext PRECISION = new MathContext(MAX_LENGTH);
-
+	
 	// FINITE CONSTANTS
 	public static final IntValue ONE = new IntValue(BigInteger.ONE);
 	public static final IntValue ZERO = new IntValue(BigInteger.ZERO);
 	public static final IntValue NEG_ONE = new IntValue(BigInteger.valueOf(-1));
-
+	
 	/** Creates a {@link NumberValue} from a {@link BigDecimal}. */
 	public static NumberValue create(BigDecimal val) {
 		int decPoints = Math.max(0, val.stripTrailingZeros().scale());
 		BigInteger denom = BigInteger.TEN.pow(decPoints);
 		return create(val.multiply(new BigDecimal(denom)).toBigIntegerExact(), denom);
 	}
-
+	
 	/** Creates a {@link NumberValue} from a fracional, possibly reduced rational. */
 	public static NumberValue create(BigInteger num, BigInteger denom) {
 		// Reduction
@@ -48,7 +43,7 @@ public abstract class NumberValue extends Value {
 		// Fractional result
 		return new DecimalValue(num, denom);
 	}
-
+	
 	/**
 	 * Sets the type. {@link DecimalValue} has the type{@link DataType#NR} and {@link IntValue} is a
 	 * {@link DataType#INT}.
@@ -57,21 +52,21 @@ public abstract class NumberValue extends Value {
 		super(dataType);
 		assert dataType == SingleType.INT || dataType == SingleType.NR : "DataType has to be INT or NUMBER.";
 	}
-
+	
 	// PUBLIC FINAL
-
+	
 	/** Inverts the sign. */
 	public final NumberValue negate() {
 		return this.mult(NEG_ONE);
 	}
-
+	
 	/** Returns the absolute value. */
 	public final NumberValue abs() {
 		if (isNegative())
 			return negate();
 		return this;
 	}
-
+	
 	/** Checks if the value is positive. x >= 0 */
 	public final boolean isPositive() {
 		try {
@@ -80,19 +75,15 @@ public abstract class NumberValue extends Value {
 			throw new AssertionError(ZERO + " should never cause a casting-exception.");
 		}
 	}
-
+	
 	/** Checks if the value is negative. x < 0 */
-	public final boolean isNegative() {
-		return !isPositive();
-	}
-
+	public final boolean isNegative() { return !isPositive(); }
+	
 	/** Checks if the value is either POS_INF or NEG_INF. */
-	public final boolean isInfinite() {
-		return this == POS_INF || this == NEG_INF;
-	}
-
+	public final boolean isInfinite() { return this == POS_INF || this == NEG_INF; }
+	
 	// COMPARISON
-
+	
 	/**
 	 * this < n
 	 *
@@ -117,7 +108,7 @@ public abstract class NumberValue extends Value {
 			return x.value.compareTo(y.asInt().value) <= 0;
 		throw new AssertionError("Undefined Case for Number-Value Comparison: " + this.raw() + " and " + v.raw());
 	}
-
+	
 	/**
 	 * a1 <= a2
 	 *
@@ -126,7 +117,7 @@ public abstract class NumberValue extends Value {
 	public final boolean isSmallerEq(NumberValue v) throws NonExpressionException {
 		return isSmallerThan(v) || valueCompare(v);
 	}
-
+	
 	/**
 	 * a1 > a2
 	 *
@@ -135,7 +126,7 @@ public abstract class NumberValue extends Value {
 	public final boolean isGreaterThan(NumberValue v) throws NonExpressionException {
 		return v.isSmallerThan(this);
 	}
-
+	
 	/**
 	 * a1 >= a2
 	 *
@@ -144,7 +135,7 @@ public abstract class NumberValue extends Value {
 	public final boolean isGreaterEq(NumberValue v) throws NonExpressionException {
 		return v.isSmallerEq(this);
 	}
-
+	
 	/** Value-comparison between this {@link NumberValue} and a {@link Value}. */
 	@Override
 	public final boolean valueCompare(Value v) {
@@ -154,7 +145,7 @@ public abstract class NumberValue extends Value {
 			return txt.valueCompare(this);
 		return false;
 	}
-
+	
 	/** Value-comparison between this {@link NumberValue} and a {@link Value} or a {@link Number}. */
 	@Override
 	public final boolean equals(Object obj) {
@@ -172,27 +163,27 @@ public abstract class NumberValue extends Value {
 		}
 		return false;
 	}
-
+	
 	// Operations
-
+	
 	/** this + v */
 	public abstract NumberValue add(NumberValue v);
-
+	
 	/** this - v */
 	public abstract NumberValue sub(NumberValue v);
-
+	
 	/** this * v */
 	public abstract NumberValue mult(NumberValue v);
-
+	
 	/** this / v */
 	public abstract NumberValue div(NumberValue v);
-
+	
 	/** this % v */
 	public abstract NumberValue mod(NumberValue v);
-
+	
 	/** this ^ v */
 	public abstract NumberValue pow(NumberValue v);
-
+	
 	/** this root v */
 	public abstract NumberValue root(NumberValue v);
 }

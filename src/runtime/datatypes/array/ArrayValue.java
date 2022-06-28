@@ -1,30 +1,22 @@
 package runtime.datatypes.array;
 
-import static building.types.specific.datatypes.SingleType.VAR;
-import static runtime.datatypes.MaybeValue.NULL;
+import static building.types.specific.datatypes.SingleType.*;
+import static runtime.datatypes.MaybeValue.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.*;
 
-import building.expressions.abstractions.Range;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.normal.containers.ArrayAccess;
-import building.expressions.normal.containers.Literal;
-import building.types.specific.datatypes.DataType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import importing.filedata.paths.DataPath;
-import misc.constants.TypeConstants;
-import misc.helper.CollectionHelper;
-import misc.helper.MathHelper;
-import runtime.datatypes.BoolValue;
-import runtime.datatypes.MaybeValue;
-import runtime.datatypes.Value;
-import runtime.datatypes.numerical.IntValue;
-import runtime.datatypes.textual.TextValue;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.normal.containers.*;
+import building.types.specific.datatypes.*;
+import errorhandeling.*;
+import importing.filedata.paths.*;
+import misc.constants.*;
+import misc.helper.*;
+import runtime.datatypes.*;
+import runtime.datatypes.numerical.*;
+import runtime.datatypes.textual.*;
 
 /**
  * <pre>
@@ -33,10 +25,10 @@ import runtime.datatypes.textual.TextValue;
  * -It gets defined as a {@link Literal}.
  */
 public final class ArrayValue extends Value implements Iterable<Value> {
-
+	
 	private Value[] content;
 	private final DataType rules;
-
+	
 	/**
 	 * Creates a {@link TypeConstants#VAR_ARR} with the given content.
 	 *
@@ -49,7 +41,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			throw new AssertionError("This should not get thrown", e);
 		}
 	}
-
+	
 	/**
 	 * Initialises a new {@link ArrayValue}.
 	 *
@@ -76,7 +68,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		// Rule-Check
 		this.content = cast(content, rules);
 	}
-
+	
 	/**
 	 * Deep-Casts any array to a given {@link DataType}.
 	 *
@@ -95,22 +87,18 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		}
 		return vals;
 	}
-
+	
 	/** Returns the {@link DataType} of this {@link ArrayValue}. */
-	public DataType getRules() {
-		return rules;
-	}
-
+	public DataType getRules() { return rules; }
+	
 	public boolean allowsNull() {
 		return rules.allowsNull;
 	}
-
-	public Range[] getRanges() {
-		return rules.ranges;
-	}
-
+	
+	public Range[] getRanges() { return rules.ranges; }
+	
 	// CASTING--------------------------------------------------
-
+	
 	@Override
 	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType())
@@ -123,7 +111,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
-
+	
 	/**
 	 * Casts this {@link ArrayValue} to a text-array.
 	 *
@@ -141,7 +129,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		}
 		return new TextValue("[]");
 	}
-
+	
 	/**
 	 * Returns a single value from this array.
 	 *
@@ -150,7 +138,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 	public Value get(int i) {
 		return content[i];
 	}
-
+	
 	/**
 	 * Sets a value in this array and checks, if it matches the expected type.
 	 *
@@ -177,7 +165,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			throw new PseudocodeException(e, dataPath);
 		}
 	}
-
+	
 	/**
 	 * Changes a value in possibly multiple dimensions. (Unchecked)
 	 *
@@ -193,17 +181,17 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		// Change underlying value
 		return ((ArrayValue) content[idx]).set(val, new ArrayList<>(idxs));
 	}
-
+	
 	/** Returns the {@link DataType} the elements in this {@link ArrayValue} should have. */
 	private DataType elemType() {
 		return new DataType(dataType, rules.allowsNull, Arrays.copyOfRange(getRanges(), 1, getRanges().length));
 	}
-
+	
 	/** Simply returns the number of entries. */
 	public int length() {
 		return content.length;
 	}
-
+	
 	/**
 	 * Returns true, if this {@link ArrayValue} can be casted to the passed {@link DataType} without
 	 * forbidding existing {@link MaybeValue#NULL}-values, or limiting the current {@link #length()}.
@@ -232,13 +220,13 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		}
 		return false; // Gets returned if the dimensions don't match
 	}
-
+	
 	/** Returns a copy of the elements in this {@link ArrayValue}. */
 	@Override
 	public Value[] raw() {
 		return Arrays.copyOf(content, length());
 	}
-
+	
 	/**
 	 * Recursivly compares all values of this array and the specified one.
 	 *
@@ -257,20 +245,20 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		}
 		return false;
 	}
-
+	
 	@Override
 	public String toString() {
 		return asText().raw();
 	}
-
+	
 	// Operations
-
+	
 	/** Merges this {@link ArrayValue} with another one. */
 	public ArrayValue concat(ArrayValue a) {
 		Value[] content = CollectionHelper.merge(raw(), a.raw());
 		return ArrayValue.newInstance(content);
 	}
-
+	
 	/** Multiplies this {@link ArrayValue} n times */
 	public ArrayValue multiply(int n, DataPath dataPath) {
 		if (n < 0)
@@ -286,7 +274,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 			throw new PseudocodeException(e, dataPath);
 		}
 	}
-
+	
 	/** Returns {@link BoolValue#TRUE} if this array contains the specified element. */
 	public BoolValue contains(Value element) {
 		for (Value v : this) {
@@ -295,7 +283,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		}
 		return BoolValue.FALSE;
 	}
-
+	
 	/**
 	 * Appends a value at the end of this {@link ArrayValue}.
 	 *
@@ -309,7 +297,7 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		content[length()] = val.as(elemType());
 		return new ArrayValue(rules, content);
 	}
-
+	
 	/**
 	 * Prepend a value at the front of this {@link ArrayValue}.
 	 *
@@ -323,18 +311,18 @@ public final class ArrayValue extends Value implements Iterable<Value> {
 		content[0] = val.as(elemType());
 		return new ArrayValue(rules, content);
 	}
-
+	
 	@Override
 	public Iterator<Value> iterator() {
 		return new Iterator<Value>() {
-
+			
 			int i = 0;
-
+			
 			@Override
 			public boolean hasNext() {
 				return i < length();
 			}
-
+			
 			@Override
 			public Value next() {
 				return get(i++);

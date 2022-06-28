@@ -1,20 +1,17 @@
 package runtime.datatypes.numerical;
 
-import static building.types.specific.datatypes.SingleType.INT;
-import static runtime.datatypes.numerical.ConceptualNrValue.NAN;
-import static runtime.datatypes.numerical.ConceptualNrValue.NEG_INF;
-import static runtime.datatypes.numerical.ConceptualNrValue.POS_INF;
+import static building.types.specific.datatypes.SingleType.*;
+import static runtime.datatypes.numerical.ConceptualNrValue.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.*;
 
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.types.specific.datatypes.DataType;
-import ch.obermuhlner.math.big.BigDecimalMath;
-import errorhandeling.NonExpressionException;
-import runtime.datatypes.Value;
-import runtime.datatypes.array.ArrayValue;
-import runtime.datatypes.textual.TextValue;
+import building.expressions.abstractions.interfaces.*;
+import building.types.specific.datatypes.*;
+import ch.obermuhlner.math.big.*;
+import errorhandeling.*;
+import runtime.datatypes.*;
+import runtime.datatypes.array.*;
+import runtime.datatypes.textual.*;
 
 /**
  * An Integer-Value with up to 100 digits.
@@ -22,30 +19,26 @@ import runtime.datatypes.textual.TextValue;
  * @see DataType#INT
  */
 public final class IntValue extends NumberValue {
-
+	
 	public final BigInteger value;
-
+	
 	/** Produces a {@link IntValue} from a {@link Long}. */
 	public IntValue(long value) {
 		this(BigInteger.valueOf(value));
 	}
-
+	
 	/** Produces a {@link IntValue} from a {@link BigInteger}. */
 	public IntValue(BigInteger value) {
 		super(INT);
 		this.value = value;
 	}
-
+	
 	/** Returns true if this number is even. */
-	public final boolean isEven() {
-		return !isOdd();
-	}
-
+	public final boolean isEven() { return !isOdd(); }
+	
 	/** Returns true if this number is odd. */
-	public final boolean isOdd() {
-		return value.testBit(0);
-	}
-
+	public final boolean isOdd() { return value.testBit(0); }
+	
 	@Override
 	public Value as(DataType t) throws NonExpressionException {
 		if (t.isArrayType()) {
@@ -61,13 +54,13 @@ public final class IntValue extends NumberValue {
 			default -> ValueHolder.throwCastingExc(this, t);
 		};
 	}
-
+	
 	/** This should only get called in debugging scenarios. */
 	@Override
 	public String toString() {
 		return value.toString();
 	}
-
+	
 	@Override
 	public NumberValue add(NumberValue v) {
 		if (v == NAN || v.isInfinite())
@@ -78,12 +71,12 @@ public final class IntValue extends NumberValue {
 			return new IntValue(value.add(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue sub(NumberValue v) {
 		return add(v.negate());
 	}
-
+	
 	@Override
 	public NumberValue mult(NumberValue v) {
 		if (v == NAN)
@@ -98,7 +91,7 @@ public final class IntValue extends NumberValue {
 			return new IntValue(value.multiply(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue div(NumberValue v) {
 		if (equals(ZERO))
@@ -111,7 +104,7 @@ public final class IntValue extends NumberValue {
 			return create(value, i.value);
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue mod(NumberValue v) {
 		if (v.equals(ZERO) || v == NAN || v.isInfinite())
@@ -122,7 +115,7 @@ public final class IntValue extends NumberValue {
 			return new IntValue(value.remainder(i.value));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public NumberValue pow(NumberValue v) {
 		if (v == NAN || v == NEG_INF || (equals(ZERO) && v.equals(ZERO)))
@@ -139,7 +132,7 @@ public final class IntValue extends NumberValue {
 			return create(BigDecimalMath.pow(new BigDecimal(value), new BigDecimal(i.value), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	/**
 	 * Calculates the n'th root from v. (this = n)
 	 */
@@ -159,12 +152,12 @@ public final class IntValue extends NumberValue {
 			return create(BigDecimalMath.root(new BigDecimal(i.value), new BigDecimal(value), PRECISION));
 		throw new AssertionError("Unimplemented Case.");
 	}
-
+	
 	@Override
 	public BigInteger raw() {
 		return value;
 	}
-
+	
 	/** Returns the faculty of this {@link IntValue}. */
 	public IntValue fac() {
 		BigInteger fac = BigInteger.ONE;

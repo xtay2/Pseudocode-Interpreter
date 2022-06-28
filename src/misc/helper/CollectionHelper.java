@@ -1,29 +1,27 @@
 package misc.helper;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.*;
+import java.util.function.*;
 
 public class CollectionHelper {
-
+	
 	private CollectionHelper() {
 		// Dead constructor
 	}
-
+	
 	/** Merges two arrays of the same type. */
 	public static <T> T[] merge(T[] arr1, T[] arr2) {
 		T[] merged = Arrays.copyOf(arr1, arr1.length + arr2.length);
 		System.arraycopy(arr2, 0, merged, arr1.length, arr2.length);
 		return merged;
 	}
-
+	
 	public static int[] merge(int[] arr1, int[] arr2) {
 		int[] merged = Arrays.copyOf(arr1, arr1.length + arr2.length);
 		System.arraycopy(arr2, 0, merged, arr1.length, arr2.length);
 		return merged;
 	}
-
+	
 	/**
 	 * Finds an element in a {@link Collection} thats identifieable by a predicate.
 	 * 

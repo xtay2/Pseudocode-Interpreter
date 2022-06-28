@@ -1,19 +1,16 @@
 package building.expressions.main.statements;
 
-import static building.types.specific.KeywordType.ANY;
-import static building.types.specific.KeywordType.ELIF;
-import static building.types.specific.KeywordType.ELSE;
-import static building.types.specific.KeywordType.IF;
+import static building.types.specific.KeywordType.*;
 
-import building.expressions.abstractions.ScopeHolder;
-import building.expressions.abstractions.interfaces.ValueHolder;
-import building.expressions.main.loops.ConditionalLoop;
-import building.expressions.normal.brackets.OpenBlock;
-import building.types.specific.KeywordType;
-import errorhandeling.NonExpressionException;
-import errorhandeling.PseudocodeException;
-import interpreting.modules.interpreter.Interpreter;
-import interpreting.program.ProgramLine;
+import building.expressions.abstractions.*;
+import building.expressions.abstractions.interfaces.*;
+import building.expressions.abstractions.scopes.*;
+import building.expressions.main.loops.*;
+import building.expressions.normal.brackets.*;
+import building.types.specific.*;
+import errorhandeling.*;
+import interpreting.modules.interpreter.*;
+import interpreting.program.*;
 
 /**
  * If-, Elif- Any- or Else-Statement.
@@ -21,11 +18,11 @@ import interpreting.program.ProgramLine;
  * @see ScopeHolder
  * @see ConditionalLoop
  */
-public final class ConditionalStatement extends ScopeHolder {
-
+public final class ConditionalStatement extends BlockHolder implements ScopeHolder {
+	
 	private final ValueHolder condition;
 	private ConditionalStatement nextBlock;
-
+	
 	/**
 	 * Creates a {@link ConditionalStatement}, based on the passed {@link KeywordType}.
 	 *
@@ -41,7 +38,7 @@ public final class ConditionalStatement extends ScopeHolder {
 			throw new AssertionError("Type has to be if, elif, any or else.");
 		this.condition = condition;
 	}
-
+	
 	/** Initialises the following elif / any / else statement. */
 	public void setNextBlock(ConditionalStatement nextBlock) {
 		if (this.nextBlock != null)
@@ -51,53 +48,38 @@ public final class ConditionalStatement extends ScopeHolder {
 		if (is(ELSE)) {
 			throw new PseudocodeException("InvalidConstruct", //
 					"An else cannot have a following " + nextBlock + "-statement.", //
-					getDataPath());
+					getBlueprintPath());
 		}
 		if (!is(ELIF) && nextBlock.is(ANY)) {
 			throw new PseudocodeException("InvalidConstruct", //
 					"An any-block can only follow an elif-statement.", //
-					getDataPath());
+					getBlueprintPath());
 		}
 		this.nextBlock = nextBlock;
 	}
-
+	
 	@Override
 	public boolean execute() {
 		try {
 			if (is(IF) || is(ELIF)) {
 				if (condition.asBool().value) // Execute after condition is true.
-					return executeBody() ? Interpreter.execute(findAnyCase()) : false;
+					return callFirstLine() ? Interpreter.execute(findAnyCase()) : false;
 				// Find any or end if successfull.
 				return Interpreter.execute(findElseCase()); // Find next else if not successfull.
 			} else if (is(ANY) && condition != null) {
 				// If any-if condition is true
 				if (condition.asBool().value) {
-					if (!executeBody()) // ... and return got triggered
+					if (!callFirstLine()) // ... and return got triggered
 						return false; // Return
 				}
 				return Interpreter.execute(endOfConstruct()); // End, if condition was false or statement is done.
 			} else // Execute without condition. ANY / ELSE
-				return executeBody() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
+				return callFirstLine() ? Interpreter.execute(endOfConstruct()) : false; // Jump to end after execution
 		} catch (NonExpressionException e) {
-			throw new PseudocodeException(e, getDataPath());
+			throw new PseudocodeException(e, getBlueprintPath());
 		}
 	}
-
-	/**
-	 * Execute the body of the current construct.
-	 *
-	 * @return true if the search for following blocks should procede and false if a
-	 * {@link ReturnStatement} was triggered inside of this block.
-	 */
-	private boolean executeBody() {
-		if (!callFirstLine()) {
-			getScope().clear();
-			return false; // Return Statement got triggered.
-		}
-		getScope().clear();
-		return true; // No Return. Call next block.
-	}
-
+	
 	/**
 	 * Returns the lineID of the next elif- or else-Statement, or the end of the construct, if none
 	 * exist.
@@ -108,11 +90,11 @@ public final class ConditionalStatement extends ScopeHolder {
 				return nextBlock.getStart();
 			if (nextBlock.is(ANY))
 				return nextBlock.findElseCase();
-			throw new PseudocodeException("InvalidConstruct", "Unexpected " + nextBlock + " after " + type, getDataPath());
+			throw new PseudocodeException("InvalidConstruct", "Unexpected " + nextBlock + " after " + type, getBlueprintPath());
 		}
 		return endOfConstruct();
 	}
-
+	
 	/**
 	 * Returns the lineID of the connected any-Statement, or the end of the construct, if none exist.
 	 */
@@ -125,7 +107,7 @@ public final class ConditionalStatement extends ScopeHolder {
 		}
 		return endOfConstruct();
 	}
-
+	
 	/** Returns the lineID after the last elif/else in this construct. */
 	private int endOfConstruct() {
 		if (nextBlock != null)
