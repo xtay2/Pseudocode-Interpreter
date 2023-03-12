@@ -7,7 +7,7 @@
 ### About
 The support for the interpreter of this language is discontinued, as it now gets replaced by a compiled equivalent. 
 This repository contains the latest development version of the language-interpreter.
-- [Pseudocode Compiler](https://github.com/xtay2/Pseudocode-Compiler)
+- [Context Compiler](https://github.com/xtay2/context-compiler)
 - [Official website](https://pseudocode.site/)
 - [Official wiki](https://wiki.pseudocode.site/)
 - [VSCode Syntaxhighlighter](https://marketplace.visualstudio.com/items?itemName=xtay.pseudocode-lang)
