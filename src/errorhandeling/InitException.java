@@ -6,15 +6,10 @@ import launching.*;
  * This is a {@link RuntimeException} that gets thrown when absolutely no information about code is
  * available or necessary. It gets used to wrap checked Exceptions.
  */
-@SuppressWarnings("serial")
 public class InitException extends RuntimeException {
-	
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -4555294456933431256L;
+
 	public final String name;
-	
+
 	/**
 	 * Creates an {@link InitException} as a named wrapper for a checked exception.
 	 *
@@ -25,7 +20,7 @@ public class InitException extends RuntimeException {
 		this.name = name;
 		assert !Main.PROGRAM.isConstructed() : "Its way too late to throw this exception. The program is allready initialized.";
 	}
-	
+
 	/**
 	 * Wraps a checked {@link Exception}.
 	 *
@@ -34,5 +29,5 @@ public class InitException extends RuntimeException {
 	public InitException(String description, Exception cause) {
 		this(cause.getClass().getSimpleName(), description, cause);
 	}
-	
+
 }
